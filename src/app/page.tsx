@@ -1,65 +1,421 @@
-import Image from "next/image";
+import Link from 'next/link';
+import { Suspense } from 'react';
+import { MapPin, Bookmark, Camera, ArrowRight, Search } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { BoothCard } from '@/components/booth/BoothCard';
+import { BoothMap } from '@/components/booth/BoothMap';
+import { supabase } from '@/lib/supabase';
+import { Booth } from '@/types';
 
-export default function Home() {
+// Fetch featured booths (server component)
+async function getFeaturedBooths(): Promise<Booth[]> {
+  const { data, error } = await supabase
+    .from('booths')
+    .select('*')
+    .eq('status', 'active')
+    .eq('is_operational', true)
+    .limit(4)
+    .order('updated_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching featured booths:', error);
+    return [];
+  }
+
+  return (data as Booth[]) || [];
+}
+
+// Fetch booth stats
+async function getBoothStats() {
+  const { data: booths, error, count } = await supabase
+    .from('booths')
+    .select('country', { count: 'exact' });
+
+  if (error) {
+    console.error('Error fetching stats:', error);
+    return { totalBooths: 0, countries: 0 };
+  }
+
+  const uniqueCountries = new Set(
+    (booths as Array<{ country: string }>)?.map((b) => b.country).filter(Boolean) || []
+  );
+
+  return {
+    totalBooths: count || 0,
+    countries: uniqueCountries.size,
+  };
+}
+
+export default async function Home() {
+  const featuredBooths = await getFeaturedBooths();
+  const stats = await getBoothStats();
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <div className="flex flex-col min-h-screen">
+      {/* Hero Section */}
+      <section className="relative h-screen flex items-center justify-center bg-gradient-to-br from-secondary via-secondary-dark to-neutral-100">
+        {/* Optional: Background image with overlay */}
+        <div className="absolute inset-0 bg-[url('/hero-booth.jpg')] bg-cover bg-center opacity-20"></div>
+
+        <div className="relative z-10 max-w-4xl mx-auto px-4 text-center">
+          <h1 className="font-display text-6xl md:text-7xl font-semibold text-neutral-900 mb-6 leading-tight">
+            Find your next four frames.
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+
+          <p className="text-xl md:text-2xl text-neutral-700 mb-8 max-w-2xl mx-auto">
+            The world's most comprehensive analog photo booth directory.
           </p>
+
+          {/* Search Bar */}
+          <div className="max-w-xl mx-auto mb-8">
+            <div className="flex gap-2">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500" />
+                <Input
+                  type="text"
+                  placeholder="Search by city, country, or booth name..."
+                  className="pl-10 h-12 text-base"
+                />
+              </div>
+              <Button size="lg" className="h-12 px-8">
+                Search
+              </Button>
+            </div>
+          </div>
+
+          {/* CTAs */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button asChild size="lg" className="text-base px-8 h-12">
+              <Link href="/map">
+                <MapPin className="w-5 h-5 mr-2" />
+                Explore the Map
+              </Link>
+            </Button>
+            <Button asChild variant="outline" size="lg" className="text-base px-8 h-12">
+              <Link href="#how-it-works">
+                How It Works
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Link>
+            </Button>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </section>
+
+      {/* Stats Bar */}
+      <section className="bg-primary text-white py-6">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="flex flex-col sm:flex-row justify-around items-center gap-4 text-center">
+            <div>
+              <div className="text-3xl font-bold">{stats.totalBooths}+</div>
+              <div className="text-sm opacity-90">Booths</div>
+            </div>
+            <div className="hidden sm:block h-12 w-px bg-white/30"></div>
+            <div>
+              <div className="text-3xl font-bold">{stats.countries}+</div>
+              <div className="text-sm opacity-90">Countries</div>
+            </div>
+            <div className="hidden sm:block h-12 w-px bg-white/30"></div>
+            <div>
+              <div className="text-3xl font-bold">2024</div>
+              <div className="text-sm opacity-90">Preserved since</div>
+            </div>
+          </div>
         </div>
-      </main>
+      </section>
+
+      {/* Map Preview Section */}
+      <section className="py-16 px-4 bg-neutral-100">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-8">
+            <h2 className="font-display text-4xl font-semibold text-neutral-900 mb-4">
+              Discover Booths Worldwide
+            </h2>
+            <p className="text-lg text-neutral-600 max-w-2xl mx-auto">
+              From Berlin dive bars to Brooklyn train stations, find authentic analog photo booths near you.
+            </p>
+          </div>
+
+          {/* Filter Chips */}
+          <div className="flex flex-wrap gap-2 justify-center mb-6">
+            <Badge variant="secondary" className="cursor-pointer hover:bg-primary hover:text-white transition">
+              <MapPin className="w-3 h-3 mr-1" />
+              Near Me
+            </Badge>
+            <Badge variant="secondary" className="cursor-pointer hover:bg-primary hover:text-white transition">
+              Berlin
+            </Badge>
+            <Badge variant="secondary" className="cursor-pointer hover:bg-primary hover:text-white transition">
+              NYC
+            </Badge>
+            <Badge variant="secondary" className="cursor-pointer hover:bg-primary hover:text-white transition">
+              London
+            </Badge>
+          </div>
+
+          {/* Map */}
+          <div className="mb-6 rounded-lg overflow-hidden shadow-lg">
+            <Suspense fallback={<div className="h-[500px] bg-neutral-200 animate-pulse"></div>}>
+              <BoothMap
+                booths={featuredBooths}
+                zoom={3}
+                showUserLocation={true}
+              />
+            </Suspense>
+          </div>
+
+          <div className="text-center">
+            <Button asChild size="lg">
+              <Link href="/map">View Full Map</Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Featured Booths */}
+      <section className="py-16 px-4 bg-white">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h2 className="font-display text-4xl font-semibold text-neutral-900 mb-2">
+                Featured Booths
+              </h2>
+              <p className="text-lg text-neutral-600">
+                Handpicked favorites from around the world
+              </p>
+            </div>
+            <Button asChild variant="outline">
+              <Link href="/map">View All</Link>
+            </Button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {featuredBooths.length > 0 ? (
+              featuredBooths.map((booth) => (
+                <BoothCard key={booth.id} booth={booth} variant="featured" />
+              ))
+            ) : (
+              <p className="col-span-4 text-center text-neutral-500">
+                No featured booths available yet.
+              </p>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works */}
+      <section id="how-it-works" className="py-16 px-4 bg-secondary">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="font-display text-4xl font-semibold text-neutral-900 mb-4">
+              How It Works
+            </h2>
+            <p className="text-lg text-neutral-600">
+              Three simple steps to analog memories
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Step 1 */}
+            <div className="text-center">
+              <div className="w-20 h-20 bg-primary rounded-full flex items-center justify-center mx-auto mb-6">
+                <Search className="w-10 h-10 text-white" />
+              </div>
+              <h3 className="text-2xl font-semibold text-neutral-900 mb-3">
+                1. Discover
+              </h3>
+              <p className="text-neutral-600">
+                Browse our map or search for photo booths near you. Filter by type, location, or machine model.
+              </p>
+            </div>
+
+            {/* Step 2 */}
+            <div className="text-center">
+              <div className="w-20 h-20 bg-accent rounded-full flex items-center justify-center mx-auto mb-6">
+                <Bookmark className="w-10 h-10 text-white" />
+              </div>
+              <h3 className="text-2xl font-semibold text-neutral-900 mb-3">
+                2. Save
+              </h3>
+              <p className="text-neutral-600">
+                Bookmark your favorites and export them to Google Maps for easy navigation on your next trip.
+              </p>
+            </div>
+
+            {/* Step 3 */}
+            <div className="text-center">
+              <div className="w-20 h-20 bg-success rounded-full flex items-center justify-center mx-auto mb-6">
+                <Camera className="w-10 h-10 text-white" />
+              </div>
+              <h3 className="text-2xl font-semibold text-neutral-900 mb-3">
+                3. Visit
+              </h3>
+              <p className="text-neutral-600">
+                Take your four frames. Share your strips with the community. Help others discover the magic.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* City Guides Preview */}
+      <section className="py-16 px-4 bg-white">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h2 className="font-display text-4xl font-semibold text-neutral-900 mb-2">
+                City Guides
+              </h2>
+              <p className="text-lg text-neutral-600">
+                Curated photo booth tours in your favorite cities
+              </p>
+            </div>
+            <Button asChild variant="outline">
+              <Link href="/guides">View All Guides</Link>
+            </Button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Placeholder city guide cards */}
+            {['Berlin', 'New York', 'London'].map((city) => (
+              <div
+                key={city}
+                className="group relative h-64 rounded-lg overflow-hidden cursor-pointer shadow-md hover:shadow-xl transition"
+              >
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent z-10"></div>
+                <div className="absolute inset-0 bg-neutral-300"></div>
+                <div className="absolute bottom-0 left-0 right-0 p-6 z-20 text-white">
+                  <h3 className="text-2xl font-semibold mb-2">
+                    {city} Photo Booth Tour
+                  </h3>
+                  <p className="text-sm opacity-90">
+                    12 booths • 4 neighborhoods • 5 hours
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Community Section */}
+      <section className="py-16 px-4 bg-neutral-100">
+        <div className="max-w-6xl mx-auto text-center">
+          <h2 className="font-display text-4xl font-semibold text-neutral-900 mb-4">
+            Join the Community
+          </h2>
+          <p className="text-lg text-neutral-600 mb-8 max-w-2xl mx-auto">
+            Share your photo strips, leave tips for other enthusiasts, and help us build the definitive photo booth directory.
+          </p>
+          <Button asChild size="lg">
+            <Link href="/submit">
+              <Camera className="w-5 h-5 mr-2" />
+              Add a Booth
+            </Link>
+          </Button>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-neutral-900 text-white py-12 px-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+            {/* Brand */}
+            <div>
+              <h3 className="font-display text-2xl font-semibold mb-4">
+                Booth Beacon
+              </h3>
+              <p className="text-neutral-400 text-sm">
+                Find your next four frames. The world's most comprehensive analog photo booth directory.
+              </p>
+            </div>
+
+            {/* Explore */}
+            <div>
+              <h4 className="font-semibold mb-4">Explore</h4>
+              <ul className="space-y-2 text-sm">
+                <li>
+                  <Link href="/map" className="text-neutral-400 hover:text-white transition">
+                    Map
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/guides" className="text-neutral-400 hover:text-white transition">
+                    City Guides
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/machines" className="text-neutral-400 hover:text-white transition">
+                    Machine Models
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/operators" className="text-neutral-400 hover:text-white transition">
+                    Operators
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {/* Community */}
+            <div>
+              <h4 className="font-semibold mb-4">Community</h4>
+              <ul className="space-y-2 text-sm">
+                <li>
+                  <Link href="/submit" className="text-neutral-400 hover:text-white transition">
+                    Submit a Booth
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/bookmarks" className="text-neutral-400 hover:text-white transition">
+                    My Bookmarks
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/profile" className="text-neutral-400 hover:text-white transition">
+                    Profile
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {/* Newsletter */}
+            <div>
+              <h4 className="font-semibold mb-4">Newsletter</h4>
+              <p className="text-neutral-400 text-sm mb-4">
+                Get updates on new booths and city guides.
+              </p>
+              <div className="flex gap-2">
+                <Input
+                  type="email"
+                  placeholder="Your email"
+                  className="bg-neutral-800 border-neutral-700 text-white"
+                />
+                <Button variant="outline" className="shrink-0">
+                  Subscribe
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom */}
+          <div className="pt-8 border-t border-neutral-800 flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-neutral-400">
+            <p>© 2025 Booth Beacon. Made with ♥ for analog photography.</p>
+            <div className="flex gap-6">
+              <Link href="#" className="hover:text-white transition">
+                Instagram
+              </Link>
+              <Link href="#" className="hover:text-white transition">
+                Twitter
+              </Link>
+              <Link href="/admin" className="hover:text-white transition">
+                Admin
+              </Link>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
