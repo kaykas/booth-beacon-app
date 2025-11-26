@@ -1,4 +1,11 @@
 import { Metadata } from 'next';
+import { notFound } from 'next/navigation';
+import { Wrench, Calendar, MapPin, Book } from 'lucide-react';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { BoothCard } from '@/components/booth/BoothCard';
+import { supabase } from '@/lib/supabase';
+import { MachineModel, Booth } from '@/types';
 
 interface MachineModelPageProps {
   params: {
@@ -6,103 +13,138 @@ interface MachineModelPageProps {
   };
 }
 
+async function getMachineModel(slug: string): Promise<MachineModel | null> {
+  const { data, error } = await supabase
+    .from('machine_models')
+    .select('*')
+    .eq('slug', slug)
+    .single();
+
+  if (error || !data) return null;
+  return data as MachineModel;
+}
+
+async function getBoothsWithModel(modelName: string): Promise<Booth[]> {
+  const { data, error } = await supabase
+    .from('booths')
+    .select('*')
+    .ilike('machine_model', `%${modelName}%`)
+    .eq('status', 'active')
+    .limit(12);
+
+  if (error) return [];
+  return (data as Booth[]) || [];
+}
+
 export async function generateMetadata({ params }: MachineModelPageProps): Promise<Metadata> {
-  const modelName = decodeURIComponent(params.model);
+  const model = await getMachineModel(params.model);
+  if (!model) return { title: 'Machine Not Found | Booth Beacon' };
+  
   return {
-    title: `${modelName} | Booth Beacon`,
-    description: `Learn about the ${modelName} photo booth model, its history, and where to find them.`,
+    title: `${model.model_name} | Booth Beacon`,
+    description: model.description || `Information about the ${model.model_name} photo booth`,
   };
 }
 
-export default function MachineModelPage({ params }: MachineModelPageProps) {
-  const modelName = decodeURIComponent(params.model);
+export default async function MachineModelPage({ params }: MachineModelPageProps) {
+  const model = await getMachineModel(params.model);
+  if (!model) notFound();
+
+  const booths = await getBoothsWithModel(model.model_name);
 
   return (
-    <div className="min-h-screen bg-secondary">
-      <div className="max-w-7xl mx-auto p-8">
-        {/* Header */}
-        <div className="bg-white rounded-xl shadow-lg p-8 mb-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div>
-              <h1 className="font-display text-4xl font-semibold text-neutral-900 mb-4">
-                {modelName}
-              </h1>
-              <dl className="space-y-3 text-sm">
-                <div>
-                  <dt className="font-medium text-neutral-900">Manufacturer</dt>
-                  <dd className="text-neutral-600 font-mono">Photo-Me International</dd>
-                </div>
-                <div>
-                  <dt className="font-medium text-neutral-900">Years Produced</dt>
-                  <dd className="text-neutral-600 font-mono">1982-1995</dd>
-                </div>
-                <div>
-                  <dt className="font-medium text-neutral-900">Photo Type</dt>
-                  <dd className="text-neutral-600 font-mono">Black & White (chemical)</dd>
-                </div>
-              </dl>
-            </div>
-            <div className="bg-neutral-100 rounded-lg flex items-center justify-center h-64">
-              <p className="text-neutral-500">Reference photo</p>
-            </div>
-          </div>
+    <div className="min-h-screen bg-neutral-50">
+      <div className="bg-gradient-to-br from-neutral-900 to-neutral-700 text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <Badge variant="secondary" className="bg-white/20 text-white mb-4">
+            <Wrench className="w-3 h-3 mr-1" />
+            Machine Model
+          </Badge>
+          <h1 className="font-display text-5xl font-semibold mb-4">{model.model_name}</h1>
+          {model.manufacturer && (
+            <p className="text-xl text-white/90">by {model.manufacturer}</p>
+          )}
         </div>
+      </div>
 
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-8">
-            {/* Description */}
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="font-display text-2xl font-medium mb-4">About This Model</h2>
-              <p className="text-neutral-700 leading-relaxed">
-                Technical specifications and historical significance will display here.
-              </p>
-            </div>
+          <div className="lg:col-span-2 space-y-6">
+            {model.description && (
+              <Card className="p-6">
+                <h2 className="font-display text-2xl font-semibold mb-4">About This Model</h2>
+                <p className="text-neutral-700 leading-relaxed">{model.description}</p>
+              </Card>
+            )}
 
-            {/* Notable Features */}
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="font-display text-2xl font-medium mb-4">Notable Features</h2>
-              <ul className="list-disc list-inside space-y-2 text-neutral-700">
-                <li>Feature 1</li>
-                <li>Feature 2</li>
-                <li>Feature 3</li>
-              </ul>
-            </div>
+            {model.notable_features && model.notable_features.length > 0 && (
+              <Card className="p-6">
+                <h2 className="font-display text-2xl font-semibold mb-4">Notable Features</h2>
+                <ul className="space-y-2">
+                  {model.notable_features.map((feature, idx) => (
+                    <li key={idx} className="flex items-start gap-2">
+                      <span className="text-primary mt-1">•</span>
+                      <span className="text-neutral-700">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              </Card>
+            )}
 
-            {/* Collector's Notes */}
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="font-display text-2xl font-medium mb-4">Collector's Notes</h2>
-              <p className="text-neutral-700">Rarity, value, and preservation information</p>
-            </div>
+            {model.collector_notes && (
+              <Card className="p-6 bg-amber-50 border-amber-200">
+                <h3 className="font-semibold text-lg mb-2 flex items-center gap-2">
+                  <Book className="w-5 h-5 text-amber-600" />
+                  Collector Notes
+                </h3>
+                <p className="text-neutral-700 leading-relaxed">{model.collector_notes}</p>
+              </Card>
+            )}
 
-            {/* Map of Locations */}
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="font-display text-2xl font-medium mb-4">Where to Find This Model</h2>
-              <div className="bg-neutral-100 rounded-lg p-12 text-center mb-4">
-                <p className="text-neutral-500">Map showing all booths with this model</p>
-              </div>
+            <div>
+              <h2 className="font-display text-2xl font-semibold mb-6">
+                Where to Find This Model
+              </h2>
+              {booths.length === 0 ? (
+                <Card className="p-12 text-center">
+                  <MapPin className="w-12 h-12 text-neutral-300 mx-auto mb-3" />
+                  <p className="text-neutral-600">No active booths found with this model</p>
+                </Card>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {booths.map((booth) => (
+                    <BoothCard key={booth.id} booth={booth} />
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Sidebar */}
-          <div>
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h3 className="font-semibold text-lg mb-4">Quick Stats</h3>
-              <dl className="space-y-3 text-sm">
+          <div className="space-y-6">
+            <Card className="p-6">
+              <h3 className="font-semibold text-lg mb-4">Specifications</h3>
+              <dl className="space-y-3">
+                {model.manufacturer && (
+                  <div>
+                    <dt className="text-sm text-neutral-600">Manufacturer</dt>
+                    <dd className="font-medium">{model.manufacturer}</dd>
+                  </div>
+                )}
+                {model.years_produced && (
+                  <div>
+                    <dt className="text-sm text-neutral-600 flex items-center gap-1">
+                      <Calendar className="w-3 h-3" />
+                      Years Produced
+                    </dt>
+                    <dd className="font-medium">{model.years_produced}</dd>
+                  </div>
+                )}
                 <div>
-                  <dt className="text-neutral-500">Total Booths</dt>
-                  <dd className="text-2xl font-bold text-primary">47</dd>
-                </div>
-                <div>
-                  <dt className="text-neutral-500">Countries</dt>
-                  <dd className="text-2xl font-bold text-primary">12</dd>
-                </div>
-                <div>
-                  <dt className="text-neutral-500">Rarity</dt>
-                  <dd className="text-lg font-medium text-accent">Uncommon</dd>
+                  <dt className="text-sm text-neutral-600">Active Locations</dt>
+                  <dd className="font-medium">{booths.length} booths</dd>
                 </div>
               </dl>
-            </div>
+            </Card>
           </div>
         </div>
       </div>

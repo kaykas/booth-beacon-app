@@ -24,6 +24,7 @@ import { BoothMap } from '@/components/booth/BoothMap';
 import { BookmarkButton } from '@/components/BookmarkButton';
 import { PhotoUpload } from '@/components/PhotoUpload';
 import { ReviewsSection } from '@/components/ReviewsSection';
+import { ShareButton } from '@/components/ShareButton';
 import { supabase } from '@/lib/supabase';
 import { Booth } from '@/types';
 
@@ -176,10 +177,10 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
                     Directions
                   </a>
                 </Button>
-                <Button variant="outline">
-                  <Share2 className="w-4 h-4 mr-2" />
-                  Share
-                </Button>
+                <ShareButton
+                  title={`${booth.name} - ${booth.city}, ${booth.country}`}
+                  text={`Check out this photo booth: ${booth.name}`}
+                />
               </div>
 
               {/* Key Info */}

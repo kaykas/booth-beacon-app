@@ -1,4 +1,14 @@
 import { Metadata } from 'next';
+import { notFound } from 'next/navigation';
+import Link from 'next/link';
+import { MapPin, Clock, Route, Star, ArrowRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { BoothCard } from '@/components/booth/BoothCard';
+import { BoothMap } from '@/components/booth/BoothMap';
+import { supabase } from '@/lib/supabase';
+import { CityGuide, Booth } from '@/types';
 
 interface CityGuidePageProps {
   params: {
@@ -6,83 +16,171 @@ interface CityGuidePageProps {
   };
 }
 
+// Fetch city guide data
+async function getCityGuide(slug: string): Promise<CityGuide | null> {
+  const { data, error } = await supabase
+    .from('city_guides')
+    .select('*')
+    .eq('slug', slug)
+    .eq('published', true)
+    .single();
+
+  if (error || !data) {
+    return null;
+  }
+
+  return data as CityGuide;
+}
+
+// Fetch booths for the guide
+async function getGuideBooths(boothIds: string[]): Promise<Booth[]> {
+  if (!boothIds || boothIds.length === 0) return [];
+
+  const { data, error } = await supabase
+    .from('booths')
+    .select('*')
+    .in('id', boothIds)
+    .eq('status', 'active');
+
+  if (error) return [];
+  return (data as Booth[]) || [];
+}
+
 export async function generateMetadata({ params }: CityGuidePageProps): Promise<Metadata> {
-  const cityName = decodeURIComponent(params.city);
+  const guide = await getCityGuide(params.city);
+
+  if (!guide) {
+    return {
+      title: 'City Guide Not Found | Booth Beacon',
+    };
+  }
+
   return {
-    title: `${cityName} Photo Booth Tour | Booth Beacon`,
-    description: `Discover the best analog photo booths in ${cityName} with our curated walking tour guide.`,
+    title: `\${guide.title} | Booth Beacon`,
+    description: guide.description || `Photo booth guide for \${guide.city}, \${guide.country}`,
   };
 }
 
-export default function CityGuidePage({ params }: CityGuidePageProps) {
-  const cityName = decodeURIComponent(params.city);
+export default async function CityGuidePage({ params }: CityGuidePageProps) {
+  const guide = await getCityGuide(params.city);
+
+  if (!guide) {
+    notFound();
+  }
+
+  const booths = await getGuideBooths(guide.booth_ids);
+
+  // Calculate center for map
+  const center = booths.length > 0 && booths[0].latitude && booths[0].longitude
+    ? { lat: booths[0].latitude, lng: booths[0].longitude }
+    : undefined;
 
   return (
-    <div className="min-h-screen bg-secondary">
-      <div className="max-w-7xl mx-auto p-8">
-        {/* Hero Section */}
-        <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-8">
-          <div className="bg-neutral-100 h-64 flex items-center justify-center">
-            <p className="text-neutral-500">City hero image will display here</p>
-          </div>
-          <div className="p-8">
-            <h1 className="font-display text-4xl font-semibold text-neutral-900 mb-2">
-              The {cityName} Photo Booth Tour
+    <div className="min-h-screen bg-neutral-50">
+      {/* Hero Section */}
+      <div className="bg-gradient-to-br from-primary to-accent text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <div className="max-w-3xl">
+            <Badge variant="secondary" className="bg-white/20 text-white mb-4">
+              City Guide
+            </Badge>
+            <h1 className="font-display text-5xl font-semibold mb-4">
+              {guide.title}
             </h1>
-            <p className="text-neutral-600 text-lg">
-              12 booths • 4 neighborhoods • 5 hours
+            <p className="text-xl text-white/90 mb-6">
+              {guide.description}
             </p>
+
+            <div className="flex flex-wrap gap-6">
+              <div className="flex items-center gap-2">
+                <MapPin className="w-5 h-5" />
+                <span>{guide.city}, {guide.country}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Route className="w-5 h-5" />
+                <span>{booths.length} booths</span>
+              </div>
+              {guide.estimated_time && (
+                <div className="flex items-center gap-2">
+                  <Clock className="w-5 h-5" />
+                  <span>{guide.estimated_time}</span>
+                </div>
+              )}
+            </div>
           </div>
         </div>
+      </div>
 
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-8">
-            {/* Route Map */}
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="font-display text-2xl font-medium mb-4">Route Map</h2>
-              <div className="bg-neutral-100 rounded-lg p-12 text-center">
-                <p className="text-neutral-500">Interactive map with numbered markers and walking route</p>
-              </div>
-            </div>
+          <div className="lg:col-span-2 space-y-6">
+            {center && booths.length > 0 && (
+              <Card className="p-6">
+                <h2 className="font-display text-2xl font-semibold mb-4">Route Map</h2>
+                <div className="h-96 rounded-lg overflow-hidden">
+                  <BoothMap
+                    booths={booths}
+                    center={center}
+                    zoom={13}
+                    showUserLocation={true}
+                  />
+                </div>
+              </Card>
+            )}
 
-            {/* Booth Stops */}
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="font-display text-2xl font-medium mb-4">Booth Stops</h2>
-              <p className="text-neutral-500">Numbered list of booths in recommended order</p>
+            <div>
+              <h2 className="font-display text-2xl font-semibold mb-6">
+                Booths on This Route
+              </h2>
+              <div className="space-y-6">
+                {booths.map((booth, index) => (
+                  <div key={booth.id}>
+                    <div className="flex items-start gap-4 mb-4">
+                      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-white font-semibold">
+                        {index + 1}
+                      </div>
+                      <div className="flex-1">
+                        <BoothCard booth={booth} />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
-          {/* Sidebar */}
-          <div className="space-y-8">
-            {/* Practical Info */}
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h3 className="font-semibold text-lg mb-4">Practical Info</h3>
-              <ul className="space-y-3 text-sm text-neutral-600">
-                <li>
-                  <span className="font-medium text-neutral-900">Best time:</span> Weekend mornings
-                </li>
-                <li>
-                  <span className="font-medium text-neutral-900">Payment:</span> Bring quarters
-                </li>
-                <li>
-                  <span className="font-medium text-neutral-900">Duration:</span> 4-6 hours
-                </li>
-              </ul>
-            </div>
+          <div className="space-y-6">
+            {guide.tips && (
+              <Card className="p-6">
+                <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
+                  <Star className="w-5 h-5 text-primary" />
+                  Local Tips
+                </h3>
+                <p className="text-neutral-700 leading-relaxed whitespace-pre-line">
+                  {guide.tips}
+                </p>
+              </Card>
+            )}
 
-            {/* Quick Actions */}
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h3 className="font-semibold text-lg mb-4">Quick Actions</h3>
-              <div className="space-y-3">
-                <button className="w-full px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition">
-                  Open in Google Maps
-                </button>
-                <button className="w-full px-4 py-2 border border-neutral-300 rounded-lg hover:bg-neutral-50 transition">
-                  Download GPX
-                </button>
-              </div>
-            </div>
+            <Card className="p-6 bg-primary text-white">
+              <h3 className="font-semibold text-lg mb-3">Ready to Explore?</h3>
+              <p className="text-white/90 mb-4 text-sm">
+                Save this guide and start your photo booth adventure!
+              </p>
+              <Button variant="secondary" className="w-full">
+                Save Guide
+              </Button>
+            </Card>
+
+            <Card className="p-6">
+              <h3 className="font-semibold text-lg mb-4">More City Guides</h3>
+              <Link href="/guides">
+                <Button variant="outline" className="w-full">
+                  Browse All Guides
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </Link>
+            </Card>
           </div>
         </div>
       </div>
