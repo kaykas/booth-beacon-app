@@ -1,9 +1,10 @@
 'use client';
 
 import { Booth } from '@/types';
-import { MapPin, Camera, Bookmark } from 'lucide-react';
+import { MapPin, Camera, Bookmark, Navigation } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { formatDistance } from '@/lib/distanceUtils';
 
 interface BoothCardProps {
   booth: Booth;
@@ -65,6 +66,13 @@ export function BoothCard({
           <MapPin className="w-4 h-4 flex-shrink-0" />
           {booth.city}, {booth.country}
         </p>
+
+        {showDistance && (booth as any).distance !== undefined && (
+          <p className="text-sm text-primary font-medium flex items-center gap-1 mt-1">
+            <Navigation className="w-4 h-4 flex-shrink-0" />
+            {formatDistance((booth as any).distance)}
+          </p>
+        )}
 
         {booth.machine_model && (
           <p className="text-sm text-neutral-500 flex items-center gap-1 mt-1">

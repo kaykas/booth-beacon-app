@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { MapPin, SlidersHorizontal, List, X, Loader2 } from 'lucide-react';
+import { MapPin, SlidersHorizontal, List, X, Loader2, Navigation } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
@@ -10,7 +10,8 @@ import { BoothMap } from '@/components/booth/BoothMap';
 import { BoothCard } from '@/components/booth/BoothCard';
 import { SearchBar } from '@/components/SearchBar';
 import { supabase } from '@/lib/supabase';
-import { Booth } from '@/types';
+import { Booth, Coordinates } from '@/types';
+import { sortBoothsByDistance, formatDistance } from '@/lib/distanceUtils';
 
 interface Filters {
   location?: string;
@@ -30,16 +31,35 @@ export default function MapPage() {
   const [filters, setFilters] = useState<Filters>({
     status: 'all',
   });
+  const [userLocation, setUserLocation] = useState<Coordinates | null>(null);
+  const [sortByDistance, setSortByDistance] = useState(false);
 
   // Fetch all booths on mount
   useEffect(() => {
     fetchBooths();
   }, []);
 
+  // Get user location on mount
+  useEffect(() => {
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          });
+        },
+        (error) => {
+          console.error('Error getting user location:', error);
+        }
+      );
+    }
+  }, []);
+
   // Apply filters whenever filters or booths change
   useEffect(() => {
     applyFilters();
-  }, [filters, booths]);
+  }, [filters, booths, sortByDistance, userLocation]);
 
   async function fetchBooths() {
     setLoading(true);
@@ -102,6 +122,11 @@ export default function MapPage() {
       }
     }
 
+    // Sort by distance if enabled and user location available
+    if (sortByDistance && userLocation) {
+      filtered = sortBoothsByDistance(filtered, userLocation);
+    }
+
     setFilteredBooths(filtered);
   }
 
@@ -121,6 +146,18 @@ export default function MapPage() {
         <div className="flex-1 max-w-xl">
           <SearchBar placeholder="Search for a booth, city, or country..." />
         </div>
+
+        {/* Near Me Toggle */}
+        <Button
+          variant={sortByDistance ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => setSortByDistance(!sortByDistance)}
+          disabled={!userLocation}
+          title={!userLocation ? 'Enable location to use this feature' : 'Sort by distance'}
+        >
+          <Navigation className="w-4 h-4 mr-2" />
+          Near Me
+        </Button>
 
         {/* Filter Toggle */}
         <Button
@@ -359,7 +396,12 @@ export default function MapPage() {
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {filteredBooths.map((booth) => (
-                      <BoothCard key={booth.id} booth={booth} variant="default" />
+                      <BoothCard
+                        key={booth.id}
+                        booth={booth}
+                        variant="default"
+                        showDistance={sortByDistance && userLocation !== null}
+                      />
                     ))}
                   </div>
                 )}

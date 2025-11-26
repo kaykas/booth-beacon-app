@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Booth, Coordinates } from '@/types';
 import { MapPin, Loader2 } from 'lucide-react';
+import { MarkerClusterer } from '@googlemaps/markerclusterer';
 
 interface BoothMapProps {
   booths: Booth[];
@@ -61,6 +62,7 @@ export function BoothMap({
   const mapRef = useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [markers, setMarkers] = useState<google.maps.Marker[]>([]);
+  const [markerClusterer, setMarkerClusterer] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [userLocation, setUserLocation] = useState<Coordinates | null>(null);
@@ -81,9 +83,9 @@ export function BoothMap({
       return;
     }
 
-    // Load Google Maps script
+    // Load Google Maps script with marker clustering library
     const script = document.createElement('script');
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places,marker`;
     script.async = true;
     script.defer = true;
     script.onload = initializeMap;
@@ -124,8 +126,11 @@ export function BoothMap({
   useEffect(() => {
     if (!map || booths.length === 0) return;
 
-    // Clear existing markers
+    // Clear existing markers and clusterer
     markers.forEach((marker) => marker.setMap(null));
+    if (markerClusterer) {
+      markerClusterer.clearMarkers();
+    }
 
     const newMarkers: google.maps.Marker[] = [];
     const bounds = new google.maps.LatLngBounds();
@@ -139,7 +144,7 @@ export function BoothMap({
       // Create custom marker
       const marker = new google.maps.Marker({
         position,
-        map,
+        map: showClustering ? null : map, // Don't add to map if clustering
         title: booth.name,
         icon: {
           path: google.maps.SymbolPath.CIRCLE,
@@ -169,11 +174,27 @@ export function BoothMap({
 
     setMarkers(newMarkers);
 
+    // Add marker clustering if enabled
+    if (showClustering && newMarkers.length > 0) {
+      const clusterer = new MarkerClusterer({
+        map,
+        markers: newMarkers,
+      });
+      setMarkerClusterer(clusterer);
+    }
+
     // Fit map to show all booths if we have multiple
     if (booths.length > 1) {
       map.fitBounds(bounds);
     }
-  }, [map, booths, onBoothClick]);
+
+    // Cleanup function
+    return () => {
+      if (markerClusterer) {
+        markerClusterer.clearMarkers();
+      }
+    };
+  }, [map, booths, onBoothClick, showClustering]);
 
   // Get user location
   useEffect(() => {
