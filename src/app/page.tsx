@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { BoothCard } from '@/components/booth/BoothCard';
 import { BoothMap } from '@/components/booth/BoothMap';
+import { SearchBar } from '@/components/SearchBar';
 import { supabase } from '@/lib/supabase';
 import { Booth } from '@/types';
 
@@ -70,19 +71,10 @@ export default async function Home() {
 
           {/* Search Bar */}
           <div className="max-w-xl mx-auto mb-8">
-            <div className="flex gap-2">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500" />
-                <Input
-                  type="text"
-                  placeholder="Search by city, country, or booth name..."
-                  className="pl-10 h-12 text-base"
-                />
-              </div>
-              <Button size="lg" className="h-12 px-8">
-                Search
-              </Button>
-            </div>
+            <SearchBar
+              placeholder="Search by city, country, or booth name..."
+              className="w-full"
+            />
           </div>
 
           {/* CTAs */}

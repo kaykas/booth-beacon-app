@@ -4,11 +4,11 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { MapPin, SlidersHorizontal, List, X, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { BoothMap } from '@/components/booth/BoothMap';
 import { BoothCard } from '@/components/booth/BoothCard';
+import { SearchBar } from '@/components/SearchBar';
 import { supabase } from '@/lib/supabase';
 import { Booth } from '@/types';
 
@@ -119,16 +119,7 @@ export default function MapPage() {
 
         {/* Search Bar */}
         <div className="flex-1 max-w-xl">
-          <div className="relative">
-            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" />
-            <Input
-              type="text"
-              placeholder="Search by city, country, or booth name..."
-              value={filters.location || ''}
-              onChange={(e) => setFilters({ ...filters, location: e.target.value })}
-              className="pl-10"
-            />
-          </div>
+          <SearchBar placeholder="Search for a booth, city, or country..." />
         </div>
 
         {/* Filter Toggle */}
