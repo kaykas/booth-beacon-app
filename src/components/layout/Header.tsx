@@ -41,16 +41,10 @@ export function Header() {
               Guides
             </Link>
             <Link
-              href="/machines/photo-me-model-9"
+              href="/about"
               className="text-neutral-700 hover:text-primary transition font-medium"
             >
-              Machines
-            </Link>
-            <Link
-              href="/operators/classic-photo-booth"
-              className="text-neutral-700 hover:text-primary transition font-medium"
-            >
-              Operators
+              About
             </Link>
           </nav>
 
@@ -109,22 +103,10 @@ export function Header() {
               Map
             </Link>
             <Link
-              href="/guides/berlin"
+              href="/about"
               className="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 rounded transition"
             >
-              Guides
-            </Link>
-            <Link
-              href="/machines/photo-me-model-9"
-              className="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 rounded transition"
-            >
-              Machines
-            </Link>
-            <Link
-              href="/operators/classic-photo-booth"
-              className="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 rounded transition"
-            >
-              Operators
+              About
             </Link>
             <hr className="my-2" />
             <Link
