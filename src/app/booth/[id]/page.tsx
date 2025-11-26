@@ -5,7 +5,6 @@ import {
   MapPin,
   Navigation,
   Share2,
-  Bookmark,
   Copy,
   ExternalLink,
   Clock,
@@ -22,6 +21,9 @@ import { StatusBadge } from '@/components/booth/StatusBadge';
 import { BoothImage } from '@/components/booth/BoothImage';
 import { BoothCard } from '@/components/booth/BoothCard';
 import { BoothMap } from '@/components/booth/BoothMap';
+import { BookmarkButton } from '@/components/BookmarkButton';
+import { PhotoUpload } from '@/components/PhotoUpload';
+import { ReviewsSection } from '@/components/ReviewsSection';
 import { supabase } from '@/lib/supabase';
 import { Booth } from '@/types';
 
@@ -158,10 +160,8 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
 
               {/* Quick Actions */}
               <div className="flex flex-wrap gap-2 mb-8">
-                <Button variant="default" className="flex-1 sm:flex-none">
-                  <Bookmark className="w-4 h-4 mr-2" />
-                  Save
-                </Button>
+                <BookmarkButton boothId={booth.id} variant="default" />
+                <PhotoUpload boothId={booth.id} />
                 <Button
                   variant="outline"
                   asChild
@@ -374,19 +374,7 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
             </Card>
 
             {/* Reviews & Tips */}
-            <Card className="p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="font-display text-2xl font-semibold">Reviews & Tips</h2>
-                <Button variant="outline">Write a Review</Button>
-              </div>
-
-              {/* Placeholder for reviews */}
-              <div className="text-center py-12">
-                <Star className="w-12 h-12 text-neutral-300 mx-auto mb-3" />
-                <p className="text-neutral-600 mb-4">No reviews yet</p>
-                <p className="text-sm text-neutral-500">Be the first to share your experience!</p>
-              </div>
-            </Card>
+            <ReviewsSection boothId={booth.id} />
           </div>
 
           {/* Right Column - Sidebar */}

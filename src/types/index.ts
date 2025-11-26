@@ -136,7 +136,7 @@ export interface BoothComment {
   user?: {
     id: string;
     email: string;
-    name?: string;
+    full_name?: string;
   };
 }
 
@@ -149,6 +149,12 @@ export interface BoothUserPhoto {
   caption?: string;
   moderation_status: 'pending' | 'approved' | 'rejected';
   created_at: string;
+  booth?: {
+    id: string;
+    name: string;
+    city: string;
+    country: string;
+  };
 }
 
 // Filter state type

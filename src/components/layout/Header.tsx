@@ -1,8 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { Search, Menu, User, Bookmark } from 'lucide-react';
+import { Search, Menu, Bookmark } from 'lucide-react';
 import { useState } from 'react';
+import { UserMenu } from '@/components/auth/UserMenu';
+import { SearchBar } from '@/components/SearchBar';
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -72,14 +74,10 @@ export function Header() {
               <Bookmark className="w-5 h-5" />
             </Link>
 
-            {/* User */}
-            <Link
-              href="/profile"
-              className="hidden sm:flex p-2 text-neutral-700 hover:text-primary transition"
-              aria-label="Profile"
-            >
-              <User className="w-5 h-5" />
-            </Link>
+            {/* User Menu */}
+            <div className="hidden sm:flex">
+              <UserMenu />
+            </div>
 
             {/* Mobile Menu Toggle */}
             <button
@@ -95,15 +93,7 @@ export function Header() {
         {/* Search Bar (when open) */}
         {isSearchOpen && (
           <div className="pb-4">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Search booths, cities, or addresses..."
-                className="w-full px-4 py-2 pl-10 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                autoFocus
-              />
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
-            </div>
+            <SearchBar autoFocus />
           </div>
         )}
       </div>
@@ -143,12 +133,9 @@ export function Header() {
             >
               Bookmarks
             </Link>
-            <Link
-              href="/profile"
-              className="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 rounded transition"
-            >
-              Profile
-            </Link>
+            <div className="px-4 py-2">
+              <UserMenu />
+            </div>
           </nav>
         </div>
       )}
