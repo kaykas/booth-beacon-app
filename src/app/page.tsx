@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { BoothCard } from '@/components/booth/BoothCard';
 import { BoothMap } from '@/components/booth/BoothMap';
 import { SearchBar } from '@/components/SearchBar';
+import { PhotoStrips } from '@/components/PhotoStrips';
 import { supabase } from '@/lib/supabase';
 import { Booth } from '@/types';
 
@@ -290,6 +291,9 @@ export default async function Home() {
           </div>
         </div>
       </section>
+
+      {/* Photo Strips Gallery */}
+      <PhotoStrips />
 
       {/* Community Section */}
       <section className="py-16 px-4 bg-neutral-100">
