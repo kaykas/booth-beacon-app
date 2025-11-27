@@ -196,9 +196,10 @@ export function BoothMap({
     };
   }, [map, booths, onBoothClick, showClustering]);
 
-  // Get user location
+  // Get user location (only once when component mounts)
   useEffect(() => {
-    if (!showUserLocation) return;
+    if (!showUserLocation || !map) return;
+    if (userLocation) return; // Don't ask again if we already have it
 
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(
@@ -210,28 +211,27 @@ export function BoothMap({
           setUserLocation(userPos);
 
           // Add user location marker
-          if (map) {
-            new google.maps.Marker({
-              position: userPos,
-              map,
-              icon: {
-                path: google.maps.SymbolPath.CIRCLE,
-                fillColor: '#C73E3A',
-                fillOpacity: 1,
-                strokeColor: '#ffffff',
-                strokeWeight: 3,
-                scale: 10,
-              },
-              title: 'Your location',
-            });
-          }
+          new google.maps.Marker({
+            position: userPos,
+            map,
+            icon: {
+              path: google.maps.SymbolPath.CIRCLE,
+              fillColor: '#C73E3A',
+              fillOpacity: 1,
+              strokeColor: '#ffffff',
+              strokeWeight: 3,
+              scale: 10,
+            },
+            title: 'Your location',
+          });
         },
         (error) => {
-          console.error('Error getting user location:', error);
+          console.log('User denied location or error:', error.message);
+          // Silently fail - user chose not to share location
         }
       );
     }
-  }, [map, showUserLocation]);
+  }, [map, showUserLocation, userLocation]);
 
   // Center on user location
   const centerOnUser = () => {
