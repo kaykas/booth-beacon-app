@@ -153,7 +153,7 @@ export default async function Home() {
               <BoothMap
                 booths={featuredBooths}
                 zoom={3}
-                showUserLocation={false}
+                showUserLocation={true}
                 showClustering={false}
               />
             </Suspense>
