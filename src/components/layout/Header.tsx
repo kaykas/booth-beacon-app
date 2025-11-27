@@ -35,6 +35,12 @@ export function Header() {
               Map
             </Link>
             <Link
+              href="/collections"
+              className="text-muted-foreground hover:text-primary transition font-medium"
+            >
+              Collections
+            </Link>
+            <Link
               href="/guides/berlin"
               className="text-muted-foreground hover:text-primary transition font-medium"
             >
@@ -101,6 +107,12 @@ export function Header() {
               className="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 rounded transition"
             >
               Map
+            </Link>
+            <Link
+              href="/collections"
+              className="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 rounded transition"
+            >
+              Collections
             </Link>
             <Link
               href="/about"

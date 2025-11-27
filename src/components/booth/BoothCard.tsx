@@ -1,16 +1,16 @@
 'use client';
 
 import { Booth } from '@/types';
-import { MapPin, Camera, Bookmark, Navigation } from 'lucide-react';
+import { MapPin, Camera, Navigation } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { formatDistance } from '@/lib/distanceUtils';
+import { BookmarkButton } from '@/components/BookmarkButton';
 
 interface BoothCardProps {
   booth: Booth;
   variant?: 'default' | 'compact' | 'featured';
   showDistance?: boolean;
-  onSave?: () => void;
   onDirections?: () => void;
 }
 
@@ -18,7 +18,6 @@ export function BoothCard({
   booth,
   variant = 'default',
   showDistance = false,
-  onSave,
   onDirections,
 }: BoothCardProps) {
   const statusColors = {
@@ -33,6 +32,11 @@ export function BoothCard({
 
   return (
     <div className="group relative bg-white rounded-lg shadow-photo overflow-hidden transition-transform hover:scale-[1.02]">
+      {/* Bookmark button overlay */}
+      <div className="absolute top-2 right-2 z-10">
+        <BookmarkButton boothId={booth.id} variant="outline" size="sm" showText={false} />
+      </div>
+
       {/* Image */}
       <Link href={`/booth/${booth.id}`}>
         <div className="aspect-[4/3] relative bg-neutral-100">
@@ -95,16 +99,6 @@ export function BoothCard({
           >
             View Details
           </Link>
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              onSave?.();
-            }}
-            className="p-2 border border-neutral-300 rounded hover:bg-neutral-50 transition"
-            aria-label="Save booth"
-          >
-            <Bookmark className="w-4 h-4" />
-          </button>
         </div>
       </div>
     </div>

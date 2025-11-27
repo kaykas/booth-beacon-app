@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { useAuth } from '@/lib/auth/AuthContext';
-import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
-import { Bookmark } from 'lucide-react';
+import { Heart } from 'lucide-react';
+import { useBookmark, useToggleBookmark } from '@/hooks/useBookmarks';
 import { toast } from 'sonner';
 
 interface BookmarkButtonProps {
@@ -21,90 +21,47 @@ export function BookmarkButton({
   showText = true,
 }: BookmarkButtonProps) {
   const { user } = useAuth();
-  const [isBookmarked, setIsBookmarked] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [bookmarkId, setBookmarkId] = useState<string | null>(null);
+  const { bookmark, isBookmarked, refetch } = useBookmark(boothId);
+  const { toggleBookmark, loading } = useToggleBookmark();
+  const [optimisticBookmarked, setOptimisticBookmarked] = useState<boolean | null>(null);
 
-  useEffect(() => {
-    if (user) {
-      checkBookmark();
-    }
-  }, [user, boothId]);
+  // Use optimistic state if available, otherwise use actual state
+  const displayBookmarked = optimisticBookmarked !== null ? optimisticBookmarked : isBookmarked;
 
-  const checkBookmark = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('booth_bookmarks')
-        .select('id')
-        .eq('user_id', user!.id)
-        .eq('booth_id', boothId)
-        .maybeSingle();
+  const handleToggle = useCallback(async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
 
-      if (error && error.code !== 'PGRST116') throw error;
-
-      setIsBookmarked(!!data);
-      setBookmarkId((data as any)?.id || null);
-    } catch (error) {
-      console.error('Error checking bookmark:', error);
-    }
-  };
-
-  const toggleBookmark = async () => {
     if (!user) {
       toast.error('Please sign in to bookmark booths');
       return;
     }
 
-    setLoading(true);
+    // Optimistic update
+    setOptimisticBookmarked(!displayBookmarked);
 
-    try {
-      if (isBookmarked && bookmarkId) {
-        // Remove bookmark
-        const { error } = await supabase
-          .from('booth_bookmarks')
-          .delete()
-          .eq('id', bookmarkId);
+    // Perform actual toggle
+    const newState = await toggleBookmark(boothId, bookmark);
 
-        if (error) throw error;
+    // Refetch to ensure sync
+    await refetch();
 
-        setIsBookmarked(false);
-        setBookmarkId(null);
-        toast.success('Bookmark removed');
-      } else {
-        // Add bookmark
-        const { data, error } = await supabase
-          .from('booth_bookmarks')
-          .insert({
-            user_id: user.id,
-            booth_id: boothId,
-            visited: false,
-          } as any)
-          .select()
-          .single();
-
-        if (error) throw error;
-
-        setIsBookmarked(true);
-        setBookmarkId((data as any).id);
-        toast.success('Booth bookmarked');
-      }
-    } catch (error) {
-      console.error('Error toggling bookmark:', error);
-      toast.error('Failed to update bookmark');
-    } finally {
-      setLoading(false);
-    }
-  };
+    // Clear optimistic state
+    setOptimisticBookmarked(null);
+  }, [user, displayBookmarked, boothId, bookmark, toggleBookmark, refetch]);
 
   return (
     <Button
-      variant={isBookmarked ? 'default' : variant}
+      variant={displayBookmarked ? 'default' : variant}
       size={size}
-      onClick={toggleBookmark}
+      onClick={handleToggle}
       disabled={loading}
+      className={displayBookmarked ? 'bg-pink-600 hover:bg-pink-700' : ''}
     >
-      <Bookmark className={`w-4 h-4 ${showText ? 'mr-2' : ''} ${isBookmarked ? 'fill-current' : ''}`} />
-      {showText && (isBookmarked ? 'Bookmarked' : 'Bookmark')}
+      <Heart
+        className={`w-4 h-4 ${showText ? 'mr-2' : ''} ${displayBookmarked ? 'fill-current' : ''}`}
+      />
+      {showText && (displayBookmarked ? 'Saved' : 'Save')}
     </Button>
   );
 }

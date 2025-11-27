@@ -1,111 +1,79 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth/AuthContext';
-import { supabase } from '@/lib/supabase';
-import { BoothBookmark, Collection } from '@/types';
+import { useBookmarks, useMarkVisited, useUpdateNotes } from '@/hooks/useBookmarks';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { BoothImage } from '@/components/booth/BoothImage';
+import { StatusBadge } from '@/components/booth/StatusBadge';
+import { BookmarkButton } from '@/components/BookmarkButton';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Bookmark, MapPin, Plus, FolderOpen, Calendar, Trash2 } from 'lucide-react';
-import { toast } from 'sonner';
+import { Card } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Heart, MapPin, Navigation, Camera, Loader2 } from 'lucide-react';
+
+type FilterType = 'all' | 'visited' | 'not-visited';
 
 export default function BookmarksPage() {
   const { user, loading: authLoading } = useAuth();
-  const [bookmarks, setBookmarks] = useState<BoothBookmark[]>([]);
-  const [collections, setCollections] = useState<Collection[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('all');
+  const { bookmarks, loading: bookmarksLoading, refetch } = useBookmarks();
+  const { markVisited, loading: visitedLoading } = useMarkVisited();
+  const { updateNotes, loading: notesLoading } = useUpdateNotes();
 
-  useEffect(() => {
-    if (!authLoading && user) {
-      loadBookmarks();
-      loadCollections();
-    } else if (!authLoading && !user) {
-      setLoading(false);
-    }
-  }, [user, authLoading]);
+  const [filter, setFilter] = useState<FilterType>('all');
+  const [editingNotes, setEditingNotes] = useState<Record<string, string>>({});
+  const [savingNotes, setSavingNotes] = useState<Record<string, boolean>>({});
 
-  const loadBookmarks = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('booth_bookmarks')
-        .select(`
-          *,
-          booth:booths(*)
-        `)
-        .eq('user_id', user!.id)
-        .order('created_at', { ascending: false });
+  const loading = authLoading || bookmarksLoading;
 
-      if (error) throw error;
-      setBookmarks(data || []);
-    } catch (error) {
-      console.error('Error loading bookmarks:', error);
-      toast.error('Failed to load bookmarks');
-    } finally {
-      setLoading(false);
+  // Filter bookmarks based on selected filter
+  const filteredBookmarks = useMemo(() => {
+    if (filter === 'all') return bookmarks;
+    if (filter === 'visited') return bookmarks.filter((b) => b.visited);
+    if (filter === 'not-visited') return bookmarks.filter((b) => !b.visited);
+    return bookmarks;
+  }, [bookmarks, filter]);
+
+  const handleVisitedChange = async (bookmarkId: string, visited: boolean) => {
+    const success = await markVisited(bookmarkId, visited);
+    if (success) {
+      await refetch();
     }
   };
 
-  const loadCollections = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('collections')
-        .select('*')
-        .eq('user_id', user!.id)
-        .order('created_at', { ascending: false });
+  const handleNotesChange = (bookmarkId: string, notes: string) => {
+    setEditingNotes((prev) => ({ ...prev, [bookmarkId]: notes }));
+  };
 
-      if (error) throw error;
-      setCollections(data || []);
-    } catch (error) {
-      console.error('Error loading collections:', error);
+  const handleSaveNotes = async (bookmarkId: string) => {
+    const notes = editingNotes[bookmarkId] ?? '';
+
+    setSavingNotes((prev) => ({ ...prev, [bookmarkId]: true }));
+    const success = await updateNotes(bookmarkId, notes);
+    setSavingNotes((prev) => ({ ...prev, [bookmarkId]: false }));
+
+    if (success) {
+      await refetch();
+      // Clear editing state
+      setEditingNotes((prev) => {
+        const newState = { ...prev };
+        delete newState[bookmarkId];
+        return newState;
+      });
     }
   };
 
-  const removeBookmark = async (bookmarkId: string) => {
-    try {
-      const { error } = await supabase
-        .from('booth_bookmarks')
-        .delete()
-        .eq('id', bookmarkId);
-
-      if (error) throw error;
-
-      setBookmarks((prev) => prev.filter((b) => b.id !== bookmarkId));
-      toast.success('Bookmark removed');
-    } catch (error) {
-      console.error('Error removing bookmark:', error);
-      toast.error('Failed to remove bookmark');
-    }
-  };
-
-
-  const filteredBookmarks = bookmarks.filter((b) => {
-    if (activeTab === 'all') return true;
-    if (activeTab === 'visited') return b.visited;
-    if (activeTab === 'to-visit') return !b.visited;
-    // Filter by collection
-    return b.collection_id === activeTab;
-  });
-
-  if (authLoading || loading) {
+  if (loading) {
     return (
       <>
         <Header />
-        <main className="min-h-screen bg-neutral-50 py-12">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="animate-pulse space-y-4">
-              <div className="h-8 bg-neutral-200 rounded w-1/4"></div>
-              <div className="h-4 bg-neutral-200 rounded w-1/2"></div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
-                {[1, 2, 3, 4, 5, 6].map((i) => (
-                  <div key={i} className="h-64 bg-neutral-200 rounded-lg"></div>
-                ))}
-              </div>
-            </div>
+        <main className="min-h-screen bg-neutral-50 flex items-center justify-center">
+          <div className="text-center">
+            <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-4" />
+            <p className="text-neutral-600">Loading your bookmarks...</p>
           </div>
         </main>
         <Footer />
@@ -119,7 +87,7 @@ export default function BookmarksPage() {
         <Header />
         <main className="min-h-screen bg-neutral-50 py-12">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <Bookmark className="w-16 h-16 text-neutral-300 mx-auto mb-4" />
+            <Heart className="w-16 h-16 text-neutral-300 mx-auto mb-4" />
             <h1 className="font-display text-3xl font-semibold mb-4">Sign in to view bookmarks</h1>
             <p className="text-neutral-600 mb-6">
               Create an account to save your favorite booths and organize them into collections.
@@ -134,110 +102,197 @@ export default function BookmarksPage() {
   return (
     <>
       <Header />
-      <main className="min-h-screen bg-neutral-50 py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Header */}
-          <div className="mb-8">
-            <h1 className="font-display text-4xl font-semibold text-neutral-900 mb-2">
-              My Bookmarks
-            </h1>
+      <main className="min-h-screen bg-neutral-50">
+        {/* Header */}
+        <div className="bg-white border-b border-neutral-200">
+          <div className="max-w-7xl mx-auto px-4 py-8">
+            <div className="flex items-center gap-3 mb-2">
+              <Heart className="w-8 h-8 text-pink-600 fill-current" />
+              <h1 className="font-display text-3xl font-semibold text-neutral-900">
+                My Saved Booths
+              </h1>
+            </div>
             <p className="text-neutral-600">
-              {bookmarks.length} saved booth{bookmarks.length !== 1 ? 's' : ''}
+              {bookmarks.length === 0
+                ? 'Start saving booths to plan your photo adventures'
+                : `${bookmarks.length} saved booth${bookmarks.length !== 1 ? 's' : ''}`}
             </p>
           </div>
+        </div>
 
-          {/* Tabs */}
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
-            <TabsList>
-              <TabsTrigger value="all">All ({bookmarks.length})</TabsTrigger>
-              <TabsTrigger value="to-visit">
-                To Visit ({bookmarks.filter((b) => !b.visited).length})
-              </TabsTrigger>
-              <TabsTrigger value="visited">
-                Visited ({bookmarks.filter((b) => b.visited).length})
-              </TabsTrigger>
-              {collections.map((collection) => (
-                <TabsTrigger key={collection.id} value={collection.id}>
-                  <FolderOpen className="w-4 h-4 mr-1" />
-                  {collection.name}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
-
-          {/* Bookmarks Grid */}
-          {filteredBookmarks.length === 0 ? (
-            <div className="text-center py-12">
-              <Bookmark className="w-16 h-16 text-neutral-300 mx-auto mb-4" />
-              <h3 className="font-display text-xl font-semibold mb-2">No bookmarks yet</h3>
-              <p className="text-neutral-600 mb-6">
-                Start exploring and save your favorite photo booths!
+        {/* Content */}
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          {bookmarks.length === 0 ? (
+            // Empty state
+            <Card className="p-12 text-center">
+              <Heart className="w-16 h-16 text-neutral-300 mx-auto mb-4" />
+              <h2 className="font-display text-2xl font-semibold text-neutral-900 mb-2">
+                No saved booths yet
+              </h2>
+              <p className="text-neutral-600 mb-6 max-w-md mx-auto">
+                Start exploring and save your favorite photo booths to keep track of places you
+                want to visit or have visited.
               </p>
-              <Link href="/map">
-                <Button>
-                  <MapPin className="w-4 h-4 mr-2" />
-                  Explore Map
-                </Button>
-              </Link>
-            </div>
+              <Button asChild>
+                <Link href="/map">Explore Booths</Link>
+              </Button>
+            </Card>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredBookmarks.map((bookmark) => (
-                <div
-                  key={bookmark.id}
-                  className="bg-white rounded-lg shadow-sm hover:shadow-md transition overflow-hidden"
-                >
-                  {/* Image */}
-                  <Link href={`/booth/${bookmark.booth?.id}`}>
-                    <div className="aspect-[4/3] relative overflow-hidden bg-neutral-100">
-                      {bookmark.booth && (
-                        <BoothImage booth={bookmark.booth} size="card" />
-                      )}
-                    </div>
-                  </Link>
+            <>
+              {/* Filters */}
+              <Tabs value={filter} onValueChange={(v) => setFilter(v as FilterType)} className="mb-6">
+                <TabsList>
+                  <TabsTrigger value="all">
+                    All ({bookmarks.length})
+                  </TabsTrigger>
+                  <TabsTrigger value="not-visited">
+                    To Visit ({bookmarks.filter((b) => !b.visited).length})
+                  </TabsTrigger>
+                  <TabsTrigger value="visited">
+                    Visited ({bookmarks.filter((b) => b.visited).length})
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
 
-                  {/* Content */}
-                  <div className="p-4">
-                    <Link href={`/booth/${bookmark.booth?.id}`}>
-                      <h3 className="font-display text-lg font-semibold mb-1 hover:text-primary transition">
-                        {bookmark.booth?.name}
-                      </h3>
-                    </Link>
-                    <p className="text-sm text-neutral-600 mb-3 flex items-center">
-                      <MapPin className="w-3 h-3 mr-1" />
-                      {bookmark.booth?.city}, {bookmark.booth?.country}
-                    </p>
+              {/* Bookmarks List */}
+              <div className="space-y-6">
+                {filteredBookmarks.length === 0 ? (
+                  <Card className="p-8 text-center">
+                    <p className="text-neutral-600">No booths in this category</p>
+                  </Card>
+                ) : (
+                  filteredBookmarks.map((bookmark) => {
+                    const booth = bookmark.booth;
+                    if (!booth) return null;
 
-                    {bookmark.notes && (
-                      <p className="text-sm text-neutral-700 mb-3 italic">{bookmark.notes}</p>
-                    )}
+                    const currentNotes = editingNotes[bookmark.id] ?? bookmark.notes ?? '';
+                    const hasUnsavedNotes = editingNotes[bookmark.id] !== undefined &&
+                      editingNotes[bookmark.id] !== (bookmark.notes ?? '');
 
-                    {/* Actions */}
-                    <div className="flex items-center gap-2">
-                      <Link href={`/booth/${bookmark.booth?.id}`} className="flex-1">
-                        <Button size="sm" variant="outline" className="w-full">
-                          View Details
-                        </Button>
-                      </Link>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => removeBookmark(bookmark.id)}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
+                    return (
+                      <Card key={bookmark.id} className="overflow-hidden">
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                          {/* Left: Booth Preview */}
+                          <div className="lg:col-span-1">
+                            <Link href={`/booth/${booth.id}`}>
+                              <div className="relative aspect-[4/3] lg:aspect-square">
+                                <BoothImage booth={booth} size="card" showAiBadge />
+                              </div>
+                            </Link>
+                          </div>
 
-                    {bookmark.visited && bookmark.visited_at && (
-                      <div className="flex items-center gap-1 text-xs text-green-600 mt-2">
-                        <Calendar className="w-3 h-3" />
-                        Visited on {new Date(bookmark.visited_at).toLocaleDateString()}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
+                          {/* Right: Details & Actions */}
+                          <div className="lg:col-span-2 p-6 lg:p-8">
+                            {/* Header */}
+                            <div className="flex items-start justify-between mb-4">
+                              <div className="flex-1">
+                                <Link href={`/booth/${booth.id}`}>
+                                  <h3 className="font-display text-2xl font-semibold text-neutral-900 hover:text-primary transition">
+                                    {booth.name}
+                                  </h3>
+                                </Link>
+                                <div className="flex items-center gap-2 mt-2">
+                                  <MapPin className="w-4 h-4 text-neutral-500" />
+                                  <span className="text-neutral-600">
+                                    {booth.city}, {booth.country}
+                                  </span>
+                                </div>
+                                {booth.machine_model && (
+                                  <div className="flex items-center gap-2 mt-1">
+                                    <Camera className="w-4 h-4 text-neutral-500" />
+                                    <span className="text-sm text-neutral-600">
+                                      {booth.machine_model}
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
+                              <StatusBadge status={booth.status} />
+                            </div>
+
+                            {/* Visited Checkbox */}
+                            <div className="flex items-center gap-3 mb-4 p-3 bg-neutral-50 rounded-lg">
+                              <Checkbox
+                                id={`visited-${bookmark.id}`}
+                                checked={bookmark.visited}
+                                onCheckedChange={(checked) =>
+                                  handleVisitedChange(bookmark.id, checked as boolean)
+                                }
+                                disabled={visitedLoading}
+                              />
+                              <label
+                                htmlFor={`visited-${bookmark.id}`}
+                                className="text-sm font-medium text-neutral-700 cursor-pointer"
+                              >
+                                {bookmark.visited ? 'Visited' : 'Mark as visited'}
+                              </label>
+                              {bookmark.visited_at && (
+                                <span className="text-xs text-neutral-500 ml-auto">
+                                  {new Date(bookmark.visited_at).toLocaleDateString()}
+                                </span>
+                              )}
+                            </div>
+
+                            {/* Notes */}
+                            <div className="mb-4">
+                              <label className="block text-sm font-medium text-neutral-700 mb-2">
+                                Notes
+                              </label>
+                              <textarea
+                                value={currentNotes}
+                                onChange={(e) => handleNotesChange(bookmark.id, e.target.value)}
+                                placeholder="Add notes about this booth..."
+                                className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+                                rows={3}
+                              />
+                              {hasUnsavedNotes && (
+                                <Button
+                                  size="sm"
+                                  onClick={() => handleSaveNotes(bookmark.id)}
+                                  disabled={savingNotes[bookmark.id] || notesLoading}
+                                  className="mt-2"
+                                >
+                                  {savingNotes[bookmark.id] ? (
+                                    <>
+                                      <Loader2 className="w-3 h-3 mr-2 animate-spin" />
+                                      Saving...
+                                    </>
+                                  ) : (
+                                    'Save Notes'
+                                  )}
+                                </Button>
+                              )}
+                            </div>
+
+                            {/* Actions */}
+                            <div className="flex flex-wrap gap-2">
+                              <Button variant="default" asChild className="flex-1 sm:flex-none">
+                                <Link href={`/booth/${booth.id}`}>View Details</Link>
+                              </Button>
+                              <Button variant="outline" asChild className="flex-1 sm:flex-none">
+                                <a
+                                  href={`https://www.google.com/maps/dir/?api=1&destination=${booth.latitude},${booth.longitude}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                >
+                                  <Navigation className="w-4 h-4 mr-2" />
+                                  Directions
+                                </a>
+                              </Button>
+                              <BookmarkButton
+                                boothId={booth.id}
+                                variant="outline"
+                                size="default"
+                                showText={true}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </Card>
+                    );
+                  })
+                )}
+              </div>
+            </>
           )}
         </div>
       </main>
