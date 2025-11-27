@@ -327,8 +327,8 @@ export function BoothMap({
 
   return (
     <div className="w-full h-full min-h-[500px] relative overflow-hidden rounded-lg">
-      {/* Map container */}
-      <div ref={mapRef} className="w-full h-full" />
+      {/* Map container - must have explicit height for Google Maps to render */}
+      <div ref={mapRef} className="w-full h-full min-h-[500px] absolute inset-0" />
 
       {/* Loading overlay */}
       {isLoading && (

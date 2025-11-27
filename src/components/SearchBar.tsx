@@ -187,7 +187,7 @@ export function SearchBar({
   return (
     <div ref={wrapperRef} className={`relative ${className}`}>
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
         <Input
           type="text"
           placeholder={placeholder}
@@ -203,29 +203,29 @@ export function SearchBar({
         {query && (
           <button
             onClick={handleClear}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 transition"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition"
           >
             <X className="w-5 h-5" />
           </button>
         )}
         {isLoading && (
           <div className="absolute right-3 top-1/2 -translate-y-1/2">
-            <Loader2 className="w-5 h-5 text-neutral-400 animate-spin" />
+            <Loader2 className="w-5 h-5 text-muted-foreground animate-spin" />
           </div>
         )}
       </div>
 
       {/* Autocomplete Dropdown */}
       {isOpen && results.length > 0 && (
-        <div className="absolute z-50 w-full mt-2 bg-white rounded-lg shadow-xl border border-neutral-200 overflow-hidden">
+        <div className="absolute z-50 w-full mt-2 bg-card rounded-lg shadow-xl border border-border overflow-hidden">
           <div className="max-h-96 overflow-y-auto">
             {results.map((result, index) => (
               <button
                 key={result.id}
                 onClick={() => handleSelect(result)}
                 onMouseEnter={() => setSelectedIndex(index)}
-                className={`w-full px-4 py-3 text-left hover:bg-neutral-50 transition flex items-center gap-3 border-b border-neutral-100 last:border-b-0 ${
-                  selectedIndex === index ? 'bg-neutral-50' : ''
+                className={`w-full px-4 py-3 text-left hover:bg-secondary transition flex items-center gap-3 border-b border-border last:border-b-0 ${
+                  selectedIndex === index ? 'bg-secondary' : ''
                 }`}
               >
                 <div
@@ -234,7 +234,7 @@ export function SearchBar({
                       ? 'bg-primary/10 text-primary'
                       : result.type === 'city'
                       ? 'bg-accent/10 text-accent'
-                      : 'bg-neutral-100 text-neutral-600'
+                      : 'bg-secondary text-muted-foreground'
                   }`}
                 >
                   {result.type === 'booth' ? (
@@ -247,24 +247,24 @@ export function SearchBar({
                 </div>
 
                 <div className="flex-1 min-w-0">
-                  <div className="font-medium text-neutral-900 truncate">{result.name}</div>
+                  <div className="font-medium text-foreground truncate">{result.name}</div>
                   {result.type === 'booth' && (
-                    <div className="text-sm text-neutral-500 truncate">
+                    <div className="text-sm text-muted-foreground truncate">
                       {result.city}, {result.country}
                     </div>
                   )}
                   {result.type === 'city' && (
-                    <div className="text-sm text-neutral-500">
+                    <div className="text-sm text-muted-foreground">
                       City in {result.country}
                     </div>
                   )}
                   {result.type === 'country' && (
-                    <div className="text-sm text-neutral-500">Country</div>
+                    <div className="text-sm text-muted-foreground">Country</div>
                   )}
                 </div>
 
                 <div className="flex-shrink-0">
-                  <div className="text-xs text-neutral-400 uppercase tracking-wider">
+                  <div className="text-xs text-muted-foreground uppercase tracking-wider">
                     {result.type}
                   </div>
                 </div>
@@ -273,7 +273,7 @@ export function SearchBar({
           </div>
 
           {/* Footer */}
-          <div className="px-4 py-2 bg-neutral-50 border-t border-neutral-200 text-xs text-neutral-500 flex items-center justify-between">
+          <div className="px-4 py-2 bg-secondary border-t border-border text-xs text-muted-foreground flex items-center justify-between">
             <span>Use ↑↓ to navigate, Enter to select, Esc to close</span>
             <span>{results.length} results</span>
           </div>
@@ -282,10 +282,10 @@ export function SearchBar({
 
       {/* No Results */}
       {isOpen && query && !isLoading && results.length === 0 && (
-        <div className="absolute z-50 w-full mt-2 bg-white rounded-lg shadow-xl border border-neutral-200 p-6 text-center">
-          <Search className="w-12 h-12 text-neutral-300 mx-auto mb-3" />
-          <p className="text-neutral-600 mb-1">No results found</p>
-          <p className="text-sm text-neutral-500">
+        <div className="absolute z-50 w-full mt-2 bg-card rounded-lg shadow-xl border border-border p-6 text-center">
+          <Search className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+          <p className="text-foreground mb-1">No results found</p>
+          <p className="text-sm text-muted-foreground">
             Try searching for a city, country, or booth name
           </p>
         </div>
