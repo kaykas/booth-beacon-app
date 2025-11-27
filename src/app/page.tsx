@@ -133,23 +133,23 @@ export default async function Home() {
           {/* Filter Chips */}
           <div className="flex flex-wrap gap-2 justify-center mb-6">
             <Link href="/map?nearme=true">
-              <Badge variant="secondary" className="cursor-pointer hover:bg-primary hover:text-white transition">
+              <Badge variant="outline" className="cursor-pointer bg-white border-2 border-neutral-300 hover:bg-primary hover:text-white hover:border-primary transition shadow-sm">
                 <MapPin className="w-3 h-3 mr-1" />
                 Near Me
               </Badge>
             </Link>
             <Link href="/map?city=Berlin">
-              <Badge variant="secondary" className="cursor-pointer hover:bg-primary hover:text-white transition">
+              <Badge variant="outline" className="cursor-pointer bg-white border-2 border-neutral-300 hover:bg-primary hover:text-white hover:border-primary transition shadow-sm">
                 Berlin
               </Badge>
             </Link>
             <Link href="/map?city=New York">
-              <Badge variant="secondary" className="cursor-pointer hover:bg-primary hover:text-white transition">
+              <Badge variant="outline" className="cursor-pointer bg-white border-2 border-neutral-300 hover:bg-primary hover:text-white hover:border-primary transition shadow-sm">
                 NYC
               </Badge>
             </Link>
             <Link href="/map?city=London">
-              <Badge variant="secondary" className="cursor-pointer hover:bg-primary hover:text-white transition">
+              <Badge variant="outline" className="cursor-pointer bg-white border-2 border-neutral-300 hover:bg-primary hover:text-white hover:border-primary transition shadow-sm">
                 London
               </Badge>
             </Link>
