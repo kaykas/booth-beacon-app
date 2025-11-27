@@ -62,19 +62,23 @@ export function loadGoogleMaps(): Promise<typeof google> {
       return;
     }
 
-    const script = document.createElement('script');
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places,marker&loading=async`;
-    script.async = true;
-    script.defer = true;
-
-    script.onload = () => {
-      // Wait for Google Maps to be fully initialized
+    // Use callback approach for more reliable loading
+    const callbackName = `initGoogleMaps_${Date.now()}`;
+    (window as any)[callbackName] = () => {
+      delete (window as any)[callbackName];
       waitForGoogleMaps().then(resolve).catch(reject);
     };
 
-    script.onerror = () => {
+    const script = document.createElement('script');
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places,marker&callback=${callbackName}`;
+    script.async = true;
+    script.defer = true;
+
+    script.onerror = (event) => {
       googleMapsPromise = null; // Reset so we can retry
-      reject(new Error('Google Maps script failed to load'));
+      delete (window as any)[callbackName];
+      console.error('Google Maps script load error:', event);
+      reject(new Error('Google Maps script failed to load. Check if the API key is valid and the Maps JavaScript API is enabled in Google Cloud Console.'));
     };
 
     document.head.appendChild(script);
