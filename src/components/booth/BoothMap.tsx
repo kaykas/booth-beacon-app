@@ -316,10 +316,13 @@ export function BoothMap({
   if (error) {
     return (
       <div className="w-full h-full min-h-[500px] bg-card border border-primary/10 rounded-lg flex items-center justify-center">
-        <div className="text-center text-muted-foreground">
+        <div className="text-center text-muted-foreground max-w-md px-6">
           <MapPin className="w-12 h-12 mb-4 text-primary mx-auto" />
-          <p className="text-lg font-medium text-foreground">{error}</p>
-          <p className="text-sm mt-2">Please check your environment configuration</p>
+          <p className="text-lg font-medium text-foreground mb-2">Map Unavailable</p>
+          <p className="text-sm">{error}</p>
+          <p className="text-xs mt-4 text-muted-foreground/70">
+            The NEXT_PUBLIC_GOOGLE_MAPS_API_KEY environment variable needs to be configured.
+          </p>
         </div>
       </div>
     );
