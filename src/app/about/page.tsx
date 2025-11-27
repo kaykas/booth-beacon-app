@@ -9,9 +9,9 @@ export default function AboutPage() {
   return (
     <>
       <Header />
-      <main className="min-h-screen bg-gradient-to-b from-secondary via-white to-secondary">
+      <main className="min-h-screen bg-gradient-to-b from-secondary via-white to-secondary film-grain">
         {/* Hero Section */}
-        <section className="relative py-24 px-4">
+        <section className="relative py-24 px-4 warm-glow">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="font-display text-5xl md:text-6xl font-semibold text-neutral-900 mb-6">
               A Love Letter to{' '}
@@ -27,7 +27,7 @@ export default function AboutPage() {
         <section className="py-16 px-4">
           <div className="max-w-4xl mx-auto">
             {/* Photo Strip Style Container */}
-            <div className="bg-white rounded-lg shadow-photo p-8 md:p-12 border-4 border-neutral-200 mb-12">
+            <div className="card-vintage rounded-lg p-8 md:p-12 mb-12">
               <div className="prose prose-lg max-w-none">
                 <h2 className="font-display text-3xl font-semibold text-neutral-900 mb-6 flex items-center gap-3">
                   <Heart className="w-8 h-8 text-primary" />
@@ -84,8 +84,8 @@ export default function AboutPage() {
             {/* Founders Section */}
             <div className="grid md:grid-cols-2 gap-8 mb-16">
               {/* Alexandra */}
-              <div className="bg-white rounded-lg shadow-md p-8 text-center">
-                <div className="w-32 h-32 bg-gradient-to-br from-accent to-primary rounded-full mx-auto mb-6 flex items-center justify-center">
+              <div className="card-vintage rounded-lg p-8 text-center">
+                <div className="w-32 h-32 bg-gradient-to-br from-accent to-primary rounded-full mx-auto mb-6 flex items-center justify-center shadow-photo">
                   <span className="text-white text-4xl font-display font-semibold">AR</span>
                 </div>
                 <h3 className="font-display text-2xl font-semibold text-neutral-900 mb-2">
@@ -99,8 +99,8 @@ export default function AboutPage() {
               </div>
 
               {/* Jascha */}
-              <div className="bg-white rounded-lg shadow-md p-8 text-center">
-                <div className="w-32 h-32 bg-gradient-to-br from-primary to-accent rounded-full mx-auto mb-6 flex items-center justify-center">
+              <div className="card-vintage rounded-lg p-8 text-center">
+                <div className="w-32 h-32 bg-gradient-to-br from-primary to-accent rounded-full mx-auto mb-6 flex items-center justify-center shadow-photo">
                   <span className="text-white text-4xl font-display font-semibold">JK</span>
                 </div>
                 <h3 className="font-display text-2xl font-semibold text-neutral-900 mb-2">
@@ -117,7 +117,7 @@ export default function AboutPage() {
         </section>
 
         {/* Mission Section */}
-        <section className="py-16 px-4 bg-white">
+        <section className="py-16 px-4 bg-paper">
           <div className="max-w-5xl mx-auto">
             <h2 className="font-display text-4xl font-semibold text-neutral-900 text-center mb-12">
               Our Mission
@@ -126,7 +126,7 @@ export default function AboutPage() {
             <div className="grid md:grid-cols-3 gap-8">
               {/* Preserve */}
               <div className="text-center">
-                <div className="w-20 h-20 bg-primary rounded-full flex items-center justify-center mx-auto mb-6">
+                <div className="w-20 h-20 bg-primary rounded-full flex items-center justify-center mx-auto mb-6 shadow-photo">
                   <Camera className="w-10 h-10 text-white" />
                 </div>
                 <h3 className="text-xl font-semibold text-neutral-900 mb-3">
@@ -139,7 +139,7 @@ export default function AboutPage() {
 
               {/* Connect */}
               <div className="text-center">
-                <div className="w-20 h-20 bg-accent rounded-full flex items-center justify-center mx-auto mb-6">
+                <div className="w-20 h-20 bg-accent rounded-full flex items-center justify-center mx-auto mb-6 shadow-photo">
                   <Users className="w-10 h-10 text-white" />
                 </div>
                 <h3 className="text-xl font-semibold text-neutral-900 mb-3">
@@ -152,7 +152,7 @@ export default function AboutPage() {
 
               {/* Discover */}
               <div className="text-center">
-                <div className="w-20 h-20 bg-success rounded-full flex items-center justify-center mx-auto mb-6">
+                <div className="w-20 h-20 bg-success rounded-full flex items-center justify-center mx-auto mb-6 shadow-photo">
                   <MapPin className="w-10 h-10 text-white" />
                 </div>
                 <h3 className="text-xl font-semibold text-neutral-900 mb-3">
@@ -177,13 +177,13 @@ export default function AboutPage() {
               of four frames, you belong here.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button asChild size="lg" className="text-base px-8 h-12">
+              <Button asChild size="lg" className="text-base px-8 h-12 btn-analog text-white border-0">
                 <Link href="/map">
                   <MapPin className="w-5 h-5 mr-2" />
                   Explore Booths
                 </Link>
               </Button>
-              <Button asChild variant="outline" size="lg" className="text-base px-8 h-12">
+              <Button asChild variant="outline" size="lg" className="text-base px-8 h-12 bg-white/90 backdrop-blur border-2 border-neutral-300 hover:bg-white hover:border-primary transition-all">
                 <Link href="/submit">
                   <Camera className="w-5 h-5 mr-2" />
                   Add a Booth
@@ -194,7 +194,7 @@ export default function AboutPage() {
         </section>
 
         {/* Stats Section */}
-        <section className="py-12 px-4 bg-primary text-white">
+        <section className="py-12 px-4 bg-primary text-white shadow-photo">
           <div className="max-w-6xl mx-auto">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
               <div>

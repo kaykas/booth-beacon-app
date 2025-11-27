@@ -57,7 +57,7 @@ export default async function Home() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
-      <section className="relative h-screen flex items-center justify-center bg-gradient-to-br from-secondary via-secondary-dark to-neutral-100">
+      <section className="relative h-screen flex items-center justify-center bg-gradient-to-br from-secondary via-secondary-dark to-neutral-100 film-grain warm-glow">
         {/* Optional: Background image with overlay */}
         <div className="absolute inset-0 bg-[url('/hero-booth.jpg')] bg-cover bg-center opacity-20"></div>
 
@@ -80,13 +80,13 @@ export default async function Home() {
 
           {/* CTAs */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button asChild size="lg" className="text-base px-8 h-12">
+            <Button asChild size="lg" className="text-base px-8 h-12 btn-analog text-white border-0">
               <Link href="/map">
                 <MapPin className="w-5 h-5 mr-2" />
                 Explore the Map
               </Link>
             </Button>
-            <Button asChild variant="outline" size="lg" className="text-base px-8 h-12">
+            <Button asChild variant="outline" size="lg" className="text-base px-8 h-12 bg-white/90 backdrop-blur border-2 border-neutral-300 hover:bg-white hover:border-primary transition-all">
               <Link href="#how-it-works">
                 How It Works
                 <ArrowRight className="w-5 h-5 ml-2" />
@@ -97,7 +97,7 @@ export default async function Home() {
       </section>
 
       {/* Stats Bar */}
-      <section className="bg-primary text-white py-6">
+      <section className="bg-primary text-white py-6 shadow-photo">
         <div className="max-w-6xl mx-auto px-4">
           <div className="flex flex-col sm:flex-row justify-around items-center gap-4 text-center">
             <div>
@@ -119,7 +119,7 @@ export default async function Home() {
       </section>
 
       {/* Map Preview Section */}
-      <section className="py-16 px-4 bg-neutral-100">
+      <section className="py-16 px-4 bg-paper">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-8">
             <h2 className="font-display text-4xl font-semibold text-neutral-900 mb-4">
@@ -148,7 +148,7 @@ export default async function Home() {
           </div>
 
           {/* Map */}
-          <div className="mb-6 rounded-lg overflow-hidden shadow-lg">
+          <div className="mb-6 rounded-lg overflow-hidden shadow-photo vignette">
             <Suspense fallback={<div className="h-[500px] bg-neutral-200 animate-pulse"></div>}>
               <BoothMap
                 booths={featuredBooths}
@@ -160,7 +160,7 @@ export default async function Home() {
           </div>
 
           <div className="text-center">
-            <Button asChild size="lg">
+            <Button asChild size="lg" className="btn-analog text-white border-0">
               <Link href="/map">View Full Map</Link>
             </Button>
           </div>
@@ -199,7 +199,7 @@ export default async function Home() {
       </section>
 
       {/* How It Works */}
-      <section id="how-it-works" className="py-16 px-4 bg-secondary">
+      <section id="how-it-works" className="py-16 px-4 bg-secondary film-grain">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="font-display text-4xl font-semibold text-neutral-900 mb-4">
@@ -213,7 +213,7 @@ export default async function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Step 1 */}
             <div className="text-center">
-              <div className="w-20 h-20 bg-primary rounded-full flex items-center justify-center mx-auto mb-6">
+              <div className="w-20 h-20 bg-primary rounded-full flex items-center justify-center mx-auto mb-6 shadow-photo">
                 <Search className="w-10 h-10 text-white" />
               </div>
               <h3 className="text-2xl font-semibold text-neutral-900 mb-3">
@@ -226,7 +226,7 @@ export default async function Home() {
 
             {/* Step 2 */}
             <div className="text-center">
-              <div className="w-20 h-20 bg-accent rounded-full flex items-center justify-center mx-auto mb-6">
+              <div className="w-20 h-20 bg-accent rounded-full flex items-center justify-center mx-auto mb-6 shadow-photo">
                 <Bookmark className="w-10 h-10 text-white" />
               </div>
               <h3 className="text-2xl font-semibold text-neutral-900 mb-3">
@@ -239,7 +239,7 @@ export default async function Home() {
 
             {/* Step 3 */}
             <div className="text-center">
-              <div className="w-20 h-20 bg-success rounded-full flex items-center justify-center mx-auto mb-6">
+              <div className="w-20 h-20 bg-success rounded-full flex items-center justify-center mx-auto mb-6 shadow-photo">
                 <Camera className="w-10 h-10 text-white" />
               </div>
               <h3 className="text-2xl font-semibold text-neutral-900 mb-3">
@@ -275,7 +275,7 @@ export default async function Home() {
             {['Berlin', 'New York', 'London'].map((city) => (
               <div
                 key={city}
-                className="group relative h-64 rounded-lg overflow-hidden cursor-pointer shadow-md hover:shadow-xl transition"
+                className="group relative h-64 rounded-lg overflow-hidden cursor-pointer shadow-photo hover:shadow-xl transition-all hover:-translate-y-1 vignette"
               >
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent z-10"></div>
                 <div className="absolute inset-0 bg-neutral-300"></div>
@@ -297,7 +297,7 @@ export default async function Home() {
       <PhotoStrips />
 
       {/* Community Section */}
-      <section className="py-16 px-4 bg-neutral-100">
+      <section className="py-16 px-4 bg-paper warm-glow">
         <div className="max-w-6xl mx-auto text-center">
           <h2 className="font-display text-4xl font-semibold text-neutral-900 mb-4">
             Join the Community
@@ -305,7 +305,7 @@ export default async function Home() {
           <p className="text-lg text-neutral-600 mb-8 max-w-2xl mx-auto">
             Share your photo strips, leave tips for other enthusiasts, and help us build the definitive photo booth directory.
           </p>
-          <Button asChild size="lg">
+          <Button asChild size="lg" className="btn-analog text-white border-0">
             <Link href="/submit">
               <Camera className="w-5 h-5 mr-2" />
               Add a Booth
