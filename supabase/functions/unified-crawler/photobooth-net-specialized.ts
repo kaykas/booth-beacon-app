@@ -14,7 +14,7 @@
  * 4. Uses AI extraction for detail pages
  */
 
-import { ExtractorResult, BoothData } from "./extractors";
+import { ExtractorResult, BoothData } from "./extractors.ts";
 
 interface BoothLink {
   name: string;

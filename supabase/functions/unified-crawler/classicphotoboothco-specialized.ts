@@ -16,7 +16,7 @@
  * 4. Handles embedded location data and map markers
  */
 
-import { ExtractorResult, BoothData } from "./extractors";
+import { ExtractorResult, BoothData } from "./extractors.ts";
 
 interface ClassicBoothLocation {
   name: string;

@@ -16,7 +16,7 @@
  * 4. Captures operational status and maintenance info
  */
 
-import { ExtractorResult, BoothData } from "./extractors";
+import { ExtractorResult, BoothData } from "./extractors.ts";
 
 interface PhotomaticaLocation {
   name: string;

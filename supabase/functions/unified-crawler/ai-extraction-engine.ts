@@ -12,8 +12,8 @@
  * - Quality validation
  */
 
-import { BoothData, ExtractorResult } from "./extractors";
-import type { AnthropicResponse, AnthropicContentBlock } from "./types";
+import { BoothData, ExtractorResult } from "./extractors.ts";
+import type { AnthropicResponse, AnthropicContentBlock } from "./types.ts";
 
 export interface AIExtractionConfig {
   source_name: string;

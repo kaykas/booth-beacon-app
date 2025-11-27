@@ -3,9 +3,9 @@
  * Each extractor handles a specific website's structure and data format
  */
 
-import { BaseExtractor } from './base-extractor';
-import type { AnthropicResponse, AnthropicContentBlock } from "./types";
-import { toError } from "./types";
+import { BaseExtractor } from './base-extractor.ts';
+import type { AnthropicResponse, AnthropicContentBlock } from "./types.ts";
+import { toError } from "./types.ts";
 
 export interface BoothData {
   name: string;

@@ -9,7 +9,7 @@
  */
 
 import { assertEquals, assert } from "https://deno.land/std/testing/asserts.ts";
-import { validateCountry, isValidCountry, getAllValidCountries } from "./country-validation";
+import { validateCountry, isValidCountry, getAllValidCountries } from "./country-validation.ts";
 
 // ========================================
 // BOOTH VALIDATION TESTS
