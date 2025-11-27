@@ -39,8 +39,11 @@ export default function MapPage() {
     fetchBooths();
   }, []);
 
-  // Get user location on mount
+  // Get user location only when "Near Me" feature is activated
   useEffect(() => {
+    if (!sortByDistance) return;
+    if (userLocation) return; // Already have location
+
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -51,10 +54,11 @@ export default function MapPage() {
         },
         (error) => {
           console.error('Error getting user location:', error);
+          setSortByDistance(false); // Disable if location denied
         }
       );
     }
-  }, []);
+  }, [sortByDistance, userLocation]);
 
   // Apply filters whenever filters or booths change
   useEffect(() => {
@@ -137,8 +141,8 @@ export default function MapPage() {
   return (
     <div className="h-screen flex flex-col">
       {/* Header */}
-      <header className="bg-white border-b border-neutral-200 px-4 py-3 flex items-center gap-4 z-10">
-        <Link href="/" className="font-display text-xl font-semibold text-neutral-900">
+      <header className="bg-card border-b border-border px-4 py-3 flex items-center gap-4 z-10">
+        <Link href="/" className="font-display text-xl font-semibold text-foreground">
           Booth Beacon
         </Link>
 
@@ -170,7 +174,7 @@ export default function MapPage() {
         </Button>
 
         {/* View Toggle */}
-        <div className="flex gap-1 bg-neutral-100 rounded-lg p-1">
+        <div className="flex gap-1 bg-secondary rounded-lg p-1">
           <Button
             variant={view === 'map' ? 'default' : 'ghost'}
             size="sm"
@@ -194,9 +198,9 @@ export default function MapPage() {
       <div className="flex-1 flex overflow-hidden">
         {/* Filter Panel */}
         {showFilters && (
-          <aside className="w-80 bg-white border-r border-neutral-200 p-6 overflow-y-auto">
+          <aside className="w-80 bg-card border-r border-border p-6 overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="font-semibold text-lg">Filters</h2>
+              <h2 className="font-semibold text-lg text-foreground">Filters</h2>
               <Button variant="ghost" size="sm" onClick={() => setShowFilters(false)}>
                 <X className="w-4 h-4" />
               </Button>
@@ -205,7 +209,7 @@ export default function MapPage() {
             <div className="space-y-6">
               {/* Status Filter */}
               <div>
-                <label className="text-sm font-medium text-neutral-700 mb-2 block">
+                <label className="text-sm font-medium text-foreground mb-2 block">
                   Status
                 </label>
                 <Select
@@ -225,7 +229,7 @@ export default function MapPage() {
 
               {/* Photo Type Filter */}
               <div>
-                <label className="text-sm font-medium text-neutral-700 mb-2 block">
+                <label className="text-sm font-medium text-foreground mb-2 block">
                   Photo Type
                 </label>
                 <Select
@@ -247,7 +251,7 @@ export default function MapPage() {
 
               {/* Machine Model Filter */}
               <div>
-                <label className="text-sm font-medium text-neutral-700 mb-2 block">
+                <label className="text-sm font-medium text-foreground mb-2 block">
                   Machine Model
                 </label>
                 <Select
@@ -271,7 +275,7 @@ export default function MapPage() {
 
               {/* Payment Filter */}
               <div>
-                <label className="text-sm font-medium text-neutral-700 mb-2 block">
+                <label className="text-sm font-medium text-foreground mb-2 block">
                   Payment Type
                 </label>
                 <Select
@@ -300,7 +304,7 @@ export default function MapPage() {
                 filters.payment) && (
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-neutral-700">Active Filters</span>
+                    <span className="text-sm font-medium text-foreground">Active Filters</span>
                     <Button variant="ghost" size="sm" onClick={clearFilters}>
                       Clear All
                     </Button>
@@ -345,10 +349,10 @@ export default function MapPage() {
             </div>
 
             {/* Results Count */}
-            <div className="mt-6 pt-6 border-t border-neutral-200">
-              <div className="text-sm text-neutral-600">
-                Showing <span className="font-semibold text-neutral-900">{filteredBooths.length}</span> of{' '}
-                <span className="font-semibold text-neutral-900">{booths.length}</span> booths
+            <div className="mt-6 pt-6 border-t border-border">
+              <div className="text-sm text-muted-foreground">
+                Showing <span className="font-semibold text-foreground">{filteredBooths.length}</span> of{' '}
+                <span className="font-semibold text-foreground">{booths.length}</span> booths
               </div>
             </div>
           </aside>
@@ -357,10 +361,10 @@ export default function MapPage() {
         {/* Map or List View */}
         <div className="flex-1 relative">
           {loading ? (
-            <div className="h-full flex items-center justify-center bg-neutral-100">
+            <div className="h-full flex items-center justify-center bg-background">
               <div className="text-center">
                 <Loader2 className="w-12 h-12 text-primary animate-spin mx-auto mb-4" />
-                <p className="text-neutral-600">Loading booths...</p>
+                <p className="text-muted-foreground">Loading booths...</p>
               </div>
             </div>
           ) : view === 'map' ? (
@@ -371,24 +375,24 @@ export default function MapPage() {
               zoom={4}
             />
           ) : (
-            <div className="h-full overflow-y-auto bg-neutral-50 p-6">
+            <div className="h-full overflow-y-auto bg-background p-6">
               <div className="max-w-4xl mx-auto">
                 <div className="mb-6">
-                  <h2 className="text-2xl font-semibold text-neutral-900 mb-2">
+                  <h2 className="text-2xl font-semibold text-foreground mb-2">
                     All Booths
                   </h2>
-                  <p className="text-neutral-600">
+                  <p className="text-muted-foreground">
                     {filteredBooths.length} {filteredBooths.length === 1 ? 'booth' : 'booths'} found
                   </p>
                 </div>
 
                 {filteredBooths.length === 0 ? (
                   <div className="text-center py-12">
-                    <MapPin className="w-16 h-16 text-neutral-300 mx-auto mb-4" />
-                    <h3 className="text-xl font-semibold text-neutral-900 mb-2">
+                    <MapPin className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-xl font-semibold text-foreground mb-2">
                       No booths found
                     </h3>
-                    <p className="text-neutral-600 mb-4">
+                    <p className="text-muted-foreground mb-4">
                       Try adjusting your filters or search term.
                     </p>
                     <Button onClick={clearFilters}>Clear Filters</Button>
