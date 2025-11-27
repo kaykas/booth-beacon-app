@@ -24,7 +24,18 @@ export default function AdminPage() {
     pendingPhotos: 0,
     totalReviews: 0,
   });
-  const [pendingPhotos, setPendingPhotos] = useState<any[]>([]);
+  interface PendingPhoto {
+    id: string;
+    image_url: string;
+    caption?: string;
+    booth_id: string;
+    booth?: {
+      name: string;
+      city?: string;
+      country: string;
+    };
+  }
+  const [pendingPhotos, setPendingPhotos] = useState<PendingPhoto[]>([]);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -193,7 +204,7 @@ export default function AdminPage() {
                             {photo.booth?.city}, {photo.booth?.country}
                           </p>
                           {photo.caption && (
-                            <p className="text-sm text-neutral-700 mb-3 italic">"{photo.caption}"</p>
+                            <p className="text-sm text-neutral-700 mb-3 italic">&quot;{photo.caption}&quot;</p>
                           )}
                           <div className="flex gap-2">
                             <Button

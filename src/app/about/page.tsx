@@ -1,7 +1,6 @@
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { Camera, Heart, MapPin, Users } from 'lucide-react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
@@ -38,7 +37,7 @@ export default function AboutPage() {
                   In 2019, <strong>Alexandra Roberts</strong> and <strong>Jascha Kaykas-Wolff</strong>
                   were wandering through Berlin when they stumbled upon a vintage photo booth tucked
                   in the corner of a dimly lit bar. The flash. The mechanical whir. The anticipation
-                  of waiting for the strip to develop. That moment rekindled something they'd both
+                  of waiting for the strip to develop. That moment rekindled something they&apos;d both
                   forgotten—the pure, unfiltered joy of analog photography.
                 </p>
 
@@ -52,7 +51,7 @@ export default function AboutPage() {
                 <p className="text-neutral-700 leading-relaxed mb-6">
                   But as they traveled—from Brooklyn dive bars to London train stations, from
                   Tokyo arcades to Paris cafés—they kept asking the same question:
-                  <strong> "Where's the nearest photo booth?"</strong>
+                  <strong> &quot;Where&apos;s the nearest photo booth?&quot;</strong>
                 </p>
 
                 <p className="text-neutral-700 leading-relaxed mb-6">
@@ -71,8 +70,8 @@ export default function AboutPage() {
 
                 <div className="bg-secondary p-6 rounded-lg border-l-4 border-primary">
                   <p className="text-neutral-800 italic text-lg leading-relaxed">
-                    "Every photo booth has a story. Every strip is a time capsule.
-                    We built Booth Beacon to make sure these stories never fade."
+                    &quot;Every photo booth has a story. Every strip is a time capsule.
+                    We built Booth Beacon to make sure these stories never fade.&quot;
                   </p>
                   <p className="text-neutral-600 mt-3">
                     — Alexandra & Jascha
@@ -94,7 +93,7 @@ export default function AboutPage() {
                 <p className="text-primary font-medium mb-4">Co-Founder</p>
                 <p className="text-neutral-600 leading-relaxed">
                   Analog photography enthusiast, collector of vintage cameras, and believer
-                  that the best moments happen when you can't retake the shot.
+                  that the best moments happen when you can&apos;t retake the shot.
                 </p>
               </div>
 
@@ -108,7 +107,7 @@ export default function AboutPage() {
                 </h3>
                 <p className="text-primary font-medium mb-4">Co-Founder</p>
                 <p className="text-neutral-600 leading-relaxed">
-                  Tech builder, world traveler, and photo booth detective who's convinced
+                  Tech builder, world traveler, and photo booth detective who&apos;s convinced
                   every city has hidden booth gems waiting to be discovered.
                 </p>
               </div>
@@ -173,7 +172,7 @@ export default function AboutPage() {
               Join Our Community
             </h2>
             <p className="text-xl text-neutral-700 mb-8 max-w-2xl mx-auto">
-              Whether you're a collector, traveler, or just someone who loves the magic
+              Whether you&apos;re a collector, traveler, or just someone who loves the magic
               of four frames, you belong here.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">

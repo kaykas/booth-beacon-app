@@ -67,7 +67,7 @@ export default async function Home() {
           </h1>
 
           <p className="text-xl md:text-2xl text-neutral-700 mb-8 max-w-2xl mx-auto">
-            The world's most comprehensive analog photo booth directory.
+            The world&apos;s most comprehensive analog photo booth directory.
           </p>
 
           {/* Search Bar */}
@@ -337,7 +337,7 @@ export default async function Home() {
                 Booth Beacon
               </h3>
               <p className="text-neutral-400 text-sm">
-                Find your next four frames. The world's most comprehensive analog photo booth directory.
+                Find your next four frames. The world&apos;s most comprehensive analog photo booth directory.
               </p>
             </div>
 

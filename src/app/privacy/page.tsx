@@ -67,13 +67,13 @@ export default function PrivacyPage() {
 
             <section className="mb-8">
               <h2 className="font-display text-2xl font-semibold text-neutral-900 mb-4">
-                What We Don't Do
+                What We Don&apos;t Do
               </h2>
               <ul className="list-disc pl-6 space-y-3 text-neutral-700">
-                <li>We don't sell your personal information to third parties</li>
-                <li>We don't track your precise location without your explicit consent</li>
-                <li>We don't spam you with marketing emails</li>
-                <li>We don't share your data with advertisers</li>
+                <li>We don&apos;t sell your personal information to third parties</li>
+                <li>We don&apos;t track your precise location without your explicit consent</li>
+                <li>We don&apos;t spam you with marketing emails</li>
+                <li>We don&apos;t share your data with advertisers</li>
               </ul>
             </section>
 

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Example usage of Supabase client and types
  * These examples demonstrate common patterns for querying the database

@@ -37,51 +37,8 @@ export default function MapPage() {
   const [sortByDistance, setSortByDistance] = useState(false);
   const [locationRequested, setLocationRequested] = useState(false);
 
-  // Initialize filters from URL params
-  useEffect(() => {
-    const city = searchParams.get('city');
-    const nearMe = searchParams.get('nearme');
-
-    if (city) {
-      setFilters(prev => ({ ...prev, location: city }));
-    }
-    if (nearMe === 'true') {
-      setSortByDistance(true);
-    }
-  }, [searchParams]);
-
-  // Fetch all booths on mount
-  useEffect(() => {
-    fetchBooths();
-  }, []);
-
-  // Get user location on mount (only once)
-  useEffect(() => {
-    if (locationRequested || userLocation) return;
-
-    if ('geolocation' in navigator) {
-      setLocationRequested(true);
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setUserLocation({
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          });
-        },
-        (error) => {
-          console.log('Location not available:', error.message);
-          // Silently fail - user may have denied or it's not available
-        }
-      );
-    }
-  }, [locationRequested, userLocation]);
-
-  // Apply filters whenever filters or booths change
-  useEffect(() => {
-    applyFilters();
-  }, [filters, booths, sortByDistance, userLocation]);
-
-  async function fetchBooths() {
+  // Define fetchBooths function
+  const fetchBooths = async () => {
     setLoading(true);
 
     let query = supabase.from('booths').select('*');
@@ -101,9 +58,10 @@ export default function MapPage() {
     }
 
     setLoading(false);
-  }
+  };
 
-  function applyFilters() {
+  // Define applyFilters function
+  const applyFilters = () => {
     let filtered = [...booths];
 
     // Location filter
@@ -148,11 +106,57 @@ export default function MapPage() {
     }
 
     setFilteredBooths(filtered);
-  }
+  };
 
-  function clearFilters() {
+  const clearFilters = () => {
     setFilters({ status: 'all' });
-  }
+  };
+
+  // Initialize filters from URL params
+  useEffect(() => {
+    const city = searchParams.get('city');
+    const nearMe = searchParams.get('nearme');
+
+    if (city) {
+      setFilters(prev => ({ ...prev, location: city }));
+    }
+    if (nearMe === 'true') {
+      setSortByDistance(true);
+    }
+  }, [searchParams]);
+
+  // Fetch all booths on mount
+  useEffect(() => {
+    fetchBooths();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Get user location on mount (only once)
+  useEffect(() => {
+    if (locationRequested || userLocation) return;
+
+    if ('geolocation' in navigator) {
+      setLocationRequested(true);
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          });
+        },
+        (error) => {
+          console.log('Location not available:', error.message);
+          // Silently fail - user may have denied or it's not available
+        }
+      );
+    }
+  }, [locationRequested, userLocation]);
+
+  // Apply filters whenever filters or booths change
+  useEffect(() => {
+    applyFilters();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters, booths, sortByDistance, userLocation]);
 
   return (
     <div className="h-screen flex flex-col">
@@ -230,7 +234,7 @@ export default function MapPage() {
                 </label>
                 <Select
                   value={filters.status}
-                  onValueChange={(value: any) => setFilters({ ...filters, status: value })}
+                  onValueChange={(value: 'active' | 'unverified' | 'all') => setFilters({ ...filters, status: value })}
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -250,7 +254,7 @@ export default function MapPage() {
                 </label>
                 <Select
                   value={filters.photoType || 'both'}
-                  onValueChange={(value: any) =>
+                  onValueChange={(value: 'black-and-white' | 'color' | 'both') =>
                     setFilters({ ...filters, photoType: value === 'both' ? undefined : value })
                   }
                 >
@@ -296,7 +300,7 @@ export default function MapPage() {
                 </label>
                 <Select
                   value={filters.payment || 'both'}
-                  onValueChange={(value: any) =>
+                  onValueChange={(value: 'cash' | 'card' | 'both') =>
                     setFilters({ ...filters, payment: value === 'both' ? undefined : value })
                   }
                 >

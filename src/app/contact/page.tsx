@@ -33,7 +33,7 @@ export default function ContactPage() {
               Get in Touch
             </h1>
             <p className="text-xl text-neutral-700 max-w-2xl mx-auto">
-              Have a question, found a booth, or just want to say hello? We'd love to hear from you.
+              Have a question, found a booth, or just want to say hello? We&apos;d love to hear from you.
             </p>
           </div>
         </section>
@@ -110,7 +110,7 @@ export default function ContactPage() {
                       Message Sent!
                     </h3>
                     <p className="text-neutral-600">
-                      Thanks for reaching out. We'll get back to you as soon as possible.
+                      Thanks for reaching out. We&apos;ll get back to you as soon as possible.
                     </p>
                   </div>
                 ) : (

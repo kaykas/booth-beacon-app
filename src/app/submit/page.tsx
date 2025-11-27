@@ -45,7 +45,7 @@ export default function SubmitBoothPage() {
               Submit a Booth
             </h1>
             <p className="text-xl text-neutral-700 max-w-2xl mx-auto">
-              Found a photo booth that's not on our map? Help the community by adding it to our directory.
+              Found a photo booth that&apos;s not on our map? Help the community by adding it to our directory.
             </p>
           </div>
         </section>
@@ -63,7 +63,7 @@ export default function SubmitBoothPage() {
                 </h2>
                 <p className="text-neutral-600 mb-6">
                   Your booth submission has been received. Our team will review it and add it to the
-                  directory within 24-48 hours. We'll email you when it's live!
+                  directory within 24-48 hours. We&apos;ll email you when it&apos;s live!
                 </p>
                 <Button
                   onClick={() => {
@@ -96,8 +96,8 @@ export default function SubmitBoothPage() {
                     <strong>Tips for a great submission:</strong>
                     <ul className="mt-2 space-y-1 list-disc pl-4">
                       <li>Be as specific as possible with the location</li>
-                      <li>Include the venue name if it's inside a business</li>
-                      <li>Note if it's cash-only or accepts cards</li>
+                      <li>Include the venue name if it&apos;s inside a business</li>
+                      <li>Note if it&apos;s cash-only or accepts cards</li>
                     </ul>
                   </div>
                 </div>
@@ -185,7 +185,7 @@ export default function SubmitBoothPage() {
                               <SelectValue placeholder="Select or unknown" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="unknown">Don't know</SelectItem>
+                              <SelectItem value="unknown">Don&apos;t know</SelectItem>
                               <SelectItem value="Photo-Me Model 9">Photo-Me Model 9</SelectItem>
                               <SelectItem value="Photo-Me Model 11">Photo-Me Model 11</SelectItem>
                               <SelectItem value="Photomatic">Photomatic</SelectItem>
@@ -282,7 +282,7 @@ export default function SubmitBoothPage() {
                       placeholder="We'll notify you when the booth is added"
                     />
                     <p className="text-xs text-neutral-500 mt-1">
-                      We'll only use this to let you know when your submission goes live.
+                      We&apos;ll only use this to let you know when your submission goes live.
                     </p>
                   </div>
 

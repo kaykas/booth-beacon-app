@@ -195,7 +195,7 @@ export default function GuidesPage() {
                   More Guides Coming Soon
                 </h3>
                 <p className="text-neutral-600 mb-4">
-                  We're working on guides for Barcelona, Vienna, Melbourne, and more.
+                  We&apos;re working on guides for Barcelona, Vienna, Melbourne, and more.
                 </p>
                 <Link
                   href="/contact"

@@ -26,8 +26,8 @@ export default function TermsPage() {
                 Welcome to Booth Beacon
               </h2>
               <p className="text-neutral-700 leading-relaxed">
-                These terms govern your use of Booth Beacon, the world's comprehensive analog photo booth
-                directory. By using our service, you agree to these terms. We've tried to keep them
+                These terms govern your use of Booth Beacon, the world&apos;s comprehensive analog photo booth
+                directory. By using our service, you agree to these terms. We&apos;ve tried to keep them
                 straightforward and fair.
               </p>
             </section>
@@ -52,7 +52,7 @@ export default function TermsPage() {
                 Your Account
               </h2>
               <p className="text-neutral-700 leading-relaxed">
-                You're responsible for keeping your account secure. Don't share your login credentials.
+                You&apos;re responsible for keeping your account secure. Don&apos;t share your login credentials.
                 If you suspect unauthorized access, let us know immediately. You must be at least 13
                 years old to create an account.
               </p>
@@ -78,13 +78,13 @@ export default function TermsPage() {
                 Community Guidelines
               </h2>
               <p className="text-neutral-700 leading-relaxed mb-4">
-                We're building a friendly community of photo booth enthusiasts. Please:
+                We&apos;re building a friendly community of photo booth enthusiasts. Please:
               </p>
               <ul className="list-disc pl-6 space-y-3 text-neutral-700">
                 <li>Be respectful to other users</li>
                 <li>Submit accurate information about booths</li>
                 <li>Only upload photos you have permission to share</li>
-                <li>Don't spam, harass, or impersonate others</li>
+                <li>Don&apos;t spam, harass, or impersonate others</li>
                 <li>Report inaccurate or inappropriate content</li>
               </ul>
             </section>
@@ -94,10 +94,10 @@ export default function TermsPage() {
                 Booth Information Accuracy
               </h2>
               <p className="text-neutral-700 leading-relaxed">
-                We do our best to keep booth information accurate, but we can't guarantee every detail
+                We do our best to keep booth information accurate, but we can&apos;t guarantee every detail
                 is up-to-date. Booths may move, close, or change hours without notice. Always verify
-                important details before making a special trip. We're not responsible for booths that
-                aren't where we say they are.
+                important details before making a special trip. We&apos;re not responsible for booths that
+                aren&apos;t where we say they are.
               </p>
             </section>
 
@@ -107,7 +107,7 @@ export default function TermsPage() {
               </h2>
               <p className="text-neutral-700 leading-relaxed">
                 The Booth Beacon name, logo, and original content are our property. The booth data
-                we've compiled is also our property. You may not scrape, copy, or redistribute our
+                we&apos;ve compiled is also our property. You may not scrape, copy, or redistribute our
                 database without permission.
               </p>
             </section>

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
@@ -81,7 +82,9 @@ export function BoothMap({
     const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
     if (!apiKey) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setError('Google Maps API key not configured');
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsLoading(false);
       return;
     }
@@ -181,6 +184,7 @@ export function BoothMap({
       newMarkers.push(marker);
     });
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMarkers(newMarkers);
 
     // Add marker clustering if enabled
@@ -213,6 +217,7 @@ export function BoothMap({
     if (locationRequested || userLocation) return; // Already requested or have it
 
     if ('geolocation' in navigator) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLocationRequested(true);
       navigator.geolocation.getCurrentPosition(
         (position) => {

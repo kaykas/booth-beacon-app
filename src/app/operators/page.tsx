@@ -193,7 +193,7 @@ export default function OperatorsPage() {
                   Are You an Operator?
                 </h3>
                 <p className="text-neutral-600 mb-4 max-w-md">
-                  If you maintain photo booths and want to be listed on Booth Beacon, we'd love to
+                  If you maintain photo booths and want to be listed on Booth Beacon, we&apos;d love to
                   hear from you. Claim your booths and tell your story.
                 </p>
                 <Link

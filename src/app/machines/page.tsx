@@ -107,7 +107,7 @@ export default function MachinesPage() {
             </h1>
             <p className="text-xl text-neutral-700 max-w-2xl mx-auto">
               From vintage chemical processors to modern classics, explore the different
-              photo booth machines you'll encounter in the wild.
+              photo booth machines you&apos;ll encounter in the wild.
             </p>
           </div>
         </section>
@@ -223,10 +223,10 @@ export default function MachinesPage() {
             <div className="mt-16 text-center">
               <div className="card-vintage rounded-lg p-8 inline-block">
                 <h3 className="font-display text-2xl font-semibold text-neutral-900 mb-3">
-                  Know a Model We're Missing?
+                  Know a Model We&apos;re Missing?
                 </h3>
                 <p className="text-neutral-600 mb-4">
-                  Help us document photo booth history by telling us about machines we haven't listed.
+                  Help us document photo booth history by telling us about machines we haven&apos;t listed.
                 </p>
                 <Link
                   href="/contact"
