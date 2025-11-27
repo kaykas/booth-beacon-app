@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import { Booth, Coordinates } from '@/types';
 import { MapPin, Loader2 } from 'lucide-react';
 import { MarkerClusterer } from '@googlemaps/markerclusterer';
@@ -13,7 +13,12 @@ interface BoothMapProps {
   onBoothClick?: (booth: Booth) => void;
   showClustering?: boolean;
   showUserLocation?: boolean;
+  externalUserLocation?: Coordinates | null; // Pass user location from parent to avoid duplicate geolocation requests
 }
+
+// Default center coordinates (NYC)
+const DEFAULT_CENTER = { lat: 40.7128, lng: -74.0060 };
+const DEFAULT_ZOOM = 12;
 
 // Dark map styling - sophisticated nightclub aesthetic
 const mapStyles: google.maps.MapTypeStyle[] = [
@@ -74,33 +79,47 @@ const statusColors = {
 
 export function BoothMap({
   booths,
-  center = { lat: 40.7128, lng: -74.0060 }, // Default to NYC
-  zoom = 12,
+  center,
+  zoom,
   onBoothClick,
   showClustering = true,
   showUserLocation = false,
+  externalUserLocation,
 }: BoothMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
+  const mapInstanceRef = useRef<google.maps.Map | null>(null);
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [markers, setMarkers] = useState<google.maps.Marker[]>([]);
   const [markerClusterer, setMarkerClusterer] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [userLocation, setUserLocation] = useState<Coordinates | null>(null);
+  const [internalUserLocation, setInternalUserLocation] = useState<Coordinates | null>(null);
   const userMarkerRef = useRef<google.maps.Marker | null>(null);
+  const isInitializedRef = useRef(false);
 
-  // Initialize Google Maps using robust loader
+  // Use external location if provided, otherwise use internal state
+  const userLocation = externalUserLocation ?? internalUserLocation;
+
+  // Memoize center and zoom to prevent unnecessary re-renders
+  const stableCenter = useMemo(() => center || DEFAULT_CENTER, [center?.lat, center?.lng]);
+  const stableZoom = useMemo(() => zoom ?? DEFAULT_ZOOM, [zoom]);
+
+  // Initialize Google Maps using robust loader - only once
   useEffect(() => {
+    // Prevent re-initialization
+    if (isInitializedRef.current || mapInstanceRef.current) return;
+
     const initMap = async () => {
       if (!mapRef.current) return;
 
       try {
+        isInitializedRef.current = true;
         setIsLoading(true);
         await loadGoogleMaps();
 
         const mapInstance = new google.maps.Map(mapRef.current, {
-          center,
-          zoom,
+          center: stableCenter,
+          zoom: stableZoom,
           styles: mapStyles,
           disableDefaultUI: false,
           zoomControl: true,
@@ -110,17 +129,19 @@ export function BoothMap({
           gestureHandling: 'greedy',
         });
 
+        mapInstanceRef.current = mapInstance;
         setMap(mapInstance);
         setIsLoading(false);
       } catch (err) {
         console.error('Error loading Google Maps:', err);
         setError(err instanceof Error ? err.message : 'Failed to load Google Maps');
         setIsLoading(false);
+        isInitializedRef.current = false; // Allow retry on error
       }
     };
 
     initMap();
-  }, [center, zoom]);
+  }, [stableCenter, stableZoom]);
 
   // Create markers for booths
   useEffect(() => {
@@ -197,18 +218,23 @@ export function BoothMap({
   }, [map, booths, onBoothClick, showClustering]);
 
   // Get user location (only once when component mounts)
+  const locationRequestedRef = useRef(false);
+
   useEffect(() => {
     if (!showUserLocation || !map) return;
-    if (userLocation) return; // Don't ask again if we already have it
+    // Skip if external location is provided or already have location
+    if (externalUserLocation || locationRequestedRef.current || internalUserLocation) return;
 
     if ('geolocation' in navigator) {
+      locationRequestedRef.current = true;
+
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const userPos = {
             lat: position.coords.latitude,
             lng: position.coords.longitude,
           };
-          setUserLocation(userPos);
+          setInternalUserLocation(userPos);
 
           // Clean up existing marker if any
           if (userMarkerRef.current) {
@@ -245,7 +271,40 @@ export function BoothMap({
         userMarkerRef.current = null;
       }
     };
-  }, [map, showUserLocation, userLocation]);
+  }, [map, showUserLocation, internalUserLocation, externalUserLocation]);
+
+  // Create user marker when external location is provided
+  useEffect(() => {
+    if (!showUserLocation || !map || !externalUserLocation) return;
+
+    // Clean up existing marker if any
+    if (userMarkerRef.current) {
+      userMarkerRef.current.setMap(null);
+    }
+
+    // Add user location marker for external location
+    userMarkerRef.current = new google.maps.Marker({
+      position: externalUserLocation,
+      map,
+      icon: {
+        path: google.maps.SymbolPath.CIRCLE,
+        fillColor: '#d14371',
+        fillOpacity: 1,
+        strokeColor: '#ffffff',
+        strokeWeight: 3,
+        scale: 10,
+      },
+      title: 'Your location',
+      zIndex: 1000,
+    });
+
+    return () => {
+      if (userMarkerRef.current) {
+        userMarkerRef.current.setMap(null);
+        userMarkerRef.current = null;
+      }
+    };
+  }, [map, showUserLocation, externalUserLocation]);
 
   // Center on user location
   const centerOnUser = () => {

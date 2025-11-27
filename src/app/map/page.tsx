@@ -369,6 +369,7 @@ export default function MapPage() {
               showUserLocation={true}
               showClustering={true}
               zoom={4}
+              externalUserLocation={userLocation}
             />
           ) : (
             <div className="h-full overflow-y-auto bg-neutral-50 p-6">
