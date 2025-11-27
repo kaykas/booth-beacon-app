@@ -243,13 +243,13 @@ export default async function Home() {
       </section>
 
       {/* How It Works */}
-      <section id="how-it-works" className="py-16 px-4 bg-secondary film-grain">
+      <section id="how-it-works" className="py-16 px-4 bg-card film-grain">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="font-display text-4xl font-semibold text-neutral-900 mb-4">
+            <h2 className="font-display text-4xl font-semibold text-foreground mb-4">
               How It Works
             </h2>
-            <p className="text-lg text-neutral-600">
+            <p className="text-lg text-muted-foreground">
               Three simple steps to analog memories
             </p>
           </div>
@@ -257,39 +257,39 @@ export default async function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Step 1 */}
             <div className="text-center">
-              <div className="w-20 h-20 bg-primary rounded-full flex items-center justify-center mx-auto mb-6 shadow-photo">
+              <div className="w-20 h-20 bg-primary rounded-full flex items-center justify-center mx-auto mb-6 shadow-glow">
                 <Search className="w-10 h-10 text-white" />
               </div>
-              <h3 className="text-2xl font-semibold text-neutral-900 mb-3">
+              <h3 className="text-2xl font-semibold text-foreground mb-3">
                 1. Discover
               </h3>
-              <p className="text-neutral-600">
+              <p className="text-muted-foreground">
                 Browse our map or search for photo booths near you. Filter by type, location, or machine model.
               </p>
             </div>
 
             {/* Step 2 */}
             <div className="text-center">
-              <div className="w-20 h-20 bg-accent rounded-full flex items-center justify-center mx-auto mb-6 shadow-photo">
+              <div className="w-20 h-20 bg-primary rounded-full flex items-center justify-center mx-auto mb-6 shadow-glow">
                 <Bookmark className="w-10 h-10 text-white" />
               </div>
-              <h3 className="text-2xl font-semibold text-neutral-900 mb-3">
+              <h3 className="text-2xl font-semibold text-foreground mb-3">
                 2. Save
               </h3>
-              <p className="text-neutral-600">
+              <p className="text-muted-foreground">
                 Bookmark your favorites and export them to Google Maps for easy navigation on your next trip.
               </p>
             </div>
 
             {/* Step 3 */}
             <div className="text-center">
-              <div className="w-20 h-20 bg-success rounded-full flex items-center justify-center mx-auto mb-6 shadow-photo">
+              <div className="w-20 h-20 bg-success rounded-full flex items-center justify-center mx-auto mb-6 shadow-glow">
                 <Camera className="w-10 h-10 text-white" />
               </div>
-              <h3 className="text-2xl font-semibold text-neutral-900 mb-3">
+              <h3 className="text-2xl font-semibold text-foreground mb-3">
                 3. Visit
               </h3>
-              <p className="text-neutral-600">
+              <p className="text-muted-foreground">
                 Take your four frames. Share your strips with the community. Help others discover the magic.
               </p>
             </div>
@@ -298,40 +298,49 @@ export default async function Home() {
       </section>
 
       {/* City Guides Preview */}
-      <section className="py-16 px-4 bg-white">
+      <section className="py-16 px-4 bg-background">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h2 className="font-display text-4xl font-semibold text-neutral-900 mb-2">
+              <h2 className="font-display text-4xl font-semibold text-foreground mb-2">
                 City Guides
               </h2>
-              <p className="text-lg text-neutral-600">
+              <p className="text-lg text-muted-foreground">
                 Curated photo booth tours in your favorite cities
               </p>
             </div>
-            <Button asChild variant="outline">
+            <Button asChild variant="outline" className="border-primary/20 hover:border-primary">
               <Link href="/guides">View All Guides</Link>
             </Button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* Placeholder city guide cards */}
-            {['Berlin', 'New York', 'London'].map((city) => (
-              <div
-                key={city}
+            {/* City guide cards with images */}
+            {[
+              { city: 'Berlin', image: 'https://images.unsplash.com/photo-1560969184-10fe8719e047?w=600&h=400&fit=crop', booths: 15, neighborhoods: 5 },
+              { city: 'New York', image: 'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=600&h=400&fit=crop', booths: 22, neighborhoods: 6 },
+              { city: 'London', image: 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=600&h=400&fit=crop', booths: 18, neighborhoods: 4 },
+            ].map((guide) => (
+              <Link
+                key={guide.city}
+                href={`/guides/${guide.city.toLowerCase().replace(' ', '-')}`}
                 className="group relative h-64 rounded-lg overflow-hidden cursor-pointer shadow-photo hover:shadow-xl transition-all hover:-translate-y-1 vignette"
               >
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent z-10"></div>
-                <div className="absolute inset-0 bg-neutral-300"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10"></div>
+                <img
+                  src={guide.image}
+                  alt={`${guide.city} cityscape`}
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
                 <div className="absolute bottom-0 left-0 right-0 p-6 z-20 text-white">
                   <h3 className="text-2xl font-semibold mb-2">
-                    {city} Photo Booth Tour
+                    {guide.city} Photo Booth Tour
                   </h3>
                   <p className="text-sm opacity-90">
-                    12 booths • 4 neighborhoods • 5 hours
+                    {guide.booths} booths • {guide.neighborhoods} neighborhoods
                   </p>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
@@ -341,12 +350,12 @@ export default async function Home() {
       <PhotoStrips />
 
       {/* Community Section */}
-      <section className="py-16 px-4 bg-paper warm-glow">
+      <section className="py-16 px-4 bg-card warm-glow">
         <div className="max-w-6xl mx-auto text-center">
-          <h2 className="font-display text-4xl font-semibold text-neutral-900 mb-4">
+          <h2 className="font-display text-4xl font-semibold text-foreground mb-4">
             Join the Community
           </h2>
-          <p className="text-lg text-neutral-600 mb-8 max-w-2xl mx-auto">
+          <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
             Share your photo strips, leave tips for other enthusiasts, and help us build the definitive photo booth directory.
           </p>
           <Button asChild size="lg" className="btn-analog text-white border-0">
@@ -359,7 +368,7 @@ export default async function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-neutral-900 text-white py-12 px-4">
+      <footer className="bg-background border-t border-primary/10 text-foreground py-12 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
             {/* Brand */}
@@ -367,7 +376,7 @@ export default async function Home() {
               <h3 className="font-display text-2xl font-semibold mb-4">
                 Booth Beacon
               </h3>
-              <p className="text-neutral-400 text-sm">
+              <p className="text-muted-foreground text-sm">
                 Find your next four frames. The world's most comprehensive analog photo booth directory.
               </p>
             </div>
@@ -377,22 +386,22 @@ export default async function Home() {
               <h4 className="font-semibold mb-4">Explore</h4>
               <ul className="space-y-2 text-sm">
                 <li>
-                  <Link href="/map" className="text-neutral-400 hover:text-white transition">
+                  <Link href="/map" className="text-muted-foreground hover:text-primary transition">
                     Map
                   </Link>
                 </li>
                 <li>
-                  <Link href="/guides" className="text-neutral-400 hover:text-white transition">
+                  <Link href="/guides" className="text-muted-foreground hover:text-primary transition">
                     City Guides
                   </Link>
                 </li>
                 <li>
-                  <Link href="/machines" className="text-neutral-400 hover:text-white transition">
+                  <Link href="/machines" className="text-muted-foreground hover:text-primary transition">
                     Machine Models
                   </Link>
                 </li>
                 <li>
-                  <Link href="/operators" className="text-neutral-400 hover:text-white transition">
+                  <Link href="/operators" className="text-muted-foreground hover:text-primary transition">
                     Operators
                   </Link>
                 </li>
@@ -404,17 +413,22 @@ export default async function Home() {
               <h4 className="font-semibold mb-4">Community</h4>
               <ul className="space-y-2 text-sm">
                 <li>
-                  <Link href="/submit" className="text-neutral-400 hover:text-white transition">
+                  <Link href="/about" className="text-muted-foreground hover:text-primary transition">
+                    About Us
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/submit" className="text-muted-foreground hover:text-primary transition">
                     Submit a Booth
                   </Link>
                 </li>
                 <li>
-                  <Link href="/bookmarks" className="text-neutral-400 hover:text-white transition">
+                  <Link href="/bookmarks" className="text-muted-foreground hover:text-primary transition">
                     My Bookmarks
                   </Link>
                 </li>
                 <li>
-                  <Link href="/profile" className="text-neutral-400 hover:text-white transition">
+                  <Link href="/profile" className="text-muted-foreground hover:text-primary transition">
                     Profile
                   </Link>
                 </li>
@@ -424,16 +438,16 @@ export default async function Home() {
             {/* Newsletter */}
             <div>
               <h4 className="font-semibold mb-4">Newsletter</h4>
-              <p className="text-neutral-400 text-sm mb-4">
+              <p className="text-muted-foreground text-sm mb-4">
                 Get updates on new booths and city guides.
               </p>
               <div className="flex gap-2">
                 <Input
                   type="email"
                   placeholder="Your email"
-                  className="bg-neutral-800 border-neutral-700 text-white"
+                  className="bg-card border-primary/20 text-foreground"
                 />
-                <Button variant="outline" className="shrink-0">
+                <Button variant="outline" className="shrink-0 border-primary/20 hover:border-primary">
                   Subscribe
                 </Button>
               </div>
@@ -441,16 +455,16 @@ export default async function Home() {
           </div>
 
           {/* Bottom */}
-          <div className="pt-8 border-t border-neutral-800 flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-neutral-400">
+          <div className="pt-8 border-t border-primary/10 flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
             <p>© 2025 Booth Beacon. Made with ♥ for analog photography.</p>
             <div className="flex gap-6">
-              <Link href="#" className="hover:text-white transition">
+              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition">
                 Instagram
-              </Link>
-              <Link href="#" className="hover:text-white transition">
+              </a>
+              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition">
                 Twitter
-              </Link>
-              <Link href="/admin" className="hover:text-white transition">
+              </a>
+              <Link href="/admin" className="hover:text-primary transition">
                 Admin
               </Link>
             </div>
