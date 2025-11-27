@@ -35,7 +35,7 @@ export function Header() {
               Map
             </Link>
             <Link
-              href="/guides/berlin"
+              href="/guides"
               className="text-neutral-700 hover:text-primary transition font-medium"
             >
               Guides

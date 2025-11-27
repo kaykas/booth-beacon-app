@@ -33,15 +33,19 @@ export default function MapPage() {
   });
   const [userLocation, setUserLocation] = useState<Coordinates | null>(null);
   const [sortByDistance, setSortByDistance] = useState(false);
+  const [locationRequested, setLocationRequested] = useState(false);
 
   // Fetch all booths on mount
   useEffect(() => {
     fetchBooths();
   }, []);
 
-  // Get user location on mount
+  // Get user location on mount (only once)
   useEffect(() => {
+    if (locationRequested || userLocation) return;
+
     if ('geolocation' in navigator) {
+      setLocationRequested(true);
       navigator.geolocation.getCurrentPosition(
         (position) => {
           setUserLocation({
@@ -50,11 +54,12 @@ export default function MapPage() {
           });
         },
         (error) => {
-          console.error('Error getting user location:', error);
+          console.log('Location not available:', error.message);
+          // Silently fail - user may have denied or it's not available
         }
       );
     }
-  }, []);
+  }, [locationRequested, userLocation]);
 
   // Apply filters whenever filters or booths change
   useEffect(() => {
@@ -369,6 +374,7 @@ export default function MapPage() {
               showUserLocation={true}
               showClustering={true}
               zoom={4}
+              userLocationFromParent={userLocation}
             />
           ) : (
             <div className="h-full overflow-y-auto bg-neutral-50 p-6">

@@ -62,17 +62,17 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/guides/berlin" className="hover:text-primary transition">
+                <Link href="/guides" className="hover:text-primary transition">
                   City Guides
                 </Link>
               </li>
               <li>
-                <Link href="/machines/photo-me-model-9" className="hover:text-primary transition">
+                <Link href="/machines" className="hover:text-primary transition">
                   Machine Models
                 </Link>
               </li>
               <li>
-                <Link href="/operators/classic-photo-booth" className="hover:text-primary transition">
+                <Link href="/operators" className="hover:text-primary transition">
                   Operators
                 </Link>
               </li>

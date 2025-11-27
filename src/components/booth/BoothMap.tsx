@@ -12,6 +12,8 @@ interface BoothMapProps {
   onBoothClick?: (booth: Booth) => void;
   showClustering?: boolean;
   showUserLocation?: boolean;
+  userLocationFromParent?: Coordinates | null; // If provided, skip geolocation request
+  onUserLocationChange?: (location: Coordinates) => void; // Callback when location is obtained
 }
 
 // Custom map styling - warm, muted tones per PRD
@@ -58,6 +60,8 @@ export function BoothMap({
   onBoothClick,
   showClustering = true,
   showUserLocation = false,
+  userLocationFromParent,
+  onUserLocationChange,
 }: BoothMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<google.maps.Map | null>(null);
@@ -66,6 +70,11 @@ export function BoothMap({
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [userLocation, setUserLocation] = useState<Coordinates | null>(null);
+  const [locationRequested, setLocationRequested] = useState(false);
+  const userMarkerRef = useRef<google.maps.Marker | null>(null);
+
+  // Use parent's location if provided
+  const effectiveUserLocation = userLocationFromParent ?? userLocation;
 
   // Initialize Google Maps
   useEffect(() => {
@@ -197,11 +206,14 @@ export function BoothMap({
   }, [map, booths, onBoothClick, showClustering]);
 
   // Get user location (only once when component mounts)
+  // Skip if parent already provides location
   useEffect(() => {
     if (!showUserLocation || !map) return;
-    if (userLocation) return; // Don't ask again if we already have it
+    if (userLocationFromParent !== undefined) return; // Parent handles location
+    if (locationRequested || userLocation) return; // Already requested or have it
 
     if ('geolocation' in navigator) {
+      setLocationRequested(true);
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const userPos = {
@@ -209,21 +221,7 @@ export function BoothMap({
             lng: position.coords.longitude,
           };
           setUserLocation(userPos);
-
-          // Add user location marker
-          new google.maps.Marker({
-            position: userPos,
-            map,
-            icon: {
-              path: google.maps.SymbolPath.CIRCLE,
-              fillColor: '#C73E3A',
-              fillOpacity: 1,
-              strokeColor: '#ffffff',
-              strokeWeight: 3,
-              scale: 10,
-            },
-            title: 'Your location',
-          });
+          onUserLocationChange?.(userPos);
         },
         (error) => {
           console.log('User denied location or error:', error.message);
@@ -231,12 +229,37 @@ export function BoothMap({
         }
       );
     }
-  }, [map, showUserLocation, userLocation]);
+  }, [map, showUserLocation, userLocationFromParent, locationRequested, userLocation, onUserLocationChange]);
+
+  // Add/update user location marker when we have location
+  useEffect(() => {
+    if (!map || !showUserLocation || !effectiveUserLocation) return;
+
+    // Remove existing marker
+    if (userMarkerRef.current) {
+      userMarkerRef.current.setMap(null);
+    }
+
+    // Add new marker
+    userMarkerRef.current = new google.maps.Marker({
+      position: effectiveUserLocation,
+      map,
+      icon: {
+        path: google.maps.SymbolPath.CIRCLE,
+        fillColor: '#C73E3A',
+        fillOpacity: 1,
+        strokeColor: '#ffffff',
+        strokeWeight: 3,
+        scale: 10,
+      },
+      title: 'Your location',
+    });
+  }, [map, showUserLocation, effectiveUserLocation]);
 
   // Center on user location
   const centerOnUser = () => {
-    if (!map || !userLocation) return;
-    map.panTo(userLocation);
+    if (!map || !effectiveUserLocation) return;
+    map.panTo(effectiveUserLocation);
     map.setZoom(14);
   };
 
@@ -273,9 +296,9 @@ export function BoothMap({
           onClick={centerOnUser}
           className="absolute top-4 right-4 p-3 bg-white shadow-lg rounded-lg hover:bg-neutral-50 transition"
           title="Find my location"
-          disabled={!userLocation}
+          disabled={!effectiveUserLocation}
         >
-          <MapPin className={`w-5 h-5 ${userLocation ? 'text-primary' : 'text-neutral-400'}`} />
+          <MapPin className={`w-5 h-5 ${effectiveUserLocation ? 'text-primary' : 'text-neutral-400'}`} />
         </button>
       )}
 
