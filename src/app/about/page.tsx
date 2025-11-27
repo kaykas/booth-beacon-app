@@ -1,7 +1,6 @@
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
-import { Camera, Heart, MapPin, Users } from 'lucide-react';
-import Image from 'next/image';
+import { Camera, Heart, MapPin, Users, Globe, Sparkles, Search, RefreshCw, Bot } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
@@ -14,102 +13,55 @@ export default function AboutPage() {
         <section className="relative py-24 px-4 warm-glow">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="font-display text-5xl md:text-6xl font-semibold text-foreground mb-6">
-              A Love Letter to{' '}
-              <span className="text-primary">Four Frames</span>
+              About{' '}
+              <span className="text-primary">Classic Photo Booth Beacon</span>
             </h1>
             <p className="text-xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
-              Booth Beacon started with a simple question: Where can we find a real photo booth?
+              The ultimate directory for discovering authentic analog photo booths around the world.
             </p>
           </div>
         </section>
 
-        {/* Story Section */}
+        {/* Feature Cards Section */}
         <section className="py-16 px-4">
-          <div className="max-w-4xl mx-auto">
-            {/* Photo Strip Style Container */}
-            <div className="card-vintage rounded-lg p-8 md:p-12 mb-12">
-              <div className="prose prose-lg max-w-none">
-                <h2 className="font-display text-3xl font-semibold text-foreground mb-6 flex items-center gap-3">
-                  <Heart className="w-8 h-8 text-primary" />
-                  Our Story
-                </h2>
-
-                <p className="text-muted-foreground leading-relaxed mb-6">
-                  In 2019, <strong className="text-foreground">Alexandra Roberts</strong> and <strong className="text-foreground">Jascha Kaykas-Wolff</strong>
-                  were wandering through Berlin when they stumbled upon a vintage photo booth tucked
-                  in the corner of a dimly lit bar. The flash. The mechanical whir. The anticipation
-                  of waiting for the strip to develop. That moment rekindled something they'd both
-                  forgotten—the pure, unfiltered joy of analog photography.
-                </p>
-
-                <p className="text-muted-foreground leading-relaxed mb-6">
-                  Unlike the carefully curated, endlessly retakable selfies on our phones, photo
-                  booth strips capture <em>the moment</em>. Four frames. No filters. No do-overs.
-                  Just genuine expressions, often silly, always honest. These imperfect strips
-                  became their most treasured souvenirs.
-                </p>
-
-                <p className="text-muted-foreground leading-relaxed mb-6">
-                  But as they traveled—from Brooklyn dive bars to London train stations, from
-                  Tokyo arcades to Paris cafés—they kept asking the same question:
-                  <strong className="text-foreground"> "Where's the nearest photo booth?"</strong>
-                </p>
-
-                <p className="text-muted-foreground leading-relaxed mb-6">
-                  There was no comprehensive guide. No way to know which booths were still operational,
-                  which used authentic chemical processes, or which accepted only coins. Photo booths
-                  were disappearing, being replaced by digital imposters or torn out entirely. The
-                  magic was fading.
-                </p>
-
-                <p className="text-muted-foreground leading-relaxed mb-8">
-                  So they decided to build <strong className="text-primary">Booth Beacon</strong>—not
-                  just a directory, but a <em>love letter</em> to the vanishing art of analog photo
-                  booth culture. A place where enthusiasts could find booths, share tips, preserve
-                  history, and keep these magical machines alive for future generations.
-                </p>
-
-                <div className="bg-card p-6 rounded-lg border-l-4 border-primary">
-                  <p className="text-foreground italic text-lg leading-relaxed">
-                    "Every photo booth has a story. Every strip is a time capsule.
-                    We built Booth Beacon to make sure these stories never fade."
-                  </p>
-                  <p className="text-muted-foreground mt-3">
-                    — Alexandra & Jascha
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Founders Section */}
-            <div className="grid md:grid-cols-2 gap-8 mb-16">
-              {/* Alexandra */}
+          <div className="max-w-5xl mx-auto">
+            <div className="grid md:grid-cols-3 gap-8">
+              {/* Authentic Analog */}
               <div className="card-vintage rounded-lg p-8 text-center">
-                <div className="w-32 h-32 bg-gradient-to-br from-accent to-primary rounded-full mx-auto mb-6 flex items-center justify-center shadow-glow">
-                  <span className="text-white text-4xl font-display font-semibold">AR</span>
+                <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-6 shadow-glow">
+                  <Camera className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="font-display text-2xl font-semibold text-foreground mb-2">
-                  Alexandra Roberts
+                <h3 className="text-xl font-semibold text-foreground mb-3">
+                  Authentic Analog
                 </h3>
-                <p className="text-primary font-medium mb-4">Co-Founder</p>
-                <p className="text-muted-foreground leading-relaxed">
-                  Analog photography enthusiast, collector of vintage cameras, and believer
-                  that the best moments happen when you can't retake the shot.
+                <p className="text-muted-foreground">
+                  Only genuine photochemical booths, no digital imitations
                 </p>
               </div>
 
-              {/* Jascha */}
+              {/* Global Coverage */}
               <div className="card-vintage rounded-lg p-8 text-center">
-                <div className="w-32 h-32 bg-gradient-to-br from-primary to-accent rounded-full mx-auto mb-6 flex items-center justify-center shadow-glow">
-                  <span className="text-white text-4xl font-display font-semibold">JK</span>
+                <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-6 shadow-glow">
+                  <Globe className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="font-display text-2xl font-semibold text-foreground mb-2">
-                  Jascha Kaykas-Wolff
+                <h3 className="text-xl font-semibold text-foreground mb-3">
+                  Global Coverage
                 </h3>
-                <p className="text-primary font-medium mb-4">Co-Founder</p>
-                <p className="text-muted-foreground leading-relaxed">
-                  Tech builder, world traveler, and photo booth detective who's convinced
-                  every city has hidden booth gems waiting to be discovered.
+                <p className="text-muted-foreground">
+                  Tracking booths across 50+ countries worldwide
+                </p>
+              </div>
+
+              {/* Community Driven */}
+              <div className="card-vintage rounded-lg p-8 text-center">
+                <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-6 shadow-glow">
+                  <Users className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="text-xl font-semibold text-foreground mb-3">
+                  Community Driven
+                </h3>
+                <p className="text-muted-foreground">
+                  Built by enthusiasts for enthusiasts
                 </p>
               </div>
             </div>
@@ -118,101 +70,162 @@ export default function AboutPage() {
 
         {/* Mission Section */}
         <section className="py-16 px-4 bg-card">
-          <div className="max-w-5xl mx-auto">
-            <h2 className="font-display text-4xl font-semibold text-foreground text-center mb-12">
-              Our Mission
-            </h2>
+          <div className="max-w-4xl mx-auto">
+            <div className="card-vintage rounded-lg p-8 md:p-12">
+              <h2 className="font-display text-3xl font-semibold text-foreground mb-6 flex items-center gap-3">
+                <Sparkles className="w-8 h-8 text-primary" />
+                Our Mission
+              </h2>
+              <p className="text-muted-foreground leading-relaxed text-lg">
+                We're on a mission to document and preserve every working analog photo booth in the world.
+                These machines are more than just novelties—they're pieces of photographic history that
+                continue to create authentic, chemical-processed memories.
+              </p>
+            </div>
+          </div>
+        </section>
 
-            <div className="grid md:grid-cols-3 gap-8">
-              {/* Preserve */}
-              <div className="text-center">
-                <div className="w-20 h-20 bg-primary rounded-full flex items-center justify-center mx-auto mb-6 shadow-glow">
-                  <Camera className="w-10 h-10 text-white" />
-                </div>
-                <h3 className="text-xl font-semibold text-foreground mb-3">
-                  Preserve
-                </h3>
-                <p className="text-muted-foreground">
-                  Document and protect analog photo booth culture before it disappears
-                </p>
-              </div>
+        {/* Why Analog Section */}
+        <section className="py-16 px-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="card-vintage rounded-lg p-8 md:p-12">
+              <h2 className="font-display text-3xl font-semibold text-foreground mb-6 flex items-center gap-3">
+                <Camera className="w-8 h-8 text-primary" />
+                Why Analog?
+              </h2>
+              <p className="text-muted-foreground leading-relaxed text-lg">
+                True analog photo booths use photochemical processes to develop images on actual photo paper.
+                Unlike modern digital booths that simply print on regular paper, analog booths create real
+                photographs with unique characteristics—grain, contrast, and that unmistakable vintage quality
+                that can't be replicated.
+              </p>
+            </div>
+          </div>
+        </section>
 
-              {/* Connect */}
-              <div className="text-center">
-                <div className="w-20 h-20 bg-primary rounded-full flex items-center justify-center mx-auto mb-6 shadow-glow">
-                  <Users className="w-10 h-10 text-white" />
+        {/* How It Works Section */}
+        <section className="py-16 px-4 bg-card">
+          <div className="max-w-4xl mx-auto">
+            <div className="card-vintage rounded-lg p-8 md:p-12">
+              <h2 className="font-display text-3xl font-semibold text-foreground mb-6">
+                How It Works
+              </h2>
+              <p className="text-muted-foreground leading-relaxed text-lg mb-8">
+                Our system aggregates data from multiple trusted sources, verifies booth locations,
+                and updates daily to ensure accuracy. We use:
+              </p>
+              <div className="grid sm:grid-cols-2 gap-6">
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center shrink-0">
+                    <Search className="w-6 h-6 text-primary" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-foreground mb-1">Automated Web Scraping</h4>
+                    <p className="text-muted-foreground text-sm">From verified sources</p>
+                  </div>
                 </div>
-                <h3 className="text-xl font-semibold text-foreground mb-3">
-                  Connect
-                </h3>
-                <p className="text-muted-foreground">
-                  Build a global community of enthusiasts who share the magic
-                </p>
-              </div>
-
-              {/* Discover */}
-              <div className="text-center">
-                <div className="w-20 h-20 bg-success rounded-full flex items-center justify-center mx-auto mb-6 shadow-glow">
-                  <MapPin className="w-10 h-10 text-white" />
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center shrink-0">
+                    <Users className="w-6 h-6 text-primary" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-foreground mb-1">Community Submissions</h4>
+                    <p className="text-muted-foreground text-sm">With human verification</p>
+                  </div>
                 </div>
-                <h3 className="text-xl font-semibold text-foreground mb-3">
-                  Discover
-                </h3>
-                <p className="text-muted-foreground">
-                  Make every authentic booth easy to find, visit, and experience
-                </p>
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center shrink-0">
+                    <Bot className="w-6 h-6 text-primary" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-foreground mb-1">AI-Powered Search</h4>
+                    <p className="text-muted-foreground text-sm">To help you find the perfect booth</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center shrink-0">
+                    <RefreshCw className="w-6 h-6 text-primary" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-foreground mb-1">Regular Updates</h4>
+                    <p className="text-muted-foreground text-sm">To track working status</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* CTA Section */}
+        {/* Love Story Section */}
         <section className="py-16 px-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="card-vintage rounded-lg p-8 md:p-12">
+              <h2 className="font-display text-3xl font-semibold text-foreground mb-6 flex items-center gap-3">
+                <Heart className="w-8 h-8 text-primary" />
+                A Love Story in Analog
+              </h2>
+
+              <div className="prose prose-lg max-w-none">
+                <p className="text-muted-foreground leading-relaxed mb-6">
+                  Classic Photo Booth Beacon was born from one of the most romantic gestures{' '}
+                  <strong className="text-foreground">Jascha Kaykas-Wolff</strong> has ever witnessed.
+                  From the very beginning of their relationship,{' '}
+                  <strong className="text-foreground">Alexandra Roberts</strong> made it her mission
+                  to find every single analog photo booth in any city they traveled to together.
+                </p>
+
+                <p className="text-muted-foreground leading-relaxed mb-6">
+                  She would meticulously research, identify, and map each authentic photochemical booth,
+                  adding them to a shared Google Map. Then she'd plan their adventures around these magical
+                  machines, ensuring they could capture genuine analog memories together wherever they went.
+                  Each photo strip became a tangible piece of their journey—real chemical photographs,
+                  not digital prints.
+                </p>
+
+                <p className="text-muted-foreground leading-relaxed mb-6">
+                  Moved by Alexandra's dedication to preserving these moments the old-fashioned way,
+                  Jascha built this website in her honor. Classic Photo Booth Beacon is a celebration
+                  of her romantic ritual and a gift to all analog photography enthusiasts who understand
+                  that some moments deserve to be captured on real film, developed in real chemicals,
+                  and held in your hands as authentic photographs.
+                </p>
+
+                <div className="bg-card p-6 rounded-lg border-l-4 border-primary">
+                  <p className="text-foreground italic text-lg leading-relaxed">
+                    The name "Beacon" reflects the mission to be your guiding light in discovering
+                    these rare and precious machines worldwide—just as Alexandra has been a beacon
+                    for preserving authentic photographic memories in an increasingly digital world.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Get Involved CTA Section */}
+        <section className="py-16 px-4 bg-card">
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="font-display text-4xl font-semibold text-foreground mb-6">
-              Join Our Community
+              Get Involved
             </h2>
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Whether you're a collector, traveler, or just someone who loves the magic
-              of four frames, you belong here.
+              Know of a working analog booth we haven't listed? Help us complete the directory
+              by submitting booth locations. Together, we can create the most comprehensive
+              resource for analog photo booth enthusiasts worldwide.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild size="lg" className="text-base px-8 h-12 btn-analog text-white border-0">
-                <Link href="/map">
-                  <MapPin className="w-5 h-5 mr-2" />
-                  Explore Booths
+                <Link href="/submit">
+                  <Camera className="w-5 h-5 mr-2" />
+                  Submit a Booth
                 </Link>
               </Button>
               <Button asChild variant="outline" size="lg" className="text-base px-8 h-12 bg-card/90 backdrop-blur border-2 border-primary/20 hover:bg-card hover:border-primary transition-all">
-                <Link href="/submit">
-                  <Camera className="w-5 h-5 mr-2" />
-                  Add a Booth
+                <Link href="/map">
+                  <MapPin className="w-5 h-5 mr-2" />
+                  Explore the Map
                 </Link>
               </Button>
-            </div>
-          </div>
-        </section>
-
-        {/* Stats Section */}
-        <section className="py-12 px-4 bg-primary text-white shadow-photo">
-          <div className="max-w-6xl mx-auto">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-              <div>
-                <div className="text-4xl font-bold mb-2">2019</div>
-                <div className="text-sm opacity-90">Founded</div>
-              </div>
-              <div>
-                <div className="text-4xl font-bold mb-2">500+</div>
-                <div className="text-sm opacity-90">Booths Documented</div>
-              </div>
-              <div>
-                <div className="text-4xl font-bold mb-2">45</div>
-                <div className="text-sm opacity-90">Countries</div>
-              </div>
-              <div>
-                <div className="text-4xl font-bold mb-2">10K+</div>
-                <div className="text-sm opacity-90">Community Members</div>
-              </div>
             </div>
           </div>
         </section>
