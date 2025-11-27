@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
+import { createBrowserClient } from '@supabase/ssr';
 import { Database } from './types';
 
 // Check for required environment variables
@@ -11,15 +11,14 @@ if (!supabaseUrl.includes('supabase.co') && supabaseUrl !== 'https://placeholder
 }
 
 /**
- * Browser client for Supabase
+ * Browser client for Supabase using SSR
+ * This client properly handles cookies set by the auth callback
  * Use this in client components and pages
  */
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-  },
-});
+export const supabase = createBrowserClient<Database>(
+  supabaseUrl,
+  supabaseAnonKey
+);
 
 /**
  * Create a Supabase client for server-side operations
