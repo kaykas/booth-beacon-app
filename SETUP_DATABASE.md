@@ -38,7 +38,7 @@ Your Vercel deployment is live, but **the Supabase database is empty**. You need
 
 ### Step 3: Test Your Site
 
-1. **Visit your Vercel site:** https://booth-beacon-app.vercel.app
+1. **Visit your Vercel site:** https://boothbeacon.org
 
 2. **You should now see:**
    - ✅ Homepage loads with stats

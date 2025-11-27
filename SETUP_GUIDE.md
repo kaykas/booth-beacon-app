@@ -96,7 +96,7 @@ supabase secrets set FIRECRAWL_API_KEY=your_key_here
 ## ✅ Verify Everything Works
 
 ### Test 1: Admin Access
-1. Go to https://booth-beacon-app.vercel.app/admin
+1. Go to https://boothbeacon.org/admin
 2. You should see the admin dashboard (not "Access Denied")
 
 ### Test 2: Bookmarking
@@ -217,7 +217,7 @@ git push
 
 2. Vercel will auto-deploy
 
-3. Test on production: https://booth-beacon-app.vercel.app
+3. Test on production: https://boothbeacon.org
 
 ---
 

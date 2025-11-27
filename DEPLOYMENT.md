@@ -26,7 +26,7 @@ vercel --prod
    ```
    NEXT_PUBLIC_SUPABASE_URL=your-url
    NEXT_PUBLIC_SUPABASE_ANON_KEY=your-key
-   NEXT_PUBLIC_APP_URL=https://your-app.vercel.app
+   NEXT_PUBLIC_APP_URL=https://boothbeacon.org
    ```
 5. Click Deploy
 
@@ -49,7 +49,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbG...
 # Optional
 SUPABASE_SERVICE_ROLE_KEY=eyJhbG...
 NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=AIza...
-NEXT_PUBLIC_APP_URL=https://your-app.vercel.app
+NEXT_PUBLIC_APP_URL=https://boothbeacon.org
 ```
 
 ## Troubleshooting

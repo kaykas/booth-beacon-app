@@ -35,9 +35,8 @@ GOOGLE_CLIENT_SECRET=[your-google-client-secret]
 
 ### App Configuration
 ```
-NEXT_PUBLIC_APP_URL=https://your-app.vercel.app
+NEXT_PUBLIC_APP_URL=https://boothbeacon.org
 ```
-**⚠️ IMPORTANT:** Replace `your-app.vercel.app` with your actual Vercel deployment URL
 
 ## Alternative: Setup via Vercel CLI
 
@@ -84,14 +83,14 @@ All your actual keys are in `.env.local` - copy them from there when adding to V
    - Go to [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
    - Select your OAuth client ID
    - Add to **Authorized redirect URIs**:
-     - `https://your-app.vercel.app/auth/callback`
+     - `https://boothbeacon.org/auth/callback`
    - Save
 
 3. **Update Supabase Redirect URLs:**
    - Go to [Supabase Dashboard](https://supabase.com/dashboard)
    - Your Project > Authentication > URL Configuration
    - Add to **Redirect URLs**:
-     - `https://your-app.vercel.app/auth/callback`
+     - `https://boothbeacon.org/auth/callback`
 
 ## Verification Checklist
 
