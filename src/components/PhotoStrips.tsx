@@ -160,12 +160,6 @@ export function PhotoStrips() {
                   ))}
                 </div>
 
-                {/* Bottom label on strip */}
-                <div className="mt-2 text-center">
-                  <div className="text-xs font-mono text-neutral-500 tracking-wider">
-                    {strip.date}
-                  </div>
-                </div>
               </div>
 
               {/* Hover overlay with location info */}
