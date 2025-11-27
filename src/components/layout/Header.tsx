@@ -11,16 +11,16 @@ export function Header() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   return (
-    <header className="bg-white border-b border-neutral-200 sticky top-0 z-50">
+    <header className="bg-card border-b border-primary/10 sticky top-0 z-50 backdrop-blur-sm bg-card/95">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex items-center">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+            <Link href="/" className="flex items-center gap-2 group">
+              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shadow-glow transition-all group-hover:shadow-glow-strong">
                 <span className="text-white font-bold text-lg">B</span>
               </div>
-              <span className="font-display text-xl font-semibold text-neutral-900">
+              <span className="font-display text-xl font-semibold text-foreground">
                 Booth Beacon
               </span>
             </Link>
@@ -30,19 +30,19 @@ export function Header() {
           <nav className="hidden md:flex items-center gap-8">
             <Link
               href="/map"
-              className="text-neutral-700 hover:text-primary transition font-medium"
+              className="text-muted-foreground hover:text-primary transition font-medium"
             >
               Map
             </Link>
             <Link
               href="/guides/berlin"
-              className="text-neutral-700 hover:text-primary transition font-medium"
+              className="text-muted-foreground hover:text-primary transition font-medium"
             >
               Guides
             </Link>
             <Link
               href="/about"
-              className="text-neutral-700 hover:text-primary transition font-medium"
+              className="text-muted-foreground hover:text-primary transition font-medium"
             >
               About
             </Link>
@@ -53,7 +53,7 @@ export function Header() {
             {/* Search */}
             <button
               onClick={() => setIsSearchOpen(!isSearchOpen)}
-              className="p-2 text-neutral-700 hover:text-primary transition"
+              className="p-2 text-muted-foreground hover:text-primary transition"
               aria-label="Search"
             >
               <Search className="w-5 h-5" />
@@ -62,7 +62,7 @@ export function Header() {
             {/* Bookmarks */}
             <Link
               href="/bookmarks"
-              className="hidden sm:flex p-2 text-neutral-700 hover:text-primary transition"
+              className="hidden sm:flex p-2 text-muted-foreground hover:text-primary transition"
               aria-label="Bookmarks"
             >
               <Bookmark className="w-5 h-5" />
@@ -76,7 +76,7 @@ export function Header() {
             {/* Mobile Menu Toggle */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden p-2 text-neutral-700 hover:text-primary transition"
+              className="md:hidden p-2 text-muted-foreground hover:text-primary transition"
               aria-label="Menu"
             >
               <Menu className="w-5 h-5" />
