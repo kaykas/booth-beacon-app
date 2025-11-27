@@ -4,12 +4,25 @@ import { useState } from 'react';
 import { Camera, Heart } from 'lucide-react';
 import Image from 'next/image';
 
+// Available vintage filter styles
+const vintageStyles = [
+  'vintage-sepia',
+  'vintage-bw',
+  'vintage-faded',
+  'vintage-warm',
+  'vintage-cool',
+  'vintage-polaroid',
+] as const;
+
+type VintageStyle = typeof vintageStyles[number];
+
 interface PhotoStrip {
   id: string;
   frames: string[];
   location: string;
   date: string;
   user?: string;
+  vintageStyle: VintageStyle;
 }
 
 // Sample photo strips with real images - in production these would come from Supabase
@@ -25,6 +38,7 @@ const sampleStrips: PhotoStrip[] = [
     location: 'Berlin, Germany',
     date: '2024',
     user: 'Alexandra',
+    vintageStyle: 'vintage-sepia',
   },
   {
     id: '2',
@@ -37,6 +51,7 @@ const sampleStrips: PhotoStrip[] = [
     location: 'Brooklyn, NY',
     date: '2024',
     user: 'Jascha',
+    vintageStyle: 'vintage-bw',
   },
   {
     id: '3',
@@ -48,6 +63,7 @@ const sampleStrips: PhotoStrip[] = [
     ],
     location: 'London, UK',
     date: '2024',
+    vintageStyle: 'vintage-faded',
   },
   {
     id: '4',
@@ -60,6 +76,7 @@ const sampleStrips: PhotoStrip[] = [
     location: 'Paris, France',
     date: '2024',
     user: 'Marie',
+    vintageStyle: 'vintage-warm',
   },
   {
     id: '5',
@@ -72,6 +89,7 @@ const sampleStrips: PhotoStrip[] = [
     location: 'Tokyo, Japan',
     date: '2024',
     user: 'Yuki',
+    vintageStyle: 'vintage-cool',
   },
   {
     id: '6',
@@ -83,6 +101,7 @@ const sampleStrips: PhotoStrip[] = [
     ],
     location: 'Amsterdam, NL',
     date: '2024',
+    vintageStyle: 'vintage-polaroid',
   },
 ];
 
@@ -121,8 +140,8 @@ export function PhotoStrips() {
               onMouseEnter={() => setHoveredId(strip.id)}
               onMouseLeave={() => setHoveredId(null)}
             >
-              {/* Photo Strip Container - mimics real photo booth strip */}
-              <div className="relative photo-strip-frame rounded-lg p-3 transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:rotate-1">
+              {/* Photo Strip Container - mimics real photo booth strip with vintage filter */}
+              <div className={`relative photo-strip-frame rounded-lg p-3 transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:rotate-1 ${strip.vintageStyle}`}>
                 {/* Photo strip with 4 frames using actual images */}
                 <div className="space-y-2">
                   {strip.frames.map((frameUrl, index) => (

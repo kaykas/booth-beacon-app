@@ -307,3 +307,37 @@ body::before {
   border-radius: 50%;
   box-shadow: var(--shadow-glow);
 }
+
+/* ========================================
+   VINTAGE PHOTO FILTER STYLES
+   ======================================== */
+
+/* Classic Sepia - warm brownish/yellowish tones */
+.vintage-sepia img {
+  filter: sepia(0.6) contrast(1.1) brightness(0.95) saturate(0.9);
+}
+
+/* Black & White - classic grayscale */
+.vintage-bw img {
+  filter: grayscale(1) contrast(1.15) brightness(1.05);
+}
+
+/* Faded Vintage - washed out, low contrast look */
+.vintage-faded img {
+  filter: sepia(0.2) saturate(0.7) contrast(0.9) brightness(1.1);
+}
+
+/* Warm Vintage - golden hour warmth */
+.vintage-warm img {
+  filter: sepia(0.25) saturate(1.1) contrast(1.05) brightness(1.02) hue-rotate(-10deg);
+}
+
+/* Cool Vintage - slightly blue-tinted classic look */
+.vintage-cool img {
+  filter: sepia(0.15) saturate(0.8) contrast(1.1) brightness(1.0) hue-rotate(10deg);
+}
+
+/* Polaroid - slightly washed with warm cast */
+.vintage-polaroid img {
+  filter: sepia(0.35) contrast(1.1) brightness(1.05) saturate(0.85);
+}
