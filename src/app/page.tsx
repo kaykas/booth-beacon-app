@@ -56,93 +56,137 @@ export default async function Home() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      {/* Hero Section */}
-      <section className="relative h-screen flex items-center justify-center bg-gradient-to-br from-secondary via-secondary-dark to-neutral-100 film-grain warm-glow">
-        {/* Optional: Background image with overlay */}
-        <div className="absolute inset-0 bg-[url('/hero-booth.jpg')] bg-cover bg-center opacity-20"></div>
+      {/* Hero Section - Dark Nightclub Aesthetic */}
+      <section className="relative py-20 overflow-hidden warm-glow">
+        {/* Pink gradient background */}
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-background to-background"></div>
 
-        <div className="relative z-10 max-w-4xl mx-auto px-4 text-center">
-          <h1 className="font-display text-6xl md:text-7xl font-semibold text-neutral-900 mb-6 leading-tight">
-            Find your next four frames.
-          </h1>
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="max-w-4xl mx-auto text-center">
+            {/* Alexandra's Authentic Photo Strip */}
+            <div className="flex flex-col items-center gap-3 mb-8">
+              <div className="photo-strip-frame p-3 rotate-0 hover:rotate-1 transition-transform duration-300 backdrop-blur-sm" style={{ width: 'fit-content' }}>
+                <div className="flex gap-1">
+                  <img
+                    src="/alexandra-strip-1.webp"
+                    alt="Alexandra photo strip 1"
+                    className="w-20 h-28 object-cover"
+                  />
+                  <img
+                    src="/alexandra-strip-2.webp"
+                    alt="Alexandra photo strip 2"
+                    className="w-20 h-28 object-cover"
+                  />
+                  <img
+                    src="/alexandra-strip-3.webp"
+                    alt="Alexandra photo strip 3"
+                    className="w-20 h-28 object-cover"
+                  />
+                  <img
+                    src="/alexandra-strip-4.webp"
+                    alt="Alexandra photo strip 4"
+                    className="w-20 h-28 object-cover"
+                  />
+                </div>
+              </div>
+              <div className="text-lg font-semibold text-primary">
+                {stats.totalBooths ? `${stats.totalBooths.toLocaleString()} Photo Booths in Database` : 'Loading booth count...'}
+              </div>
+            </div>
 
-          <p className="text-xl md:text-2xl text-neutral-700 mb-8 max-w-2xl mx-auto">
-            The world's most comprehensive analog photo booth directory.
-          </p>
+            <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
+              The World's Ultimate
+              <br />
+              <span className="text-gradient-pink">Classic Photo Booth</span>
+              <br />
+              Directory
+            </h1>
 
-          {/* Search Bar */}
-          <div className="max-w-xl mx-auto mb-8">
-            <SearchBar
-              placeholder="Search by city, country, or booth name..."
-              className="w-full"
-            />
-          </div>
+            <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+              <strong className="text-primary">Booth Beacon</strong> helps you discover authentic analog photo booths worldwide.
+              Find vintage photochemical machines that still capture moments the old-fashioned way.
+            </p>
 
-          {/* CTAs */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button asChild size="lg" className="text-base px-8 h-12 btn-analog text-white border-0">
-              <Link href="/map">
-                <MapPin className="w-5 h-5 mr-2" />
-                Explore the Map
-              </Link>
-            </Button>
-            <Button asChild variant="outline" size="lg" className="text-base px-8 h-12 bg-white/90 backdrop-blur border-2 border-neutral-300 hover:bg-white hover:border-primary transition-all">
-              <Link href="#how-it-works">
-                How It Works
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Link>
-            </Button>
+            {/* Search Bar */}
+            <div className="max-w-xl mx-auto mb-8">
+              <SearchBar
+                placeholder="Search by city, country, or booth name..."
+                className="w-full"
+              />
+            </div>
+
+            {/* CTAs */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+              <Button asChild size="lg" className="text-base px-8 h-12 btn-analog text-white border-0">
+                <Link href="/map">
+                  <MapPin className="w-5 h-5 mr-2" />
+                  Explore Map
+                </Link>
+              </Button>
+              <Button asChild variant="outline" size="lg" className="text-base px-8 h-12 bg-secondary/50 backdrop-blur border-2 border-primary/20 hover:bg-secondary hover:border-primary transition-all">
+                <Link href="/submit">
+                  <Camera className="w-5 h-5 mr-2" />
+                  Submit a Booth
+                </Link>
+              </Button>
+            </div>
+
+            {/* Stats */}
+            <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto">
+              <div className="text-center">
+                <div className="text-3xl font-bold text-primary mb-1">
+                  {stats.totalBooths ? stats.totalBooths.toLocaleString() : "..."}
+                </div>
+                <div className="text-sm text-muted-foreground">Photo Booths</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-primary mb-1">
+                  {stats.countries ? `${stats.countries}+` : "..."}
+                </div>
+                <div className="text-sm text-muted-foreground">Countries</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-primary mb-1">
+                  {stats.totalBooths ? stats.totalBooths.toLocaleString() : "..."}
+                </div>
+                <div className="text-sm text-muted-foreground">Operational</div>
+              </div>
+            </div>
           </div>
         </div>
+
+        {/* Decorative pink gradient line */}
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary to-transparent"></div>
       </section>
 
-      {/* Stats Bar */}
-      <section className="bg-primary text-white py-6 shadow-photo">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="flex flex-col sm:flex-row justify-around items-center gap-4 text-center">
-            <div>
-              <div className="text-3xl font-bold">{stats.totalBooths}+</div>
-              <div className="text-sm opacity-90">Booths</div>
-            </div>
-            <div className="hidden sm:block h-12 w-px bg-white/30"></div>
-            <div>
-              <div className="text-3xl font-bold">{stats.countries}+</div>
-              <div className="text-sm opacity-90">Countries</div>
-            </div>
-            <div className="hidden sm:block h-12 w-px bg-white/30"></div>
-            <div>
-              <div className="text-3xl font-bold">2024</div>
-              <div className="text-sm opacity-90">Preserved since</div>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Divider */}
+      <div className="divider-analog my-0"></div>
 
       {/* Map Preview Section */}
-      <section className="py-16 px-4 bg-paper">
+      <section className="py-16 px-4 bg-paper" id="map-section">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-8">
-            <h2 className="font-display text-4xl font-semibold text-neutral-900 mb-4">
+            <h2 className="font-display text-4xl font-semibold text-foreground mb-4">
               Discover Booths Worldwide
             </h2>
-            <p className="text-lg text-neutral-600 max-w-2xl mx-auto">
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               From Berlin dive bars to Brooklyn train stations, find authentic analog photo booths near you.
             </p>
           </div>
 
           {/* Filter Chips */}
           <div className="flex flex-wrap gap-2 justify-center mb-6">
-            <Badge variant="secondary" className="cursor-pointer hover:bg-primary hover:text-white transition">
+            <Badge className="badge-retro cursor-pointer hover:shadow-glow transition">
               <MapPin className="w-3 h-3 mr-1" />
               Near Me
             </Badge>
-            <Badge variant="secondary" className="cursor-pointer hover:bg-primary hover:text-white transition">
+            <Badge className="badge-retro cursor-pointer hover:shadow-glow transition">
               Berlin
             </Badge>
-            <Badge variant="secondary" className="cursor-pointer hover:bg-primary hover:text-white transition">
+            <Badge className="badge-retro cursor-pointer hover:shadow-glow transition">
               NYC
             </Badge>
-            <Badge variant="secondary" className="cursor-pointer hover:bg-primary hover:text-white transition">
+            <Badge className="badge-retro cursor-pointer hover:shadow-glow transition">
               London
             </Badge>
           </div>
@@ -168,18 +212,18 @@ export default async function Home() {
       </section>
 
       {/* Featured Booths */}
-      <section className="py-16 px-4 bg-white">
+      <section className="py-16 px-4 bg-background">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h2 className="font-display text-4xl font-semibold text-neutral-900 mb-2">
+              <h2 className="font-display text-4xl font-semibold text-foreground mb-2">
                 Featured Booths
               </h2>
-              <p className="text-lg text-neutral-600">
+              <p className="text-lg text-muted-foreground">
                 Handpicked favorites from around the world
               </p>
             </div>
-            <Button asChild variant="outline">
+            <Button asChild variant="outline" className="border-primary/20 hover:border-primary">
               <Link href="/map">View All</Link>
             </Button>
           </div>
