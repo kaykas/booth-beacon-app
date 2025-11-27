@@ -87,6 +87,7 @@ export function BoothMap({
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [userLocation, setUserLocation] = useState<Coordinates | null>(null);
+  const userMarkerRef = useRef<google.maps.Marker | null>(null);
 
   // Initialize Google Maps using robust loader
   useEffect(() => {
@@ -209,19 +210,25 @@ export function BoothMap({
           };
           setUserLocation(userPos);
 
+          // Clean up existing marker if any
+          if (userMarkerRef.current) {
+            userMarkerRef.current.setMap(null);
+          }
+
           // Add user location marker
-          new google.maps.Marker({
+          userMarkerRef.current = new google.maps.Marker({
             position: userPos,
             map,
             icon: {
               path: google.maps.SymbolPath.CIRCLE,
-              fillColor: '#C73E3A',
+              fillColor: '#d14371',
               fillOpacity: 1,
               strokeColor: '#ffffff',
               strokeWeight: 3,
               scale: 10,
             },
             title: 'Your location',
+            zIndex: 1000,
           });
         },
         (error) => {
@@ -230,6 +237,14 @@ export function BoothMap({
         }
       );
     }
+
+    // Cleanup function
+    return () => {
+      if (userMarkerRef.current) {
+        userMarkerRef.current.setMap(null);
+        userMarkerRef.current = null;
+      }
+    };
   }, [map, showUserLocation, userLocation]);
 
   // Center on user location
@@ -241,10 +256,10 @@ export function BoothMap({
 
   if (error) {
     return (
-      <div className="w-full h-full min-h-[500px] bg-neutral-100 rounded-lg flex items-center justify-center">
-        <div className="text-center text-neutral-500">
-          <MapPin className="w-12 h-12 mb-4 text-error mx-auto" />
-          <p className="text-lg font-medium">{error}</p>
+      <div className="w-full h-full min-h-[500px] bg-card border border-primary/10 rounded-lg flex items-center justify-center">
+        <div className="text-center text-muted-foreground">
+          <MapPin className="w-12 h-12 mb-4 text-primary mx-auto" />
+          <p className="text-lg font-medium text-foreground">{error}</p>
           <p className="text-sm mt-2">Please check your environment configuration</p>
         </div>
       </div>
@@ -258,10 +273,10 @@ export function BoothMap({
 
       {/* Loading overlay */}
       {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-neutral-100">
-          <div className="text-center text-neutral-500">
+        <div className="absolute inset-0 flex items-center justify-center bg-card/95 backdrop-blur-sm">
+          <div className="text-center text-muted-foreground">
             <Loader2 className="w-12 h-12 mb-4 text-primary mx-auto animate-spin" />
-            <p className="text-lg font-medium">Loading map...</p>
+            <p className="text-lg font-medium text-foreground">Loading map...</p>
           </div>
         </div>
       )}
@@ -270,19 +285,19 @@ export function BoothMap({
       {showUserLocation && !isLoading && (
         <button
           onClick={centerOnUser}
-          className="absolute top-4 right-4 p-3 bg-white shadow-lg rounded-lg hover:bg-neutral-50 transition"
+          className="absolute top-4 right-4 z-[1000] p-3 bg-card border border-primary/20 shadow-glow rounded-lg hover:bg-card/80 hover:shadow-glow-strong transition disabled:opacity-50 disabled:cursor-not-allowed"
           title="Find my location"
           disabled={!userLocation}
         >
-          <MapPin className={`w-5 h-5 ${userLocation ? 'text-primary' : 'text-neutral-400'}`} />
+          <MapPin className={`w-5 h-5 ${userLocation ? 'text-primary' : 'text-muted-foreground'}`} />
         </button>
       )}
 
       {/* Booth count indicator */}
       {!isLoading && (
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 bg-white shadow-lg rounded-full text-sm">
-          <span className="font-medium text-neutral-900">{booths.length}</span>
-          <span className="text-neutral-500 ml-1">
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-[1000] px-4 py-2 bg-card/95 backdrop-blur-sm border border-primary/20 shadow-glow rounded-full text-sm">
+          <span className="font-medium text-foreground">{booths.length}</span>
+          <span className="text-muted-foreground ml-1">
             {booths.length === 1 ? 'booth' : 'booths'}
           </span>
         </div>
