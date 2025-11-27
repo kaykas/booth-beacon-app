@@ -8,6 +8,8 @@ import { BoothCard } from '@/components/booth/BoothCard';
 import { BoothMap } from '@/components/booth/BoothMap';
 import { SearchBar } from '@/components/SearchBar';
 import { PhotoStrips } from '@/components/PhotoStrips';
+import { Header } from '@/components/layout/Header';
+import { Footer } from '@/components/layout/Footer';
 import { supabase } from '@/lib/supabase';
 import { Booth } from '@/types';
 
@@ -56,6 +58,8 @@ export default async function Home() {
 
   return (
     <div className="flex flex-col min-h-screen">
+      <Header />
+
       {/* Hero Section - Dark Nightclub Aesthetic */}
       <section className="relative py-20 overflow-hidden warm-glow">
         {/* Pink gradient background */}
@@ -63,38 +67,22 @@ export default async function Home() {
 
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
-            {/* Alexandra's Authentic Photo Strip */}
-            <div className="flex flex-col items-center gap-3 mb-8">
+            {/* Photo Strip Section - Hidden */}
+            {/* <div className="flex flex-col items-center gap-3 mb-8">
               <div className="photo-strip-frame p-3 rotate-0 hover:rotate-1 transition-transform duration-300 backdrop-blur-sm" style={{ width: 'fit-content' }}>
                 <div className="flex gap-1">
-                  <img
-                    src="/alexandra-strip-1.webp"
-                    alt="Alexandra photo strip 1"
-                    className="w-20 h-28 object-cover"
-                  />
-                  <img
-                    src="/alexandra-strip-2.webp"
-                    alt="Alexandra photo strip 2"
-                    className="w-20 h-28 object-cover"
-                  />
-                  <img
-                    src="/alexandra-strip-3.webp"
-                    alt="Alexandra photo strip 3"
-                    className="w-20 h-28 object-cover"
-                  />
-                  <img
-                    src="/alexandra-strip-4.webp"
-                    alt="Alexandra photo strip 4"
-                    className="w-20 h-28 object-cover"
-                  />
+                  <img src="/alexandra-strip-1.webp" alt="Alexandra photo strip 1" className="w-20 h-28 object-cover" />
+                  <img src="/alexandra-strip-2.webp" alt="Alexandra photo strip 2" className="w-20 h-28 object-cover" />
+                  <img src="/alexandra-strip-3.webp" alt="Alexandra photo strip 3" className="w-20 h-28 object-cover" />
+                  <img src="/alexandra-strip-4.webp" alt="Alexandra photo strip 4" className="w-20 h-28 object-cover" />
                 </div>
               </div>
               <div className="text-lg font-semibold text-primary">
                 {stats.totalBooths ? `${stats.totalBooths.toLocaleString()} Photo Booths in Database` : 'Loading booth count...'}
               </div>
-            </div>
+            </div> */}
 
-            <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
+            <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight mt-8">
               The World's Ultimate
               <br />
               <span className="text-gradient-pink">Classic Photo Booth</span>
@@ -367,110 +355,7 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-background border-t border-primary/10 text-foreground py-12 px-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-            {/* Brand */}
-            <div>
-              <h3 className="font-display text-2xl font-semibold mb-4">
-                Booth Beacon
-              </h3>
-              <p className="text-muted-foreground text-sm">
-                Find your next four frames. The world's most comprehensive analog photo booth directory.
-              </p>
-            </div>
-
-            {/* Explore */}
-            <div>
-              <h4 className="font-semibold mb-4">Explore</h4>
-              <ul className="space-y-2 text-sm">
-                <li>
-                  <Link href="/map" className="text-muted-foreground hover:text-primary transition">
-                    Map
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/guides" className="text-muted-foreground hover:text-primary transition">
-                    City Guides
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/machines" className="text-muted-foreground hover:text-primary transition">
-                    Machine Models
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/operators" className="text-muted-foreground hover:text-primary transition">
-                    Operators
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            {/* Community */}
-            <div>
-              <h4 className="font-semibold mb-4">Community</h4>
-              <ul className="space-y-2 text-sm">
-                <li>
-                  <Link href="/about" className="text-muted-foreground hover:text-primary transition">
-                    About Us
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/submit" className="text-muted-foreground hover:text-primary transition">
-                    Submit a Booth
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/bookmarks" className="text-muted-foreground hover:text-primary transition">
-                    My Bookmarks
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/profile" className="text-muted-foreground hover:text-primary transition">
-                    Profile
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            {/* Newsletter */}
-            <div>
-              <h4 className="font-semibold mb-4">Newsletter</h4>
-              <p className="text-muted-foreground text-sm mb-4">
-                Get updates on new booths and city guides.
-              </p>
-              <div className="flex gap-2">
-                <Input
-                  type="email"
-                  placeholder="Your email"
-                  className="bg-card border-primary/20 text-foreground"
-                />
-                <Button variant="outline" className="shrink-0 border-primary/20 hover:border-primary">
-                  Subscribe
-                </Button>
-              </div>
-            </div>
-          </div>
-
-          {/* Bottom */}
-          <div className="pt-8 border-t border-primary/10 flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
-            <p>© 2025 Booth Beacon. Made with ♥ for analog photography.</p>
-            <div className="flex gap-6">
-              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition">
-                Instagram
-              </a>
-              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition">
-                Twitter
-              </a>
-              <Link href="/admin" className="hover:text-primary transition">
-                Admin
-              </Link>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }
