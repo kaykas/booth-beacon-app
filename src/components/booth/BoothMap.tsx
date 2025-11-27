@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Booth, Coordinates } from '@/types';
 import { MapPin, Loader2 } from 'lucide-react';
 import { MarkerClusterer } from '@googlemaps/markerclusterer';
+import { loadGoogleMaps } from '@/lib/googleMapsLoader';
 
 interface BoothMapProps {
   booths: Booth[];
@@ -14,41 +15,61 @@ interface BoothMapProps {
   showUserLocation?: boolean;
 }
 
-// Custom map styling - warm, muted tones per PRD
+// Dark map styling - sophisticated nightclub aesthetic
 const mapStyles: google.maps.MapTypeStyle[] = [
   {
     featureType: 'all',
     elementType: 'geometry',
-    stylers: [{ saturation: -20 }, { lightness: 10 }],
+    stylers: [{ saturation: -100 }, { lightness: -50 }],
+  },
+  {
+    featureType: 'all',
+    elementType: 'labels.text.fill',
+    stylers: [{ color: '#e8dfd5' }],
+  },
+  {
+    featureType: 'all',
+    elementType: 'labels.text.stroke',
+    stylers: [{ color: '#1a1a1a' }],
   },
   {
     featureType: 'water',
     elementType: 'geometry',
-    stylers: [{ color: '#E8E0D4' }],
+    stylers: [{ color: '#0f0f0f' }],
   },
   {
     featureType: 'landscape',
     elementType: 'geometry',
-    stylers: [{ color: '#F5F0E8' }],
+    stylers: [{ color: '#1a1a1a' }],
   },
   {
     featureType: 'road',
     elementType: 'geometry',
-    stylers: [{ color: '#ffffff' }],
+    stylers: [{ color: '#2a2a2a' }],
+  },
+  {
+    featureType: 'road',
+    elementType: 'labels.text.fill',
+    stylers: [{ color: '#9ca3af' }],
   },
   {
     featureType: 'poi',
     elementType: 'labels',
     stylers: [{ visibility: 'off' }],
   },
+  {
+    featureType: 'administrative',
+    elementType: 'geometry.stroke',
+    stylers: [{ color: '#d14371' }, { weight: 0.5 }],
+  },
 ];
 
-// Marker colors based on booth status
+// Marker colors based on booth status - pink theme
 const statusColors = {
-  active: '#22C55E',
+  active: '#d14371', // Pink for active booths
   inactive: '#EF4444',
   unverified: '#F59E0B',
-  closed: '#9CA3AF',
+  closed: '#6B7280',
 };
 
 export function BoothMap({
@@ -67,47 +88,23 @@ export function BoothMap({
   const [error, setError] = useState<string | null>(null);
   const [userLocation, setUserLocation] = useState<Coordinates | null>(null);
 
-  // Initialize Google Maps
+  // Initialize Google Maps using robust loader
   useEffect(() => {
-    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
-
-    if (!apiKey) {
-      setError('Google Maps API key not configured');
-      setIsLoading(false);
-      return;
-    }
-
-    // Check if Google Maps is already loaded
-    if (window.google && window.google.maps) {
-      initializeMap();
-      return;
-    }
-
-    // Load Google Maps script with marker clustering library
-    const script = document.createElement('script');
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places,marker`;
-    script.async = true;
-    script.defer = true;
-    script.onload = initializeMap;
-    script.onerror = () => {
-      console.error('Error loading Google Maps');
-      setError('Failed to load Google Maps');
-      setIsLoading(false);
-    };
-    document.head.appendChild(script);
-
-    function initializeMap() {
+    const initMap = async () => {
       if (!mapRef.current) return;
 
       try {
+        setIsLoading(true);
+        await loadGoogleMaps();
+
         const mapInstance = new google.maps.Map(mapRef.current, {
           center,
           zoom,
           styles: mapStyles,
           disableDefaultUI: false,
           zoomControl: true,
-          mapTypeControl: false,
-          streetViewControl: false,
+          mapTypeControl: true,
+          streetViewControl: true,
           fullscreenControl: true,
           gestureHandling: 'greedy',
         });
@@ -115,11 +112,13 @@ export function BoothMap({
         setMap(mapInstance);
         setIsLoading(false);
       } catch (err) {
-        console.error('Error initializing map:', err);
-        setError('Failed to initialize map');
+        console.error('Error loading Google Maps:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load Google Maps');
         setIsLoading(false);
       }
-    }
+    };
+
+    initMap();
   }, [center, zoom]);
 
   // Create markers for booths
