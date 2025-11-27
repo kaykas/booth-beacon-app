@@ -132,19 +132,27 @@ export default async function Home() {
 
           {/* Filter Chips */}
           <div className="flex flex-wrap gap-2 justify-center mb-6">
-            <Badge variant="secondary" className="cursor-pointer hover:bg-primary hover:text-white transition">
-              <MapPin className="w-3 h-3 mr-1" />
-              Near Me
-            </Badge>
-            <Badge variant="secondary" className="cursor-pointer hover:bg-primary hover:text-white transition">
-              Berlin
-            </Badge>
-            <Badge variant="secondary" className="cursor-pointer hover:bg-primary hover:text-white transition">
-              NYC
-            </Badge>
-            <Badge variant="secondary" className="cursor-pointer hover:bg-primary hover:text-white transition">
-              London
-            </Badge>
+            <Link href="/map?nearme=true">
+              <Badge variant="secondary" className="cursor-pointer hover:bg-primary hover:text-white transition">
+                <MapPin className="w-3 h-3 mr-1" />
+                Near Me
+              </Badge>
+            </Link>
+            <Link href="/map?city=Berlin">
+              <Badge variant="secondary" className="cursor-pointer hover:bg-primary hover:text-white transition">
+                Berlin
+              </Badge>
+            </Link>
+            <Link href="/map?city=New York">
+              <Badge variant="secondary" className="cursor-pointer hover:bg-primary hover:text-white transition">
+                NYC
+              </Badge>
+            </Link>
+            <Link href="/map?city=London">
+              <Badge variant="secondary" className="cursor-pointer hover:bg-primary hover:text-white transition">
+                London
+              </Badge>
+            </Link>
           </div>
 
           {/* Map */}
@@ -271,23 +279,28 @@ export default async function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* Placeholder city guide cards */}
-            {['Berlin', 'New York', 'London'].map((city) => (
-              <div
-                key={city}
+            {/* City guide cards */}
+            {[
+              { name: 'Berlin', slug: 'berlin', booths: 12, neighborhoods: 4, hours: 5 },
+              { name: 'New York', slug: 'new-york', booths: 8, neighborhoods: 3, hours: 4 },
+              { name: 'London', slug: 'london', booths: 6, neighborhoods: 5, hours: 6 },
+            ].map((city) => (
+              <Link
+                key={city.slug}
+                href={`/guides/${city.slug}`}
                 className="group relative h-64 rounded-lg overflow-hidden cursor-pointer shadow-photo hover:shadow-xl transition-all hover:-translate-y-1 vignette"
               >
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent z-10"></div>
-                <div className="absolute inset-0 bg-neutral-300"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/80 to-accent/60 group-hover:from-primary group-hover:to-accent transition-all"></div>
                 <div className="absolute bottom-0 left-0 right-0 p-6 z-20 text-white">
                   <h3 className="text-2xl font-semibold mb-2">
-                    {city} Photo Booth Tour
+                    {city.name} Photo Booth Tour
                   </h3>
                   <p className="text-sm opacity-90">
-                    12 booths • 4 neighborhoods • 5 hours
+                    {city.booths} booths • {city.neighborhoods} neighborhoods • {city.hours} hours
                   </p>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>

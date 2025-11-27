@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { MapPin, SlidersHorizontal, List, X, Loader2, Navigation } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -23,6 +24,7 @@ interface Filters {
 }
 
 export default function MapPage() {
+  const searchParams = useSearchParams();
   const [booths, setBooths] = useState<Booth[]>([]);
   const [filteredBooths, setFilteredBooths] = useState<Booth[]>([]);
   const [loading, setLoading] = useState(true);
@@ -34,6 +36,19 @@ export default function MapPage() {
   const [userLocation, setUserLocation] = useState<Coordinates | null>(null);
   const [sortByDistance, setSortByDistance] = useState(false);
   const [locationRequested, setLocationRequested] = useState(false);
+
+  // Initialize filters from URL params
+  useEffect(() => {
+    const city = searchParams.get('city');
+    const nearMe = searchParams.get('nearme');
+
+    if (city) {
+      setFilters(prev => ({ ...prev, location: city }));
+    }
+    if (nearMe === 'true') {
+      setSortByDistance(true);
+    }
+  }, [searchParams]);
 
   // Fetch all booths on mount
   useEffect(() => {
