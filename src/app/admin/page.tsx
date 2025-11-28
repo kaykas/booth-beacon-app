@@ -137,11 +137,11 @@ export default function AdminPage() {
       // Get last successful run
       const { data: lastRun } = await supabase
         .from('crawler_metrics')
-        .select('completed_at')
+        .select('*')
         .eq('status', 'success')
         .order('completed_at', { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();
 
       // Get error count
       const { count: errorCount } = await supabase
