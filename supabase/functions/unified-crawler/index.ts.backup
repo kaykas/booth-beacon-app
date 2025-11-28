@@ -1,0 +1,828 @@
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+import FirecrawlApp from "https://esm.sh/@mendable/firecrawl-js@1.8.0";
+import {
+  extractPhotomatica,
+  extractPhotoautomatDe,
+  extractPhotomatic,
+  extractPhotoboothNet,
+  extractLomography,
+  extractFlickrPhotobooth,
+  extractPinterest,
+  extractAutophoto,
+  extractPhotomaticaWestCoast,
+  extractClassicPhotoBoothCo,
+  extractGeneric,
+  type BoothData,
+  type ExtractorResult,
+} from "./extractors.ts";
+import {
+  extractSoloSophie,
+  extractMisadventuresAndi,
+  extractNoCameraBag,
+  extractGirlInFlorence,
+  extractAccidentallyWesAnderson,
+  extractDoTheBay,
+  extractConcretePlayground,
+  extractJapanExperience,
+  extractSmithsonian,
+  extractDigitalCosmonautBerlin,
+  extractPheltMagazineBerlin,
+  extractApertureToursberlin,
+  extractDesignMyNightLondon,
+  extractLondonWorld,
+  extractFlashPackLondon,
+  extractTimeOutLA,
+  extractLocaleMagazineLA,
+  extractTimeOutChicago,
+  extractBlockClubChicago,
+  extractDesignMyNightNY,
+  extractRoxyHotelNY,
+  extractAirialTravelBrooklyn,
+} from "./city-guide-extractors.ts";
+import {
+  extractFotoautomatBerlin,
+  extractAutofoto,
+  extractFotoautomatFr,
+  extractFotoautomatWien,
+  extractFotoautomatica,
+  extractFlashPack,
+  extractMetroAutoPhoto,
+} from "./european-extractors.ts";
+import { validateCountry } from "./country-validation.ts";
+import {
+  extractPhotoboothNetEnhanced,
+  extractCityGuideEnhanced,
+  extractBlogEnhanced,
+  extractCommunityEnhanced,
+  extractOperatorEnhanced,
+  extractDirectoryEnhanced,
+} from "./enhanced-extractors.ts";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+interface CrawlResult {
+  source_name: string;
+  status: "success" | "error" | "skipped";
+  booths_found: number;
+  booths_added: number;
+  booths_updated: number;
+  extraction_time_ms: number;
+  crawl_duration_ms: number;
+  error_message?: string;
+  pages_crawled?: number;
+}
+
+serve(async (req) => {
+  console.log("🚀 Edge function invoked");
+  
+  if (req.method === "OPTIONS") {
+    console.log("📝 Handling OPTIONS request");
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  console.log("📨 Processing POST request");
+  
+  try {
+    console.log("🔑 Loading environment variables");
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const firecrawlKey = Deno.env.get("FIRECRAWL_API_KEY")!;
+    const anthropicApiKey = Deno.env.get("ANTHROPIC_API_KEY")!;
+
+    if (!firecrawlKey) {
+      throw new Error("FIRECRAWL_API_KEY not configured");
+    }
+
+    console.log("✅ Environment variables loaded");
+    const supabase = createClient(supabaseUrl, supabaseKey);
+    const firecrawl = new FirecrawlApp({ apiKey: firecrawlKey });
+
+    console.log("📥 Parsing request body");
+    // Parse request body for options
+    const body = await req.json().catch(() => ({}));
+    const {
+      source_name: specificSource,
+      force_crawl = false,
+      stream = false, // Enable SSE streaming for real-time progress
+    } = body;
+
+    console.log("Starting unified crawler...");
+    if (specificSource) {
+      console.log(`Targeting specific source: ${specificSource}`);
+    }
+
+    // Set up SSE stream if requested
+    let streamController: ReadableStreamDefaultController<Uint8Array> | null = null;
+    const sendProgressEvent = (data: any) => {
+      if (stream && streamController) {
+        const event = `data: ${JSON.stringify(data)}\n\n`;
+        streamController.enqueue(new TextEncoder().encode(event));
+      }
+    };
+
+    // Get enabled crawl sources
+    let query = supabase
+      .from("crawl_sources")
+      .select("*")
+      .eq("enabled", true)
+      .order("priority", { ascending: false });
+
+    if (specificSource) {
+      query = query.eq("source_name", specificSource);
+    }
+
+    const { data: sources, error: sourcesError } = await query;
+
+    if (sourcesError) throw sourcesError;
+
+    if (!sources || sources.length === 0) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: "No enabled crawl sources found",
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const results: CrawlResult[] = [];
+    let totalBooths = 0;
+    let totalAdded = 0;
+    let totalUpdated = 0;
+
+    // If streaming, create a readable stream
+    if (stream) {
+      const streamBody = new ReadableStream({
+        start(controller) {
+          streamController = controller;
+          
+          // Send initial event
+          sendProgressEvent({
+            type: 'start',
+            total_sources: sources.length,
+            timestamp: new Date().toISOString()
+          });
+        }
+      });
+
+      // Start processing in background
+      (async () => {
+        try {
+          for (let i = 0; i < sources.length; i++) {
+            const source = sources[i];
+            await processSource(source, i, sources.length, sendProgressEvent, results, force_crawl, anthropicApiKey, firecrawl, supabase);
+          }
+
+          // Send completion event
+          sendProgressEvent({
+            type: 'complete',
+            results,
+            total_booths_found: results.reduce((sum, r) => sum + r.booths_found, 0),
+            total_booths_added: results.reduce((sum, r) => sum + r.booths_added, 0),
+            total_booths_updated: results.reduce((sum, r) => sum + r.booths_updated, 0),
+            timestamp: new Date().toISOString()
+          });
+        } catch (error: any) {
+          sendProgressEvent({
+            type: 'error',
+            error: error.message,
+            timestamp: new Date().toISOString()
+          });
+        } finally {
+          if (streamController) {
+            (streamController as ReadableStreamDefaultController<Uint8Array>).close();
+          }
+        }
+      })();
+
+      return new Response(streamBody, {
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'text/event-stream',
+          'Cache-Control': 'no-cache',
+          'Connection': 'keep-alive',
+        },
+      });
+    }
+
+    // Non-streaming: process sources sequentially
+    console.log(`Non-streaming mode: Processing ${sources.length} sources...`);
+    for (let i = 0; i < sources.length; i++) {
+      const source = sources[i];
+      console.log(`Processing source ${i + 1}/${sources.length}: ${source.source_name}`);
+      await processSource(source, i, sources.length, sendProgressEvent, results, force_crawl, anthropicApiKey, firecrawl, supabase);
+      console.log(`Completed source ${i + 1}/${sources.length}`);
+    }
+
+    // Return results for non-streaming mode
+    console.log(`All sources processed. Calculating totals...`);
+    totalBooths = results.reduce((sum, r) => sum + r.booths_found, 0);
+    totalAdded = results.reduce((sum, r) => sum + r.booths_added, 0);
+    totalUpdated = results.reduce((sum, r) => sum + r.booths_updated, 0);
+
+    console.log(`Sending response: ${totalBooths} booths found, ${totalAdded} added, ${totalUpdated} updated`);
+    
+    const responseData = {
+      success: true,
+      results,
+      summary: {
+        total_sources: sources.length,
+        total_booths_found: totalBooths,
+        total_booths_added: totalAdded,
+        total_booths_updated: totalUpdated,
+      },
+    };
+    
+    console.log(`Response prepared, returning...`);
+    return new Response(
+      JSON.stringify(responseData),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  } catch (error: any) {
+    console.error("Crawler error:", error);
+    return new Response(
+      JSON.stringify({
+        success: false,
+        error: error.message,
+      }),
+      {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      }
+    );
+  }
+});
+
+async function processSource(
+  source: any,
+  index: number,
+  total: number,
+  sendProgressEvent: (data: any) => void,
+  results: CrawlResult[],
+  force_crawl: boolean,
+  anthropicApiKey: string,
+  firecrawl: any,
+  supabase: any
+) {
+  const crawlStartTime = Date.now();
+  console.log(`\n========================================`);
+  console.log(`Processing: ${source.source_name}`);
+  console.log(`URL: ${source.source_url}`);
+  console.log(`Priority: ${source.priority}`);
+  console.log(`========================================`);
+
+  sendProgressEvent({
+    type: 'progress',
+    current: index + 1,
+    total,
+    source_name: source.source_name,
+    status: 'starting',
+    timestamp: new Date().toISOString()
+  });
+
+  try {
+        // Check if we should skip based on last crawl time
+        // Reset batch progress if force_crawl or if previous crawl was completed
+        if (force_crawl || source.crawl_completed) {
+          await supabase
+            .from("crawl_sources")
+            .update({
+              last_batch_page: 0,
+              crawl_completed: false,
+            })
+            .eq("id", source.id);
+          console.log(`🔄 Reset batch progress for ${source.source_name}`);
+        }
+        
+        if (!force_crawl && source.last_crawl_timestamp && source.crawl_frequency_days) {
+          const daysSinceLastCrawl =
+            (Date.now() - new Date(source.last_crawl_timestamp).getTime()) / (1000 * 60 * 60 * 24);
+
+          if (daysSinceLastCrawl < source.crawl_frequency_days) {
+            console.log(`Skipping ${source.source_name} - last crawled ${daysSinceLastCrawl.toFixed(1)} days ago`);
+            const skipResult: CrawlResult = {
+              source_name: source.source_name,
+              status: "skipped" as const,
+              booths_found: 0,
+              booths_added: 0,
+              booths_updated: 0,
+              extraction_time_ms: 0,
+              crawl_duration_ms: Date.now() - crawlStartTime,
+            };
+            results.push(skipResult);
+            
+            sendProgressEvent({
+              type: 'progress',
+              current: index + 1,
+              total,
+              source_name: source.source_name,
+              status: 'skipped',
+              result: skipResult,
+              timestamp: new Date().toISOString()
+            });
+            
+            return;
+          }
+        }
+
+        // Update crawl status to in-progress
+        await supabase
+          .from("crawl_sources")
+          .update({ last_crawl_timestamp: new Date().toISOString() })
+          .eq("id", source.id);
+
+        // Determine if we should use multi-page crawling
+        // Since websites are small, use multi-page crawl for ALL directory-type sources
+        // Keep single-page scrape for blogs and individual articles
+        const singlePageSources = [
+          'aperturetours', // Berlin photography blog
+          'digital_cosmonaut', // Berlin city blog
+          'girlinflorence', // Florence blog
+          'nocamerabag', // Vienna photo spots
+          'solosophie', // Paris travel blog
+          'roxyhotelnyc', // NYC hotel blog
+          'itstheflashpack', // London travel blog
+        ];
+
+        const useMultiPageCrawl = !singlePageSources.includes(source.extractor_type);
+
+        let extractorResult: ExtractorResult;
+
+        if (useMultiPageCrawl) {
+          // AUTOMATIC BATCH PROCESSING - Process multiple batches until complete or timeout
+          console.log(`🔄 Starting automatic batch processing for ${source.source_name}...`);
+
+          const pageLimit = source.pages_per_batch || 10;
+          const totalPages = source.total_pages_target || 0;
+          const functionTimeoutMs = 80000; // Exit 80 seconds before Supabase 150s timeout (leave 70s buffer)
+          const functionStartTime = Date.now();
+
+          // Accumulate results across all batches
+          const allBooths: BoothData[] = [];
+          const allErrors: string[] = [];
+          let totalExtractionTime = 0;
+          let totalPagesCrawled = 0;
+          let batchNumber = 0;
+
+          // Get current progress from database
+          let currentPage = source.last_batch_page || 0;
+          let isCrawlComplete = totalPages > 0 && currentPage >= totalPages;
+
+          console.log(`📊 Starting from page ${currentPage}/${totalPages} (batch size: ${pageLimit})`);
+
+          // BATCH LOOP: Continue until complete or approaching timeout
+          while (!isCrawlComplete) {
+            batchNumber++;
+            const batchStartTime = Date.now();
+            const elapsedTime = batchStartTime - functionStartTime;
+
+            // Check if we're approaching timeout (exit gracefully with 70s buffer)
+            if (elapsedTime > functionTimeoutMs) {
+              console.log(`⏰ Approaching timeout (${Math.round(elapsedTime / 1000)}s elapsed). Exiting gracefully.`);
+              console.log(`💾 Progress saved: ${currentPage}/${totalPages} pages complete`);
+              break;
+            }
+
+            console.log(`\n🔄 Processing batch #${batchNumber} (pages ${currentPage + 1}-${currentPage + pageLimit})...`);
+
+            const crawlResult = await firecrawl.crawlUrl(source.source_url, {
+              limit: pageLimit,
+              scrapeOptions: {
+                formats: ['markdown', 'html'],
+                onlyMainContent: false, // FALSE to capture sidebars/navigation with booth lists
+                waitFor: 6000, // Wait 6 seconds for Maps/React to load
+                timeout: 30000,
+              },
+            });
+
+            if (!crawlResult.success) {
+              console.error(`❌ Batch #${batchNumber} failed: ${crawlResult.error || 'Unknown error'}`);
+              allErrors.push(`Batch ${batchNumber} failed: ${crawlResult.error}`);
+              break;
+            }
+
+            const pages = crawlResult.data || [];
+            const pagesCrawled = pages.length;
+            console.log(`✓ Crawled ${pagesCrawled} pages in batch #${batchNumber}`);
+
+            // Update progress
+            const previousPage = currentPage;
+            currentPage = previousPage + pagesCrawled;
+            totalPagesCrawled += pagesCrawled;
+            isCrawlComplete = totalPages > 0 && currentPage >= totalPages;
+
+            console.log(`📈 Progress: ${currentPage}/${totalPages} pages (${Math.round(currentPage / totalPages * 100)}%)`);
+
+            // Extract booths from all pages in this batch
+            for (const page of pages) {
+              const pageResult = await extractFromSource(
+                page.html || '',
+                page.markdown || '',
+                source.source_url,
+                source.source_name,
+                source.extractor_type,
+                anthropicApiKey
+              );
+              allBooths.push(...pageResult.booths);
+              allErrors.push(...pageResult.errors);
+              totalExtractionTime += pageResult.metadata.extraction_time_ms;
+            }
+
+            const batchDuration = Date.now() - batchStartTime;
+            console.log(`⏱️  Batch #${batchNumber} completed in ${Math.round(batchDuration / 1000)}s`);
+            console.log(`🎯 Total booths so far: ${allBooths.length}`);
+
+            // Update database with progress after each batch
+            await supabase
+              .from("crawl_sources")
+              .update({
+                last_batch_page: currentPage,
+                crawl_completed: isCrawlComplete,
+                last_successful_crawl: new Date().toISOString(),
+              })
+              .eq("id", source.id);
+
+            // Exit if complete
+            if (isCrawlComplete) {
+              console.log(`🎉 ${source.source_name}: All batches complete! (${currentPage}/${totalPages} pages)`);
+              break;
+            }
+
+            // Exit if no pages were returned (Firecrawl reached end of site)
+            if (pagesCrawled === 0) {
+              console.log(`⚠️  No more pages available from Firecrawl. Marking as complete.`);
+              isCrawlComplete = true;
+              await supabase
+                .from("crawl_sources")
+                .update({ crawl_completed: true })
+                .eq("id", source.id);
+              break;
+            }
+          }
+
+          // Deduplicate all booths collected across batches
+          extractorResult = {
+            booths: deduplicateBooths(allBooths),
+            errors: allErrors,
+            metadata: {
+              pages_processed: totalPagesCrawled,
+              total_found: allBooths.length,
+              extraction_time_ms: totalExtractionTime,
+            },
+          };
+
+          console.log(`\n📊 BATCH SUMMARY for ${source.source_name}:`);
+          console.log(`   Batches processed: ${batchNumber}`);
+          console.log(`   Total pages crawled: ${totalPagesCrawled}`);
+          console.log(`   Total booths found: ${allBooths.length}`);
+          console.log(`   Unique booths after dedup: ${extractorResult.booths.length}`);
+          console.log(`   Status: ${isCrawlComplete ? 'COMPLETE ✅' : 'IN PROGRESS (will resume on next run)'}`);
+
+        } else {
+          // Use scrapeUrl for single-page sites
+          console.log(`Using single-page scrape for ${source.source_name}...`);
+
+          const scrapeResult = await firecrawl.scrapeUrl(source.source_url, {
+            formats: ['markdown', 'html'],
+            onlyMainContent: false, // FALSE to capture sidebars/navigation with booth lists
+            waitFor: 6000, // Wait 6 seconds for Maps/React to load
+            timeout: 30000,
+          });
+
+          if (!scrapeResult.success) {
+            throw new Error(`Firecrawl scrape failed: ${scrapeResult.error}`);
+          }
+
+          extractorResult = await extractFromSource(
+            scrapeResult.html || '',
+            scrapeResult.markdown || '',
+            source.source_url,
+            source.source_name,
+            source.extractor_type,
+            anthropicApiKey
+          );
+        }
+
+        console.log(`Extracted ${extractorResult.booths.length} booths`);
+        if (extractorResult.errors.length > 0) {
+          console.warn(`Extraction errors: ${extractorResult.errors.slice(0, 3).join(', ')}`);
+        }
+
+        // Upsert booths into database
+        let added = 0;
+        let updated = 0;
+
+        for (const booth of extractorResult.booths) {
+          // Validate booth data
+          if (!validateBooth(booth)) {
+            console.warn(`Skipping invalid booth: ${booth.name}`);
+            continue;
+          }
+
+          // Check if booth exists by normalized name + city + country
+          const normalizedName = normalizeName(booth.name);
+          const normalizedCity = booth.city ? normalizeName(booth.city) : null;
+
+          const { data: existing } = await supabase
+            .from("booths")
+            .select("id, source_names, source_urls")
+            .eq("country", booth.country)
+            .ilike("name", `%${normalizedName}%`)
+            .maybeSingle();
+
+          const boothData = {
+            name: booth.name,
+            address: booth.address,
+            city: booth.city,
+            state: booth.state,
+            country: booth.country,
+            postal_code: booth.postal_code,
+            latitude: booth.latitude,
+            longitude: booth.longitude,
+            machine_model: booth.machine_model,
+            machine_manufacturer: booth.machine_manufacturer,
+            type: booth.booth_type || 'analog',
+            cost: booth.cost,
+            hours: booth.hours,
+            is_operational: booth.is_operational ?? true,
+            status: booth.status,
+            description: booth.description,
+            website: booth.website,
+            phone: booth.phone,
+            photos: booth.photos || [],
+          };
+
+          if (existing) {
+            // Update existing booth and track source
+            const sourceNames = existing.source_names || [];
+            const sourceUrls = existing.source_urls || [];
+
+            if (!sourceNames.includes(source.source_name)) {
+              sourceNames.push(source.source_name);
+            }
+            if (!sourceUrls.includes(booth.source_url)) {
+              sourceUrls.push(booth.source_url);
+            }
+
+            const { error: updateError } = await supabase
+              .from("booths")
+              .update({
+                ...boothData,
+                source_names: sourceNames,
+                source_urls: sourceUrls,
+                updated_at: new Date().toISOString(),
+              })
+              .eq("id", existing.id);
+
+            if (!updateError) updated++;
+          } else {
+            // Insert new booth
+            const { error: insertError } = await supabase
+              .from("booths")
+              .insert({
+                ...boothData,
+                source_names: [source.source_name],
+                source_urls: [booth.source_url],
+                source_id: source.id,
+              });
+
+            if (!insertError) added++;
+          }
+
+          // Small delay to avoid rate limiting
+          await new Promise(resolve => setTimeout(resolve, 50));
+        }
+
+        const crawlDuration = Date.now() - crawlStartTime;
+
+        // Get final batch status from database (may have been updated during batch loop)
+        const { data: updatedSource } = await supabase
+          .from("crawl_sources")
+          .select("last_batch_page, crawl_completed, total_pages_target")
+          .eq("id", source.id)
+          .single();
+
+        const finalPage = updatedSource?.last_batch_page || 0;
+        const finalTotalPages = updatedSource?.total_pages_target || 0;
+        const finalIsComplete = updatedSource?.crawl_completed || false;
+
+        // Update source statistics with final results
+        await supabase
+          .from("crawl_sources")
+          .update({
+            last_successful_crawl: new Date().toISOString(),
+            total_booths_found: extractorResult.booths.length,
+            total_booths_added: added,
+            total_booths_updated: updated,
+            average_crawl_duration_seconds: Math.round(crawlDuration / 1000),
+            consecutive_failures: 0,
+            status: 'active',
+          })
+          .eq("id", source.id);
+
+        if (finalIsComplete) {
+          console.log(`🎉 ${source.source_name}: CRAWL COMPLETE! (${finalPage}/${finalTotalPages} pages) ✅`);
+        } else if (finalTotalPages > 0) {
+          console.log(`📊 ${source.source_name}: Partial progress saved (${finalPage}/${finalTotalPages} pages, ${finalTotalPages - finalPage} remaining)`);
+          console.log(`💡 Will automatically resume on next crawler run`);
+        }
+
+        results.push({
+          source_name: source.source_name,
+          status: "success",
+          booths_found: extractorResult.booths.length,
+          booths_added: added,
+          booths_updated: updated,
+          extraction_time_ms: extractorResult.metadata.extraction_time_ms,
+          crawl_duration_ms: crawlDuration,
+          pages_crawled: extractorResult.metadata.pages_processed,
+        });
+
+        console.log(`✓ ${source.source_name}: ${extractorResult.booths.length} found, ${added} added, ${updated} updated`);
+        console.log(`🎉 processSource completed successfully for ${source.source_name}`);
+        return; // Explicit return to exit the function
+
+  } catch (error) {
+    console.error(`✗ ${source.source_name} failed:`, error);
+
+    // Update source error status
+    const consecutiveFailures = (source.consecutive_failures || 0) + 1;
+    await supabase
+      .from("crawl_sources")
+      .update({
+        consecutive_failures: consecutiveFailures,
+        last_error_message: error instanceof Error ? error.message : String(error),
+        last_error_timestamp: new Date().toISOString(),
+        status: consecutiveFailures >= 3 ? 'error' : 'active',
+      })
+      .eq("id", source.id);
+
+    results.push({
+      source_name: source.source_name,
+      status: "error",
+      booths_found: 0,
+      booths_added: 0,
+      booths_updated: 0,
+      extraction_time_ms: 0,
+      crawl_duration_ms: Date.now() - crawlStartTime,
+      error_message: error instanceof Error ? error.message : String(error),
+    });
+  }
+}
+
+
+/**
+ * Route to appropriate extractor based on source type
+ */
+async function extractFromSource(
+  html: string,
+  markdown: string,
+  sourceUrl: string,
+  sourceName: string,
+  extractorType: string,
+  anthropicApiKey: string
+): Promise<ExtractorResult> {
+  // PRIORITY: Use enhanced AI extractors for gold standard sources
+  switch (extractorType) {
+    // GOLD STANDARD: photobooth.net - Use enhanced extractor
+    case 'photobooth_net':
+      console.log("🎯 Using ENHANCED extractor for photobooth.net");
+      return extractPhotoboothNetEnhanced(html, markdown, sourceUrl, anthropicApiKey);
+
+    // Use AI extraction for all directory sources
+    case 'photomatica':
+    case 'photoautomat_de':
+    case 'photomatic':
+    case 'lomography':
+    case 'flickr_photobooth':
+    case 'pinterest':
+    case 'autophoto':
+    case 'photomatica_west_coast':
+    case 'classic_photo_booth_co':
+      console.log(`🎯 Using ENHANCED extractor for directory: ${sourceName}`);
+      return extractDirectoryEnhanced(html, markdown, sourceUrl, sourceName, anthropicApiKey);
+
+    // TIER 3A: City Guide Extractors - ALL USE ENHANCED AI EXTRACTION
+    // Berlin City Guides
+    case 'city_guide_berlin_digitalcosmonaut':
+    case 'city_guide_berlin_phelt':
+    case 'city_guide_berlin_aperture':
+    // London City Guides
+    case 'city_guide_london_designmynight':
+    case 'city_guide_london_world':
+    case 'city_guide_london_flashpack':
+    // Los Angeles City Guides
+    case 'city_guide_la_timeout':
+    case 'city_guide_la_locale':
+    // Chicago City Guides
+    case 'city_guide_chicago_timeout':
+    case 'city_guide_chicago_blockclub':
+    // New York City Guides
+    case 'city_guide_ny_designmynight':
+    case 'city_guide_ny_roxy':
+    case 'city_guide_ny_airial':
+      console.log(`🏙️ Using ENHANCED extractor for city guide: ${sourceName}`);
+      return extractCityGuideEnhanced(html, markdown, sourceUrl, sourceName, anthropicApiKey);
+
+    // TIER 2B: European Operators - Use AI extraction
+    case 'fotoautomat_berlin':
+    case 'autofoto':
+    case 'fotoautomat_fr':
+    case 'fotoautomat_wien':
+    case 'fotoautomatica':
+    case 'flash_pack':
+    case 'metro_auto_photo':
+      console.log(`🇪🇺 Using ENHANCED extractor for operator: ${sourceName}`);
+      return extractOperatorEnhanced(html, markdown, sourceUrl, sourceName, anthropicApiKey);
+
+    // TIER 3B: Travel Blogs & Community - ALL USE ENHANCED AI EXTRACTION
+    case 'solo_sophie':
+    case 'misadventures_andi':
+    case 'no_camera_bag':
+    case 'girl_in_florence':
+    case 'accidentally_wes_anderson':
+    case 'dothebay':
+    case 'concrete_playground':
+    case 'japan_experience':
+      console.log(`📝 Using ENHANCED extractor for blog: ${sourceName}`);
+      return extractBlogEnhanced(html, markdown, sourceUrl, sourceName, anthropicApiKey);
+
+    case 'smithsonian':
+      console.log(`🏛️ Using ENHANCED extractor for community source: ${sourceName}`);
+      return extractCommunityEnhanced(html, markdown, sourceUrl, sourceName, anthropicApiKey);
+
+    default:
+      return extractGeneric(html, markdown, sourceUrl, sourceName, anthropicApiKey);
+  }
+}
+
+/**
+ * Validate booth data meets minimum requirements
+ * Now includes country validation to prevent "Unknown", "Brian |", and corrupted data
+ */
+function validateBooth(booth: BoothData): boolean {
+  if (!booth.name || booth.name.trim().length === 0) {
+    console.warn(`Booth validation failed: missing name`);
+    return false;
+  }
+  if (!booth.address || booth.address.trim().length === 0) {
+    console.warn(`Booth validation failed: missing address for ${booth.name}`);
+    return false;
+  }
+
+  // Validate country (strict validation with city fallback)
+  const countryValidation = validateCountry(booth.country, booth.city);
+  if (!countryValidation.isValid) {
+    console.warn(`Booth validation failed for "${booth.name}": ${countryValidation.error}`);
+    return false;
+  }
+
+  // Standardize country name to validated version
+  booth.country = countryValidation.standardizedCountry;
+
+  // Check for HTML tags
+  const htmlPattern = /<[^>]+>/;
+  if (htmlPattern.test(booth.name) || htmlPattern.test(booth.address)) {
+    console.warn(`Booth validation failed: HTML tags detected in ${booth.name}`);
+    return false;
+  }
+
+  // Check for reasonable length
+  if (booth.name.length > 200 || booth.address.length > 300) {
+    console.warn(`Booth validation failed: excessive length for ${booth.name}`);
+    return false;
+  }
+
+  return true;
+}
+
+/**
+ * Normalize name for comparison
+ */
+function normalizeName(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/[^\w\s]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/**
+ * Deduplicate booths within extraction result
+ */
+function deduplicateBooths(booths: BoothData[]): BoothData[] {
+  const seen = new Map<string, BoothData>();
+
+  for (const booth of booths) {
+    const key = `${normalizeName(booth.name)}_${booth.city}_${booth.country}`;
+    if (!seen.has(key)) {
+      seen.set(key, booth);
+    }
+  }
+
+  return Array.from(seen.values());
+}

@@ -290,8 +290,8 @@ export async function extractWithAI(
           continue;
         }
 
-        const extracted = toolUse.input as any;
-        const chunkBooths = extracted?.booths || [];
+        const extracted = toolUse.input;
+        const chunkBooths = extracted.booths || [];
 
         if (chunkBooths.length === 0) {
           console.warn(`⚠️ Zero booths found in chunk ${chunkIndex + 1}. Raw AI response:`, JSON.stringify(result).substring(0, 500) + "...");

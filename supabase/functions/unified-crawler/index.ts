@@ -86,8 +86,6 @@ interface CrawlLog {
 }
 
 const crawlLogs: CrawlLog[] = [];
-let globalSupabase: any = null;
-let globalSourceId: string | null = null;
 
 function addLog(level: "info" | "warn" | "error", message: string, metadata?: Record<string, any>) {
   const log = {
@@ -106,33 +104,6 @@ function addLog(level: "info" | "warn" | "error", message: string, metadata?: Re
     console.warn(logMessage, metadata || "");
   } else {
     console.log(logMessage, metadata || "");
-  }
-
-  // Save to database if available (fire and forget - don't block on this)
-  if (globalSupabase && globalSourceId) {
-    saveToDB(level, message, metadata).catch(err => {
-      console.error('Failed to save log to database:', err);
-    });
-  }
-}
-
-async function saveToDB(level: string, message: string, metadata?: Record<string, any>) {
-  if (!globalSupabase || !globalSourceId) return;
-
-  try {
-    await globalSupabase
-      .from('crawl_logs')
-      .insert({
-        source_id: globalSourceId,
-        operation_type: metadata?.operation_type || 'general',
-        operation_status: level === 'error' ? 'error' : (level === 'warn' ? 'warning' : 'success'),
-        message,
-        details: metadata,
-        timestamp: new Date().toISOString()
-      });
-  } catch (error) {
-    // Silent fail - don't want logging to break the crawler
-    console.error('Database log insert failed:', error);
   }
 }
 
@@ -174,6 +145,57 @@ async function logCrawlerMetric(
       });
   } catch (error) {
     console.error('Failed to log crawler metric:', error);
+  }
+}
+
+/**
+ * Save raw Firecrawl content for re-processing
+ */
+async function saveRawContent(
+  supabase: any,
+  sourceId: string,
+  pages: any[]
+) {
+  try {
+    const crypto = await import("node:crypto");
+
+    const rawContentRecords = pages.map((page: any) => {
+      const url = page.url || page.sourceURL || 'unknown';
+      const markdown = page.markdown || '';
+      const html = page.html || '';
+
+      // Calculate MD5 hash of content
+      const contentHash = crypto.createHash('md5')
+        .update(markdown + html)
+        .digest('hex');
+
+      return {
+        source_id: sourceId,
+        url,
+        raw_markdown: markdown,
+        raw_html: html,
+        metadata: {
+          title: page.metadata?.title,
+          description: page.metadata?.description,
+          language: page.metadata?.language,
+          sourceURL: page.sourceURL,
+        },
+        content_hash: contentHash,
+        crawled_at: new Date().toISOString(),
+      };
+    });
+
+    const { error } = await supabase
+      .from('crawl_raw_content')
+      .insert(rawContentRecords);
+
+    if (error) {
+      console.error('Failed to save raw content:', error);
+    } else {
+      console.log(`✓ Saved ${rawContentRecords.length} raw content records`);
+    }
+  } catch (error) {
+    console.error('Error saving raw content:', error);
   }
 }
 
@@ -242,7 +264,7 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  addLog("info", "Processing POST request");
+  addLog("info", `Processing ${req.method} request`);
 
   try {
     addLog("info", "Loading environment variables");
@@ -258,19 +280,27 @@ serve(async (req) => {
 
     addLog("info", "Environment variables loaded");
     const supabase = createClient(supabaseUrl, supabaseKey);
-    globalSupabase = supabase; // Set global for logging
     const firecrawl = new FirecrawlApp({ apiKey: firecrawlKey });
     const resend = resendApiKey ? new Resend(resendApiKey) : null;
 
-    addLog("info", "Parsing request body");
-    // Parse request body for options
-    const body = await req.json().catch(() => ({}));
-    const {
-      source_name: specificSource,
-      force_crawl = false,
-      stream = false, // Enable SSE streaming for real-time progress
-      admin_email = "admin@boothbeacon.com", // Email to send notifications
-    } = body;
+    // Parse parameters from either POST body or GET query string
+    let specificSource, force_crawl, stream, admin_email;
+
+    if (req.method === "GET") {
+      const url = new URL(req.url);
+      specificSource = url.searchParams.get('source_name');
+      force_crawl = url.searchParams.get('force_crawl') === 'true';
+      stream = url.searchParams.get('stream') === 'true';
+      admin_email = url.searchParams.get('admin_email') || "admin@boothbeacon.com";
+      addLog("info", "Parsed GET parameters", { specificSource, force_crawl, stream });
+    } else {
+      addLog("info", "Parsing request body");
+      const body = await req.json().catch(() => ({}));
+      specificSource = body.source_name;
+      force_crawl = body.force_crawl || false;
+      stream = body.stream || false;
+      admin_email = body.admin_email || "admin@boothbeacon.com";
+    }
 
     addLog("info", "Starting unified crawler", { specificSource, force_crawl, stream });
 
@@ -552,13 +582,11 @@ async function processSource(
   supabase: any
 ) {
   const crawlStartTime = Date.now();
-  globalSourceId = source.id; // Set for logging
   addLog("info", `Processing source: ${source.source_name}`, {
     url: source.source_url,
     priority: source.priority,
     index: index + 1,
-    total,
-    operation_type: 'crawl_start'
+    total
   });
 
   sendProgressEvent({
@@ -815,6 +843,11 @@ async function processSource(
         const pagesCrawled = pages.length;
         console.log(`✓ Crawled ${pagesCrawled} pages in batch #${batchNumber}`);
 
+        // Save raw content for re-processing (fire and forget)
+        saveRawContent(supabase, source.id, pages).catch(err => {
+          console.error('Failed to save raw content (non-fatal):', err);
+        });
+
         sendProgressEvent({
           type: 'batch_crawled',
           source_name: source.source_name,
@@ -988,6 +1021,11 @@ async function processSource(
       if (!scrapeResult.success) {
         throw new Error(`Firecrawl scrape failed: ${scrapeResult.error}`);
       }
+
+      // Save raw content for re-processing (fire and forget)
+      saveRawContent(supabase, source.id, [scrapeResult]).catch(err => {
+        console.error('Failed to save raw content (non-fatal):', err);
+      });
 
       extractorResult = await extractFromSource(
         scrapeResult.html || '',
