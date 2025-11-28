@@ -44,13 +44,16 @@ export default function AdminPage() {
   const [currentEventSource, setCurrentEventSource] = useState<EventSource | null>(null);
   const [logFilter, setLogFilter] = useState<'all' | 'info' | 'warning' | 'error'>('all');
   const [crawlerState, setCrawlerState] = useState<'idle' | 'connecting' | 'running' | 'error' | 'complete'>('idle');
-  const [connectionStatus, setConnectionStatus] = useState<'disconnected' | 'connecting' | 'connected' | 'error'>('disconnected');
+  const [connectionStatus, setConnectionStatus] = useState<'disconnected' | 'connecting' | 'connected' | 'error' | 'reconnecting'>('disconnected');
   const [currentSource, setCurrentSource] = useState<string>('');
   const [currentStage, setCurrentStage] = useState<'crawling' | 'extracting' | 'validating' | 'saving' | ''>('');
   const [activityFeed, setActivityFeed] = useState<Array<{type: string, message: string, timestamp: Date, status: 'info' | 'success' | 'warning' | 'error'}>>([]);
   const [crawlStartTime, setCrawlStartTime] = useState<Date | null>(null);
   const [lastError, setLastError] = useState<string>('');
   const [errorCount, setErrorCount] = useState(0);
+  const [reconnectAttempt, setReconnectAttempt] = useState(0);
+  const [maxReconnectAttempts] = useState(5);
+  const [reconnectTimeoutId, setReconnectTimeoutId] = useState<NodeJS.Timeout | null>(null);
 
   // Check admin status
   useEffect(() => {
@@ -208,7 +211,43 @@ export default function AdminPage() {
     setActivityFeed(prev => [{type, message, timestamp: new Date(), status}, ...prev].slice(0, 50));
   };
 
+  // Auto-reconnect with exponential backoff
+  const attemptReconnect = (sourceName?: string, totalBooths?: number, completedSources?: number) => {
+    if (reconnectAttempt >= maxReconnectAttempts) {
+      setCrawlerStatus(`Max reconnection attempts (${maxReconnectAttempts}) reached`);
+      setConnectionStatus('error');
+      setCrawlerState('error');
+      setCrawlerRunning(false);
+      addActivity('error', `Failed to reconnect after ${maxReconnectAttempts} attempts`, 'error');
+      toast.error(`Failed to reconnect after ${maxReconnectAttempts} attempts. Please try again later.`);
+      return;
+    }
+
+    // Exponential backoff: 3s, 6s, 12s, 24s, 48s
+    const delay = Math.min(3000 * Math.pow(2, reconnectAttempt), 48000);
+    setReconnectAttempt(prev => prev + 1);
+    setConnectionStatus('reconnecting');
+
+    const attemptNum = reconnectAttempt + 1;
+    setCrawlerStatus(`Connection lost. Reconnecting in ${delay/1000}s (attempt ${attemptNum}/${maxReconnectAttempts})...`);
+    addActivity('reconnect', `Attempting reconnection ${attemptNum}/${maxReconnectAttempts} in ${delay/1000}s`, 'warning');
+    toast.warning(`Connection lost. Reconnecting in ${delay/1000}s (attempt ${attemptNum}/${maxReconnectAttempts})...`);
+
+    const timeoutId = setTimeout(() => {
+      addActivity('reconnect', `Reconnecting... (attempt ${attemptNum}/${maxReconnectAttempts})`, 'info');
+      startCrawler(sourceName);
+    }, delay);
+
+    setReconnectTimeoutId(timeoutId);
+  };
+
   const stopCrawler = () => {
+    // Clear reconnection timeout if active
+    if (reconnectTimeoutId) {
+      clearTimeout(reconnectTimeoutId);
+      setReconnectTimeoutId(null);
+    }
+
     if (currentEventSource) {
       currentEventSource.close();
       setCurrentEventSource(null);
@@ -218,6 +257,7 @@ export default function AdminPage() {
       setConnectionStatus('disconnected');
       setCurrentSource('');
       setCurrentStage('');
+      setReconnectAttempt(0);
       addActivity('stop', 'Crawler stopped by user', 'warning');
       toast.info('Crawler stopped');
     }
@@ -238,12 +278,14 @@ export default function AdminPage() {
     setCurrentBoothCount(0);
     setCurrentSource('');
     setCurrentStage('');
-    setActivityFeed([]);
+    if (reconnectAttempt === 0) {
+      setActivityFeed([]); // Only clear activity feed on fresh start, not reconnect
+    }
     setCrawlStartTime(new Date());
     setLastError('');
     setErrorCount(0);
-    addActivity('start', 'Initiating crawler connection...', 'info');
-    toast.info('Starting crawler with real-time streaming...');
+    addActivity('start', reconnectAttempt > 0 ? 'Reconnecting to crawler...' : 'Initiating crawler connection...', 'info');
+    toast.info(reconnectAttempt > 0 ? 'Reconnecting to crawler...' : 'Starting crawler with real-time streaming...');
 
     let eventSource: EventSource | null = null;
     let totalBooths = 0;
@@ -347,6 +389,7 @@ export default function AdminPage() {
               setCrawlerState('complete');
               setCurrentStage('');
               setCurrentSource('');
+              setReconnectAttempt(0); // Reset reconnect counter on successful completion
               addActivity('complete', `Crawler complete! Found ${data.summary?.total_booths_found || totalBooths} booths`, 'success');
               toast.success(`Crawler complete! Found ${data.summary?.total_booths_found || totalBooths} booths`);
               if (eventSource) {
@@ -385,28 +428,31 @@ export default function AdminPage() {
           setCrawlerStatus('Failed to connect to crawler');
           setLastError('Failed to connect to crawler. Please check your network connection.');
           addActivity('error', 'Failed to connect to crawler', 'error');
-          toast.error('Failed to connect to crawler. Please check your network connection.');
+
+          // Attempt auto-reconnect for connection failures
+          attemptReconnect(sourceName, totalBooths, completedSources);
         } else if (totalBooths > 0 || completedSources > 0) {
           setCrawlerStatus(`Crawler stopped (${completedSources} sources completed, ${totalBooths} booths found before disconnect)`);
           setLastError(`Connection lost after processing ${completedSources} sources`);
           addActivity('error', `Connection lost after processing ${completedSources} sources and finding ${totalBooths} booths`, 'warning');
-          toast.warning(`Connection lost after processing ${completedSources} sources and finding ${totalBooths} booths. Data has been saved.`, {
-            duration: 10000,
-          });
+
           // Still reload data to show what was completed
           setTimeout(() => {
             loadAdminData();
             loadCrawlerMetrics();
             loadCrawlerLogs();
           }, 1000);
+
+          // Attempt auto-reconnect to continue crawling
+          attemptReconnect(sourceName, totalBooths, completedSources);
         } else {
           setCrawlerStatus('Connection error during crawl');
           setLastError('Lost connection to crawler. No data was received.');
           addActivity('error', 'Lost connection to crawler. No data was received.', 'error');
-          toast.error('Lost connection to crawler. No data was received.');
-        }
 
-        setCrawlerRunning(false);
+          // Attempt auto-reconnect
+          attemptReconnect(sourceName, totalBooths, completedSources);
+        }
       };
 
       // Timeout after 10 minutes
@@ -681,9 +727,13 @@ export default function AdminPage() {
                           {connectionStatus === 'disconnected' && <WifiOff className="w-5 h-5 text-neutral-500" />}
                           {connectionStatus === 'connecting' && <Loader2 className="w-5 h-5 text-blue-400 animate-spin" />}
                           {connectionStatus === 'connected' && <Wifi className="w-5 h-5 text-green-400" />}
+                          {connectionStatus === 'reconnecting' && <Loader2 className="w-5 h-5 text-yellow-400 animate-spin" />}
                           {connectionStatus === 'error' && <WifiOff className="w-5 h-5 text-red-400" />}
                           <span className="text-sm font-semibold text-white">
                             {connectionStatus.toUpperCase()}
+                            {connectionStatus === 'reconnecting' && reconnectAttempt > 0 && (
+                              <span className="text-xs ml-1">({reconnectAttempt}/{maxReconnectAttempts})</span>
+                            )}
                           </span>
                         </div>
                         {crawlStartTime && crawlerRunning && (
