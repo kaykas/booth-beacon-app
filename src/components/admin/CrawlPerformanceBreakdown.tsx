@@ -54,7 +54,7 @@ export const CrawlPerformanceBreakdown = () => {
       if (error) throw error;
 
       if (data) {
-        const formattedData: PerformanceMetrics[] = data.map((m: any) => ({
+        const formattedData: PerformanceMetrics[] = data.map((m) => ({
           source_name: m.source_name,
           total_duration_ms: m.duration_ms || 0,
           api_call_duration_ms: m.api_call_duration_ms || 0,
