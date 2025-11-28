@@ -145,11 +145,12 @@ export async function POST(request: NextRequest) {
 
         progress.successful++;
         console.log(`Successfully processed booth ${booth.id}`);
-      } catch (error: any) {
+      } catch (error) {
         progress.failed++;
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
         progress.errors.push({
           boothId: booth.id,
-          error: error.message || 'Unknown error',
+          error: errorMessage,
         });
         console.error(`Failed to process booth ${booth.id}:`, error);
       } finally {
@@ -167,10 +168,11 @@ export async function POST(request: NextRequest) {
       },
       { status: 200 }
     );
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error in batch-generate-previews API:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Internal server error';
     return NextResponse.json(
-      { error: error.message || 'Internal server error' },
+      { error: errorMessage },
       { status: 500 }
     );
   }

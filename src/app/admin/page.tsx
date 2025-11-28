@@ -35,6 +35,17 @@ interface CrawlSource {
   [key: string]: unknown;
 }
 
+interface CrawlerMetric {
+  id: string;
+  booths_extracted?: number;
+  completed_at?: string;
+  [key: string]: unknown;
+}
+
+interface ExtendedEventSource extends EventSource {
+  timeoutId?: NodeJS.Timeout;
+}
+
 export default function AdminPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
@@ -77,12 +88,13 @@ export default function AdminPage() {
   // Geocoding state (for future feature)
   // Commented out to fix lint errors until feature is implemented
   // const [geocodingRunning, setGeocodingRunning] = useState(false);
+  // Unused geocoding state - commented for future implementation
   // const [geocodingStatus, setGeocodingStatus] = useState('Ready');
   // const [geocodingProgress, setGeocodingProgress] = useState({ current: 0, total: 0, percentage: 0 });
   // const [geocodingResults, setGeocodingResults] = useState<unknown[]>([]);
-  const [geocodingStats, setGeocodingStats] = useState({ success: 0, errors: 0, skipped: 0 });
-  const [missingCoordsCount, setMissingCoordsCount] = useState(0);
-  const [currentEventSourceGeocode, setCurrentEventSourceGeocode] = useState<EventSource | null>(null);
+  // const [geocodingStats, setGeocodingStats] = useState({ success: 0, errors: 0, skipped: 0 });
+  // const [missingCoordsCount, setMissingCoordsCount] = useState(0);
+  // const [currentEventSourceGeocode, setCurrentEventSourceGeocode] = useState<EventSource | null>(null);
 
   // Check admin status
   useEffect(() => {
@@ -117,7 +129,7 @@ export default function AdminPage() {
   const loadAdminData = async () => {
     try {
       // Load stats
-      const [boothsRes, usersRes, photosRes, reviewsRes] = await Promise.all([
+      const [boothsRes, usersRes, _photosRes, reviewsRes] = await Promise.all([
         supabase.from('booths').select('status', { count: 'exact', head: true }),
         supabase.from('profiles').select('*', { count: 'exact', head: true }),
         supabase.from('booth_user_photos').select('moderation_status', { count: 'exact', head: true }),
@@ -179,7 +191,7 @@ export default function AdminPage() {
         .select('*')
         .gte('started_at', today.toISOString());
 
-      const crawledToday = todayMetrics?.reduce((sum: number, m: any) => sum + (m.booths_extracted || 0), 0) || 0;
+      const crawledToday = todayMetrics?.reduce((sum: number, m: CrawlerMetric) => sum + (m.booths_extracted || 0), 0) || 0;
 
       // Get last successful run
       const { data: lastRun } = await supabase
@@ -197,7 +209,7 @@ export default function AdminPage() {
         .eq('status', 'error')
         .gte('started_at', today.toISOString());
 
-      const lastRunData = lastRun as any;
+      const lastRunData = (lastRun?.[0] as CrawlerMetric | undefined);
       setCrawlerMetrics({
         crawledToday,
         lastRun: lastRunData?.completed_at ? new Date(lastRunData.completed_at).toLocaleString() : '-',
@@ -241,7 +253,7 @@ export default function AdminPage() {
   };
 
   // Auto-reconnect with exponential backoff
-  const attemptReconnect = (sourceName?: string, totalBooths?: number, completedSources?: number) => {
+  const attemptReconnect = (_sourceName?: string, _totalBooths?: number, _completedSources?: number) => {
     if (reconnectAttempt >= maxReconnectAttempts) {
       setCrawlerStatus(`Max reconnection attempts (${maxReconnectAttempts}) reached`);
       setConnectionStatus('error');
@@ -323,7 +335,6 @@ export default function AdminPage() {
 
     try {
       const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-      const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
       // Use EventSource for real-time streaming
       const params = new URLSearchParams({
@@ -507,18 +518,19 @@ export default function AdminPage() {
 
       // Store timeout ID to clear it if crawl completes normally
       if (eventSource) {
-        (eventSource as any).timeoutId = timeoutId;
+        (eventSource as ExtendedEventSource).timeoutId = timeoutId;
       }
 
-    } catch (error: any) {
+    } catch (error) {
       console.error('Crawler error:', error);
-      setCrawlerStatus('Error: ' + error.message);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      setCrawlerStatus('Error: ' + errorMessage);
       setCrawlerState('error');
       setConnectionStatus('error');
-      setLastError(error.message);
+      setLastError(errorMessage);
       setErrorCount(prev => prev + 1);
-      addActivity('error', 'Crawler failed: ' + error.message, 'error');
-      toast.error('Crawler failed: ' + error.message);
+      addActivity('error', 'Crawler failed: ' + errorMessage, 'error');
+      toast.error('Crawler failed: ' + errorMessage);
       setCrawlerRunning(false);
       if (eventSource) eventSource.close();
     }
@@ -701,7 +713,7 @@ export default function AdminPage() {
                             {photo.booth?.city}, {photo.booth?.country}
                           </p>
                           {photo.caption && (
-                            <p className="text-sm text-neutral-300 mb-3 italic">"{photo.caption}"</p>
+                            <p className="text-sm text-neutral-300 mb-3 italic">&quot;{photo.caption}&quot;</p>
                           )}
                           <div className="flex gap-2">
                             <Button
@@ -952,7 +964,7 @@ export default function AdminPage() {
                       <h3 className="font-semibold text-white">Recent Crawler Logs</h3>
                       <select
                         value={logFilter}
-                        onChange={(e) => setLogFilter(e.target.value as any)}
+                        onChange={(e) => setLogFilter(e.target.value)}
                         className="px-3 py-1 bg-neutral-800 border border-neutral-700 rounded text-white text-sm"
                       >
                         <option value="all">All Logs</option>
