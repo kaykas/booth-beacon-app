@@ -251,7 +251,7 @@ export default async function CollectionPage({
               <MapPin className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-xl font-semibold mb-2">No booths found</h3>
               <p className="text-muted-foreground mb-4">
-                We don't have any booths listed in this location yet.
+                We don&apos;t have any booths listed in this location yet.
               </p>
               <Button asChild className="btn-analog text-white border-0">
                 <Link href="/submit">Submit a Booth</Link>

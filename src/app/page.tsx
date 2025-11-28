@@ -87,7 +87,7 @@ export default async function Home() {
             </div> */}
 
             <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight mt-8">
-              The World's Ultimate
+              The World&apos;s Ultimate
               <br />
               <span className="text-gradient-pink">Classic Photo Booth</span>
               <br />
