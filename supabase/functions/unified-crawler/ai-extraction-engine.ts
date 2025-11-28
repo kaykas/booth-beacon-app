@@ -12,8 +12,8 @@
  * - Quality validation
  */
 
-import { BoothData, ExtractorResult } from "./extractors";
-import type { AnthropicResponse, AnthropicContentBlock } from "./types";
+import { BoothData, ExtractorResult } from "./extractors.ts";
+import type { AnthropicResponse, AnthropicContentBlock } from "./types.ts";
 
 export interface AIExtractionConfig {
   source_name: string;
@@ -199,8 +199,8 @@ export async function extractWithAI(
     if (config.source_type === 'directory' || config.source_type === 'operator') {
       // For directories: Use smaller chunks to prevent "Lazy List Syndrome"
       // Google recommendation: Process in batches of 5-10 items
-      // Use 50k chunks but split on newlines to preserve structure
-      const maxChunkSize = 50000;
+      // OPTIMIZED: Reduced from 50k to 30k to speed up AI processing
+      const maxChunkSize = 30000;
       let currentChunk = "";
 
       const lines = content.split('\n');
@@ -216,8 +216,13 @@ export async function extractWithAI(
       }
     } else {
       // For blogs/city guides/community: Send entire content (no chunking)
-      // This preserves context (e.g., intro mentioning "all cash only")
-      chunks.push(content);
+      // But limit to 30k to prevent timeout on very large pages
+      if (content.length > 30000) {
+        console.warn(`⚠️ Content too large (${content.length} chars), truncating to 30k`);
+        chunks.push(content.substring(0, 30000));
+      } else {
+        chunks.push(content);
+      }
     }
 
     console.log(`Processing ${chunks.length} chunks for ${config.source_name} (${config.source_type})`);
@@ -242,6 +247,11 @@ export async function extractWithAI(
 
       try {
         const apiStartTime = Date.now();
+
+        // CRITICAL FIX: Add timeout to AI API calls to prevent hanging
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout per AI call
+
         const response = await fetch("https://api.anthropic.com/v1/messages", {
           method: "POST",
           headers: {
@@ -249,9 +259,10 @@ export async function extractWithAI(
             "anthropic-version": "2023-06-01",
             "Content-Type": "application/json",
           },
+          signal: controller.signal,
           body: JSON.stringify({
             model: "claude-sonnet-4-5-20250929",  // Claude Sonnet 4.5 - Latest and best!
-            max_tokens: 16000,  // Increased for large extraction results
+            max_tokens: 8000,  // REDUCED from 16000 to speed up generation
             temperature: 0.0,  // Deterministic extraction
             system: SYSTEM_PROMPT,
             messages: [
@@ -273,6 +284,8 @@ export async function extractWithAI(
             }
           }),
         });
+
+        clearTimeout(timeoutId);
 
         if (!response.ok) {
           const errorText = await response.text();
@@ -342,8 +355,15 @@ export async function extractWithAI(
             source_name: config.source_name,
           });
         }
-      } catch (chunkError) {
-        errors.push(`Error processing chunk ${chunkIndex + 1}: ${chunkError}`);
+      } catch (chunkError: any) {
+        // Handle abort/timeout errors specifically
+        if (chunkError.name === 'AbortError') {
+          console.error(`❌ AI API call timed out for chunk ${chunkIndex + 1} after 30s`);
+          errors.push(`Chunk ${chunkIndex + 1}: AI API timeout after 30 seconds`);
+        } else {
+          console.error(`❌ Error processing chunk ${chunkIndex + 1}:`, chunkError);
+          errors.push(`Error processing chunk ${chunkIndex + 1}: ${chunkError.message || chunkError}`);
+        }
       }
     }
 

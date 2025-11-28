@@ -17,7 +17,7 @@
  * 4. Handles multi-location venues (e.g., multiple machines in Grand Central)
  */
 
-import { ExtractorResult, BoothData } from "./extractors";
+import { ExtractorResult, BoothData } from "./extractors.ts";
 
 interface AutophotoLocation {
   name: string;

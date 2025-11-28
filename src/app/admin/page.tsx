@@ -11,10 +11,13 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { BarChart3, Users, Image, MessageSquare, MapPin, CheckCircle, XCircle, Clock, Database, PlayCircle, PauseCircle, RefreshCw, Shield, Wifi, WifiOff, Activity, AlertCircle, Zap, Loader2, Navigation, FileText } from 'lucide-react';
+import { BarChart3, Users, Image, MessageSquare, MapPin, CheckCircle, XCircle, Clock, Database, PlayCircle, PauseCircle, RefreshCw, Shield, Wifi, WifiOff, Activity, AlertCircle, Zap, Loader2, Navigation, FileText, Heart } from 'lucide-react';
 import { toast } from 'sonner';
 import { MetricsDashboard } from '@/components/admin/MetricsDashboard';
+import { CrawlPerformanceBreakdown } from '@/components/admin/CrawlPerformanceBreakdown';
 import { LogViewer } from '@/components/LogViewer';
+import { CrawlJobQueue } from '@/components/admin/CrawlJobQueue';
+import { CrawlerHealthDashboard } from '@/components/admin/CrawlerHealthDashboard';
 
 export default function AdminPage() {
   const { user, loading: authLoading } = useAuth();
@@ -641,6 +644,18 @@ export default function AdminPage() {
                 <FileText className="w-4 h-4 mr-2" />
                 Crawler Logs
               </TabsTrigger>
+              <TabsTrigger value="health" className="data-[state=active]:bg-neutral-700 data-[state=active]:text-white">
+                <Heart className="w-4 h-4 mr-2" />
+                Crawler Health
+              </TabsTrigger>
+              <TabsTrigger value="performance" className="data-[state=active]:bg-neutral-700 data-[state=active]:text-white">
+                <Zap className="w-4 h-4 mr-2" />
+                Performance
+              </TabsTrigger>
+              <TabsTrigger value="queue" className="data-[state=active]:bg-neutral-700 data-[state=active]:text-white">
+                <Clock className="w-4 h-4 mr-2" />
+                Job Queue
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="metrics" className="mt-6">
@@ -1160,6 +1175,18 @@ export default function AdminPage() {
 
             <TabsContent value="logs" className="mt-6">
               <LogViewer initialLimit={50} />
+            </TabsContent>
+
+            <TabsContent value="health" className="mt-6">
+              <CrawlerHealthDashboard />
+            </TabsContent>
+
+            <TabsContent value="performance" className="mt-6">
+              <CrawlPerformanceBreakdown />
+            </TabsContent>
+
+            <TabsContent value="queue" className="mt-6">
+              <CrawlJobQueue />
             </TabsContent>
           </Tabs>
         </div>

@@ -19,8 +19,8 @@ import type {
   FirecrawlPage,
   AnthropicResponse,
   AnthropicContentBlock,
-} from "./types";
-import type { BoothData } from "./extractors";
+} from "./types.ts";
+import type { BoothData } from "./extractors.ts";
 
 // ============================================
 // ERROR CODES

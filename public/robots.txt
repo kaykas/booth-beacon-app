@@ -1,0 +1,10 @@
+# Allow all bots to crawl the site
+User-agent: *
+Allow: /
+
+# Disallow admin and API routes
+Disallow: /api/
+Disallow: /admin/
+
+# Sitemap location
+Sitemap: https://boothbeacon.org/sitemap.xml

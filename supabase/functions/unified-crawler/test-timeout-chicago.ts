@@ -5,7 +5,7 @@
  * with the actual TimeOut Chicago article URL.
  */
 
-import { extractTimeOutChicagoEnhanced } from "./enhanced-extractors";
+import { extractTimeOutChicagoEnhanced } from "./enhanced-extractors.ts";
 
 // Sample HTML and Markdown for testing
 const SAMPLE_HTML = `

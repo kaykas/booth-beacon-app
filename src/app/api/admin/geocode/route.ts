@@ -20,7 +20,13 @@ export async function POST(request: NextRequest) {
     if (!supabaseUrl || !supabaseAnonKey) {
       return new Response(
         JSON.stringify({ error: 'Supabase configuration missing' }),
-        { status: 500, headers: { 'Content-Type': 'application/json' } }
+        {
+          status: 500,
+          headers: {
+            'Content-Type': 'application/json',
+            'Cache-Control': 'private, no-cache, no-store, must-revalidate',
+          }
+        }
       );
     }
 
@@ -32,7 +38,13 @@ export async function POST(request: NextRequest) {
     if (!authHeader) {
       return new Response(
         JSON.stringify({ error: 'Authorization required' }),
-        { status: 401, headers: { 'Content-Type': 'application/json' } }
+        {
+          status: 401,
+          headers: {
+            'Content-Type': 'application/json',
+            'Cache-Control': 'private, no-cache, no-store, must-revalidate',
+          }
+        }
       );
     }
 
@@ -51,7 +63,13 @@ export async function POST(request: NextRequest) {
       const error = await response.text();
       return new Response(
         JSON.stringify({ error: `Geocoding failed: ${error}` }),
-        { status: response.status, headers: { 'Content-Type': 'application/json' } }
+        {
+          status: response.status,
+          headers: {
+            'Content-Type': 'application/json',
+            'Cache-Control': 'private, no-cache, no-store, must-revalidate',
+          }
+        }
       );
     }
 
@@ -59,8 +77,9 @@ export async function POST(request: NextRequest) {
     return new Response(response.body, {
       headers: {
         'Content-Type': 'text/event-stream',
-        'Cache-Control': 'no-cache',
+        'Cache-Control': 'private, no-cache, no-store, must-revalidate',
         'Connection': 'keep-alive',
+        'X-Content-Type-Options': 'nosniff',
       },
     });
 
@@ -68,7 +87,13 @@ export async function POST(request: NextRequest) {
     console.error('Geocoding API error:', error);
     return new Response(
       JSON.stringify({ error: error.message || 'Internal server error' }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
+      {
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json',
+          'Cache-Control': 'private, no-cache, no-store, must-revalidate',
+        }
+      }
     );
   }
 }

@@ -46,6 +46,9 @@ async function getGuideBooths(boothIds: string[]): Promise<Booth[]> {
   return (data as Booth[]) || [];
 }
 
+// ISR: Revalidate city guide pages every 30 minutes
+export const revalidate = 1800;
+
 export async function generateMetadata({ params }: CityGuidePageProps): Promise<Metadata> {
   const guide = await getCityGuide(params.city);
 

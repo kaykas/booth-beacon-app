@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   MapPin,
   Navigation,
@@ -71,6 +72,9 @@ async function getNearbyBooths(booth: Booth, radiusKm: number = 5): Promise<Boot
   if (error) return [];
   return (data as Booth[]) || [];
 }
+
+// ISR: Revalidate booth pages every 5 minutes
+export const revalidate = 300;
 
 export async function generateMetadata({ params }: BoothDetailPageProps): Promise<Metadata> {
   const booth = await getBooth(params.id);
@@ -143,12 +147,14 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
   const hasPhotos = photos.length > 0;
   const mainPhoto = hasPhotos ? photos[0] : booth.ai_preview_url;
 
-  // Generate structured data for SEO
+  // Generate enhanced structured data for SEO (LocalBusiness + Place)
   const structuredData = {
     '@context': 'https://schema.org',
-    '@type': 'Place',
+    '@type': 'LocalBusiness',
+    '@id': `https://boothbeacon.org/booth/${booth.id}`,
     name: booth.name,
-    description: booth.description || `Analog photo booth in ${booth.city}, ${booth.country}`,
+    description: booth.description || `Analog photo booth in ${booth.city}, ${booth.country}. ${booth.machine_model ? `Features a ${booth.machine_model} machine` : ''} ${booth.photo_type ? `producing ${booth.photo_type} photos` : ''}`.trim(),
+    url: `https://boothbeacon.org/booth/${booth.id}`,
     address: {
       '@type': 'PostalAddress',
       streetAddress: booth.address,
@@ -162,13 +168,37 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
       latitude: booth.latitude,
       longitude: booth.longitude,
     } : undefined,
-    image: booth.photo_exterior_url || booth.ai_preview_url,
-    priceRange: booth.cost,
+    image: photos.length > 0 ? photos : (booth.ai_preview_url ? [booth.ai_preview_url] : []),
+    priceRange: booth.cost || 'Varies',
     paymentAccepted: [
       booth.accepts_cash && 'Cash',
-      booth.accepts_card && 'Card',
-    ].filter(Boolean).join(', '),
+      booth.accepts_card && 'Credit Card',
+    ].filter(Boolean),
     openingHours: booth.hours,
+    telephone: booth.phone || undefined,
+    additionalType: 'https://schema.org/TouristAttraction',
+    amenityFeature: [
+      booth.booth_type && {
+        '@type': 'LocationFeatureSpecification',
+        name: 'Booth Type',
+        value: booth.booth_type,
+      },
+      booth.photo_type && {
+        '@type': 'LocationFeatureSpecification',
+        name: 'Photo Type',
+        value: booth.photo_type === 'black-and-white' ? 'Black & White' : booth.photo_type,
+      },
+      booth.machine_model && {
+        '@type': 'LocationFeatureSpecification',
+        name: 'Machine Model',
+        value: booth.machine_model,
+      },
+      booth.machine_manufacturer && {
+        '@type': 'LocationFeatureSpecification',
+        name: 'Manufacturer',
+        value: booth.machine_manufacturer,
+      },
+    ].filter(Boolean),
   };
 
   return (
@@ -407,20 +437,26 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
                   {booth.photo_exterior_url || booth.photo_interior_url ? (
                     <div className="grid grid-cols-2 gap-4">
                       {booth.photo_exterior_url && (
-                        <div className="aspect-square bg-neutral-200 rounded-lg overflow-hidden">
-                          <img
+                        <div className="relative aspect-square bg-neutral-200 rounded-lg overflow-hidden">
+                          <Image
                             src={booth.photo_exterior_url}
-                            alt={`${booth.name} exterior`}
-                            className="w-full h-full object-cover"
+                            alt={`${booth.name} exterior photo`}
+                            fill
+                            className="object-cover"
+                            sizes="(max-width: 768px) 50vw, 33vw"
+                            loading="lazy"
                           />
                         </div>
                       )}
                       {booth.photo_interior_url && (
-                        <div className="aspect-square bg-neutral-200 rounded-lg overflow-hidden">
-                          <img
+                        <div className="relative aspect-square bg-neutral-200 rounded-lg overflow-hidden">
+                          <Image
                             src={booth.photo_interior_url}
-                            alt={`${booth.name} interior`}
-                            className="w-full h-full object-cover"
+                            alt={`${booth.name} interior photo`}
+                            fill
+                            className="object-cover"
+                            sizes="(max-width: 768px) 50vw, 33vw"
+                            loading="lazy"
                           />
                         </div>
                       )}
@@ -438,11 +474,14 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
                   {booth.photo_sample_strips && booth.photo_sample_strips.length > 0 ? (
                     <div className="grid grid-cols-3 gap-4">
                       {booth.photo_sample_strips.map((url, index) => (
-                        <div key={index} className="aspect-[3/4] bg-neutral-200 rounded-lg overflow-hidden">
-                          <img
+                        <div key={index} className="relative aspect-[3/4] bg-neutral-200 rounded-lg overflow-hidden">
+                          <Image
                             src={url}
-                            alt={`Sample strip ${index + 1}`}
-                            className="w-full h-full object-cover"
+                            alt={`${booth.name} sample strip ${index + 1}`}
+                            fill
+                            className="object-cover"
+                            sizes="(max-width: 768px) 33vw, 25vw"
+                            loading="lazy"
                           />
                         </div>
                       ))}

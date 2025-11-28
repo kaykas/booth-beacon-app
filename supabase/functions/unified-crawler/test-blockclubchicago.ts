@@ -5,7 +5,7 @@
  * by processing the March 2025 article about Chicago's vintage photo booths.
  */
 
-import { extractBlockClubChicagoEnhanced } from "./enhanced-extractors";
+import { extractBlockClubChicagoEnhanced } from "./enhanced-extractors.ts";
 
 // Mock HTML content based on the article structure
 const mockHtml = `

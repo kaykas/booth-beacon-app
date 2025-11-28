@@ -9,7 +9,7 @@
  * Confidence: UNVERIFIED (requires cross-checking with operator data)
  */
 
-import { BoothData, ExtractorResult } from "./extractors";
+import { BoothData, ExtractorResult } from "./extractors.ts";
 
 interface ValidationData {
   booth_name?: string;

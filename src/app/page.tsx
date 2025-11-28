@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { Suspense } from 'react';
 import { MapPin, Bookmark, Camera, ArrowRight, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -51,6 +52,9 @@ async function getBoothStats() {
     countries: uniqueCountries.size,
   };
 }
+
+// ISR: Revalidate home page every hour
+export const revalidate = 3600;
 
 export default async function Home() {
   const featuredBooths = await getFeaturedBooths();
@@ -315,10 +319,13 @@ export default async function Home() {
                 className="group relative h-64 rounded-lg overflow-hidden cursor-pointer shadow-photo hover:shadow-xl transition-all hover:-translate-y-1 vignette"
               >
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10"></div>
-                <img
+                <Image
                   src={guide.image}
-                  alt={`${guide.city} cityscape`}
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  alt={`${guide.city} cityscape for photo booth guide`}
+                  fill
+                  className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  loading="lazy"
                 />
                 <div className="absolute bottom-0 left-0 right-0 p-6 z-20 text-white">
                   <h3 className="text-2xl font-semibold mb-2">

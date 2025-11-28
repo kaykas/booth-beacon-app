@@ -16,7 +16,7 @@ import {
   extractGeneric,
   type BoothData,
   type ExtractorResult,
-} from "./extractors";
+} from "./extractors.ts";
 import {
   extractSoloSophie,
   extractMisadventuresAndi,
@@ -40,7 +40,7 @@ import {
   extractDesignMyNightNY,
   extractRoxyHotelNY,
   extractAirialTravelBrooklyn,
-} from "./city-guide-extractors";
+} from "./city-guide-extractors.ts";
 import {
   extractFotoautomatBerlin,
   extractAutofoto,
@@ -49,8 +49,8 @@ import {
   extractFotoautomatica,
   extractFlashPack,
   extractMetroAutoPhoto,
-} from "./european-extractors";
-import { validateCountry } from "./country-validation";
+} from "./european-extractors.ts";
+import { validateCountry } from "./country-validation.ts";
 import {
   extractPhotoboothNetEnhanced,
   extractCityGuideEnhanced,
@@ -58,7 +58,11 @@ import {
   extractCommunityEnhanced,
   extractOperatorEnhanced,
   extractDirectoryEnhanced,
-} from "./enhanced-extractors";
+  extractTimeOutChicagoEnhanced,
+  extractLocaleMagazineLAEnhanced,
+  extractPhotomaticaEnhanced,
+  extractBlockClubChicagoEnhanced,
+} from "./enhanced-extractors.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -278,14 +282,16 @@ async function retryWithBackoff<T>(
 /**
  * Domain-specific configuration for crawling
  * Helps prevent timeouts on slow sites
+ * ULTRA-OPTIMIZED: Aggressive limits to prevent 504 Gateway Timeout
+ * photobooth.net is extremely slow - reducing to 2 pages with shorter timeouts
  */
 const DOMAIN_CONFIG: Record<string, { pageLimit: number; timeout: number; waitFor: number }> = {
-  'photobooth.net': { pageLimit: 1, timeout: 60000, waitFor: 8000 },
-  'fotoautomat-wien.at': { pageLimit: 1, timeout: 60000, waitFor: 8000 },
-  'autophoto.org': { pageLimit: 2, timeout: 45000, waitFor: 5000 },
-  'lomography.com': { pageLimit: 2, timeout: 45000, waitFor: 5000 },
+  'photobooth.net': { pageLimit: 2, timeout: 20000, waitFor: 2000 },  // ULTRA-AGGRESSIVE: 2 pages, 20s timeout
+  'fotoautomat-wien.at': { pageLimit: 2, timeout: 20000, waitFor: 2000 },
+  'autophoto.org': { pageLimit: 3, timeout: 20000, waitFor: 1500 },
+  'lomography.com': { pageLimit: 3, timeout: 20000, waitFor: 1500 },
   // Default fallback
-  'default': { pageLimit: 3, timeout: 30000, waitFor: 6000 }
+  'default': { pageLimit: 3, timeout: 20000, waitFor: 1500 }
 };
 
 function getDomainConfig(url: string) {
@@ -412,10 +418,10 @@ serve(async (req) => {
             const source = sources[i];
 
             try {
-              // Wrap each source with 90-second timeout (before gateway timeout at 120s)
+              // Wrap each source with 60-second timeout (well before gateway timeout at 150s)
               await withTimeout(
                 processSource(source, i, sources.length, sendProgressEvent, results, force_crawl, anthropicApiKey, firecrawl, supabase),
-                90000, // 90 second timeout per source
+                60000, // 60 second timeout per source (ultra-aggressive to prevent 504)
                 `Processing source: ${source.source_name}`
               );
             } catch (timeoutError: any) {
@@ -756,7 +762,9 @@ async function processSource(
 
       console.log(`Using batch size of ${pageLimit} pages for ${source.source_name} (Timeout: ${domainConfig.timeout}ms)...`);
       const totalPages = source.total_pages_target || 0;
-      const functionTimeoutMs = 130000; // Exit 20 seconds before Supabase 150s timeout
+      // CRITICAL: Supabase Edge Functions have a hard 150s timeout
+      // Exit at 90s to allow generous buffer before timeout (we were hitting 152s before)
+      const functionTimeoutMs = 90000; // Exit 60 seconds before Supabase 150s timeout
       const functionStartTime = Date.now();
 
       // Accumulate results across all batches
@@ -834,8 +842,9 @@ async function processSource(
           console.log(`⏳ Waiting for Firecrawl API to crawl pages (Timeout: ${domainConfig.timeout}ms)...`);
 
           // Use retry logic for robustness with timeout protection
+          // ULTRA-OPTIMIZED: Reduced to 30s timeout with tighter limits
           crawlResult = await withTimeout(
-            retryWithBackoff(async () => {
+            (async () => {
               const result = await firecrawl.crawlUrl(source.source_url, {
                 limit: pageLimit,
                 scrapeOptions: {
@@ -853,15 +862,15 @@ async function processSource(
                   '/admin/', '/login/', '/account/', '/cart/', '/checkout/',
                   '/wp-admin/', '/wp-login/', '/_next/', '/api/'
                 ],
-                maxDepth: 3, // Limit crawl depth to prevent too deep navigation
+                maxDepth: 1, // Ultra-aggressive: reduced to 1 to prevent 504 timeout
               });
 
               if (!result.success) {
                 throw new Error(result.error || 'Firecrawl returned unsuccessful status');
               }
               return result;
-            }, 2, 2000, 10000), // 2 retries (3 attempts total)
-            60000, // 60 second max timeout for crawlUrl (including retries)
+            })(),
+            30000, // 30 second max timeout for crawlUrl (ultra-aggressive to prevent 504)
             `Firecrawl crawlUrl for ${source.source_name}`
           );
 
@@ -1362,7 +1371,33 @@ async function extractFromSource(
       console.log(`🎯 Using ENHANCED extractor for directory: ${sourceName}`);
       return extractDirectoryEnhanced(html, markdown, sourceUrl, sourceName, anthropicApiKey, onProgress);
 
-    // TIER 3A: City Guide Extractors - ALL USE ENHANCED AI EXTRACTION
+    // Los Angeles - SPECIFIC enhanced extractor for Locale Magazine
+    case 'city_guide_la_locale':
+    case 'Locale Magazine LA':
+      console.log(`🏙️ Using SPECIFIC enhanced extractor for Locale Magazine LA`);
+      return extractLocaleMagazineLAEnhanced(html, markdown, sourceUrl, anthropicApiKey, onProgress);
+
+    // Chicago - SPECIFIC enhanced extractor for TimeOut Chicago
+    case 'city_guide_chicago_timeout':
+    case 'Time Out Chicago':
+      console.log(`🏙️ Using SPECIFIC enhanced extractor for TimeOut Chicago`);
+      return extractTimeOutChicagoEnhanced(html, markdown, sourceUrl, anthropicApiKey, onProgress);
+
+    // Chicago - SPECIFIC enhanced extractor for Block Club Chicago
+    case 'city_guide_chicago_blockclub':
+    case 'Block Club Chicago':
+      console.log(`🏙️ Using SPECIFIC enhanced extractor for Block Club Chicago`);
+      return extractBlockClubChicagoEnhanced(html, markdown, sourceUrl, anthropicApiKey, onProgress);
+
+    // Photomatica - SPECIFIC enhanced extractor
+    case 'photomatica':
+    case 'photomatica_west_coast':
+    case 'Photomatica.com':
+    case 'Photomatica West Coast':
+      console.log(`🎯 Using SPECIFIC enhanced extractor for Photomatica`);
+      return extractPhotomaticaEnhanced(html, markdown, sourceUrl, anthropicApiKey, onProgress);
+
+    // TIER 3A: City Guide Extractors - Generic enhanced extraction for others
     // Berlin City Guides
     case 'city_guide_berlin_digitalcosmonaut':
     case 'city_guide_berlin_phelt':
@@ -1371,17 +1406,14 @@ async function extractFromSource(
     case 'city_guide_london_designmynight':
     case 'city_guide_london_world':
     case 'city_guide_london_flashpack':
-    // Los Angeles City Guides
+    // Los Angeles City Guides (generic)
     case 'city_guide_la_timeout':
-    case 'city_guide_la_locale':
-    // Chicago City Guides
-    case 'city_guide_chicago_timeout':
-    case 'city_guide_chicago_blockclub':
+    case 'Time Out LA':
     // New York City Guides
     case 'city_guide_ny_designmynight':
     case 'city_guide_ny_roxy':
     case 'city_guide_ny_airial':
-      console.log(`🏙️ Using ENHANCED extractor for city guide: ${sourceName}`);
+      console.log(`🏙️ Using GENERIC enhanced extractor for city guide: ${sourceName}`);
       return extractCityGuideEnhanced(html, markdown, sourceUrl, sourceName, anthropicApiKey, onProgress);
 
     // TIER 2B: European Operators - Use AI extraction

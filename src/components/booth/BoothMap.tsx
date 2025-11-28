@@ -399,9 +399,34 @@ export function BoothMap({
   );
 }
 
+// Helper function to trigger AI preview generation in the background
+// This is called asynchronously and doesn't block the UI
+async function triggerAIPreviewGeneration(boothId: string): Promise<void> {
+  try {
+    // Fire and forget - don't await this, let it run in background
+    fetch('/api/booths/generate-preview', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ boothId }),
+    }).catch((error) => {
+      console.warn(`Background AI preview generation failed for booth ${boothId}:`, error);
+    });
+  } catch (error) {
+    console.warn(`Failed to trigger AI preview generation for booth ${boothId}:`, error);
+  }
+}
+
 // Helper function to create InfoWindow content
 function createInfoWindowContent(booth: Booth): string {
   const photoUrl = booth.photo_exterior_url || booth.ai_preview_url || '/placeholder-booth.jpg';
+
+  // Trigger AI preview generation if booth has no photo and no AI preview
+  if (!booth.photo_exterior_url && !booth.ai_preview_url) {
+    triggerAIPreviewGeneration(booth.id);
+  }
+
   const machineInfo = booth.machine_model
     ? `${booth.machine_model} • ${booth.booth_type || 'analog'}`
     : booth.booth_type || 'Unknown type';

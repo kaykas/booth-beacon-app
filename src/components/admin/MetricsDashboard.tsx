@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { supabase } from '@/lib/supabase';
 import {
   BarChart,
@@ -31,6 +32,7 @@ import {
   Clock,
   Zap,
   FileText,
+  RefreshCw,
 } from 'lucide-react';
 
 interface DashboardMetrics {
@@ -77,6 +79,7 @@ const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6'];
 export function MetricsDashboard() {
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
 
   const fetchMetrics = async () => {
@@ -93,7 +96,10 @@ export function MetricsDashboard() {
         .from('booths')
         .select('*');
 
-      if (boothsError) throw boothsError;
+      if (boothsError) {
+        console.error('Error fetching booths:', boothsError);
+        throw boothsError;
+      }
 
       const booths = (allBooths as any[]) || [];
       const totalBooths = booths.length;
@@ -173,9 +179,12 @@ export function MetricsDashboard() {
         .gte('started_at', last7Days.toISOString())
         .order('started_at', { ascending: false });
 
-      if (metricsError) throw metricsError;
+      if (metricsError) {
+        console.error('Error fetching crawler metrics:', metricsError);
+        // Don't throw - continue with empty metrics
+      }
 
-      const metrics = (crawlerMetrics as any[]) || [];
+      const metrics = (metricsError ? [] : crawlerMetrics as any[]) || [];
       const successfulCrawls = metrics.filter(
         (m) => m.status === 'success'
       ).length || 0;
@@ -196,9 +205,12 @@ export function MetricsDashboard() {
         .select('*')
         .order('priority', { ascending: false });
 
-      if (sourcesError) throw sourcesError;
+      if (sourcesError) {
+        console.error('Error fetching crawl sources:', sourcesError);
+        // Don't throw - continue with empty sources
+      }
 
-      const sources = (crawlSources as any[]) || [];
+      const sources = (sourcesError ? [] : crawlSources as any[]) || [];
       const failedSources = sources
         .filter((s) => s.status === 'error' && s.last_error_message)
         .map((s) => ({
@@ -313,8 +325,10 @@ export function MetricsDashboard() {
       });
 
       setLastRefresh(new Date());
-    } catch (error) {
+      setError(null);
+    } catch (error: any) {
       console.error('Error fetching metrics:', error);
+      setError(error.message || 'Failed to fetch metrics');
     } finally {
       setLoading(false);
     }
@@ -329,7 +343,7 @@ export function MetricsDashboard() {
     return () => clearInterval(interval);
   }, []);
 
-  if (loading || !metrics) {
+  if (loading) {
     return (
       <div className="space-y-4">
         <div className="animate-pulse grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -338,6 +352,39 @@ export function MetricsDashboard() {
           ))}
         </div>
       </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card className="p-6 bg-neutral-800 border-neutral-700">
+        <div className="flex items-center gap-3 text-red-400">
+          <AlertTriangle className="w-6 h-6" />
+          <div>
+            <h3 className="font-semibold">Error Loading Metrics</h3>
+            <p className="text-sm text-neutral-400 mt-1">{error}</p>
+            <p className="text-xs text-neutral-500 mt-2">
+              Check browser console for details. Ensure you have admin access and the database tables exist.
+            </p>
+          </div>
+        </div>
+      </Card>
+    );
+  }
+
+  if (!metrics) {
+    return (
+      <Card className="p-6 bg-neutral-800 border-neutral-700">
+        <div className="flex items-center gap-3 text-neutral-400">
+          <Database className="w-6 h-6" />
+          <div>
+            <h3 className="font-semibold">No Metrics Available</h3>
+            <p className="text-sm text-neutral-500 mt-1">
+              Metrics data could not be loaded. Try refreshing the page.
+            </p>
+          </div>
+        </div>
+      </Card>
     );
   }
 
@@ -358,11 +405,42 @@ export function MetricsDashboard() {
             Last updated: {lastRefresh.toLocaleTimeString()} (auto-refresh every 30s)
           </p>
         </div>
-        <Badge variant="secondary" className="bg-green-900 text-green-100">
-          <Activity className="w-3 h-3 mr-1" />
-          Live
-        </Badge>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={fetchMetrics}
+            disabled={loading}
+            className="p-2 rounded-lg bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Refresh metrics"
+          >
+            <RefreshCw className={`w-4 h-4 text-neutral-400 ${loading ? 'animate-spin' : ''}`} />
+          </button>
+          <Badge variant="secondary" className="bg-green-900 text-green-100">
+            <Activity className="w-3 h-3 mr-1" />
+            Live
+          </Badge>
+        </div>
       </div>
+
+      {/* Empty State Notice */}
+      {metrics.totalBooths === 0 && (
+        <Card className="p-6 bg-blue-950/20 border-blue-500/30">
+          <div className="flex items-start gap-3">
+            <Database className="w-6 h-6 text-blue-400 flex-shrink-0 mt-0.5" />
+            <div>
+              <h3 className="font-semibold text-blue-300 mb-1">No Booths in Database</h3>
+              <p className="text-sm text-neutral-300 mb-2">
+                Your database is currently empty. To populate it with booth data:
+              </p>
+              <ol className="text-sm text-neutral-400 space-y-1 ml-4 list-decimal">
+                <li>Navigate to the "Data Crawler" tab</li>
+                <li>Click "Start Crawler" to fetch booth data from configured sources</li>
+                <li>Wait for the crawler to complete (this may take several minutes)</li>
+                <li>Return here to view comprehensive metrics</li>
+              </ol>
+            </div>
+          </div>
+        </Card>
+      )}
 
       {/* Booth Metrics Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -495,15 +573,106 @@ export function MetricsDashboard() {
         {/* Booths Added Over Time */}
         <Card className="p-6 bg-neutral-800 border-neutral-700">
           <h3 className="font-semibold text-white mb-4">Booths Added (Last 30 Days)</h3>
-          <ResponsiveContainer width="100%" height={250}>
-            <LineChart data={metrics.boothsByDay}>
+          {metrics.boothsByDay.length === 0 || metrics.boothsByDay.every(d => d.count === 0) ? (
+            <div className="flex items-center justify-center h-[250px] text-neutral-500">
+              <div className="text-center">
+                <Database className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                <p className="text-sm">No booths added in the last 30 days</p>
+              </div>
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height={250}>
+              <LineChart data={metrics.boothsByDay}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                <XAxis
+                  dataKey="date"
+                  stroke="#9ca3af"
+                  fontSize={12}
+                  tickFormatter={(value) => new Date(value).toLocaleDateString('en', { month: 'short', day: 'numeric' })}
+                />
+                <YAxis stroke="#9ca3af" fontSize={12} />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: '#1f2937',
+                    border: '1px solid #374151',
+                    borderRadius: '8px',
+                    color: '#fff',
+                  }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="count"
+                  stroke="#10b981"
+                  strokeWidth={2}
+                  dot={{ fill: '#10b981', r: 4 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          )}
+        </Card>
+
+        {/* Active vs Inactive Pie Chart */}
+        <Card className="p-6 bg-neutral-800 border-neutral-700">
+          <h3 className="font-semibold text-white mb-4">Booth Status Distribution</h3>
+          {metrics.totalBooths === 0 ? (
+            <div className="flex items-center justify-center h-[250px] text-neutral-500">
+              <div className="text-center">
+                <MapPin className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                <p className="text-sm">No booths in database</p>
+                <p className="text-xs mt-1">Start the crawler to add booths</p>
+              </div>
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height={250}>
+              <PieChart>
+                <Pie
+                  data={statusData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, value, percent }) =>
+                    `${name}: ${value} (${((percent || 0) * 100).toFixed(0)}%)`
+                  }
+                  outerRadius={80}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {statusData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: '#1f2937',
+                    border: '1px solid #374151',
+                    borderRadius: '8px',
+                    color: '#fff',
+                  }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          )}
+        </Card>
+      </div>
+
+      {/* Crawler Performance */}
+      <Card className="p-6 bg-neutral-800 border-neutral-700">
+        <h3 className="font-semibold text-white mb-4">
+          Crawler Performance by Source (Last 7 Days)
+        </h3>
+        {metrics.sourcePerformance.length === 0 ? (
+          <div className="flex items-center justify-center h-[300px] text-neutral-500">
+            <div className="text-center">
+              <Activity className="w-12 h-12 mx-auto mb-2 opacity-50" />
+              <p className="text-sm">No crawler activity in the last 7 days</p>
+              <p className="text-xs mt-1">Run the crawler to see performance metrics</p>
+            </div>
+          </div>
+        ) : (
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={metrics.sourcePerformance}>
               <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-              <XAxis
-                dataKey="date"
-                stroke="#9ca3af"
-                fontSize={12}
-                tickFormatter={(value) => new Date(value).toLocaleDateString('en', { month: 'short', day: 'numeric' })}
-              />
+              <XAxis dataKey="source_name" stroke="#9ca3af" fontSize={12} angle={-45} textAnchor="end" height={100} />
               <YAxis stroke="#9ca3af" fontSize={12} />
               <Tooltip
                 contentStyle={{
@@ -513,74 +682,12 @@ export function MetricsDashboard() {
                   color: '#fff',
                 }}
               />
-              <Line
-                type="monotone"
-                dataKey="count"
-                stroke="#10b981"
-                strokeWidth={2}
-                dot={{ fill: '#10b981', r: 4 }}
-              />
-            </LineChart>
+              <Legend />
+              <Bar dataKey="success_rate" fill="#10b981" name="Success Rate (%)" />
+              <Bar dataKey="avg_duration" fill="#3b82f6" name="Avg Duration (s)" />
+            </BarChart>
           </ResponsiveContainer>
-        </Card>
-
-        {/* Active vs Inactive Pie Chart */}
-        <Card className="p-6 bg-neutral-800 border-neutral-700">
-          <h3 className="font-semibold text-white mb-4">Booth Status Distribution</h3>
-          <ResponsiveContainer width="100%" height={250}>
-            <PieChart>
-              <Pie
-                data={statusData}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={({ name, value, percent }) =>
-                  `${name}: ${value} (${((percent || 0) * 100).toFixed(0)}%)`
-                }
-                outerRadius={80}
-                fill="#8884d8"
-                dataKey="value"
-              >
-                {statusData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-              </Pie>
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: '#1f2937',
-                  border: '1px solid #374151',
-                  borderRadius: '8px',
-                  color: '#fff',
-                }}
-              />
-            </PieChart>
-          </ResponsiveContainer>
-        </Card>
-      </div>
-
-      {/* Crawler Performance */}
-      <Card className="p-6 bg-neutral-800 border-neutral-700">
-        <h3 className="font-semibold text-white mb-4">
-          Crawler Performance by Source (Last 7 Days)
-        </h3>
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={metrics.sourcePerformance}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-            <XAxis dataKey="source_name" stroke="#9ca3af" fontSize={12} angle={-45} textAnchor="end" height={100} />
-            <YAxis stroke="#9ca3af" fontSize={12} />
-            <Tooltip
-              contentStyle={{
-                backgroundColor: '#1f2937',
-                border: '1px solid #374151',
-                borderRadius: '8px',
-                color: '#fff',
-              }}
-            />
-            <Legend />
-            <Bar dataKey="success_rate" fill="#10b981" name="Success Rate (%)" />
-            <Bar dataKey="avg_duration" fill="#3b82f6" name="Avg Duration (s)" />
-          </BarChart>
-        </ResponsiveContainer>
+        )}
       </Card>
 
       {/* Data Quality Indicators */}

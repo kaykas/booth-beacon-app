@@ -5,8 +5,8 @@
  * robust AI-powered extraction specifically tuned for photo booth data.
  */
 
-import { extractWithAI, AIExtractionConfig } from "./ai-extraction-engine";
-import { ExtractorResult, BoothData } from "./extractors";
+import { extractWithAI, AIExtractionConfig } from "./ai-extraction-engine.ts";
+import { ExtractorResult, BoothData } from "./extractors.ts";
 
 /**
  * PHOTOBOOTH.NET - ENHANCED EXTRACTOR
