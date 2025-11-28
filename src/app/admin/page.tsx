@@ -129,10 +129,10 @@ export default function AdminPage() {
 
       const { data: todayMetrics } = await supabase
         .from('crawler_metrics')
-        .select('booths_extracted')
+        .select('*')
         .gte('started_at', today.toISOString());
 
-      const crawledToday = todayMetrics?.reduce((sum, m) => sum + (m.booths_extracted || 0), 0) || 0;
+      const crawledToday = todayMetrics?.reduce((sum: number, m: any) => sum + (m.booths_extracted || 0), 0) || 0;
 
       // Get last successful run
       const { data: lastRun } = await supabase
@@ -144,16 +144,16 @@ export default function AdminPage() {
         .single();
 
       // Get error count
-      const { data: errors } = await supabase
+      const { count: errorCount } = await supabase
         .from('crawler_metrics')
-        .select('id', { count: 'exact', head: true })
+        .select('*', { count: 'exact', head: true })
         .eq('status', 'error')
         .gte('started_at', today.toISOString());
 
       setCrawlerMetrics({
         crawledToday,
         lastRun: lastRun?.completed_at ? new Date(lastRun.completed_at).toLocaleString() : '-',
-        errorCount: errors?.length || 0,
+        errorCount: errorCount || 0,
       });
     } catch (error) {
       console.error('Error loading crawler metrics:', error);
