@@ -150,9 +150,10 @@ export default function AdminPage() {
         .eq('status', 'error')
         .gte('started_at', today.toISOString());
 
+      const lastRunData = lastRun as any;
       setCrawlerMetrics({
         crawledToday,
-        lastRun: lastRun?.completed_at ? new Date(lastRun.completed_at).toLocaleString() : '-',
+        lastRun: lastRunData?.completed_at ? new Date(lastRunData.completed_at).toLocaleString() : '-',
         errorCount: errorCount || 0,
       });
     } catch (error) {
