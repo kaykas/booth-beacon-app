@@ -142,7 +142,7 @@ export function SearchBar({
         handleSelect(results[selectedIndex]);
       } else {
         // Submit search if no result selected
-        handleSubmit(e as any);
+        handleSubmit(e as React.FormEvent);
       }
       return;
     }

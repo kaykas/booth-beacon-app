@@ -90,7 +90,7 @@ export function PhotoUpload({ boothId, onUploadComplete }: PhotoUploadProps) {
         photo_url: publicUrl,
         caption: caption.trim() || null,
         moderation_status: 'pending',
-      } as any);
+      });
 
       if (dbError) throw dbError;
 

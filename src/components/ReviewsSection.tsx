@@ -45,7 +45,7 @@ export function ReviewsSection({ boothId }: ReviewsSectionProps) {
 
       // Check if current user has reviewed
       if (user) {
-        const hasReviewed = reviews?.some((review: any) => review.user_id === user.id);
+        const hasReviewed = reviews?.some((review) => review.user_id === user.id);
         setUserHasReviewed(!!hasReviewed);
       }
     } catch (error) {
@@ -76,7 +76,7 @@ export function ReviewsSection({ boothId }: ReviewsSectionProps) {
         booth_id: boothId,
         content: content.trim(),
         rating,
-      } as any);
+      });
 
       if (error) throw error;
 

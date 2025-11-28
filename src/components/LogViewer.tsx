@@ -56,7 +56,7 @@ interface CrawlerLog {
   content_hash: string | null;
   error_message: string | null;
   error_stack: string | null;
-  metadata: any;
+  metadata: Record<string, unknown> | null;
   created_at: string;
 }
 

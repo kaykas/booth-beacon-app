@@ -186,9 +186,9 @@ export default function SubmitBoothPage() {
         last_verified: null,
       };
 
-      const { data, error } = await supabase
+      const { data, error} = await supabase
         .from('booths')
-        .insert(submissionData as any)
+        .insert(submissionData)
         .select()
         .single();
 
@@ -231,7 +231,7 @@ export default function SubmitBoothPage() {
             Thank You!
           </h1>
           <p className="text-lg text-muted-foreground mb-6">
-            Your booth submission has been received. We'll review it and add it to the map soon!
+            Your booth submission has been received. We&apos;ll review it and add it to the map soon!
           </p>
           <Button asChild className="btn-analog text-white border-0">
             <Link href="/map">View Map</Link>
