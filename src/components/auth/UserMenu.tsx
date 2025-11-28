@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth/AuthContext';
 import { AuthDialog } from './AuthDialog';
@@ -14,11 +14,33 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { User, Bookmark, Camera, LogOut, Settings } from 'lucide-react';
+import { User, Bookmark, Camera, LogOut, Settings, Shield } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 
 export function UserMenu() {
   const { user, signOut, loading } = useAuth();
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  // Check if user is admin
+  useEffect(() => {
+    async function checkAdmin() {
+      if (!user) {
+        setIsAdmin(false);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('admin_users')
+        .select('user_id')
+        .eq('user_id', user.id)
+        .single();
+
+      setIsAdmin(!!data && !error);
+    }
+
+    checkAdmin();
+  }, [user]);
 
   if (loading) {
     return <div className="w-10 h-10 rounded-full bg-neutral-200 animate-pulse" />;
@@ -88,6 +110,18 @@ export function UserMenu() {
             Settings
           </Link>
         </DropdownMenuItem>
+
+        {isAdmin && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link href="/admin" className="cursor-pointer text-primary">
+                <Shield className="w-4 h-4 mr-2" />
+                Admin Dashboard
+              </Link>
+            </DropdownMenuItem>
+          </>
+        )}
 
         <DropdownMenuSeparator />
 
