@@ -86,7 +86,10 @@ ON CONFLICT (source_name) DO UPDATE SET
   source_url = EXCLUDED.source_url,
   extractor_type = EXCLUDED.extractor_type,
   priority = EXCLUDED.priority,
-  crawl_frequency_days = EXCLUDED.crawl_frequency_days;
+  crawl_frequency_days = EXCLUDED.crawl_frequency_days,
+  enabled = EXCLUDED.enabled,
+  status = EXCLUDED.status,
+  updated_at = NOW();
 
 -- Update metadata
 UPDATE crawl_sources SET
