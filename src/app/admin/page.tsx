@@ -11,7 +11,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { BarChart3, Users, Image, MessageSquare, MapPin, CheckCircle, XCircle, Clock, Database, PlayCircle, PauseCircle, RefreshCw, Shield } from 'lucide-react';
+import { BarChart3, Users, Image, MessageSquare, MapPin, CheckCircle, XCircle, Clock, Database, PlayCircle, PauseCircle, RefreshCw, Shield, Wifi, WifiOff, Activity, AlertCircle, Zap, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function AdminPage() {
@@ -39,6 +39,18 @@ export default function AdminPage() {
   });
   const [crawlSources, setCrawlSources] = useState<any[]>([]);
   const [selectedSource, setSelectedSource] = useState<string | null>(null);
+  const [crawlerProgress, setCrawlerProgress] = useState({ current: 0, total: 0, percentage: 0 });
+  const [currentBoothCount, setCurrentBoothCount] = useState(0);
+  const [currentEventSource, setCurrentEventSource] = useState<EventSource | null>(null);
+  const [logFilter, setLogFilter] = useState<'all' | 'info' | 'warning' | 'error'>('all');
+  const [crawlerState, setCrawlerState] = useState<'idle' | 'connecting' | 'running' | 'error' | 'complete'>('idle');
+  const [connectionStatus, setConnectionStatus] = useState<'disconnected' | 'connecting' | 'connected' | 'error'>('disconnected');
+  const [currentSource, setCurrentSource] = useState<string>('');
+  const [currentStage, setCurrentStage] = useState<'crawling' | 'extracting' | 'validating' | 'saving' | ''>('');
+  const [activityFeed, setActivityFeed] = useState<Array<{type: string, message: string, timestamp: Date, status: 'info' | 'success' | 'warning' | 'error'}>>([]);
+  const [crawlStartTime, setCrawlStartTime] = useState<Date | null>(null);
+  const [lastError, setLastError] = useState<string>('');
+  const [errorCount, setErrorCount] = useState(0);
 
   // Check admin status
   useEffect(() => {
@@ -191,14 +203,46 @@ export default function AdminPage() {
     }
   };
 
+  // Helper to add activity to feed
+  const addActivity = (type: string, message: string, status: 'info' | 'success' | 'warning' | 'error' = 'info') => {
+    setActivityFeed(prev => [{type, message, timestamp: new Date(), status}, ...prev].slice(0, 50));
+  };
+
+  const stopCrawler = () => {
+    if (currentEventSource) {
+      currentEventSource.close();
+      setCurrentEventSource(null);
+      setCrawlerRunning(false);
+      setCrawlerStatus('Crawler stopped by user');
+      setCrawlerState('idle');
+      setConnectionStatus('disconnected');
+      setCurrentSource('');
+      setCurrentStage('');
+      addActivity('stop', 'Crawler stopped by user', 'warning');
+      toast.info('Crawler stopped');
+    }
+  };
+
   const startCrawler = async (sourceName?: string) => {
     if (crawlerRunning) {
       toast.error('Crawler is already running');
       return;
     }
 
+    // Reset all states
     setCrawlerRunning(true);
     setCrawlerStatus('Starting crawler...');
+    setCrawlerState('connecting');
+    setConnectionStatus('connecting');
+    setCrawlerProgress({ current: 0, total: 0, percentage: 0 });
+    setCurrentBoothCount(0);
+    setCurrentSource('');
+    setCurrentStage('');
+    setActivityFeed([]);
+    setCrawlStartTime(new Date());
+    setLastError('');
+    setErrorCount(0);
+    addActivity('start', 'Initiating crawler connection...', 'info');
     toast.info('Starting crawler with real-time streaming...');
 
     let eventSource: EventSource | null = null;
@@ -225,6 +269,15 @@ export default function AdminPage() {
         }
       );
 
+      setCurrentEventSource(eventSource);
+
+      // Connection opened
+      eventSource.onopen = () => {
+        setConnectionStatus('connected');
+        setCrawlerState('running');
+        addActivity('connection', 'Connected to crawler', 'success');
+      };
+
       eventSource.onmessage = (event) => {
         try {
           hasReceivedData = true;
@@ -234,39 +287,73 @@ export default function AdminPage() {
           switch (data.type) {
             case 'start':
               setCrawlerStatus(`Starting crawl of ${data.total_sources} sources...`);
+              setCrawlerProgress({ current: 0, total: data.total_sources, percentage: 0 });
+              setCrawlerState('running');
+              addActivity('start', `Starting crawl of ${data.total_sources} sources`, 'info');
               break;
 
             case 'source_start':
+              setCurrentSource(data.source_name);
+              setCurrentStage('crawling');
               setCrawlerStatus(`Crawling ${data.source_name}...`);
+              addActivity('source', `Started crawling ${data.source_name}`, 'info');
               break;
 
             case 'batch_crawled':
+              setCurrentStage('crawling');
               setCrawlerStatus(`${data.source_name}: Crawled ${data.pages_crawled} pages`);
+              addActivity('batch', `Crawled ${data.pages_crawled} pages from ${data.source_name}`, 'info');
               break;
 
             case 'extraction_progress':
+              setCurrentStage('extracting');
               setCrawlerStatus(`${data.source_name}: Extracting page ${data.page_index}/${data.total_pages} (${data.booths_extracted_so_far} booths found)`);
+              if (data.page_index === 1 || data.page_index % 5 === 0) {
+                addActivity('extract', `Extracting page ${data.page_index}/${data.total_pages} - ${data.booths_extracted_so_far} booths found`, 'info');
+              }
               break;
 
             case 'batch_complete':
+              setCurrentStage('saving');
               setCrawlerStatus(`${data.source_name}: Batch ${data.batch_number} complete - ${data.booths_so_far} total booths`);
               totalBooths = data.booths_so_far;
+              setCurrentBoothCount(data.booths_so_far);
+              addActivity('batch', `Batch ${data.batch_number} complete - ${data.booths_so_far} total booths`, 'success');
               break;
 
             case 'source_complete':
               completedSources++;
+              setCurrentBoothCount(data.booths_found || totalBooths);
+              setCrawlerProgress(prev => ({
+                current: completedSources,
+                total: prev.total,
+                percentage: prev.total > 0 ? Math.round((completedSources / prev.total) * 100) : 0
+              }));
+              setCurrentStage('');
+              addActivity('source', `✓ ${data.source_name} complete: ${data.booths_found} booths`, 'success');
               toast.success(`${data.source_name} complete: ${data.booths_found} booths`);
               break;
 
             case 'batch_error':
             case 'source_error':
+              setErrorCount(prev => prev + 1);
+              setLastError(data.error);
+              addActivity('error', `${data.source_name}: ${data.error}`, 'error');
               toast.error(`${data.source_name}: ${data.error}`);
               break;
 
             case 'complete':
               setCrawlerStatus('Crawler completed successfully');
+              setCrawlerState('complete');
+              setCurrentStage('');
+              setCurrentSource('');
+              addActivity('complete', `Crawler complete! Found ${data.summary?.total_booths_found || totalBooths} booths`, 'success');
               toast.success(`Crawler complete! Found ${data.summary?.total_booths_found || totalBooths} booths`);
-              if (eventSource) eventSource.close();
+              if (eventSource) {
+                eventSource.close();
+                setCurrentEventSource(null);
+              }
+              setConnectionStatus('disconnected');
 
               // Reload data
               loadAdminData();
@@ -276,6 +363,9 @@ export default function AdminPage() {
               break;
 
             case 'error':
+              setErrorCount(prev => prev + 1);
+              setLastError(data.error || 'Crawler failed');
+              addActivity('error', data.error || 'Crawler failed', 'error');
               throw new Error(data.error || 'Crawler failed');
           }
         } catch (parseError) {
@@ -286,13 +376,20 @@ export default function AdminPage() {
       eventSource.onerror = (error) => {
         console.error('EventSource error:', error);
         if (eventSource) eventSource.close();
+        setConnectionStatus('error');
+        setCrawlerState('error');
+        setCurrentStage('');
 
         // Provide helpful error message based on what happened
         if (!hasReceivedData) {
           setCrawlerStatus('Failed to connect to crawler');
+          setLastError('Failed to connect to crawler. Please check your network connection.');
+          addActivity('error', 'Failed to connect to crawler', 'error');
           toast.error('Failed to connect to crawler. Please check your network connection.');
         } else if (totalBooths > 0 || completedSources > 0) {
           setCrawlerStatus(`Crawler stopped (${completedSources} sources completed, ${totalBooths} booths found before disconnect)`);
+          setLastError(`Connection lost after processing ${completedSources} sources`);
+          addActivity('error', `Connection lost after processing ${completedSources} sources and finding ${totalBooths} booths`, 'warning');
           toast.warning(`Connection lost after processing ${completedSources} sources and finding ${totalBooths} booths. Data has been saved.`, {
             duration: 10000,
           });
@@ -304,6 +401,8 @@ export default function AdminPage() {
           }, 1000);
         } else {
           setCrawlerStatus('Connection error during crawl');
+          setLastError('Lost connection to crawler. No data was received.');
+          addActivity('error', 'Lost connection to crawler. No data was received.', 'error');
           toast.error('Lost connection to crawler. No data was received.');
         }
 
@@ -339,6 +438,11 @@ export default function AdminPage() {
     } catch (error: any) {
       console.error('Crawler error:', error);
       setCrawlerStatus('Error: ' + error.message);
+      setCrawlerState('error');
+      setConnectionStatus('error');
+      setLastError(error.message);
+      setErrorCount(prev => prev + 1);
+      addActivity('error', 'Crawler failed: ' + error.message, 'error');
       toast.error('Crawler failed: ' + error.message);
       setCrawlerRunning(false);
       if (eventSource) eventSource.close();
@@ -532,43 +636,161 @@ export default function AdminPage() {
                 <h2 className="font-display text-2xl font-semibold mb-6 text-white">Data Crawler Controls</h2>
 
                 <div className="space-y-6">
-                  {/* Crawler Status */}
-                  <div className="border border-neutral-700 rounded-lg p-4 bg-neutral-900">
-                    <div className="flex items-center justify-between mb-4">
-                      <div>
-                        <h3 className="font-semibold text-white mb-1">Crawler Status</h3>
-                        <p className="text-sm text-neutral-400">{crawlerStatus}</p>
+                  {/* BIG STATUS BANNER */}
+                  <div className={`border-4 rounded-xl p-8 transition-all duration-500 ${
+                    crawlerState === 'idle' ? 'bg-neutral-900 border-neutral-700' :
+                    crawlerState === 'connecting' ? 'bg-blue-950/30 border-blue-500 animate-pulse' :
+                    crawlerState === 'running' ? 'bg-green-950/30 border-green-500' :
+                    crawlerState === 'error' ? 'bg-red-950/30 border-red-500' :
+                    crawlerState === 'complete' ? 'bg-purple-950/30 border-purple-500' :
+                    'bg-neutral-900 border-neutral-700'
+                  }`}>
+                    <div className="flex items-center justify-between mb-6">
+                      <div className="flex items-center gap-6">
+                        {/* State Icon */}
+                        <div className={`p-4 rounded-full ${
+                          crawlerState === 'idle' ? 'bg-neutral-800' :
+                          crawlerState === 'connecting' ? 'bg-blue-500/20' :
+                          crawlerState === 'running' ? 'bg-green-500/20' :
+                          crawlerState === 'error' ? 'bg-red-500/20' :
+                          'bg-purple-500/20'
+                        }`}>
+                          {crawlerState === 'idle' && <Database className="w-12 h-12 text-neutral-400" />}
+                          {crawlerState === 'connecting' && <Loader2 className="w-12 h-12 text-blue-400 animate-spin" />}
+                          {crawlerState === 'running' && <Activity className="w-12 h-12 text-green-400 animate-pulse" />}
+                          {crawlerState === 'error' && <AlertCircle className="w-12 h-12 text-red-400" />}
+                          {crawlerState === 'complete' && <CheckCircle className="w-12 h-12 text-purple-400" />}
+                        </div>
+
+                        {/* State Text */}
+                        <div>
+                          <div className="text-4xl font-bold text-white mb-2">
+                            {crawlerState === 'idle' && 'IDLE'}
+                            {crawlerState === 'connecting' && 'CONNECTING'}
+                            {crawlerState === 'running' && 'RUNNING'}
+                            {crawlerState === 'error' && 'ERROR'}
+                            {crawlerState === 'complete' && 'COMPLETE'}
+                          </div>
+                          <div className="text-lg text-neutral-300">{crawlerStatus}</div>
+                        </div>
                       </div>
-                      <Badge variant="secondary" className={crawlerRunning ? "bg-yellow-900 text-yellow-100" : "bg-green-900 text-green-100"}>
-                        <span className={`inline-block w-2 h-2 ${crawlerRunning ? 'bg-yellow-400' : 'bg-green-400'} rounded-full mr-2 ${crawlerRunning ? 'animate-pulse' : ''}`}></span>
-                        {crawlerRunning ? 'Running' : 'Ready'}
-                      </Badge>
+
+                      {/* Connection Status */}
+                      <div className="text-right">
+                        <div className="flex items-center gap-2 justify-end mb-2">
+                          {connectionStatus === 'disconnected' && <WifiOff className="w-5 h-5 text-neutral-500" />}
+                          {connectionStatus === 'connecting' && <Loader2 className="w-5 h-5 text-blue-400 animate-spin" />}
+                          {connectionStatus === 'connected' && <Wifi className="w-5 h-5 text-green-400" />}
+                          {connectionStatus === 'error' && <WifiOff className="w-5 h-5 text-red-400" />}
+                          <span className="text-sm font-semibold text-white">
+                            {connectionStatus.toUpperCase()}
+                          </span>
+                        </div>
+                        {crawlStartTime && crawlerRunning && (
+                          <div className="text-xs text-neutral-400">
+                            Running for {Math.floor((new Date().getTime() - crawlStartTime.getTime()) / 1000)}s
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                      <div className="text-center p-3 bg-neutral-800 rounded">
-                        <div className="text-2xl font-bold text-white">{crawlerMetrics.crawledToday}</div>
+
+                    {/* Current Source & Stage */}
+                    {crawlerRunning && currentSource && (
+                      <div className="grid grid-cols-2 gap-4 mb-6">
+                        <div className="bg-neutral-900/50 rounded-lg p-4 border border-neutral-700">
+                          <div className="text-xs text-neutral-400 mb-1">CURRENT SOURCE</div>
+                          <div className="text-lg font-semibold text-white truncate">{currentSource}</div>
+                        </div>
+                        <div className="bg-neutral-900/50 rounded-lg p-4 border border-neutral-700">
+                          <div className="text-xs text-neutral-400 mb-1">STAGE</div>
+                          <div className="flex items-center gap-2">
+                            <Zap className="w-5 h-5 text-yellow-400 animate-pulse" />
+                            <span className="text-lg font-semibold text-white capitalize">
+                              {currentStage || 'Initializing'}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Progress Bar */}
+                    {crawlerRunning && crawlerProgress.total > 0 && (
+                      <div className="mb-6 space-y-3">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-semibold text-white">
+                            Progress: {crawlerProgress.current} / {crawlerProgress.total} sources
+                          </span>
+                          <span className="text-3xl font-bold text-white">{crawlerProgress.percentage}%</span>
+                        </div>
+                        <div className="w-full bg-neutral-800 rounded-full h-6 overflow-hidden shadow-inner">
+                          <div
+                            className="h-full bg-gradient-to-r from-green-500 via-blue-500 to-purple-500 transition-all duration-500 ease-out flex items-center justify-end px-2"
+                            style={{ width: `${crawlerProgress.percentage}%` }}
+                          >
+                            {crawlerProgress.percentage > 10 && (
+                              <span className="text-xs font-bold text-white">{crawlerProgress.percentage}%</span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Stats Grid */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                      <div className="text-center p-4 bg-neutral-900/50 rounded-lg border border-neutral-700">
+                        <div className="text-3xl font-bold text-green-400 mb-1">{currentBoothCount}</div>
+                        <div className="text-xs text-neutral-400">Booths Found</div>
+                      </div>
+                      <div className="text-center p-4 bg-neutral-900/50 rounded-lg border border-neutral-700">
+                        <div className="text-3xl font-bold text-white mb-1">{crawlerMetrics.crawledToday}</div>
                         <div className="text-xs text-neutral-400">Crawled Today</div>
                       </div>
-                      <div className="text-center p-3 bg-neutral-800 rounded">
-                        <div className="text-sm font-bold text-white">{crawlerMetrics.lastRun}</div>
+                      <div className="text-center p-4 bg-neutral-900/50 rounded-lg border border-neutral-700">
+                        <div className="text-sm font-bold text-white mb-1">{crawlerMetrics.lastRun}</div>
                         <div className="text-xs text-neutral-400">Last Run</div>
                       </div>
-                      <div className="text-center p-3 bg-neutral-800 rounded">
-                        <div className="text-2xl font-bold text-white">{crawlerMetrics.errorCount}</div>
-                        <div className="text-xs text-neutral-400">Error Count</div>
+                      <div className="text-center p-4 bg-neutral-900/50 rounded-lg border border-neutral-700">
+                        <div className="text-3xl font-bold text-red-400 mb-1">{errorCount}</div>
+                        <div className="text-xs text-neutral-400">Errors This Run</div>
                       </div>
                     </div>
-                    <div className="flex gap-2">
-                      <Button
-                        className="flex-1"
-                        disabled={crawlerRunning}
-                        onClick={() => startCrawler()}
-                      >
-                        <PlayCircle className="w-4 h-4 mr-2" />
-                        {crawlerRunning ? 'Running...' : 'Start Crawler'}
-                      </Button>
+
+                    {/* Error Display */}
+                    {lastError && (
+                      <div className="mb-6 p-4 bg-red-950/30 border-2 border-red-500 rounded-lg">
+                        <div className="flex items-start gap-3">
+                          <AlertCircle className="w-6 h-6 text-red-400 flex-shrink-0 mt-0.5" />
+                          <div className="flex-1">
+                            <div className="font-semibold text-red-300 mb-1">Last Error:</div>
+                            <div className="text-sm text-red-200">{lastError}</div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Controls */}
+                    <div className="flex gap-3">
+                      {!crawlerRunning ? (
+                        <Button
+                          className="flex-1 h-14 text-lg"
+                          onClick={() => startCrawler()}
+                        >
+                          <PlayCircle className="w-6 h-6 mr-3" />
+                          Start Crawler
+                        </Button>
+                      ) : (
+                        <Button
+                          className="flex-1 h-14 text-lg"
+                          variant="destructive"
+                          onClick={stopCrawler}
+                        >
+                          <PauseCircle className="w-6 h-6 mr-3" />
+                          Stop Crawler
+                        </Button>
+                      )}
                       <Button
                         variant="outline"
+                        className="h-14"
                         disabled={crawlerRunning}
                         onClick={() => {
                           loadCrawlerMetrics();
@@ -576,15 +798,69 @@ export default function AdminPage() {
                           toast.success('Refreshed crawler data');
                         }}
                       >
-                        <RefreshCw className="w-4 h-4" />
+                        <RefreshCw className="w-6 h-6" />
                       </Button>
                     </div>
                   </div>
 
+                  {/* Real-time Activity Feed */}
+                  {activityFeed.length > 0 && (
+                    <div className="border border-neutral-700 rounded-lg p-4 bg-neutral-900">
+                      <div className="flex items-center gap-2 mb-4">
+                        <Activity className="w-5 h-5 text-green-400" />
+                        <h3 className="font-semibold text-white">Live Activity Feed</h3>
+                        <Badge variant="secondary" className="ml-auto">{activityFeed.length} events</Badge>
+                      </div>
+                      <div className="space-y-2 max-h-80 overflow-y-auto">
+                        {activityFeed.map((activity, index) => (
+                          <div
+                            key={index}
+                            className={`flex items-start gap-3 p-3 rounded border-l-4 ${
+                              activity.status === 'error' ? 'bg-red-950/20 border-red-500' :
+                              activity.status === 'warning' ? 'bg-yellow-950/20 border-yellow-500' :
+                              activity.status === 'success' ? 'bg-green-950/20 border-green-500' :
+                              'bg-blue-950/20 border-blue-500'
+                            }`}
+                          >
+                            <div className={`mt-1 w-2 h-2 rounded-full flex-shrink-0 ${
+                              activity.status === 'error' ? 'bg-red-400' :
+                              activity.status === 'warning' ? 'bg-yellow-400' :
+                              activity.status === 'success' ? 'bg-green-400' :
+                              'bg-blue-400'
+                            }`} />
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between gap-2 mb-1">
+                                <span className="text-white font-medium text-sm">{activity.type.toUpperCase()}</span>
+                                <span className="text-neutral-500 text-xs flex-shrink-0">
+                                  {activity.timestamp.toLocaleTimeString()}
+                                </span>
+                              </div>
+                              <p className="text-neutral-300 text-sm">{activity.message}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   {/* Recent Activity */}
                   <div className="border border-neutral-700 rounded-lg p-4 bg-neutral-900">
-                    <h3 className="font-semibold text-white mb-3">Recent Crawler Logs</h3>
-                    {crawlerLogs.length === 0 ? (
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="font-semibold text-white">Recent Crawler Logs</h3>
+                      <select
+                        value={logFilter}
+                        onChange={(e) => setLogFilter(e.target.value as any)}
+                        className="px-3 py-1 bg-neutral-800 border border-neutral-700 rounded text-white text-sm"
+                      >
+                        <option value="all">All Logs</option>
+                        <option value="info">Info Only</option>
+                        <option value="warning">Warnings Only</option>
+                        <option value="error">Errors Only</option>
+                      </select>
+                    </div>
+                    {crawlerLogs.filter(log =>
+                      logFilter === 'all' || log.operation_status === logFilter
+                    ).length === 0 ? (
                       <div className="text-center py-8">
                         <Clock className="w-12 h-12 text-neutral-600 mx-auto mb-3" />
                         <p className="text-neutral-400 text-sm">No crawler logs yet</p>
