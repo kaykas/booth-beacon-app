@@ -6,7 +6,18 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage",
+    "test:deno": "cd supabase/functions/unified-crawler && deno test --allow-net --allow-env",
+    "test:deno:watch": "cd supabase/functions/unified-crawler && deno test --watch --allow-net --allow-env",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:debug": "playwright test --debug",
+    "test:all": "npm run test && npm run test:deno && npm run test:e2e",
+    "test:ci": "npm run test:coverage && npm run test:deno && npm run test:e2e"
   },
   "dependencies": {
     "@googlemaps/js-api-loader": "^2.0.2",

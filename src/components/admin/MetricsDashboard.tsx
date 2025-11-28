@@ -119,7 +119,7 @@ export function MetricsDashboard() {
         (b) => b.latitude && b.longitude
       ).length || 0;
 
-      const activeBooths = allBooths?.filter((b) => b.status === 'active').length || 0;
+      const activeBooths = booths.filter((b) => b.status === 'active').length || 0;
       const inactiveBooths = totalBooths - activeBooths;
 
       // Calculate completeness score (0-100)
@@ -144,7 +144,7 @@ export function MetricsDashboard() {
         return score;
       };
 
-      const completenessScores = allBooths?.map(calculateCompleteness) || [];
+      const completenessScores = booths.map(calculateCompleteness) || [];
       const averageCompleteness =
         completenessScores.reduce((sum, score) => sum + score, 0) /
           (completenessScores.length || 1);
@@ -152,13 +152,13 @@ export function MetricsDashboard() {
       const lowCompletenessBooths = completenessScores.filter((score) => score < 50).length;
 
       // Missing required fields (name, address, city, country)
-      const missingRequiredFields = allBooths?.filter(
+      const missingRequiredFields = booths.filter(
         (b) => !b.name || !b.address || !b.city || !b.country
       ).length || 0;
 
       // Detect potential duplicates (same name and city)
       const duplicatesMap = new Map<string, number>();
-      allBooths?.forEach((b) => {
+      booths.forEach((b) => {
         const key = `${b.name}-${b.city}`.toLowerCase();
         duplicatesMap.set(key, (duplicatesMap.get(key) || 0) + 1);
       });
@@ -175,14 +175,15 @@ export function MetricsDashboard() {
 
       if (metricsError) throw metricsError;
 
-      const successfulCrawls = crawlerMetrics?.filter(
+      const metrics = (crawlerMetrics as any[]) || [];
+      const successfulCrawls = metrics.filter(
         (m) => m.status === 'success'
       ).length || 0;
-      const totalCrawls = crawlerMetrics?.length || 0;
+      const totalCrawls = metrics.length || 0;
       const crawlerSuccessRate = totalCrawls > 0 ? (successfulCrawls / totalCrawls) * 100 : 0;
 
-      const durations = crawlerMetrics
-        ?.filter((m) => m.duration_ms)
+      const durations = metrics
+        .filter((m) => m.duration_ms)
         .map((m) => m.duration_ms);
       const averageCrawlDuration =
         durations && durations.length > 0
@@ -197,8 +198,9 @@ export function MetricsDashboard() {
 
       if (sourcesError) throw sourcesError;
 
-      const failedSources = crawlSources
-        ?.filter((s) => s.status === 'error' && s.last_error_message)
+      const sources = (crawlSources as any[]) || [];
+      const failedSources = sources
+        .filter((s) => s.status === 'error' && s.last_error_message)
         .map((s) => ({
           source_name: s.source_name,
           last_error_message: s.last_error_message,
@@ -207,21 +209,22 @@ export function MetricsDashboard() {
 
       // Calculate source performance (last 7 days)
       const sourcePerformance = await Promise.all(
-        crawlSources?.slice(0, 10).map(async (source) => {
+        sources.slice(0, 10).map(async (source) => {
           const { data: sourceMetrics } = await supabase
             .from('crawler_metrics')
             .select('*')
             .eq('source_name', source.source_name)
             .gte('started_at', last7Days.toISOString());
 
-          const total = sourceMetrics?.length || 0;
-          const successful = sourceMetrics?.filter((m) => m.status === 'success').length || 0;
+          const sourceMetricsArray = (sourceMetrics as any[]) || [];
+          const total = sourceMetricsArray.length || 0;
+          const successful = sourceMetricsArray.filter((m) => m.status === 'success').length || 0;
           const success_rate = total > 0 ? (successful / total) * 100 : 0;
 
           const avgDuration =
-            sourceMetrics && sourceMetrics.length > 0
-              ? sourceMetrics.reduce((sum, m) => sum + (m.duration_ms || 0), 0) /
-                sourceMetrics.length /
+            sourceMetricsArray && sourceMetricsArray.length > 0
+              ? sourceMetricsArray.reduce((sum, m) => sum + (m.duration_ms || 0), 0) /
+                sourceMetricsArray.length /
                 1000
               : 0;
 
@@ -241,6 +244,7 @@ export function MetricsDashboard() {
         .select('created_at')
         .gte('created_at', last30Days.toISOString());
 
+      const recentBoothsArray = (recentBooths as any[]) || [];
       const boothsByDayMap = new Map<string, number>();
       for (let i = 0; i < 30; i++) {
         const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
@@ -248,7 +252,7 @@ export function MetricsDashboard() {
         boothsByDayMap.set(dateStr, 0);
       }
 
-      recentBooths?.forEach((booth) => {
+      recentBoothsArray.forEach((booth) => {
         const dateStr = booth.created_at.split('T')[0];
         boothsByDayMap.set(dateStr, (boothsByDayMap.get(dateStr) || 0) + 1);
       });
@@ -265,7 +269,7 @@ export function MetricsDashboard() {
         crawlMetricsByDayMap.set(dateStr, { booths: 0, duration: 0, count: 0 });
       }
 
-      crawlerMetrics?.forEach((metric) => {
+      metrics.forEach((metric) => {
         const dateStr = metric.started_at.split('T')[0];
         const current = crawlMetricsByDayMap.get(dateStr);
         if (current) {
@@ -531,7 +535,7 @@ export function MetricsDashboard() {
                 cy="50%"
                 labelLine={false}
                 label={({ name, value, percent }) =>
-                  `${name}: ${value} (${(percent * 100).toFixed(0)}%)`
+                  `${name}: ${value} (${((percent || 0) * 100).toFixed(0)}%)`
                 }
                 outerRadius={80}
                 fill="#8884d8"

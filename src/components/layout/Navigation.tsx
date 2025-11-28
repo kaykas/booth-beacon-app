@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { MapIcon, BookOpen, Wrench, Users, Home } from 'lucide-react';
+import { MapIcon, BookOpen, Wrench, Users, Home, Search } from 'lucide-react';
 
 interface NavItem {
   href: string;
@@ -15,6 +15,11 @@ const navItems: NavItem[] = [
     href: '/',
     label: 'Home',
     icon: <Home className="w-5 h-5" />,
+  },
+  {
+    href: '/search',
+    label: 'Search',
+    icon: <Search className="w-5 h-5" />,
   },
   {
     href: '/map',
@@ -56,7 +61,7 @@ export function Navigation({ variant = 'sidebar' }: NavigationProps) {
     // Mobile bottom navigation bar
     return (
       <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-neutral-200 md:hidden z-50">
-        <div className="grid grid-cols-5 h-16">
+        <div className="grid grid-cols-6 h-16">
           {navItems.map((item) => (
             <Link
               key={item.href}

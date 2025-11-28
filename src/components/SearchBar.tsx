@@ -136,6 +136,17 @@ export function SearchBar({
 
   // Handle keyboard navigation
   const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (isOpen && results.length > 0 && selectedIndex >= 0) {
+        handleSelect(results[selectedIndex]);
+      } else {
+        // Submit search if no result selected
+        handleSubmit(e as any);
+      }
+      return;
+    }
+
     if (!isOpen || results.length === 0) return;
 
     switch (e.key) {
@@ -146,12 +157,6 @@ export function SearchBar({
       case 'ArrowUp':
         e.preventDefault();
         setSelectedIndex((prev) => (prev > 0 ? prev - 1 : -1));
-        break;
-      case 'Enter':
-        e.preventDefault();
-        if (selectedIndex >= 0) {
-          handleSelect(results[selectedIndex]);
-        }
         break;
       case 'Escape':
         setIsOpen(false);
@@ -166,15 +171,24 @@ export function SearchBar({
       // Navigate to booth detail page
       router.push(`/booth/${result.id}`);
     } else if (result.type === 'city') {
-      // Navigate to map with city filter
-      router.push(`/map?location=${encodeURIComponent(`${result.city}, ${result.country}`)}`);
+      // Navigate to search page with city filter
+      router.push(`/search?city=${encodeURIComponent(result.city)}&country=${encodeURIComponent(result.country)}`);
     } else if (result.type === 'country') {
-      // Navigate to map with country filter
-      router.push(`/map?location=${encodeURIComponent(result.country)}`);
+      // Navigate to search page with country filter
+      router.push(`/search?country=${encodeURIComponent(result.country)}`);
     }
 
     setIsOpen(false);
     setQuery('');
+  };
+
+  // Handle Enter key when no results are selected (submit search)
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (query.trim()) {
+      router.push(`/search?q=${encodeURIComponent(query.trim())}`);
+      setIsOpen(false);
+    }
   };
 
   // Clear search
