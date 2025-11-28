@@ -11,8 +11,10 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { BarChart3, Users, Image, MessageSquare, MapPin, CheckCircle, XCircle, Clock, Database, PlayCircle, PauseCircle, RefreshCw, Shield, Wifi, WifiOff, Activity, AlertCircle, Zap, Loader2 } from 'lucide-react';
+import { BarChart3, Users, Image, MessageSquare, MapPin, CheckCircle, XCircle, Clock, Database, PlayCircle, PauseCircle, RefreshCw, Shield, Wifi, WifiOff, Activity, AlertCircle, Zap, Loader2, Navigation, FileText } from 'lucide-react';
 import { toast } from 'sonner';
+import { MetricsDashboard } from '@/components/admin/MetricsDashboard';
+import { LogViewer } from '@/components/LogViewer';
 
 export default function AdminPage() {
   const { user, loading: authLoading } = useAuth();
@@ -54,6 +56,15 @@ export default function AdminPage() {
   const [reconnectAttempt, setReconnectAttempt] = useState(0);
   const [maxReconnectAttempts] = useState(5);
   const [reconnectTimeoutId, setReconnectTimeoutId] = useState<NodeJS.Timeout | null>(null);
+
+  // Geocoding state
+  const [geocodingRunning, setGeocodingRunning] = useState(false);
+  const [geocodingStatus, setGeocodingStatus] = useState('Ready');
+  const [geocodingProgress, setGeocodingProgress] = useState({ current: 0, total: 0, percentage: 0 });
+  const [geocodingResults, setGeocodingResults] = useState<any[]>([]);
+  const [geocodingStats, setGeocodingStats] = useState({ success: 0, errors: 0, skipped: 0 });
+  const [missingCoordsCount, setMissingCoordsCount] = useState(0);
+  const [currentEventSourceGeocode, setCurrentEventSourceGeocode] = useState<EventSource | null>(null);
 
   // Check admin status
   useEffect(() => {
@@ -604,8 +615,12 @@ export default function AdminPage() {
           </div>
 
           {/* Tabs */}
-          <Tabs defaultValue="photos" className="w-full">
+          <Tabs defaultValue="metrics" className="w-full">
             <TabsList className="bg-neutral-800 border-neutral-700">
+              <TabsTrigger value="metrics" className="data-[state=active]:bg-neutral-700 data-[state=active]:text-white">
+                <BarChart3 className="w-4 h-4 mr-2" />
+                Metrics Dashboard
+              </TabsTrigger>
               <TabsTrigger value="photos" className="data-[state=active]:bg-neutral-700 data-[state=active]:text-white">
                 <Image className="w-4 h-4 mr-2" />
                 Photo Moderation ({stats.pendingPhotos})
@@ -619,10 +634,18 @@ export default function AdminPage() {
                 User Management
               </TabsTrigger>
               <TabsTrigger value="analytics" className="data-[state=active]:bg-neutral-700 data-[state=active]:text-white">
-                <BarChart3 className="w-4 h-4 mr-2" />
+                <Activity className="w-4 h-4 mr-2" />
                 Analytics
               </TabsTrigger>
+              <TabsTrigger value="logs" className="data-[state=active]:bg-neutral-700 data-[state=active]:text-white">
+                <FileText className="w-4 h-4 mr-2" />
+                Crawler Logs
+              </TabsTrigger>
             </TabsList>
+
+            <TabsContent value="metrics" className="mt-6">
+              <MetricsDashboard />
+            </TabsContent>
 
             <TabsContent value="photos" className="mt-6">
               <Card className="p-6 bg-neutral-800 border-neutral-700">
@@ -1133,6 +1156,10 @@ export default function AdminPage() {
                   <p className="text-neutral-500 text-xs mt-1">Track booth views, searches, and engagement</p>
                 </div>
               </Card>
+            </TabsContent>
+
+            <TabsContent value="logs" className="mt-6">
+              <LogViewer initialLimit={50} />
             </TabsContent>
           </Tabs>
         </div>
