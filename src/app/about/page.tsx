@@ -77,8 +77,8 @@ export default function AboutPage() {
                 Our Mission
               </h2>
               <p className="text-muted-foreground leading-relaxed text-lg">
-                We're on a mission to document and preserve every working analog photo booth in the world.
-                These machines are more than just novelties—they're pieces of photographic history that
+                We&apos;re on a mission to document and preserve every working analog photo booth in the world.
+                These machines are more than just novelties—they&apos;re pieces of photographic history that
                 continue to create authentic, chemical-processed memories.
               </p>
             </div>
@@ -97,7 +97,7 @@ export default function AboutPage() {
                 True analog photo booths use photochemical processes to develop images on actual photo paper.
                 Unlike modern digital booths that simply print on regular paper, analog booths create real
                 photographs with unique characteristics—grain, contrast, and that unmistakable vintage quality
-                that can't be replicated.
+                that can&apos;t be replicated.
               </p>
             </div>
           </div>
@@ -176,14 +176,14 @@ export default function AboutPage() {
 
                 <p className="text-muted-foreground leading-relaxed mb-6">
                   She would meticulously research, identify, and map each authentic photochemical booth,
-                  adding them to a shared Google Map. Then she'd plan their adventures around these magical
+                  adding them to a shared Google Map. Then she&apos;d plan their adventures around these magical
                   machines, ensuring they could capture genuine analog memories together wherever they went.
                   Each photo strip became a tangible piece of their journey—real chemical photographs,
                   not digital prints.
                 </p>
 
                 <p className="text-muted-foreground leading-relaxed mb-6">
-                  Moved by Alexandra's dedication to preserving these moments the old-fashioned way,
+                  Moved by Alexandra&apos;s dedication to preserving these moments the old-fashioned way,
                   Jascha built this website in her honor. Classic Photo Booth Beacon is a celebration
                   of her romantic ritual and a gift to all analog photography enthusiasts who understand
                   that some moments deserve to be captured on real film, developed in real chemicals,
@@ -192,7 +192,7 @@ export default function AboutPage() {
 
                 <div className="bg-card p-6 rounded-lg border-l-4 border-primary">
                   <p className="text-foreground italic text-lg leading-relaxed">
-                    The name "Beacon" reflects the mission to be your guiding light in discovering
+                    The name &quot;Beacon&quot; reflects the mission to be your guiding light in discovering
                     these rare and precious machines worldwide—just as Alexandra has been a beacon
                     for preserving authentic photographic memories in an increasingly digital world.
                   </p>
@@ -209,7 +209,7 @@ export default function AboutPage() {
               Get Involved
             </h2>
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Know of a working analog booth we haven't listed? Help us complete the directory
+              Know of a working analog booth we haven&apos;t listed? Help us complete the directory
               by submitting booth locations. Together, we can create the most comprehensive
               resource for analog photo booth enthusiasts worldwide.
             </p>

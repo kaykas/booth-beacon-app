@@ -11,7 +11,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { BarChart3, Users, Image, MessageSquare, MapPin, CheckCircle, XCircle, Clock, Database, PlayCircle, PauseCircle, RefreshCw, Shield, Wifi, WifiOff, Activity, AlertCircle, Zap, Loader2, Navigation, FileText, Heart } from 'lucide-react';
+import { BarChart3, Users, Image, MessageSquare, MapPin, CheckCircle, XCircle, Clock, Database, PlayCircle, PauseCircle, RefreshCw, Shield, Wifi, WifiOff, Activity, AlertCircle, Zap, Loader2, FileText, Heart } from 'lucide-react';
 import { toast } from 'sonner';
 import { MetricsDashboard } from '@/components/admin/MetricsDashboard';
 import { CrawlPerformanceBreakdown } from '@/components/admin/CrawlPerformanceBreakdown';
@@ -19,10 +19,25 @@ import { LogViewer } from '@/components/LogViewer';
 import { CrawlJobQueue } from '@/components/admin/CrawlJobQueue';
 import { CrawlerHealthDashboard } from '@/components/admin/CrawlerHealthDashboard';
 
+interface Photo {
+  id: string;
+  [key: string]: unknown;
+}
+
+interface CrawlLog {
+  id: string;
+  [key: string]: unknown;
+}
+
+interface CrawlSource {
+  id: string;
+  source_name: string;
+  [key: string]: unknown;
+}
+
 export default function AdminPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [adminCheckComplete, setAdminCheckComplete] = useState(false);
   const [stats, setStats] = useState({
@@ -33,17 +48,16 @@ export default function AdminPage() {
     pendingPhotos: 0,
     totalReviews: 0,
   });
-  const [pendingPhotos, setPendingPhotos] = useState<any[]>([]);
+  const [pendingPhotos, setPendingPhotos] = useState<Photo[]>([]);
   const [crawlerRunning, setCrawlerRunning] = useState(false);
   const [crawlerStatus, setCrawlerStatus] = useState<string>('Ready');
-  const [crawlerLogs, setCrawlerLogs] = useState<any[]>([]);
+  const [crawlerLogs, setCrawlerLogs] = useState<CrawlLog[]>([]);
   const [crawlerMetrics, setCrawlerMetrics] = useState({
     crawledToday: 0,
     lastRun: '-',
     errorCount: 0,
   });
-  const [crawlSources, setCrawlSources] = useState<any[]>([]);
-  const [selectedSource, setSelectedSource] = useState<string | null>(null);
+  const [crawlSources, setCrawlSources] = useState<CrawlSource[]>([]);
   const [crawlerProgress, setCrawlerProgress] = useState({ current: 0, total: 0, percentage: 0 });
   const [currentBoothCount, setCurrentBoothCount] = useState(0);
   const [currentEventSource, setCurrentEventSource] = useState<EventSource | null>(null);
@@ -60,11 +74,12 @@ export default function AdminPage() {
   const [maxReconnectAttempts] = useState(5);
   const [reconnectTimeoutId, setReconnectTimeoutId] = useState<NodeJS.Timeout | null>(null);
 
-  // Geocoding state
-  const [geocodingRunning, setGeocodingRunning] = useState(false);
-  const [geocodingStatus, setGeocodingStatus] = useState('Ready');
-  const [geocodingProgress, setGeocodingProgress] = useState({ current: 0, total: 0, percentage: 0 });
-  const [geocodingResults, setGeocodingResults] = useState<any[]>([]);
+  // Geocoding state (for future feature)
+  // Commented out to fix lint errors until feature is implemented
+  // const [geocodingRunning, setGeocodingRunning] = useState(false);
+  // const [geocodingStatus, setGeocodingStatus] = useState('Ready');
+  // const [geocodingProgress, setGeocodingProgress] = useState({ current: 0, total: 0, percentage: 0 });
+  // const [geocodingResults, setGeocodingResults] = useState<unknown[]>([]);
   const [geocodingStats, setGeocodingStats] = useState({ success: 0, errors: 0, skipped: 0 });
   const [missingCoordsCount, setMissingCoordsCount] = useState(0);
   const [currentEventSourceGeocode, setCurrentEventSourceGeocode] = useState<EventSource | null>(null);
