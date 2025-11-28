@@ -444,6 +444,15 @@ EDGE CASES:
 - If content mentions "no longer there", mark inactive
 
 SOURCE-SPECIFIC GUIDANCE:
+- photobooth.net: The GOLD STANDARD directory. Extract ALL details including:
+  * Machine model/manufacturer (critical - often listed as "Machine:", "Model:", "Type:")
+  * Operator/owner (look for "Operator:", "Owner:", "Reported by:")
+  * Photo format (e.g., "4-strip", "black and white", "color")
+  * Historical info (installation dates, previous locations, user reports)
+  * Verification dates (when info was last confirmed)
+  * Status keywords: "removed", "closed", "no longer there", "verified", "working"
+  * Look for booth detail pages with comprehensive information
+  * Parse hierarchical structure: Country → State → City → Booth
 - autophoto.org: Often lists simple addresses line-by-line. Treat each line with an address as a booth.
 - lomography.com: User-submitted locations. Look for "Location", "Address", or map markers in the text.
 - flickr.com: Look for photo descriptions containing location data.`;
