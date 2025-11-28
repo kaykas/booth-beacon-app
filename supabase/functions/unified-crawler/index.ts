@@ -253,10 +253,22 @@ async function retryWithBackoff<T>(
         throw error;
       }
 
-      const delay = Math.min(baseDelay * Math.pow(2, i), maxDelay);
+      // For rate limiting (429), use longer backoff
+      const isRateLimit = error.message?.includes('429') || error.message?.toLowerCase().includes('rate limit');
+      const delay = isRateLimit
+        ? Math.min(baseDelay * Math.pow(3, i), 30000) // Exponential backoff with base 3 for rate limits
+        : Math.min(baseDelay * Math.pow(2, i), maxDelay); // Normal exponential backoff
+
       const jitter = Math.random() * 1000;
-      console.log(`⚠️ Attempt ${i + 1}/${retries} failed: ${error.message}. Retrying in ${Math.round(delay + jitter)}ms...`);
-      await new Promise(resolve => setTimeout(resolve, delay + jitter));
+      const totalDelay = delay + jitter;
+
+      if (isRateLimit) {
+        console.log(`⚠️ Rate limit hit. Attempt ${i + 1}/${retries}. Backing off for ${Math.round(totalDelay)}ms...`);
+      } else {
+        console.log(`⚠️ Attempt ${i + 1}/${retries} failed: ${error.message}. Retrying in ${Math.round(totalDelay)}ms...`);
+      }
+
+      await new Promise(resolve => setTimeout(resolve, totalDelay));
     }
   }
 
@@ -832,6 +844,16 @@ async function processSource(
                   waitFor: domainConfig.waitFor,
                   timeout: domainConfig.timeout,
                 },
+                // Firecrawl best practices for better crawling
+                ignoreSitemap: false, // Use sitemap.xml for better page discovery
+                allowBackwardLinks: false, // Don't crawl parent/backward links
+                allowExternalLinks: false, // Stay within the same domain
+                // Exclude common non-content paths
+                excludePaths: [
+                  '/admin/', '/login/', '/account/', '/cart/', '/checkout/',
+                  '/wp-admin/', '/wp-login/', '/_next/', '/api/'
+                ],
+                maxDepth: 3, // Limit crawl depth to prevent too deep navigation
               });
 
               if (!result.success) {
