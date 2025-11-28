@@ -37,6 +37,8 @@ export default function AdminPage() {
     lastRun: '-',
     errorCount: 0,
   });
+  const [crawlSources, setCrawlSources] = useState<any[]>([]);
+  const [selectedSource, setSelectedSource] = useState<string | null>(null);
 
   // Check admin status
   useEffect(() => {
@@ -57,6 +59,7 @@ export default function AdminPage() {
           loadAdminData();
           loadCrawlerMetrics();
           loadCrawlerLogs();
+          loadCrawlSources();
         }
       } catch (error) {
         console.error('Error checking admin status:', error);
@@ -167,11 +170,24 @@ export default function AdminPage() {
         .from('crawl_logs')
         .select('*')
         .order('timestamp', { ascending: false })
-        .limit(50);
+        .limit(100);
 
       setCrawlerLogs(logs || []);
     } catch (error) {
       console.error('Error loading crawler logs:', error);
+    }
+  };
+
+  const loadCrawlSources = async () => {
+    try {
+      const { data: sources } = await supabase
+        .from('crawl_sources')
+        .select('*')
+        .order('priority', { ascending: false });
+
+      setCrawlSources(sources || []);
+    } catch (error) {
+      console.error('Error loading crawl sources:', error);
     }
   };
 
@@ -508,21 +524,112 @@ export default function AdminPage() {
                     )}
                   </div>
 
+                  {/* Crawl Sources Management */}
+                  <div className="border border-neutral-700 rounded-lg p-4 bg-neutral-900">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="font-semibold text-white">Crawl Sources ({crawlSources.length})</h3>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => loadCrawlSources()}
+                      >
+                        <RefreshCw className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    {crawlSources.length === 0 ? (
+                      <div className="text-center py-8">
+                        <Database className="w-12 h-12 text-neutral-600 mx-auto mb-3" />
+                        <p className="text-neutral-400 text-sm">No crawl sources configured</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-2 max-h-96 overflow-y-auto">
+                        {crawlSources.map((source) => (
+                          <div
+                            key={source.id}
+                            className="flex items-center gap-3 p-3 bg-neutral-800 rounded hover:bg-neutral-750 transition"
+                          >
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="font-medium text-white truncate">
+                                  {source.source_name}
+                                </span>
+                                <Badge
+                                  variant="secondary"
+                                  className={
+                                    source.enabled
+                                      ? 'bg-green-900 text-green-100'
+                                      : 'bg-gray-700 text-gray-300'
+                                  }
+                                >
+                                  {source.enabled ? 'Enabled' : 'Disabled'}
+                                </Badge>
+                                {source.status === 'error' && (
+                                  <Badge variant="destructive">Error</Badge>
+                                )}
+                              </div>
+                              <p className="text-xs text-neutral-400 truncate">
+                                {source.source_url}
+                              </p>
+                              <div className="flex items-center gap-4 mt-2 text-xs text-neutral-500">
+                                <span>Priority: {source.priority}</span>
+                                {source.total_booths_found > 0 && (
+                                  <span>Found: {source.total_booths_found} booths</span>
+                                )}
+                                {source.last_successful_crawl && (
+                                  <span>
+                                    Last: {new Date(source.last_successful_crawl).toLocaleDateString()}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              disabled={crawlerRunning || !source.enabled}
+                              onClick={() => {
+                                setSelectedSource(source.source_name);
+                                startCrawler(source.source_name);
+                              }}
+                            >
+                              <PlayCircle className="w-4 h-4 mr-1" />
+                              Test
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
                   {/* Configuration */}
                   <div className="border border-neutral-700 rounded-lg p-4 bg-neutral-900">
                     <h3 className="font-semibold text-white mb-3">Crawler Configuration</h3>
                     <div className="space-y-3 text-sm">
                       <div className="flex justify-between items-center py-2 border-b border-neutral-700">
-                        <span className="text-neutral-300">Auto-run Schedule</span>
-                        <span className="text-neutral-400">Not configured</span>
+                        <span className="text-neutral-300">Total Sources</span>
+                        <span className="text-neutral-400">{crawlSources.length}</span>
                       </div>
                       <div className="flex justify-between items-center py-2 border-b border-neutral-700">
-                        <span className="text-neutral-300">Target Sources</span>
-                        <span className="text-neutral-400">0 sources</span>
+                        <span className="text-neutral-300">Enabled Sources</span>
+                        <span className="text-neutral-400">
+                          {crawlSources.filter(s => s.enabled).length}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center py-2 border-b border-neutral-700">
+                        <span className="text-neutral-300">Sources with Errors</span>
+                        <span className="text-error">
+                          {crawlSources.filter(s => s.status === 'error').length}
+                        </span>
                       </div>
                       <div className="flex justify-between items-center py-2">
-                        <span className="text-neutral-300">Rate Limit</span>
-                        <span className="text-neutral-400">Not set</span>
+                        <span className="text-neutral-300">Average Crawl Duration</span>
+                        <span className="text-neutral-400">
+                          {crawlSources.length > 0
+                            ? Math.round(
+                                crawlSources.reduce((sum, s) => sum + (s.average_crawl_duration_seconds || 0), 0) /
+                                  crawlSources.length
+                              ) + 's'
+                            : 'N/A'}
+                        </span>
                       </div>
                     </div>
                   </div>
