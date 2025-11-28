@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { User, Bookmark, Camera, LogOut, Settings, Shield } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import { isUserAdmin } from '@/lib/adminAuth';
 
 export function UserMenu() {
   const { user, signOut, loading } = useAuth();
@@ -30,13 +30,8 @@ export function UserMenu() {
         return;
       }
 
-      const { data, error } = await supabase
-        .from('admin_users')
-        .select('user_id')
-        .eq('user_id', user.id)
-        .single();
-
-      setIsAdmin(!!data && !error);
+      const adminStatus = await isUserAdmin(user, false);
+      setIsAdmin(adminStatus);
     }
 
     checkAdmin();
