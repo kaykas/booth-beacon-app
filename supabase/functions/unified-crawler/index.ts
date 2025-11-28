@@ -149,6 +149,38 @@ async function logCrawlerMetric(
 }
 
 /**
+ * Timeout wrapper for operations to prevent Edge Function timeout
+ */
+async function withTimeout<T>(
+  promise: Promise<T>,
+  timeoutMs: number,
+  operationName: string
+): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) =>
+      setTimeout(() => reject(new Error(`${operationName} timed out after ${timeoutMs}ms`)), timeoutMs)
+    ),
+  ]);
+}
+
+/**
+ * Start keep-alive heartbeat to prevent gateway timeout during long operations
+ * Returns cleanup function to stop the heartbeat
+ */
+function startKeepAlive(sendProgressEvent: (data: any) => void, intervalMs: number = 15000): () => void {
+  const heartbeatInterval = setInterval(() => {
+    sendProgressEvent({
+      type: 'heartbeat',
+      timestamp: new Date().toISOString(),
+      message: 'Crawler is still running...'
+    });
+  }, intervalMs);
+
+  return () => clearInterval(heartbeatInterval);
+}
+
+/**
  * Save raw Firecrawl content for re-processing
  */
 async function saveRawContent(
@@ -360,19 +392,51 @@ serve(async (req) => {
 
       // Start processing in background
       (async () => {
+        // Start keep-alive heartbeat to prevent gateway timeout
+        const stopKeepAlive = startKeepAlive(sendProgressEvent, 15000); // Send heartbeat every 15 seconds
+
         try {
           for (let i = 0; i < sources.length; i++) {
             const source = sources[i];
-            await processSource(source, i, sources.length, sendProgressEvent, results, force_crawl, anthropicApiKey, firecrawl, supabase);
+
+            try {
+              // Wrap each source with 90-second timeout (before gateway timeout at 120s)
+              await withTimeout(
+                processSource(source, i, sources.length, sendProgressEvent, results, force_crawl, anthropicApiKey, firecrawl, supabase),
+                90000, // 90 second timeout per source
+                `Processing source: ${source.source_name}`
+              );
+            } catch (timeoutError: any) {
+              console.error(`Source ${source.source_name} timed out:`, timeoutError.message);
+              // Add timeout result
+              results.push({
+                source_name: source.source_name,
+                status: "error",
+                booths_found: 0,
+                booths_added: 0,
+                booths_updated: 0,
+                extraction_time_ms: 0,
+                crawl_duration_ms: 90000,
+                error_message: `Source timed out after 90 seconds`
+              });
+
+              sendProgressEvent({
+                type: 'source_error',
+                source_name: source.source_name,
+                error: 'Source timed out after 90 seconds',
+                timestamp: new Date().toISOString()
+              });
+            }
           }
 
           // Send completion event
           sendProgressEvent({
             type: 'complete',
-            results,
-            total_booths_found: results.reduce((sum, r) => sum + r.booths_found, 0),
-            total_booths_added: results.reduce((sum, r) => sum + r.booths_added, 0),
-            total_booths_updated: results.reduce((sum, r) => sum + r.booths_updated, 0),
+            summary: {
+              total_booths_found: results.reduce((sum, r) => sum + r.booths_found, 0),
+              total_booths_added: results.reduce((sum, r) => sum + r.booths_added, 0),
+              total_booths_updated: results.reduce((sum, r) => sum + r.booths_updated, 0),
+            },
             timestamp: new Date().toISOString()
           });
         } catch (error: any) {
@@ -382,6 +446,7 @@ serve(async (req) => {
             timestamp: new Date().toISOString()
           });
         } finally {
+          stopKeepAlive(); // Stop heartbeat
           if (streamController) {
             (streamController as ReadableStreamDefaultController<Uint8Array>).close();
           }
@@ -756,23 +821,27 @@ async function processSource(
         try {
           console.log(`⏳ Waiting for Firecrawl API to crawl pages (Timeout: ${domainConfig.timeout}ms)...`);
 
-          // Use retry logic for robustness
-          crawlResult = await retryWithBackoff(async () => {
-            const result = await firecrawl.crawlUrl(source.source_url, {
-              limit: pageLimit,
-              scrapeOptions: {
-                formats: ['markdown', 'html'],
-                onlyMainContent: false,
-                waitFor: domainConfig.waitFor,
-                timeout: domainConfig.timeout,
-              },
-            });
+          // Use retry logic for robustness with timeout protection
+          crawlResult = await withTimeout(
+            retryWithBackoff(async () => {
+              const result = await firecrawl.crawlUrl(source.source_url, {
+                limit: pageLimit,
+                scrapeOptions: {
+                  formats: ['markdown', 'html'],
+                  onlyMainContent: false,
+                  waitFor: domainConfig.waitFor,
+                  timeout: domainConfig.timeout,
+                },
+              });
 
-            if (!result.success) {
-              throw new Error(result.error || 'Firecrawl returned unsuccessful status');
-            }
-            return result;
-          }, 2, 2000, 10000); // 2 retries (3 attempts total)
+              if (!result.success) {
+                throw new Error(result.error || 'Firecrawl returned unsuccessful status');
+              }
+              return result;
+            }, 2, 2000, 10000), // 2 retries (3 attempts total)
+            60000, // 60 second max timeout for crawlUrl (including retries)
+            `Firecrawl crawlUrl for ${source.source_name}`
+          );
 
           apiCallDuration = Date.now() - apiCallStart;
           console.log(`✅ Firecrawl API responded in ${apiCallDuration}ms`);
@@ -1011,12 +1080,16 @@ async function processSource(
       // Use scrapeUrl for single-page sites
       console.log(`Using single-page scrape for ${source.source_name}...`);
 
-      const scrapeResult = await firecrawl.scrapeUrl(source.source_url, {
-        formats: ['markdown', 'html'],
-        onlyMainContent: false, // FALSE to capture sidebars/navigation with booth lists
-        waitFor: 6000, // Wait 6 seconds for Maps/React to load
-        timeout: 30000,
-      });
+      const scrapeResult = await withTimeout(
+        firecrawl.scrapeUrl(source.source_url, {
+          formats: ['markdown', 'html'],
+          onlyMainContent: false, // FALSE to capture sidebars/navigation with booth lists
+          waitFor: 6000, // Wait 6 seconds for Maps/React to load
+          timeout: 30000,
+        }),
+        45000, // 45 second max timeout for scrapeUrl
+        `Firecrawl scrapeUrl for ${source.source_name}`
+      );
 
       if (!scrapeResult.success) {
         throw new Error(`Firecrawl scrape failed: ${scrapeResult.error}`);
