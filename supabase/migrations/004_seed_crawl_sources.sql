@@ -3,6 +3,16 @@
 -- Adds all 39+ crawl sources to the system
 -- =====================================================
 
+-- Add unique constraint on source_name if it doesn't exist
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'crawl_sources_source_name_key'
+  ) THEN
+    ALTER TABLE crawl_sources ADD CONSTRAINT crawl_sources_source_name_key UNIQUE (source_name);
+  END IF;
+END $$;
+
 INSERT INTO crawl_sources (
   source_name,
   source_url,
