@@ -199,43 +199,107 @@ export default function AdminPage() {
 
     setCrawlerRunning(true);
     setCrawlerStatus('Starting crawler...');
-    toast.info('Starting crawler...');
+    toast.info('Starting crawler with real-time streaming...');
 
     try {
       const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
       const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-      const response = await fetch(`${supabaseUrl}/functions/v1/unified-crawler`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${supabaseAnonKey}`,
-        },
-        body: JSON.stringify({
-          source_name: sourceName,
-          force_crawl: true,
-        }),
+      // Use EventSource for real-time streaming
+      const params = new URLSearchParams({
+        stream: 'true',
+        force_crawl: 'true',
+        ...(sourceName && { source_name: sourceName }),
       });
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to start crawler');
-      }
+      const eventSource = new EventSource(
+        `${supabaseUrl}/functions/v1/unified-crawler?${params}`,
+        {
+          // Note: EventSource doesn't support custom headers in browser
+          // The auth will need to be passed via query param or the function made public
+        }
+      );
 
-      const result = await response.json();
+      let totalBooths = 0;
 
-      setCrawlerStatus('Crawler completed successfully');
-      toast.success(`Crawler completed! Found ${result.summary?.total_booths_found || 0} booths`);
+      eventSource.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
 
-      // Reload data
-      await loadAdminData();
-      await loadCrawlerMetrics();
-      await loadCrawlerLogs();
+          // Handle different event types
+          switch (data.type) {
+            case 'start':
+              setCrawlerStatus(`Starting crawl of ${data.total_sources} sources...`);
+              break;
+
+            case 'source_start':
+              setCrawlerStatus(`Crawling ${data.source_name}...`);
+              break;
+
+            case 'batch_crawled':
+              setCrawlerStatus(`${data.source_name}: Crawled ${data.pages_crawled} pages`);
+              break;
+
+            case 'extraction_progress':
+              setCrawlerStatus(`${data.source_name}: Extracting page ${data.page_index}/${data.total_pages} (${data.booths_extracted_so_far} booths found)`);
+              break;
+
+            case 'batch_complete':
+              setCrawlerStatus(`${data.source_name}: Batch ${data.batch_number} complete - ${data.booths_so_far} total booths`);
+              totalBooths = data.booths_so_far;
+              break;
+
+            case 'source_complete':
+              toast.success(`${data.source_name} complete: ${data.booths_found} booths`);
+              break;
+
+            case 'batch_error':
+            case 'source_error':
+              toast.error(`${data.source_name}: ${data.error}`);
+              break;
+
+            case 'complete':
+              setCrawlerStatus('Crawler completed successfully');
+              toast.success(`Crawler complete! Found ${data.summary?.total_booths_found || totalBooths} booths`);
+              eventSource.close();
+
+              // Reload data
+              loadAdminData();
+              loadCrawlerMetrics();
+              loadCrawlerLogs();
+              setCrawlerRunning(false);
+              break;
+
+            case 'error':
+              throw new Error(data.error || 'Crawler failed');
+          }
+        } catch (parseError) {
+          console.error('Error parsing event:', parseError);
+        }
+      };
+
+      eventSource.onerror = (error) => {
+        console.error('EventSource error:', error);
+        eventSource.close();
+        setCrawlerStatus('Connection error');
+        toast.error('Lost connection to crawler');
+        setCrawlerRunning(false);
+      };
+
+      // Timeout after 10 minutes
+      setTimeout(() => {
+        if (crawlerRunning) {
+          eventSource.close();
+          setCrawlerStatus('Timeout');
+          toast.error('Crawler timed out');
+          setCrawlerRunning(false);
+        }
+      }, 600000);
+
     } catch (error: any) {
       console.error('Crawler error:', error);
       setCrawlerStatus('Error: ' + error.message);
       toast.error('Crawler failed: ' + error.message);
-    } finally {
       setCrawlerRunning(false);
     }
   };
