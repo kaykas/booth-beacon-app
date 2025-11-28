@@ -47,8 +47,8 @@
  * - Most venues are bars (21+ only), except Vidiots
  */
 
-import { extractWithAI, AIExtractionConfig } from "./ai-extraction-engine.ts";
-import { ExtractorResult, BoothData } from "./extractors.ts";
+import { extractWithAI, AIExtractionConfig } from "./ai-extraction-engine";
+import { ExtractorResult, BoothData } from "./extractors";
 
 export async function extractTimeOutLAEnhanced(
   html: string,

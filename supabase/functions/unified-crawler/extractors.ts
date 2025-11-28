@@ -3,9 +3,9 @@
  * Each extractor handles a specific website's structure and data format
  */
 
-import { BaseExtractor } from './base-extractor.ts';
-import type { AnthropicResponse, AnthropicContentBlock } from "./types.ts";
-import { toError } from "./types.ts";
+import { BaseExtractor } from './base-extractor';
+import type { AnthropicResponse, AnthropicContentBlock } from "./types";
+import { toError } from "./types";
 
 export interface BoothData {
   name: string;
@@ -1333,8 +1333,9 @@ export async function extractGeneric(
         const toolUse = result.content?.find((block: AnthropicContentBlock) => block.type === "tool_use");
 
         if (toolUse && toolUse.input?.booths) {
-          console.log(`Extracted ${toolUse.input.booths.length} booths from chunk ${i + 1}`);
-          for (const booth of toolUse.input.booths) {
+          const extractedBooths = (toolUse.input as any).booths as any[];
+          console.log(`Extracted ${extractedBooths.length} booths from chunk ${i + 1}`);
+          for (const booth of extractedBooths) {
             booths.push({
               name: booth.name,
               address: booth.address,

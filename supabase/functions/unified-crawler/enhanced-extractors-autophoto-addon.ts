@@ -5,8 +5,8 @@
  * and supporting functions. Add this to enhanced-extractors.ts
  */
 
-import { extractWithAI, AIExtractionConfig } from "./ai-extraction-engine.ts";
-import { ExtractorResult, BoothData } from "./extractors.ts";
+import { extractWithAI, AIExtractionConfig } from "./ai-extraction-engine";
+import { ExtractorResult, BoothData } from "./extractors";
 
 /**
  * AUTOPHOTO.ORG - ENHANCED EXTRACTOR

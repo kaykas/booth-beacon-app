@@ -16,7 +16,7 @@
  * 4. Extracts complete address, coordinates, hours, contact info
  */
 
-import { ExtractorResult, BoothData } from "./extractors.ts";
+import { ExtractorResult, BoothData } from "./extractors";
 
 interface LomographyStore {
   name: string;

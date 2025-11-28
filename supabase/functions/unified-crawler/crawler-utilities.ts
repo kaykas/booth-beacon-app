@@ -10,8 +10,8 @@ import type {
   TypedSupabaseClient,
   UnknownRecord,
   ErrorWithMessage,
-} from "./types.ts";
-import { toError } from "./types.ts";
+} from "./types";
+import { toError } from "./types";
 
 // ========================================
 // TYPES

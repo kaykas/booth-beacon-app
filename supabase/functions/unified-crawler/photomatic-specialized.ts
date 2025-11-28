@@ -16,7 +16,7 @@
  * 4. Identifies New Zealand locations separately
  */
 
-import { ExtractorResult, BoothData } from "./extractors.ts";
+import { ExtractorResult, BoothData } from "./extractors";
 
 interface PhotomaticLocation {
   name: string;

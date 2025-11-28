@@ -16,8 +16,8 @@
  * - HTML/markdown utilities
  */
 
-import type { BoothData, ExtractorResult } from './extractors.ts';
-import { cleanHtml } from './shared-utilities.ts';
+import type { BoothData, ExtractorResult } from './extractors';
+import { cleanHtml } from './shared-utilities';
 
 export abstract class BaseExtractor {
   protected sourceName: string;

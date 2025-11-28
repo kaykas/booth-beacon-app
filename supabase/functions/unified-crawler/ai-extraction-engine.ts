@@ -12,8 +12,8 @@
  * - Quality validation
  */
 
-import { BoothData, ExtractorResult } from "./extractors.ts";
-import type { AnthropicResponse, AnthropicContentBlock } from "./types.ts";
+import { BoothData, ExtractorResult } from "./extractors";
+import type { AnthropicResponse, AnthropicContentBlock } from "./types";
 
 export interface AIExtractionConfig {
   source_name: string;
@@ -290,8 +290,8 @@ export async function extractWithAI(
           continue;
         }
 
-        const extracted = toolUse.input;
-        const chunkBooths = extracted.booths || [];
+        const extracted = toolUse.input as any;
+        const chunkBooths: BoothData[] = extracted?.booths || [];
 
         if (chunkBooths.length === 0) {
           console.warn(`⚠️ Zero booths found in chunk ${chunkIndex + 1}. Raw AI response:`, JSON.stringify(result).substring(0, 500) + "...");

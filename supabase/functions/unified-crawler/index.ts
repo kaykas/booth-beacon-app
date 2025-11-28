@@ -16,7 +16,7 @@ import {
   extractGeneric,
   type BoothData,
   type ExtractorResult,
-} from "./extractors.ts";
+} from "./extractors";
 import {
   extractSoloSophie,
   extractMisadventuresAndi,
@@ -40,7 +40,7 @@ import {
   extractDesignMyNightNY,
   extractRoxyHotelNY,
   extractAirialTravelBrooklyn,
-} from "./city-guide-extractors.ts";
+} from "./city-guide-extractors";
 import {
   extractFotoautomatBerlin,
   extractAutofoto,
@@ -49,8 +49,8 @@ import {
   extractFotoautomatica,
   extractFlashPack,
   extractMetroAutoPhoto,
-} from "./european-extractors.ts";
-import { validateCountry } from "./country-validation.ts";
+} from "./european-extractors";
+import { validateCountry } from "./country-validation";
 import {
   extractPhotoboothNetEnhanced,
   extractCityGuideEnhanced,
@@ -58,7 +58,7 @@ import {
   extractCommunityEnhanced,
   extractOperatorEnhanced,
   extractDirectoryEnhanced,
-} from "./enhanced-extractors.ts";
+} from "./enhanced-extractors";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",

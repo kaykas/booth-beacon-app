@@ -10,8 +10,8 @@
  * Before: 2063 lines | After: ~950 lines (~54% reduction)
  */
 
-import { BaseExtractor } from './base-extractor.ts';
-import type { BoothData } from './extractors.ts';
+import { BaseExtractor } from './base-extractor';
+import type { BoothData } from './extractors';
 
 /**
  * BERLIN SOURCES (3)

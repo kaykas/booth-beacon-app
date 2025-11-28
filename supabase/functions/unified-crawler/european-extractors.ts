@@ -3,7 +3,7 @@
  * 8 European/Pacific operator sources with multi-language support
  */
 
-import type { BoothData, ExtractorResult } from "./extractors.ts";
+import type { BoothData, ExtractorResult } from "./extractors";
 
 /**
  * FOTOAUTOMAT BERLIN EXTRACTOR

@@ -6,7 +6,7 @@
  * european-extractors.ts, and ai-extraction-engine.ts
  */
 
-import type { BoothData } from "./extractors.ts";
+import type { BoothData } from "./extractors";
 
 /**
  * Clean HTML by removing scripts, styles, tags, and normalizing whitespace

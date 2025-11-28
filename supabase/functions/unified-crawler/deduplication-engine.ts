@@ -11,7 +11,7 @@
  * to prevent duplicate booths from entering the system.
  */
 
-import { BoothData } from "./extractors.ts";
+import { BoothData } from "./extractors";
 
 /**
  * Levenshtein Distance Algorithm
