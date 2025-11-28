@@ -81,9 +81,46 @@ export async function generateMetadata({ params }: BoothDetailPageProps): Promis
     };
   }
 
+  const mainPhoto = booth.photo_exterior_url || booth.ai_preview_url;
+  const description = booth.description || `Analog photo booth in ${booth.city}, ${booth.country}. ${booth.machine_model ? `Features a ${booth.machine_model}` : ''} ${booth.photo_type ? `${booth.photo_type} photo booth` : ''}`.trim();
+
   return {
     title: `${booth.name} - ${booth.city}, ${booth.country} | Booth Beacon`,
-    description: booth.description || `Analog photo booth in ${booth.city}, ${booth.country}`,
+    description,
+    keywords: [
+      'photo booth',
+      'analog photo booth',
+      booth.city,
+      booth.country,
+      booth.machine_model,
+      booth.machine_manufacturer,
+      'photobooth',
+      'instant photos',
+    ].filter((k): k is string => typeof k === 'string' && k.length > 0),
+    openGraph: {
+      title: `${booth.name} - ${booth.city}, ${booth.country}`,
+      description,
+      type: 'website',
+      url: `https://boothbeacon.org/booth/${booth.id}`,
+      images: mainPhoto ? [
+        {
+          url: mainPhoto,
+          width: 1200,
+          height: 630,
+          alt: `${booth.name} in ${booth.city}`,
+        }
+      ] : [],
+      siteName: 'Booth Beacon',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${booth.name} - ${booth.city}, ${booth.country}`,
+      description,
+      images: mainPhoto ? [mainPhoto] : [],
+    },
+    alternates: {
+      canonical: `https://boothbeacon.org/booth/${booth.id}`,
+    },
   };
 }
 
@@ -106,8 +143,63 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
   const hasPhotos = photos.length > 0;
   const mainPhoto = hasPhotos ? photos[0] : booth.ai_preview_url;
 
+  // Generate structured data for SEO
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'Place',
+    name: booth.name,
+    description: booth.description || `Analog photo booth in ${booth.city}, ${booth.country}`,
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: booth.address,
+      addressLocality: booth.city,
+      addressRegion: booth.state,
+      postalCode: booth.postal_code,
+      addressCountry: booth.country,
+    },
+    geo: booth.latitude && booth.longitude ? {
+      '@type': 'GeoCoordinates',
+      latitude: booth.latitude,
+      longitude: booth.longitude,
+    } : undefined,
+    image: booth.photo_exterior_url || booth.ai_preview_url,
+    priceRange: booth.cost,
+    paymentAccepted: [
+      booth.accepts_cash && 'Cash',
+      booth.accepts_card && 'Card',
+    ].filter(Boolean).join(', '),
+    openingHours: booth.hours,
+  };
+
   return (
     <div className="min-h-screen bg-neutral-50">
+      {/* Structured Data for SEO */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
+
+      {/* Breadcrumbs */}
+      <div className="bg-white border-b border-neutral-200">
+        <div className="max-w-7xl mx-auto px-4 py-3">
+          <nav className="flex items-center gap-2 text-sm text-neutral-600" aria-label="Breadcrumb">
+            <Link href="/" className="hover:text-primary transition">
+              Home
+            </Link>
+            <span>/</span>
+            <Link href="/map" className="hover:text-primary transition">
+              Booths
+            </Link>
+            <span>/</span>
+            <Link href={`/guides/${booth.city.toLowerCase()}`} className="hover:text-primary transition">
+              {booth.city}
+            </Link>
+            <span>/</span>
+            <span className="text-neutral-900 font-medium">{booth.name}</span>
+          </nav>
+        </div>
+      </div>
+
       {/* Hero Section */}
       <div className="bg-white border-b border-neutral-200">
         <div className="max-w-7xl mx-auto">
