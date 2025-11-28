@@ -86,6 +86,8 @@ interface CrawlLog {
 }
 
 const crawlLogs: CrawlLog[] = [];
+let globalSupabase: any = null;
+let globalSourceId: string | null = null;
 
 function addLog(level: "info" | "warn" | "error", message: string, metadata?: Record<string, any>) {
   const log = {
@@ -104,6 +106,33 @@ function addLog(level: "info" | "warn" | "error", message: string, metadata?: Re
     console.warn(logMessage, metadata || "");
   } else {
     console.log(logMessage, metadata || "");
+  }
+
+  // Save to database if available (fire and forget - don't block on this)
+  if (globalSupabase && globalSourceId) {
+    saveToDB(level, message, metadata).catch(err => {
+      console.error('Failed to save log to database:', err);
+    });
+  }
+}
+
+async function saveToDB(level: string, message: string, metadata?: Record<string, any>) {
+  if (!globalSupabase || !globalSourceId) return;
+
+  try {
+    await globalSupabase
+      .from('crawl_logs')
+      .insert({
+        source_id: globalSourceId,
+        operation_type: metadata?.operation_type || 'general',
+        operation_status: level === 'error' ? 'error' : (level === 'warn' ? 'warning' : 'success'),
+        message,
+        details: metadata,
+        timestamp: new Date().toISOString()
+      });
+  } catch (error) {
+    // Silent fail - don't want logging to break the crawler
+    console.error('Database log insert failed:', error);
   }
 }
 
@@ -229,6 +258,7 @@ serve(async (req) => {
 
     addLog("info", "Environment variables loaded");
     const supabase = createClient(supabaseUrl, supabaseKey);
+    globalSupabase = supabase; // Set global for logging
     const firecrawl = new FirecrawlApp({ apiKey: firecrawlKey });
     const resend = resendApiKey ? new Resend(resendApiKey) : null;
 
@@ -522,11 +552,13 @@ async function processSource(
   supabase: any
 ) {
   const crawlStartTime = Date.now();
+  globalSourceId = source.id; // Set for logging
   addLog("info", `Processing source: ${source.source_name}`, {
     url: source.source_url,
     priority: source.priority,
     index: index + 1,
-    total
+    total,
+    operation_type: 'crawl_start'
   });
 
   sendProgressEvent({
