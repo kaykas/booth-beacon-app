@@ -144,6 +144,8 @@ export function BoothMap({
   }, [stableCenter, stableZoom]);
 
   // Create markers for booths
+  // Performance optimized: markers only created when map or booths change
+  // Clustering handles 100+ markers efficiently with custom renderer
   useEffect(() => {
     if (!map || booths.length === 0) return;
 
@@ -200,6 +202,32 @@ export function BoothMap({
       const clusterer = new MarkerClusterer({
         map,
         markers: newMarkers,
+        renderer: {
+          render: ({ count, position }) => {
+            // Custom cluster styling with pink theme
+            const color = count > 50 ? '#d14371' : count > 20 ? '#e75480' : '#f06595';
+            const size = count > 50 ? 60 : count > 20 ? 50 : 40;
+
+            return new google.maps.Marker({
+              position,
+              icon: {
+                path: google.maps.SymbolPath.CIRCLE,
+                fillColor: color,
+                fillOpacity: 0.9,
+                strokeColor: '#ffffff',
+                strokeWeight: 3,
+                scale: size / 2,
+              },
+              label: {
+                text: String(count),
+                color: '#ffffff',
+                fontSize: '14px',
+                fontWeight: 'bold',
+              },
+              zIndex: 1000 + count,
+            });
+          },
+        },
       });
       setMarkerClusterer(clusterer);
     }
@@ -343,15 +371,18 @@ export function BoothMap({
         </div>
       )}
 
-      {/* User location button */}
+      {/* Near Me button - center on user location */}
       {showUserLocation && !isLoading && (
         <button
           onClick={centerOnUser}
-          className="absolute top-4 right-4 z-[1000] p-3 bg-card border border-primary/20 shadow-glow rounded-lg hover:bg-card/80 hover:shadow-glow-strong transition disabled:opacity-50 disabled:cursor-not-allowed"
-          title="Find my location"
+          className="absolute top-4 right-4 z-[1000] px-4 py-2 bg-card/95 backdrop-blur-sm border border-primary/20 shadow-glow rounded-lg hover:bg-card/80 hover:shadow-glow-strong transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+          title={userLocation ? 'Center map on your location' : 'Enable location to use this feature'}
           disabled={!userLocation}
         >
           <MapPin className={`w-5 h-5 ${userLocation ? 'text-primary' : 'text-muted-foreground'}`} />
+          <span className={`text-sm font-medium ${userLocation ? 'text-foreground' : 'text-muted-foreground'}`}>
+            Near Me
+          </span>
         </button>
       )}
 
@@ -375,27 +406,62 @@ function createInfoWindowContent(booth: Booth): string {
     ? `${booth.machine_model} • ${booth.booth_type || 'analog'}`
     : booth.booth_type || 'Unknown type';
 
+  // Status badge
+  const statusColors = {
+    active: '#10b981',
+    inactive: '#EF4444',
+    unverified: '#F59E0B',
+    closed: '#6B7280',
+  };
+  const statusColor = statusColors[booth.status] || statusColors.unverified;
+  const statusText = booth.status.charAt(0).toUpperCase() + booth.status.slice(1);
+
+  // Address info
+  const address = booth.address || 'Address not available';
+
   return `
-    <div style="max-width: 280px; font-family: Inter, sans-serif;">
-      <img
-        src="${photoUrl}"
-        alt="${booth.name}"
-        style="width: 100%; height: 160px; object-fit: cover; border-radius: 8px; margin-bottom: 12px;"
-      />
-      <h3 style="margin: 0 0 4px 0; font-size: 18px; font-weight: 600; color: #1A1A1A;">
+    <div style="max-width: 320px; font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">
+      <div style="position: relative; margin-bottom: 14px;">
+        <img
+          src="${photoUrl}"
+          alt="${booth.name}"
+          style="width: 100%; height: 200px; object-fit: cover; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);"
+        />
+        <div style="position: absolute; top: 8px; right: 8px; background: ${statusColor}; color: white; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+          ${statusText}
+        </div>
+      </div>
+      <h3 style="margin: 0 0 8px 0; font-size: 19px; font-weight: 700; color: #1A1A1A; line-height: 1.3;">
         ${booth.name}
       </h3>
-      <p style="margin: 0 0 8px 0; font-size: 14px; color: #737373;">
-        ${booth.city || 'Unknown'}, ${booth.country || 'Unknown'}
-      </p>
-      <p style="margin: 0 0 12px 0; font-size: 13px; color: #404040;">
-        ${machineInfo}
-      </p>
+      <div style="margin-bottom: 10px;">
+        <div style="display: flex; align-items: center; margin-bottom: 4px;">
+          <svg style="width: 16px; height: 16px; margin-right: 6px; color: #6b7280;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+          </svg>
+          <span style="font-size: 14px; color: #4b5563; line-height: 1.4;">${booth.city || 'Unknown'}, ${booth.country || 'Unknown'}</span>
+        </div>
+        <div style="font-size: 13px; color: #6b7280; margin-left: 22px; line-height: 1.4;">
+          ${address}
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; margin-bottom: 14px;">
+        <svg style="width: 16px; height: 16px; margin-right: 6px; color: #6b7280;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
+        </svg>
+        <span style="font-size: 13px; color: #4b5563;">
+          ${machineInfo}
+        </span>
+      </div>
       <a
         href="/booth/${booth.id}"
-        style="display: inline-block; padding: 8px 16px; background: #C73E3A; color: white; text-decoration: none; border-radius: 6px; font-size: 14px; font-weight: 500;"
+        style="display: block; text-align: center; padding: 10px 20px; background: linear-gradient(135deg, #d14371 0%, #c73e3a 100%); color: white; text-decoration: none; border-radius: 8px; font-size: 14px; font-weight: 600; box-shadow: 0 2px 6px rgba(209, 67, 113, 0.3); transition: all 0.2s ease;"
+        onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 12px rgba(209, 67, 113, 0.4)';"
+        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 6px rgba(209, 67, 113, 0.3)';"
       >
-        View Details
+        View Details →
       </a>
     </div>
   `;

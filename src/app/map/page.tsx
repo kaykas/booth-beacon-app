@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import Link from 'next/link';
 import { MapPin, SlidersHorizontal, List, X, Loader2, Navigation } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -33,6 +33,8 @@ export default function MapPage() {
   });
   const [userLocation, setUserLocation] = useState<Coordinates | null>(null);
   const [sortByDistance, setSortByDistance] = useState(false);
+  const [selectedCity, setSelectedCity] = useState<string>('all');
+  const [selectedCountry, setSelectedCountry] = useState<string>('all');
 
   // Fetch all booths on mount
   useEffect(() => {
@@ -56,11 +58,6 @@ export default function MapPage() {
     }
   }, []);
 
-  // Apply filters whenever filters or booths change
-  useEffect(() => {
-    applyFilters();
-  }, [filters, booths, sortByDistance, userLocation]);
-
   async function fetchBooths() {
     setLoading(true);
 
@@ -83,8 +80,19 @@ export default function MapPage() {
     setLoading(false);
   }
 
-  function applyFilters() {
+  // Memoized filter application for performance with 100+ booths
+  const computedFilteredBooths = useMemo(() => {
     let filtered = [...booths];
+
+    // City filter
+    if (selectedCity && selectedCity !== 'all') {
+      filtered = filtered.filter((booth) => booth.city === selectedCity);
+    }
+
+    // Country filter
+    if (selectedCountry && selectedCountry !== 'all') {
+      filtered = filtered.filter((booth) => booth.country === selectedCountry);
+    }
 
     // Location filter
     if (filters.location && filters.location.trim()) {
@@ -127,12 +135,29 @@ export default function MapPage() {
       filtered = sortBoothsByDistance(filtered, userLocation);
     }
 
-    setFilteredBooths(filtered);
-  }
+    return filtered;
+  }, [booths, selectedCity, selectedCountry, filters, sortByDistance, userLocation]);
 
-  function clearFilters() {
+  // Update filteredBooths when computed value changes
+  useEffect(() => {
+    setFilteredBooths(computedFilteredBooths);
+  }, [computedFilteredBooths]);
+
+  const clearFilters = useCallback(() => {
     setFilters({ status: 'all' });
-  }
+    setSelectedCity('all');
+    setSelectedCountry('all');
+  }, []);
+
+  // Get unique cities and countries for filter dropdowns - memoized for performance
+  const cities = useMemo(
+    () => Array.from(new Set(booths.map((b) => b.city).filter(Boolean))).sort(),
+    [booths]
+  );
+  const countries = useMemo(
+    () => Array.from(new Set(booths.map((b) => b.country).filter(Boolean))).sort(),
+    [booths]
+  );
 
   return (
     <div className="h-screen flex flex-col bg-background">
@@ -203,6 +228,46 @@ export default function MapPage() {
             </div>
 
             <div className="space-y-6">
+              {/* Country Filter */}
+              <div>
+                <label className="text-sm font-medium text-muted-foreground mb-2 block">
+                  Country
+                </label>
+                <Select value={selectedCountry} onValueChange={setSelectedCountry}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Countries</SelectItem>
+                    {countries.map((country) => (
+                      <SelectItem key={country} value={country}>
+                        {country}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* City Filter */}
+              <div>
+                <label className="text-sm font-medium text-muted-foreground mb-2 block">
+                  City
+                </label>
+                <Select value={selectedCity} onValueChange={setSelectedCity}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Cities</SelectItem>
+                    {cities.map((city) => (
+                      <SelectItem key={city} value={city}>
+                        {city}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
               {/* Status Filter */}
               <div>
                 <label className="text-sm font-medium text-muted-foreground mb-2 block">
@@ -292,7 +357,9 @@ export default function MapPage() {
               </div>
 
               {/* Active Filters */}
-              {(filters.location ||
+              {(selectedCountry !== 'all' ||
+                selectedCity !== 'all' ||
+                filters.location ||
                 filters.photoType ||
                 filters.machineModel ||
                 filters.operator ||
@@ -306,6 +373,22 @@ export default function MapPage() {
                     </Button>
                   </div>
                   <div className="flex flex-wrap gap-2">
+                    {selectedCountry !== 'all' && (
+                      <Badge variant="secondary">
+                        Country: {selectedCountry}
+                        <button onClick={() => setSelectedCountry('all')} className="ml-1">
+                          ×
+                        </button>
+                      </Badge>
+                    )}
+                    {selectedCity !== 'all' && (
+                      <Badge variant="secondary">
+                        City: {selectedCity}
+                        <button onClick={() => setSelectedCity('all')} className="ml-1">
+                          ×
+                        </button>
+                      </Badge>
+                    )}
                     {filters.location && (
                       <Badge variant="secondary">
                         Location: {filters.location}
@@ -368,7 +451,8 @@ export default function MapPage() {
               booths={filteredBooths}
               showUserLocation={true}
               showClustering={true}
-              zoom={4}
+              zoom={2}
+              externalUserLocation={userLocation}
             />
           ) : (
             <div className="h-full overflow-y-auto bg-background p-6">
