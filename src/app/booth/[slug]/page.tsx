@@ -23,7 +23,7 @@ import { BookmarkButton } from '@/components/BookmarkButton';
 import { PhotoUpload } from '@/components/PhotoUpload';
 import { ReviewsSection } from '@/components/ReviewsSection';
 import { ShareButton } from '@/components/ShareButton';
-import { createServerClient } from '@/lib/supabase';
+import { createPublicServerClient } from '@/lib/supabase';
 import { Booth } from '@/types';
 
 interface BoothDetailPageProps {
@@ -33,9 +33,10 @@ interface BoothDetailPageProps {
 }
 
 // Fetch booth data with enhanced error handling
+// Uses public server client (anon key) instead of service role key since booth data is public
 async function getBooth(slug: string): Promise<Booth | null> {
   try {
-    const supabase = createServerClient();
+    const supabase = createPublicServerClient();
     const { data, error } = await supabase
       .from('booths')
       .select('*')
@@ -55,15 +56,12 @@ async function getBooth(slug: string): Promise<Booth | null> {
     return data as Booth;
   } catch (error) {
     console.error(`Error in getBooth for slug "${slug}":`, error);
-    // Re-throw configuration errors to trigger error boundary
-    if (error instanceof Error && error.message.includes('not configured')) {
-      throw error;
-    }
     return null;
   }
 }
 
 // Fetch nearby booths with error handling
+// Uses public server client since booth data is public
 async function getNearbyBooths(booth: Booth, radiusKm: number = 5): Promise<Booth[]> {
   if (!booth.latitude || !booth.longitude) return [];
 
@@ -72,8 +70,8 @@ async function getNearbyBooths(booth: Booth, radiusKm: number = 5): Promise<Boot
     const latDelta = radiusKm / 111;
     const lngDelta = radiusKm / (111 * Math.cos((booth.latitude * Math.PI) / 180));
 
-    const supabase = createServerClient();
-    const { data, error } = await supabase
+    const supabase = createPublicServerClient();
+    const { data, error} = await supabase
       .from('booths')
       .select('*')
       .neq('id', booth.id)

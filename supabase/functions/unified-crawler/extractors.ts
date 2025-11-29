@@ -1333,9 +1333,8 @@ export async function extractGeneric(
         const toolUse = result.content?.find((block: AnthropicContentBlock) => block.type === "tool_use");
 
         if (toolUse && toolUse.input?.booths) {
-          const extractedBooths = (toolUse.input as any).booths as any[];
-          console.log(`Extracted ${extractedBooths.length} booths from chunk ${i + 1}`);
-          for (const booth of extractedBooths) {
+          console.log(`Extracted ${toolUse.input.booths.length} booths from chunk ${i + 1}`);
+          for (const booth of toolUse.input.booths) {
             booths.push({
               name: booth.name,
               address: booth.address,

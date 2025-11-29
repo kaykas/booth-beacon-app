@@ -346,13 +346,13 @@ export function GeocodingPanel() {
               <h3 className="font-semibold text-white mb-2">About Geocoding</h3>
               <div className="text-sm text-neutral-400 space-y-2">
                 <p>
-                  This tool uses OpenStreetMap's Nominatim API to geocode booth addresses into latitude/longitude coordinates.
+                  This tool uses OpenStreetMap&apos;s Nominatim API to geocode booth addresses into latitude/longitude coordinates.
                 </p>
                 <ul className="list-disc list-inside space-y-1 ml-4">
                   <li>Rate limited to 1 request per second (per Nominatim usage policy)</li>
                   <li>Free service, no API key required</li>
                   <li>Processes booths with missing coordinates only</li>
-                  <li>Use "Test (Dry Run)" to preview results without updating database</li>
+                  <li>Use &quot;Test (Dry Run)&quot; to preview results without updating database</li>
                 </ul>
               </div>
             </div>

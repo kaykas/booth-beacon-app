@@ -3,5 +3,5 @@
  * Centralized export point for Supabase client and types
  */
 
-export { supabase, createServerClient } from './client';
+export { supabase, createServerClient, createPublicServerClient } from './client';
 export type * from './types';

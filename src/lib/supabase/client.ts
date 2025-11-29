@@ -86,6 +86,53 @@ export function createServerClient() {
 }
 
 /**
+ * Create a Supabase client for PUBLIC server-side read operations
+ * Uses anon key instead of service role key - perfect for booth pages and other public data
+ * Use this for server components that only need to read public data
+ *
+ * @returns A Supabase client configured for public server-side reads
+ */
+export function createPublicServerClient() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  // Validate configuration
+  if (!url || url === 'https://placeholder.supabase.co') {
+    console.error('❌ NEXT_PUBLIC_SUPABASE_URL is not configured');
+    // Return a basic client that will fail gracefully
+    return createClient<Database>(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+      },
+    });
+  }
+
+  if (!anonKey || anonKey === 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.placeholder') {
+    console.error('❌ NEXT_PUBLIC_SUPABASE_ANON_KEY is not configured');
+    // Return a basic client that will fail gracefully
+    return createClient<Database>(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+      },
+    });
+  }
+
+  return createClient<Database>(url, anonKey, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+    },
+    global: {
+      headers: {
+        'x-client-info': 'booth-beacon-app-public',
+      },
+    },
+  });
+}
+
+/**
  * Check if Supabase is configured and available
  * Useful for conditional rendering or graceful degradation
  */

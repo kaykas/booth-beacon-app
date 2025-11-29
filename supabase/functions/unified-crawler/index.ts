@@ -58,10 +58,6 @@ import {
   extractCommunityEnhanced,
   extractOperatorEnhanced,
   extractDirectoryEnhanced,
-  extractTimeOutChicagoEnhanced,
-  extractLocaleMagazineLAEnhanced,
-  extractPhotomaticaEnhanced,
-  extractBlockClubChicagoEnhanced,
 } from "./enhanced-extractors.ts";
 
 const corsHeaders = {
@@ -153,38 +149,6 @@ async function logCrawlerMetric(
 }
 
 /**
- * Timeout wrapper for operations to prevent Edge Function timeout
- */
-async function withTimeout<T>(
-  promise: Promise<T>,
-  timeoutMs: number,
-  operationName: string
-): Promise<T> {
-  return Promise.race([
-    promise,
-    new Promise<T>((_, reject) =>
-      setTimeout(() => reject(new Error(`${operationName} timed out after ${timeoutMs}ms`)), timeoutMs)
-    ),
-  ]);
-}
-
-/**
- * Start keep-alive heartbeat to prevent gateway timeout during long operations
- * Returns cleanup function to stop the heartbeat
- */
-function startKeepAlive(sendProgressEvent: (data: any) => void, intervalMs: number = 15000): () => void {
-  const heartbeatInterval = setInterval(() => {
-    sendProgressEvent({
-      type: 'heartbeat',
-      timestamp: new Date().toISOString(),
-      message: 'Crawler is still running...'
-    });
-  }, intervalMs);
-
-  return () => clearInterval(heartbeatInterval);
-}
-
-/**
  * Save raw Firecrawl content for re-processing
  */
 async function saveRawContent(
@@ -257,22 +221,10 @@ async function retryWithBackoff<T>(
         throw error;
       }
 
-      // For rate limiting (429), use longer backoff
-      const isRateLimit = error.message?.includes('429') || error.message?.toLowerCase().includes('rate limit');
-      const delay = isRateLimit
-        ? Math.min(baseDelay * Math.pow(3, i), 30000) // Exponential backoff with base 3 for rate limits
-        : Math.min(baseDelay * Math.pow(2, i), maxDelay); // Normal exponential backoff
-
+      const delay = Math.min(baseDelay * Math.pow(2, i), maxDelay);
       const jitter = Math.random() * 1000;
-      const totalDelay = delay + jitter;
-
-      if (isRateLimit) {
-        console.log(`⚠️ Rate limit hit. Attempt ${i + 1}/${retries}. Backing off for ${Math.round(totalDelay)}ms...`);
-      } else {
-        console.log(`⚠️ Attempt ${i + 1}/${retries} failed: ${error.message}. Retrying in ${Math.round(totalDelay)}ms...`);
-      }
-
-      await new Promise(resolve => setTimeout(resolve, totalDelay));
+      console.log(`⚠️ Attempt ${i + 1}/${retries} failed: ${error.message}. Retrying in ${Math.round(delay + jitter)}ms...`);
+      await new Promise(resolve => setTimeout(resolve, delay + jitter));
     }
   }
 
@@ -282,16 +234,14 @@ async function retryWithBackoff<T>(
 /**
  * Domain-specific configuration for crawling
  * Helps prevent timeouts on slow sites
- * ULTRA-OPTIMIZED: Aggressive limits to prevent 504 Gateway Timeout
- * photobooth.net is extremely slow - reducing to 2 pages with shorter timeouts
  */
 const DOMAIN_CONFIG: Record<string, { pageLimit: number; timeout: number; waitFor: number }> = {
-  'photobooth.net': { pageLimit: 2, timeout: 20000, waitFor: 2000 },  // ULTRA-AGGRESSIVE: 2 pages, 20s timeout
-  'fotoautomat-wien.at': { pageLimit: 2, timeout: 20000, waitFor: 2000 },
-  'autophoto.org': { pageLimit: 3, timeout: 20000, waitFor: 1500 },
-  'lomography.com': { pageLimit: 3, timeout: 20000, waitFor: 1500 },
+  'photobooth.net': { pageLimit: 1, timeout: 60000, waitFor: 8000 },
+  'fotoautomat-wien.at': { pageLimit: 1, timeout: 60000, waitFor: 8000 },
+  'autophoto.org': { pageLimit: 2, timeout: 45000, waitFor: 5000 },
+  'lomography.com': { pageLimit: 2, timeout: 45000, waitFor: 5000 },
   // Default fallback
-  'default': { pageLimit: 3, timeout: 20000, waitFor: 1500 }
+  'default': { pageLimit: 3, timeout: 30000, waitFor: 6000 }
 };
 
 function getDomainConfig(url: string) {
@@ -410,51 +360,19 @@ serve(async (req) => {
 
       // Start processing in background
       (async () => {
-        // Start keep-alive heartbeat to prevent gateway timeout
-        const stopKeepAlive = startKeepAlive(sendProgressEvent, 15000); // Send heartbeat every 15 seconds
-
         try {
           for (let i = 0; i < sources.length; i++) {
             const source = sources[i];
-
-            try {
-              // Wrap each source with 60-second timeout (well before gateway timeout at 150s)
-              await withTimeout(
-                processSource(source, i, sources.length, sendProgressEvent, results, force_crawl, anthropicApiKey, firecrawl, supabase),
-                60000, // 60 second timeout per source (ultra-aggressive to prevent 504)
-                `Processing source: ${source.source_name}`
-              );
-            } catch (timeoutError: any) {
-              console.error(`Source ${source.source_name} timed out:`, timeoutError.message);
-              // Add timeout result
-              results.push({
-                source_name: source.source_name,
-                status: "error",
-                booths_found: 0,
-                booths_added: 0,
-                booths_updated: 0,
-                extraction_time_ms: 0,
-                crawl_duration_ms: 90000,
-                error_message: `Source timed out after 90 seconds`
-              });
-
-              sendProgressEvent({
-                type: 'source_error',
-                source_name: source.source_name,
-                error: 'Source timed out after 90 seconds',
-                timestamp: new Date().toISOString()
-              });
-            }
+            await processSource(source, i, sources.length, sendProgressEvent, results, force_crawl, anthropicApiKey, firecrawl, supabase);
           }
 
           // Send completion event
           sendProgressEvent({
             type: 'complete',
-            summary: {
-              total_booths_found: results.reduce((sum, r) => sum + r.booths_found, 0),
-              total_booths_added: results.reduce((sum, r) => sum + r.booths_added, 0),
-              total_booths_updated: results.reduce((sum, r) => sum + r.booths_updated, 0),
-            },
+            results,
+            total_booths_found: results.reduce((sum, r) => sum + r.booths_found, 0),
+            total_booths_added: results.reduce((sum, r) => sum + r.booths_added, 0),
+            total_booths_updated: results.reduce((sum, r) => sum + r.booths_updated, 0),
             timestamp: new Date().toISOString()
           });
         } catch (error: any) {
@@ -464,7 +382,6 @@ serve(async (req) => {
             timestamp: new Date().toISOString()
           });
         } finally {
-          stopKeepAlive(); // Stop heartbeat
           if (streamController) {
             (streamController as ReadableStreamDefaultController<Uint8Array>).close();
           }
@@ -762,9 +679,7 @@ async function processSource(
 
       console.log(`Using batch size of ${pageLimit} pages for ${source.source_name} (Timeout: ${domainConfig.timeout}ms)...`);
       const totalPages = source.total_pages_target || 0;
-      // CRITICAL: Supabase Edge Functions have a hard 150s timeout
-      // Exit at 60s to allow 90s buffer - batch processing can take 60+ seconds
-      const functionTimeoutMs = 60000; // Exit with 90s buffer (was 90s/60s buffer, but batches take too long)
+      const functionTimeoutMs = 130000; // Exit 20 seconds before Supabase 150s timeout
       const functionStartTime = Date.now();
 
       // Accumulate results across all batches
@@ -841,38 +756,23 @@ async function processSource(
         try {
           console.log(`⏳ Waiting for Firecrawl API to crawl pages (Timeout: ${domainConfig.timeout}ms)...`);
 
-          // Use retry logic for robustness with timeout protection
-          // ULTRA-OPTIMIZED: Reduced to 30s timeout with tighter limits
-          crawlResult = await withTimeout(
-            (async () => {
-              const result = await firecrawl.crawlUrl(source.source_url, {
-                limit: pageLimit,
-                scrapeOptions: {
-                  formats: ['markdown', 'html'],
-                  onlyMainContent: false,
-                  waitFor: domainConfig.waitFor,
-                  timeout: domainConfig.timeout,
-                },
-                // Firecrawl best practices for better crawling
-                ignoreSitemap: false, // Use sitemap.xml for better page discovery
-                allowBackwardLinks: false, // Don't crawl parent/backward links
-                allowExternalLinks: false, // Stay within the same domain
-                // Exclude common non-content paths
-                excludePaths: [
-                  '/admin/', '/login/', '/account/', '/cart/', '/checkout/',
-                  '/wp-admin/', '/wp-login/', '/_next/', '/api/'
-                ],
-                maxDepth: 1, // Ultra-aggressive: reduced to 1 to prevent 504 timeout
-              });
+          // Use retry logic for robustness
+          crawlResult = await retryWithBackoff(async () => {
+            const result = await firecrawl.crawlUrl(source.source_url, {
+              limit: pageLimit,
+              scrapeOptions: {
+                formats: ['markdown', 'html'],
+                onlyMainContent: false,
+                waitFor: domainConfig.waitFor,
+                timeout: domainConfig.timeout,
+              },
+            });
 
-              if (!result.success) {
-                throw new Error(result.error || 'Firecrawl returned unsuccessful status');
-              }
-              return result;
-            })(),
-            30000, // 30 second max timeout for crawlUrl (ultra-aggressive to prevent 504)
-            `Firecrawl crawlUrl for ${source.source_name}`
-          );
+            if (!result.success) {
+              throw new Error(result.error || 'Firecrawl returned unsuccessful status');
+            }
+            return result;
+          }, 2, 2000, 10000); // 2 retries (3 attempts total)
 
           apiCallDuration = Date.now() - apiCallStart;
           console.log(`✅ Firecrawl API responded in ${apiCallDuration}ms`);
@@ -977,14 +877,6 @@ async function processSource(
 
         for (let pageIndex = 0; pageIndex < pages.length; pageIndex++) {
           const page = pages[pageIndex];
-
-          // Check timeout before extracting each page (extraction can take 10-20s per page)
-          const elapsedBeforeExtraction = Date.now() - functionStartTime;
-          if (elapsedBeforeExtraction > functionTimeoutMs) {
-            console.log(`⏰ Timeout approaching during extraction (${Math.round(elapsedBeforeExtraction / 1000)}s). Stopping batch early.`);
-            console.log(`💾 Processed ${pageIndex}/${pages.length} pages in this batch`);
-            break;
-          }
 
           sendProgressEvent({
             type: 'extraction_progress',
@@ -1119,16 +1011,12 @@ async function processSource(
       // Use scrapeUrl for single-page sites
       console.log(`Using single-page scrape for ${source.source_name}...`);
 
-      const scrapeResult = await withTimeout(
-        firecrawl.scrapeUrl(source.source_url, {
-          formats: ['markdown', 'html'],
-          onlyMainContent: false, // FALSE to capture sidebars/navigation with booth lists
-          waitFor: 6000, // Wait 6 seconds for Maps/React to load
-          timeout: 30000,
-        }),
-        45000, // 45 second max timeout for scrapeUrl
-        `Firecrawl scrapeUrl for ${source.source_name}`
-      );
+      const scrapeResult = await firecrawl.scrapeUrl(source.source_url, {
+        formats: ['markdown', 'html'],
+        onlyMainContent: false, // FALSE to capture sidebars/navigation with booth lists
+        waitFor: 6000, // Wait 6 seconds for Maps/React to load
+        timeout: 30000,
+      });
 
       if (!scrapeResult.success) {
         throw new Error(`Firecrawl scrape failed: ${scrapeResult.error}`);
@@ -1379,33 +1267,7 @@ async function extractFromSource(
       console.log(`🎯 Using ENHANCED extractor for directory: ${sourceName}`);
       return extractDirectoryEnhanced(html, markdown, sourceUrl, sourceName, anthropicApiKey, onProgress);
 
-    // Los Angeles - SPECIFIC enhanced extractor for Locale Magazine
-    case 'city_guide_la_locale':
-    case 'Locale Magazine LA':
-      console.log(`🏙️ Using SPECIFIC enhanced extractor for Locale Magazine LA`);
-      return extractLocaleMagazineLAEnhanced(html, markdown, sourceUrl, anthropicApiKey, onProgress);
-
-    // Chicago - SPECIFIC enhanced extractor for TimeOut Chicago
-    case 'city_guide_chicago_timeout':
-    case 'Time Out Chicago':
-      console.log(`🏙️ Using SPECIFIC enhanced extractor for TimeOut Chicago`);
-      return extractTimeOutChicagoEnhanced(html, markdown, sourceUrl, anthropicApiKey, onProgress);
-
-    // Chicago - SPECIFIC enhanced extractor for Block Club Chicago
-    case 'city_guide_chicago_blockclub':
-    case 'Block Club Chicago':
-      console.log(`🏙️ Using SPECIFIC enhanced extractor for Block Club Chicago`);
-      return extractBlockClubChicagoEnhanced(html, markdown, sourceUrl, anthropicApiKey, onProgress);
-
-    // Photomatica - SPECIFIC enhanced extractor
-    case 'photomatica':
-    case 'photomatica_west_coast':
-    case 'Photomatica.com':
-    case 'Photomatica West Coast':
-      console.log(`🎯 Using SPECIFIC enhanced extractor for Photomatica`);
-      return extractPhotomaticaEnhanced(html, markdown, sourceUrl, anthropicApiKey, onProgress);
-
-    // TIER 3A: City Guide Extractors - Generic enhanced extraction for others
+    // TIER 3A: City Guide Extractors - ALL USE ENHANCED AI EXTRACTION
     // Berlin City Guides
     case 'city_guide_berlin_digitalcosmonaut':
     case 'city_guide_berlin_phelt':
@@ -1414,14 +1276,17 @@ async function extractFromSource(
     case 'city_guide_london_designmynight':
     case 'city_guide_london_world':
     case 'city_guide_london_flashpack':
-    // Los Angeles City Guides (generic)
+    // Los Angeles City Guides
     case 'city_guide_la_timeout':
-    case 'Time Out LA':
+    case 'city_guide_la_locale':
+    // Chicago City Guides
+    case 'city_guide_chicago_timeout':
+    case 'city_guide_chicago_blockclub':
     // New York City Guides
     case 'city_guide_ny_designmynight':
     case 'city_guide_ny_roxy':
     case 'city_guide_ny_airial':
-      console.log(`🏙️ Using GENERIC enhanced extractor for city guide: ${sourceName}`);
+      console.log(`🏙️ Using ENHANCED extractor for city guide: ${sourceName}`);
       return extractCityGuideEnhanced(html, markdown, sourceUrl, sourceName, anthropicApiKey, onProgress);
 
     // TIER 2B: European Operators - Use AI extraction
