@@ -16,9 +16,9 @@ interface BoothCardProps {
 
 export function BoothCard({
   booth,
-  variant = 'default',
+  variant: _variant = 'default',
   showDistance = false,
-  onDirections,
+  onDirections: _onDirections,
 }: BoothCardProps) {
   const statusColors = {
     active: 'bg-green-500 text-white',

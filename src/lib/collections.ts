@@ -88,7 +88,7 @@ export async function getCountryCollections(): Promise<CountryCollection[]> {
 
     // Count booths per country
     const countryMap = new Map<string, number>();
-    data?.forEach((booth: any) => {
+    data?.forEach((booth: Booth) => {
       const count = countryMap.get(booth.country) || 0;
       countryMap.set(booth.country, count + 1);
     });
@@ -127,7 +127,7 @@ export async function getCityCollections(
 
     // Count booths per city
     const cityMap = new Map<string, number>();
-    data?.forEach((booth: any) => {
+    data?.forEach((booth: Booth) => {
       const count = cityMap.get(booth.city) || 0;
       cityMap.set(booth.city, count + 1);
     });
@@ -229,7 +229,7 @@ export async function getTopCities(limit: number = 20): Promise<CityCollection[]
 
     // Count booths per city (with country to avoid collisions)
     const cityMap = new Map<string, { city: string; country: string; count: number }>();
-    data?.forEach((booth: any) => {
+    data?.forEach((booth: Booth) => {
       const key = `${booth.city}-${booth.country}`;
       const existing = cityMap.get(key);
       if (existing) {

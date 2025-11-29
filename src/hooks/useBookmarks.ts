@@ -139,7 +139,7 @@ export function useToggleBookmark() {
         // Add bookmark
         const { error } = await supabase
           .from('booth_bookmarks')
-          // @ts-ignore - Supabase typing issue
+          // @ts-expect-error - Supabase typing issue
           .insert({
             user_id: user.id,
             booth_id: boothId,

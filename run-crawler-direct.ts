@@ -64,7 +64,7 @@ Return ONLY a JSON array like: [{"name": "...", "address": "...", "city": "...",
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-sonnet-4-5-20250929',  // Latest Claude 4.5 model
         max_tokens: 4096,
         messages: [{
           role: 'user',

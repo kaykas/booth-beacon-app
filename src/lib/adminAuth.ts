@@ -18,7 +18,7 @@ export async function isAdmin(userId: string, useServerClient = false): Promise<
     const client = useServerClient ? createServerClient() : supabase;
 
     // Call the Supabase is_admin() function
-    const { data, error } = await client.rpc('is_admin', { user_uuid: userId } as any);
+    const { data, error } = await client.rpc('is_admin', { user_uuid: userId });
 
     if (error) {
       console.error('Error checking admin status:', error);
