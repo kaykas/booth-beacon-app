@@ -14,6 +14,7 @@ export default defineConfig({
       '**/e2e/**',
       '**/tests/e2e/**',
       '**/.{idea,git,cache,output,temp}/**',
+      '**/supabase/functions/**/*.test.ts',
     ],
     coverage: {
       provider: 'v8',
