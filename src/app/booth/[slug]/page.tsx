@@ -77,7 +77,8 @@ async function getNearbyBooths(booth: Booth, radiusKm: number = 5): Promise<Boot
 export const revalidate = 300;
 
 export async function generateMetadata({ params }: BoothDetailPageProps): Promise<Metadata> {
-  const booth = await getBooth(params.slug);
+  const { slug } = await params;
+  const booth = await getBooth(slug);
 
   if (!booth) {
     return {
@@ -129,7 +130,8 @@ export async function generateMetadata({ params }: BoothDetailPageProps): Promis
 }
 
 export default async function BoothDetailPage({ params }: BoothDetailPageProps) {
-  const booth = await getBooth(params.slug);
+  const { slug } = await params;
+  const booth = await getBooth(slug);
 
   if (!booth) {
     notFound();
