@@ -143,10 +143,50 @@
 
 ---
 
-## 🛠️ ADMIN TOOLS FOR ALEXANDRA (NEXT WEEK)
+## 💝 USER FEATURES - INSPIRED BY ALEXANDRA'S WORKFLOW (THIS WEEK)
 
-### Booth Review Workflow
-- [ ] **Booth review queue** - List pending approvals
+**Background:** Alexandra manually researches analog photo booths, curates them by city, adds personality with cute icons on Google Maps, and shares these maps for trips. We want to enable all users to create and share their own curated booth collections.
+
+### Personal Booth Collections
+- [ ] **Create custom lists** - "My Berlin Trip", "Best NYC Booths", etc.
+- [ ] **Save booths to lists** - Heart/bookmark button on booth cards
+- [ ] **Organize by city/trip** - Group booths by destination
+- [ ] **Add personal notes** - "Cash only", "Great lighting", "Cheap!"
+- [ ] **Custom icons/tags** - Emoji or icon per booth (like Alexandra's cute icons)
+- [ ] **Collection visibility** - Public, unlisted, or private
+
+### Sharing & Social Features
+- [ ] **Share collection links** - Unique URL per collection
+- [ ] **Google Maps export** - Generate shareable Google Maps link with all booths
+- [ ] **Social media sharing** - Rich preview cards for collections
+- [ ] **Embed collections** - Iframe embed code for blogs/websites
+- [ ] **Follow other collectors** - See others' public collections
+- [ ] **Collection discovery** - "Featured Collections", "Trending This Week"
+
+### Trip Planning Tools
+- [ ] **Multi-city itinerary** - Plan route through multiple cities
+- [ ] **Map route optimization** - Best order to visit booths
+- [ ] **"Near me" while traveling** - Location-based booth discovery
+- [ ] **Visit tracking** - Check off visited booths
+- [ ] **Travel journal** - Add photos from your booth visits
+- [ ] **Export to calendar** - Add booth visits to Google Calendar
+
+### City Guides (Like Alexandra Creates)
+- [ ] **Curated city landing pages** - "Best Booths in Berlin"
+- [ ] **Neighborhood guides** - "Kreuzberg Photo Booths"
+- [ ] **Booth density maps** - Heatmap of booth locations
+- [ ] **"Alexandra's Picks"** - Featured collections by the inspiration herself
+- [ ] **Community guides** - User-submitted city guides
+- [ ] **Seasonal guides** - "Summer 2025 European Booth Tour"
+
+---
+
+## 🛠️ BACKEND ADMIN TOOLS - SITE MAINTENANCE (NEXT WEEK)
+
+**Note:** These are operational tools for maintaining data quality and system health. Not related to Alexandra or user-facing features.
+
+### Booth Review Workflow (For Moderation)
+- [ ] **Booth review queue** - List pending approvals from crawler/submissions
 - [ ] **Side-by-side comparison** - Raw data vs structured
 - [ ] **Quick approve/reject** - One-click actions
 - [ ] **Batch operations** - Approve multiple at once
