@@ -162,6 +162,7 @@ export function PhotoUpload({ boothId, onUploadComplete }: PhotoUploadProps) {
             </div>
           ) : (
             <div className="relative">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={previewUrl}
                 alt="Preview"

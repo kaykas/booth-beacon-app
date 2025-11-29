@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect, useMemo, Suspense } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
-import { Search, Filter, X, MapPin, Loader2 } from 'lucide-react';
+import { useState, useEffect, useMemo, useCallback, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { Search, Filter, X, Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -28,7 +28,6 @@ interface SearchFilters {
 
 function SearchPageContent() {
   const searchParams = useSearchParams();
-  const router = useRouter();
 
   // State
   const [filters, setFilters] = useState<SearchFilters>({
@@ -105,16 +104,7 @@ function SearchPageContent() {
     loadFilterOptions();
   }, []);
 
-  // Search with debounce
-  useEffect(() => {
-    const searchTimeout = setTimeout(() => {
-      performSearch();
-    }, 300);
-
-    return () => clearTimeout(searchTimeout);
-  }, [filters]);
-
-  async function performSearch() {
+  const performSearch = useCallback(async () => {
     setIsLoading(true);
     try {
       let query = supabase
@@ -178,7 +168,16 @@ function SearchPageContent() {
     } finally {
       setIsLoading(false);
     }
-  }
+  }, [filters]);
+
+  // Search with debounce
+  useEffect(() => {
+    const searchTimeout = setTimeout(() => {
+      performSearch();
+    }, 300);
+
+    return () => clearTimeout(searchTimeout);
+  }, [filters, performSearch]);
 
   // Update URL with filters
   useEffect(() => {

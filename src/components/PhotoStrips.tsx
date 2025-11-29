@@ -2,19 +2,8 @@
 
 import { useState } from 'react';
 import { Camera, Heart } from 'lucide-react';
-import Image from 'next/image';
 
-// Available vintage filter styles
-const vintageStyles = [
-  'vintage-sepia',
-  'vintage-bw',
-  'vintage-faded',
-  'vintage-warm',
-  'vintage-cool',
-  'vintage-polaroid',
-] as const;
-
-type VintageStyle = typeof vintageStyles[number];
+type VintageStyle = 'vintage-sepia' | 'vintage-bw' | 'vintage-faded' | 'vintage-warm' | 'vintage-cool' | 'vintage-polaroid';
 
 interface PhotoStrip {
   id: string;
@@ -149,6 +138,7 @@ export function PhotoStrips() {
                       key={index}
                       className="aspect-square rounded relative overflow-hidden"
                     >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={frameUrl}
                         alt={`${strip.location} frame ${index + 1}`}

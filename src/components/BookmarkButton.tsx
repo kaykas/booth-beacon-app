@@ -38,10 +38,11 @@ export function BookmarkButton({
     }
 
     // Optimistic update
-    setOptimisticBookmarked(!displayBookmarked);
+    const _newState = !displayBookmarked;
+    setOptimisticBookmarked(_newState);
 
     // Perform actual toggle
-    const newState = await toggleBookmark(boothId, bookmark);
+    await toggleBookmark(boothId, bookmark);
 
     // Refetch to ensure sync
     await refetch();

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -46,11 +46,7 @@ export function ReextractionQueue() {
   const [totalCrawled, setTotalCrawled] = useState(0);
   const [totalExtracted, setTotalExtracted] = useState(0);
 
-  useEffect(() => {
-    loadAllData();
-  }, []);
-
-  const loadAllData = async () => {
+  const loadAllData = useCallback(async () => {
     setLoading(true);
     await Promise.all([
       loadUnextractedContent(),
@@ -58,7 +54,11 @@ export function ReextractionQueue() {
       loadContentChanges(),
     ]);
     setLoading(false);
-  };
+  }, []);
+
+  useEffect(() => {
+    loadAllData();
+  }, [loadAllData]);
 
   const loadUnextractedContent = async () => {
     try {

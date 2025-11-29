@@ -37,7 +37,7 @@ export function ShareButton({
           text,
           url: shareUrl,
         });
-      } catch (error) {
+      } catch (_error) {
         console.log('Share cancelled');
       }
     }
@@ -49,7 +49,7 @@ export function ShareButton({
       setCopied(true);
       toast.success('Link copied to clipboard!');
       setTimeout(() => setCopied(false), 2000);
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to copy link');
     }
   };

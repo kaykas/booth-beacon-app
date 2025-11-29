@@ -29,7 +29,6 @@ import {
   ChevronRight,
   Search,
   Filter,
-  AlertCircle,
   Info,
   AlertTriangle,
   XCircle,
@@ -173,7 +172,7 @@ export function LogViewer({ initialLimit = 50 }: LogViewerProps) {
     return () => {
       if (refreshInterval) clearInterval(refreshInterval);
     };
-  }, [autoRefresh, fetchLogs]);
+  }, [autoRefresh, fetchLogs]); // removed refreshInterval from deps to avoid infinite loop
 
   // Pagination calculations
   const indexOfLastLog = currentPage * logsPerPage;

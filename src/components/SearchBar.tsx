@@ -5,11 +5,9 @@ import { useRouter } from 'next/navigation';
 import { Search, MapPin, Loader2, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { supabase } from '@/lib/supabase';
-import { Booth } from '@/types';
 
 interface SearchBarProps {
   placeholder?: string;
-  onSelect?: (booth: Booth) => void;
   className?: string;
   autoFocus?: boolean;
 }
@@ -25,7 +23,6 @@ interface SearchResult {
 
 export function SearchBar({
   placeholder = 'Search by city, country, or booth name...',
-  onSelect,
   className = '',
   autoFocus = false,
 }: SearchBarProps) {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, Suspense } from 'react';
+import { useEffect, useState, useCallback, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useAuth } from '@/lib/auth/AuthContext';
 import { supabase } from '@/lib/supabase';
@@ -13,7 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { User, Camera, Bookmark, Settings, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { BoothBookmark, BoothUserPhoto } from '@/types';
+import { BoothUserPhoto } from '@/types';
 import Link from 'next/link';
 
 function ProfilePageContent() {
@@ -35,17 +35,7 @@ function ProfilePageContent() {
   // Photos
   const [userPhotos, setUserPhotos] = useState<BoothUserPhoto[]>([]);
 
-  useEffect(() => {
-    if (!authLoading && user) {
-      loadProfile();
-      loadStats();
-      loadUserPhotos();
-    } else if (!authLoading && !user) {
-      setLoading(false);
-    }
-  }, [user, authLoading]);
-
-  const loadProfile = async () => {
+  const loadProfile = useCallback(async () => {
     try {
       setFullName(user!.user_metadata?.full_name || '');
       setBio(user!.user_metadata?.bio || '');
@@ -54,9 +44,9 @@ function ProfilePageContent() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
 
-  const loadStats = async () => {
+  const loadStats = useCallback(async () => {
     try {
       // Count bookmarks
       const { count: bookmarksCount } = await supabase
@@ -84,9 +74,9 @@ function ProfilePageContent() {
     } catch (error) {
       console.error('Error loading stats:', error);
     }
-  };
+  }, [user]);
 
-  const loadUserPhotos = async () => {
+  const loadUserPhotos = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('booth_user_photos')
@@ -102,7 +92,17 @@ function ProfilePageContent() {
     } catch (error) {
       console.error('Error loading photos:', error);
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    if (!authLoading && user) {
+      loadProfile();
+      loadStats();
+      loadUserPhotos();
+    } else if (!authLoading && !user) {
+      setLoading(false);
+    }
+  }, [user, authLoading, loadProfile, loadStats, loadUserPhotos]);
 
   const handleSaveProfile = async () => {
     if (!user) return;
@@ -258,6 +258,7 @@ function ProfilePageContent() {
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                     {userPhotos.map((photo) => (
                       <div key={photo.id} className="relative group">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={photo.photo_url}
                           alt={photo.caption || 'User photo'}

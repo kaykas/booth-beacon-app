@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/lib/auth/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { BoothComment } from '@/types';
@@ -23,11 +23,7 @@ export function ReviewsSection({ boothId }: ReviewsSectionProps) {
   const [content, setContent] = useState('');
   const [userHasReviewed, setUserHasReviewed] = useState(false);
 
-  useEffect(() => {
-    loadReviews();
-  }, [boothId]);
-
-  const loadReviews = async () => {
+  const loadReviews = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('booth_comments')
@@ -53,7 +49,11 @@ export function ReviewsSection({ boothId }: ReviewsSectionProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [boothId, user]);
+
+  useEffect(() => {
+    loadReviews();
+  }, [loadReviews]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

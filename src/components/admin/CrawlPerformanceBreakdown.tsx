@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/lib/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -31,11 +31,7 @@ export const CrawlPerformanceBreakdown = () => {
   const [selectedSource, setSelectedSource] = useState<string>('all');
   const [sources, setSources] = useState<string[]>([]);
 
-  useEffect(() => {
-    fetchMetrics();
-  }, [selectedSource]);
-
-  const fetchMetrics = async () => {
+  const fetchMetrics = useCallback(async () => {
     setLoading(true);
     try {
       let query = supabase
@@ -86,7 +82,11 @@ export const CrawlPerformanceBreakdown = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedSource]);
+
+  useEffect(() => {
+    fetchMetrics();
+  }, [fetchMetrics]);
 
   const calculateAverages = (): PhaseBreakdown | null => {
     if (metrics.length === 0) return null;

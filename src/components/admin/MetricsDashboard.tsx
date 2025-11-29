@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { supabase } from '@/lib/supabase';
 import {
   BarChart,
@@ -74,7 +73,7 @@ interface DashboardMetrics {
   crawlMetricsByDay: Array<{ date: string; booths_extracted: number; duration: number }>;
 }
 
-const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6'];
+const _COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6'];
 
 export function MetricsDashboard() {
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
@@ -432,8 +431,8 @@ export function MetricsDashboard() {
                 Your database is currently empty. To populate it with booth data:
               </p>
               <ol className="text-sm text-neutral-400 space-y-1 ml-4 list-decimal">
-                <li>Navigate to the "Data Crawler" tab</li>
-                <li>Click "Start Crawler" to fetch booth data from configured sources</li>
+                <li>Navigate to the &quot;Data Crawler&quot; tab</li>
+                <li>Click &quot;Start Crawler&quot; to fetch booth data from configured sources</li>
                 <li>Wait for the crawler to complete (this may take several minutes)</li>
                 <li>Return here to view comprehensive metrics</li>
               </ol>
@@ -497,7 +496,7 @@ export function MetricsDashboard() {
         {/* Booths with Photos */}
         <Card className="p-6 bg-neutral-800 border-neutral-700">
           <div className="flex items-center justify-between mb-2">
-            <Image className="w-8 h-8 text-purple-400" />
+            <Image className="w-8 h-8 text-purple-400" aria-label="Photos icon" />
             <Badge variant="secondary" className="bg-purple-900 text-purple-100">
               {metrics.boothsWithPhotosPercentage.toFixed(0)}%
             </Badge>
