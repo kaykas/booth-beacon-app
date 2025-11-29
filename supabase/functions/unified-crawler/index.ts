@@ -763,8 +763,8 @@ async function processSource(
       console.log(`Using batch size of ${pageLimit} pages for ${source.source_name} (Timeout: ${domainConfig.timeout}ms)...`);
       const totalPages = source.total_pages_target || 0;
       // CRITICAL: Supabase Edge Functions have a hard 150s timeout
-      // Exit at 90s to allow generous buffer before timeout (we were hitting 152s before)
-      const functionTimeoutMs = 90000; // Exit 60 seconds before Supabase 150s timeout
+      // Exit at 60s to allow 90s buffer - batch processing can take 60+ seconds
+      const functionTimeoutMs = 60000; // Exit with 90s buffer (was 90s/60s buffer, but batches take too long)
       const functionStartTime = Date.now();
 
       // Accumulate results across all batches
@@ -977,6 +977,14 @@ async function processSource(
 
         for (let pageIndex = 0; pageIndex < pages.length; pageIndex++) {
           const page = pages[pageIndex];
+
+          // Check timeout before extracting each page (extraction can take 10-20s per page)
+          const elapsedBeforeExtraction = Date.now() - functionStartTime;
+          if (elapsedBeforeExtraction > functionTimeoutMs) {
+            console.log(`⏰ Timeout approaching during extraction (${Math.round(elapsedBeforeExtraction / 1000)}s). Stopping batch early.`);
+            console.log(`💾 Processed ${pageIndex}/${pages.length} pages in this batch`);
+            break;
+          }
 
           sendProgressEvent({
             type: 'extraction_progress',
