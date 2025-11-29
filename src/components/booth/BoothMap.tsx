@@ -420,8 +420,12 @@ async function triggerAIPreviewGeneration(boothId: string): Promise<void> {
 
 // Helper function to create InfoWindow content
 function createInfoWindowContent(booth: Booth): string {
-  const photoUrl = booth.photo_exterior_url || booth.ai_preview_url || '/placeholder-booth.jpg';
-  const hasAiPreview = booth.ai_preview_url && !booth.photo_exterior_url;
+  // Check if AI preview URL is the broken Unsplash Source API
+  const isBrokenUnsplashUrl = booth.ai_preview_url?.includes('source.unsplash.com');
+
+  // Use photo_exterior_url, or ai_preview_url only if it's not broken
+  const photoUrl = booth.photo_exterior_url || (!isBrokenUnsplashUrl ? booth.ai_preview_url : null) || '/placeholder-booth.jpg';
+  const hasAiPreview = booth.ai_preview_url && !booth.photo_exterior_url && !isBrokenUnsplashUrl;
 
   // Trigger AI preview generation if booth has no photo and no AI preview
   if (!booth.photo_exterior_url && !booth.ai_preview_url) {

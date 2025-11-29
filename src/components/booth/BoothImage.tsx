@@ -20,8 +20,12 @@ export function BoothImage({
 }: BoothImageProps) {
   const [isHovered, setIsHovered] = useState(false);
 
-  const imageUrl = booth.photo_exterior_url || booth.ai_preview_url;
-  const hasAiPreview = booth.ai_preview_url && !booth.photo_exterior_url;
+  // Check if AI preview URL is the broken Unsplash Source API
+  const isBrokenUnsplashUrl = booth.ai_preview_url?.includes('source.unsplash.com');
+
+  // Use photo_exterior_url, or ai_preview_url only if it's not broken
+  const imageUrl = booth.photo_exterior_url || (!isBrokenUnsplashUrl ? booth.ai_preview_url : null);
+  const hasAiPreview = booth.ai_preview_url && !booth.photo_exterior_url && !isBrokenUnsplashUrl;
   const hasNoImage = !imageUrl;
 
   const sizeClasses = {
