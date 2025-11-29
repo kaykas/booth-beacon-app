@@ -7,17 +7,18 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { BoothCard } from '@/components/booth/BoothCard';
 import { BoothMap } from '@/components/booth/BoothMap';
-import { supabase } from '@/lib/supabase';
+import { createServerClient } from '@/lib/supabase';
 import { CityGuide, Booth } from '@/types';
 
 interface CityGuidePageProps {
-  params: {
+  params: Promise<{
     city: string;
-  };
+  }>;
 }
 
 // Fetch city guide data
 async function getCityGuide(slug: string): Promise<CityGuide | null> {
+  const supabase = createServerClient();
   const { data, error } = await supabase
     .from('city_guides')
     .select('*')
@@ -36,6 +37,7 @@ async function getCityGuide(slug: string): Promise<CityGuide | null> {
 async function getGuideBooths(boothIds: string[]): Promise<Booth[]> {
   if (!boothIds || boothIds.length === 0) return [];
 
+  const supabase = createServerClient();
   const { data, error } = await supabase
     .from('booths')
     .select('*')
@@ -50,7 +52,8 @@ async function getGuideBooths(boothIds: string[]): Promise<Booth[]> {
 export const revalidate = 1800;
 
 export async function generateMetadata({ params }: CityGuidePageProps): Promise<Metadata> {
-  const guide = await getCityGuide(params.city);
+  const { city } = await params;
+  const guide = await getCityGuide(city);
 
   if (!guide) {
     return {
@@ -65,7 +68,8 @@ export async function generateMetadata({ params }: CityGuidePageProps): Promise<
 }
 
 export default async function CityGuidePage({ params }: CityGuidePageProps) {
-  const guide = await getCityGuide(params.city);
+  const { city } = await params;
+  const guide = await getCityGuide(city);
 
   if (!guide) {
     notFound();

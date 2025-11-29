@@ -23,17 +23,18 @@ import { BookmarkButton } from '@/components/BookmarkButton';
 import { PhotoUpload } from '@/components/PhotoUpload';
 import { ReviewsSection } from '@/components/ReviewsSection';
 import { ShareButton } from '@/components/ShareButton';
-import { supabase } from '@/lib/supabase';
+import { createServerClient } from '@/lib/supabase';
 import { Booth } from '@/types';
 
 interface BoothDetailPageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
 // Fetch booth data
 async function getBooth(slug: string): Promise<Booth | null> {
+  const supabase = createServerClient();
   const { data, error } = await supabase
     .from('booths')
     .select('*')
@@ -55,6 +56,7 @@ async function getNearbyBooths(booth: Booth, radiusKm: number = 5): Promise<Boot
   const latDelta = radiusKm / 111;
   const lngDelta = radiusKm / (111 * Math.cos((booth.latitude * Math.PI) / 180));
 
+  const supabase = createServerClient();
   const { data, error } = await supabase
     .from('booths')
     .select('*')

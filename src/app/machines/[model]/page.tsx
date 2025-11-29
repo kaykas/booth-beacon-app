@@ -4,16 +4,17 @@ import { Wrench, Calendar, MapPin, Book } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { BoothCard } from '@/components/booth/BoothCard';
-import { supabase } from '@/lib/supabase';
+import { createServerClient } from '@/lib/supabase';
 import { MachineModel, Booth } from '@/types';
 
 interface MachineModelPageProps {
-  params: {
+  params: Promise<{
     model: string;
-  };
+  }>;
 }
 
 async function getMachineModel(slug: string): Promise<MachineModel | null> {
+  const supabase = createServerClient();
   const { data, error } = await supabase
     .from('machine_models')
     .select('*')
@@ -25,6 +26,7 @@ async function getMachineModel(slug: string): Promise<MachineModel | null> {
 }
 
 async function getBoothsWithModel(modelName: string): Promise<Booth[]> {
+  const supabase = createServerClient();
   const { data, error } = await supabase
     .from('booths')
     .select('*')
@@ -37,20 +39,22 @@ async function getBoothsWithModel(modelName: string): Promise<Booth[]> {
 }
 
 export async function generateMetadata({ params }: MachineModelPageProps): Promise<Metadata> {
-  const model = await getMachineModel(params.model);
-  if (!model) return { title: 'Machine Not Found | Booth Beacon' };
-  
+  const { model } = await params;
+  const machineModel = await getMachineModel(model);
+  if (!machineModel) return { title: 'Machine Not Found | Booth Beacon' };
+
   return {
-    title: `${model.model_name} | Booth Beacon`,
-    description: model.description || `Information about the ${model.model_name} photo booth`,
+    title: `${machineModel.model_name} | Booth Beacon`,
+    description: machineModel.description || `Information about the ${machineModel.model_name} photo booth`,
   };
 }
 
 export default async function MachineModelPage({ params }: MachineModelPageProps) {
-  const model = await getMachineModel(params.model);
-  if (!model) notFound();
+  const { model } = await params;
+  const machineModel = await getMachineModel(model);
+  if (!machineModel) notFound();
 
-  const booths = await getBoothsWithModel(model.model_name);
+  const booths = await getBoothsWithModel(machineModel.model_name);
 
   return (
     <div className="min-h-screen bg-neutral-50">
@@ -60,9 +64,9 @@ export default async function MachineModelPage({ params }: MachineModelPageProps
             <Wrench className="w-3 h-3 mr-1" />
             Machine Model
           </Badge>
-          <h1 className="font-display text-5xl font-semibold mb-4">{model.model_name}</h1>
-          {model.manufacturer && (
-            <p className="text-xl text-white/90">by {model.manufacturer}</p>
+          <h1 className="font-display text-5xl font-semibold mb-4">{machineModel.model_name}</h1>
+          {machineModel.manufacturer && (
+            <p className="text-xl text-white/90">by {machineModel.manufacturer}</p>
           )}
         </div>
       </div>
@@ -70,18 +74,18 @@ export default async function MachineModelPage({ params }: MachineModelPageProps
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-6">
-            {model.description && (
+            {machineModel.description && (
               <Card className="p-6">
                 <h2 className="font-display text-2xl font-semibold mb-4">About This Model</h2>
-                <p className="text-neutral-700 leading-relaxed">{model.description}</p>
+                <p className="text-neutral-700 leading-relaxed">{machineModel.description}</p>
               </Card>
             )}
 
-            {model.notable_features && model.notable_features.length > 0 && (
+            {machineModel.notable_features && machineModel.notable_features.length > 0 && (
               <Card className="p-6">
                 <h2 className="font-display text-2xl font-semibold mb-4">Notable Features</h2>
                 <ul className="space-y-2">
-                  {model.notable_features.map((feature, idx) => (
+                  {machineModel.notable_features.map((feature, idx) => (
                     <li key={idx} className="flex items-start gap-2">
                       <span className="text-primary mt-1">•</span>
                       <span className="text-neutral-700">{feature}</span>
@@ -91,13 +95,13 @@ export default async function MachineModelPage({ params }: MachineModelPageProps
               </Card>
             )}
 
-            {model.collector_notes && (
+            {machineModel.collector_notes && (
               <Card className="p-6 bg-amber-50 border-amber-200">
                 <h3 className="font-semibold text-lg mb-2 flex items-center gap-2">
                   <Book className="w-5 h-5 text-amber-600" />
                   Collector Notes
                 </h3>
-                <p className="text-neutral-700 leading-relaxed">{model.collector_notes}</p>
+                <p className="text-neutral-700 leading-relaxed">{machineModel.collector_notes}</p>
               </Card>
             )}
 
@@ -124,19 +128,19 @@ export default async function MachineModelPage({ params }: MachineModelPageProps
             <Card className="p-6">
               <h3 className="font-semibold text-lg mb-4">Specifications</h3>
               <dl className="space-y-3">
-                {model.manufacturer && (
+                {machineModel.manufacturer && (
                   <div>
                     <dt className="text-sm text-neutral-600">Manufacturer</dt>
-                    <dd className="font-medium">{model.manufacturer}</dd>
+                    <dd className="font-medium">{machineModel.manufacturer}</dd>
                   </div>
                 )}
-                {model.years_produced && (
+                {machineModel.years_produced && (
                   <div>
                     <dt className="text-sm text-neutral-600 flex items-center gap-1">
                       <Calendar className="w-3 h-3" />
                       Years Produced
                     </dt>
-                    <dd className="font-medium">{model.years_produced}</dd>
+                    <dd className="font-medium">{machineModel.years_produced}</dd>
                   </div>
                 )}
                 <div>

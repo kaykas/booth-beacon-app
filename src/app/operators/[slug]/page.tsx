@@ -5,16 +5,17 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { BoothCard } from '@/components/booth/BoothCard';
-import { supabase } from '@/lib/supabase';
+import { createServerClient } from '@/lib/supabase';
 import { Operator, Booth } from '@/types';
 
 interface OperatorPageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
 async function getOperator(slug: string): Promise<Operator | null> {
+  const supabase = createServerClient();
   const { data, error } = await supabase
     .from('operators')
     .select('*')
@@ -26,6 +27,7 @@ async function getOperator(slug: string): Promise<Operator | null> {
 }
 
 async function getOperatorBooths(operatorId: string): Promise<Booth[]> {
+  const supabase = createServerClient();
   const { data, error } = await supabase
     .from('booths')
     .select('*')
@@ -38,9 +40,10 @@ async function getOperatorBooths(operatorId: string): Promise<Booth[]> {
 }
 
 export async function generateMetadata({ params }: OperatorPageProps): Promise<Metadata> {
-  const operator = await getOperator(params.slug);
+  const { slug } = await params;
+  const operator = await getOperator(slug);
   if (!operator) return { title: 'Operator Not Found | Booth Beacon' };
-  
+
   return {
     title: `${operator.name} | Booth Beacon`,
     description: operator.story || `Photo booth operator based in ${operator.city}, ${operator.country}`,
@@ -48,7 +51,8 @@ export async function generateMetadata({ params }: OperatorPageProps): Promise<M
 }
 
 export default async function OperatorPage({ params }: OperatorPageProps) {
-  const operator = await getOperator(params.slug);
+  const { slug } = await params;
+  const operator = await getOperator(slug);
   if (!operator) notFound();
 
   const booths = await getOperatorBooths(operator.id);
