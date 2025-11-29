@@ -337,22 +337,15 @@ export default function AdminPage() {
     let hasReceivedData = false;
 
     try {
-      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-
-      // Use EventSource for real-time streaming
+      // Use EventSource for real-time streaming via secure API proxy
       const params = new URLSearchParams({
         stream: 'true',
         force_crawl: 'true',
         ...(sourceName && { source_name: sourceName }),
       });
 
-      eventSource = new EventSource(
-        `${supabaseUrl}/functions/v1/unified-crawler?${params}`,
-        {
-          // Note: EventSource doesn't support custom headers in browser
-          // The auth will need to be passed via query param or the function made public
-        }
-      );
+      // Call secure Next.js API route (handles SERVICE_ROLE_KEY server-side)
+      eventSource = new EventSource(`/api/crawler?${params}`);
 
       setCurrentEventSource(eventSource);
 
