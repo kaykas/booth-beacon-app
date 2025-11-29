@@ -235,19 +235,60 @@ export function ReextractionQueue() {
   const triggerReextraction = async (contentId?: string) => {
     setReextracting(true);
     try {
-      // In production, this would trigger your re-extraction Edge Function
-      // For now, it's a placeholder
-      toast.info('Re-extraction feature coming soon!', {
-        description: 'This will re-run extractors on existing raw content without API costs'
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+      if (!supabaseUrl || !supabaseKey) {
+        throw new Error('Supabase configuration missing');
+      }
+
+      const endpoint = contentId
+        ? `${supabaseUrl}/functions/v1/reextract-content`
+        : `${supabaseUrl}/functions/v1/reextract-content/batch`;
+
+      const body = contentId
+        ? { content_id: contentId }
+        : { limit: 10 }; // Batch re-extract 10 items at a time
+
+      toast.info(contentId ? 'Re-extracting content...' : 'Starting batch re-extraction...', {
+        description: 'Using stored raw content without API costs'
       });
 
-      console.log('Would re-extract content:', contentId || 'bulk');
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${supabaseKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+      });
 
-      // After re-extraction completes, reload data
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Re-extraction failed');
+      }
+
+      const result = await response.json();
+
+      if (contentId) {
+        // Single item result
+        toast.success(`Re-extraction complete!`, {
+          description: `Extracted ${result.booths_extracted || 0} booths, saved ${result.booths_saved || 0}`
+        });
+      } else {
+        // Batch result
+        toast.success(`Batch re-extraction complete!`, {
+          description: `Processed ${result.processed} items, extracted ${result.total_booths_extracted} booths, saved ${result.total_booths_saved}`
+        });
+      }
+
+      // Reload data to show new extractions
       await loadAllData();
     } catch (error) {
       console.error('Error triggering re-extraction:', error);
-      toast.error('Failed to trigger re-extraction');
+      toast.error('Failed to trigger re-extraction', {
+        description: error instanceof Error ? error.message : 'Unknown error occurred'
+      });
     } finally {
       setReextracting(false);
     }
