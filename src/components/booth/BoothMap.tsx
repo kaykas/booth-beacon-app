@@ -421,6 +421,7 @@ async function triggerAIPreviewGeneration(boothId: string): Promise<void> {
 // Helper function to create InfoWindow content
 function createInfoWindowContent(booth: Booth): string {
   const photoUrl = booth.photo_exterior_url || booth.ai_preview_url || '/placeholder-booth.jpg';
+  const hasAiPreview = booth.ai_preview_url && !booth.photo_exterior_url;
 
   // Trigger AI preview generation if booth has no photo and no AI preview
   if (!booth.photo_exterior_url && !booth.ai_preview_url) {
@@ -444,6 +445,13 @@ function createInfoWindowContent(booth: Booth): string {
   // Address info
   const address = booth.address || 'Address not available';
 
+  // AI Preview badge HTML
+  const aiBadge = hasAiPreview
+    ? `<div style="position: absolute; bottom: 8px; right: 8px; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(8px); color: white; padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 600; letter-spacing: 0.5px;">
+         AI Preview
+       </div>`
+    : '';
+
   return `
     <div style="max-width: 320px; font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">
       <div style="position: relative; margin-bottom: 14px;">
@@ -451,10 +459,12 @@ function createInfoWindowContent(booth: Booth): string {
           src="${photoUrl}"
           alt="${booth.name}"
           style="width: 100%; height: 200px; object-fit: cover; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);"
+          onerror="this.src='/placeholder-booth.jpg'"
         />
         <div style="position: absolute; top: 8px; right: 8px; background: ${statusColor}; color: white; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
           ${statusText}
         </div>
+        ${aiBadge}
       </div>
       <h3 style="margin: 0 0 8px 0; font-size: 19px; font-weight: 700; color: #1A1A1A; line-height: 1.3;">
         ${booth.name}
