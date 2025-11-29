@@ -257,7 +257,7 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
             {/* Photo Gallery */}
-            <div className="relative h-96 lg:h-[600px]">
+            <div className="relative h-64 sm:h-80 lg:h-[600px]">
               <div className="w-full h-full">
                 <BoothImage
                   booth={booth}
@@ -287,7 +287,7 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
             </div>
 
             {/* Booth Info */}
-            <div className="p-8 lg:p-12">
+            <div className="p-4 sm:p-6 lg:p-12">
               <div className="flex items-start justify-between mb-4">
                 <div>
                   <h1 className="font-display text-4xl font-semibold text-neutral-900 mb-2">
