@@ -181,7 +181,7 @@ export async function POST(request: NextRequest) {
 /**
  * GET endpoint to check how many booths need AI previews
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // Get Supabase credentials
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;

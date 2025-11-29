@@ -4,6 +4,7 @@
  * Show sample booths that need geocoding
  */
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const https = require('https');
 
 const SUPABASE_URL = 'https://tmgbmcbwfkvmylmfpkzy.supabase.co';

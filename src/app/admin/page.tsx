@@ -620,7 +620,7 @@ export default function AdminPage() {
 
             <Card className="p-6 bg-neutral-800 border-neutral-700">
               <div className="flex items-center justify-between mb-2">
-                <Image className="w-8 h-8 text-purple-400" />
+                <Image className="w-8 h-8 text-purple-400" alt="Image icon" />
                 {stats.pendingPhotos > 0 && (
                   <Badge variant="secondary" className="bg-yellow-900 text-yellow-100">
                     {stats.pendingPhotos} pending
@@ -1069,6 +1069,7 @@ export default function AdminPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                       {pendingPhotos.map((photo) => (
                         <div key={photo.id} className="border border-neutral-700 rounded-lg overflow-hidden bg-neutral-900">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
                             src={photo.photo_url as string}
                             alt={(photo.caption as string) || 'User photo'}

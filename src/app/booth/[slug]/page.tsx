@@ -5,13 +5,11 @@ import Image from 'next/image';
 import {
   MapPin,
   Navigation,
-  Share2,
   Copy,
   ExternalLink,
   Clock,
   DollarSign,
   Camera,
-  Star,
   AlertCircle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -20,7 +18,6 @@ import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { StatusBadge } from '@/components/booth/StatusBadge';
 import { BoothImage } from '@/components/booth/BoothImage';
-import { BoothCard } from '@/components/booth/BoothCard';
 import { BoothMap } from '@/components/booth/BoothMap';
 import { BookmarkButton } from '@/components/BookmarkButton';
 import { PhotoUpload } from '@/components/PhotoUpload';
@@ -86,7 +83,7 @@ export async function generateMetadata({ params }: BoothDetailPageProps): Promis
     };
   }
 
-  const mainPhoto = booth.photo_exterior_url || booth.ai_preview_url;
+  const _mainPhoto = booth.photo_exterior_url || booth.ai_preview_url;
   const description = booth.description || `Analog photo booth in ${booth.city}, ${booth.country}. ${booth.machine_model ? `Features a ${booth.machine_model}` : ''} ${booth.photo_type ? `${booth.photo_type} photo booth` : ''}`.trim();
 
   return {
@@ -107,9 +104,9 @@ export async function generateMetadata({ params }: BoothDetailPageProps): Promis
       description,
       type: 'website',
       url: `https://boothbeacon.org/booth/${booth.slug}`,
-      images: mainPhoto ? [
+      images: _mainPhoto ? [
         {
-          url: mainPhoto,
+          url: _mainPhoto,
           width: 1200,
           height: 630,
           alt: `${booth.name} in ${booth.city}`,
@@ -121,7 +118,7 @@ export async function generateMetadata({ params }: BoothDetailPageProps): Promis
       card: 'summary_large_image',
       title: `${booth.name} - ${booth.city}, ${booth.country}`,
       description,
-      images: mainPhoto ? [mainPhoto] : [],
+      images: _mainPhoto ? [_mainPhoto] : [],
     },
     alternates: {
       canonical: `https://boothbeacon.org/booth/${booth.slug}`,
@@ -147,7 +144,7 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
   ].filter(Boolean);
 
   const hasPhotos = photos.length > 0;
-  const mainPhoto = hasPhotos ? photos[0] : booth.ai_preview_url;
+  const _mainPhotoLocal = hasPhotos ? photos[0] : booth.ai_preview_url;
 
   // Generate enhanced structured data for SEO (LocalBusiness + Place)
   const structuredData = {

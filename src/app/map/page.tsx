@@ -11,7 +11,7 @@ import { BoothCard } from '@/components/booth/BoothCard';
 import { SearchBar } from '@/components/SearchBar';
 import { supabase } from '@/lib/supabase';
 import { Booth, Coordinates } from '@/types';
-import { sortBoothsByDistance, formatDistance } from '@/lib/distanceUtils';
+import { sortBoothsByDistance } from '@/lib/distanceUtils';
 
 interface Filters {
   location?: string;

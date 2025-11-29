@@ -30,8 +30,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create Supabase client
-    const supabase = createClient(supabaseUrl, supabaseAnonKey);
+    // Create Supabase client (used for future auth validation)
+    const _supabase = createClient(supabaseUrl, supabaseAnonKey);
 
     // Get auth token from request
     const authHeader = request.headers.get('authorization');

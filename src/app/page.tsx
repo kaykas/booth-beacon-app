@@ -1,9 +1,8 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { Suspense } from 'react';
-import { MapPin, Bookmark, Camera, ArrowRight, Search } from 'lucide-react';
+import { MapPin, Bookmark, Camera, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { BoothCard } from '@/components/booth/BoothCard';
 import { BoothMap } from '@/components/booth/BoothMap';

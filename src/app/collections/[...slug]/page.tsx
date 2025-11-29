@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { ChevronRight, MapPin, Filter, SortAsc } from 'lucide-react';
+import { ChevronRight, MapPin, SortAsc } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import { Header } from '@/components/layout/Header';
 import { BoothCard } from '@/components/booth/BoothCard';
