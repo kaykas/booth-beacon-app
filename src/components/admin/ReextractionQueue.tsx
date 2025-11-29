@@ -235,16 +235,8 @@ export function ReextractionQueue() {
   const triggerReextraction = async (contentId?: string) => {
     setReextracting(true);
     try {
-      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-      const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-      if (!supabaseUrl || !supabaseKey) {
-        throw new Error('Supabase configuration missing');
-      }
-
-      const endpoint = contentId
-        ? `${supabaseUrl}/functions/v1/reextract-content`
-        : `${supabaseUrl}/functions/v1/reextract-content/batch`;
+      // Use Next.js API route as secure proxy (handles SERVICE_ROLE_KEY server-side)
+      const endpoint = '/api/reextract';
 
       const body = contentId
         ? { content_id: contentId }
@@ -257,7 +249,6 @@ export function ReextractionQueue() {
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${supabaseKey}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(body),
