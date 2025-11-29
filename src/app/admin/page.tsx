@@ -11,13 +11,14 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { BarChart3, Users, Image, MessageSquare, MapPin, CheckCircle, XCircle, Clock, Database, PlayCircle, PauseCircle, RefreshCw, Shield, Wifi, WifiOff, Activity, AlertCircle, Zap, Loader2, FileText, Heart } from 'lucide-react';
+import { BarChart3, Users, Image, MessageSquare, MapPin, CheckCircle, XCircle, Clock, Database, PlayCircle, PauseCircle, RefreshCw, Shield, Wifi, WifiOff, Activity, AlertCircle, Zap, Loader2, FileText, Heart, Recycle, Eye } from 'lucide-react';
 import { toast } from 'sonner';
 import { MetricsDashboard } from '@/components/admin/MetricsDashboard';
 import { CrawlPerformanceBreakdown } from '@/components/admin/CrawlPerformanceBreakdown';
 import { LogViewer } from '@/components/LogViewer';
 import { CrawlJobQueue } from '@/components/admin/CrawlJobQueue';
 import { CrawlerHealthDashboard } from '@/components/admin/CrawlerHealthDashboard';
+import { ReextractionQueue } from '@/components/admin/ReextractionQueue';
 
 interface Photo {
   id: string;
@@ -685,6 +686,10 @@ export default function AdminPage() {
                 <Clock className="w-4 h-4 mr-2" />
                 Job Queue
               </TabsTrigger>
+              <TabsTrigger value="reextraction" className="data-[state=active]:bg-neutral-700 data-[state=active]:text-white">
+                <Recycle className="w-4 h-4 mr-2" />
+                Re-extraction
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="metrics" className="mt-6">
@@ -1216,6 +1221,10 @@ export default function AdminPage() {
 
             <TabsContent value="queue" className="mt-6">
               <CrawlJobQueue />
+            </TabsContent>
+
+            <TabsContent value="reextraction" className="mt-6">
+              <ReextractionQueue />
             </TabsContent>
           </Tabs>
         </div>
