@@ -32,44 +32,67 @@ interface BoothDetailPageProps {
   }>;
 }
 
-// Fetch booth data
+// Fetch booth data with enhanced error handling
 async function getBooth(slug: string): Promise<Booth | null> {
-  const supabase = createServerClient();
-  const { data, error } = await supabase
-    .from('booths')
-    .select('*')
-    .eq('slug', slug)
-    .single();
+  try {
+    const supabase = createServerClient();
+    const { data, error } = await supabase
+      .from('booths')
+      .select('*')
+      .eq('slug', slug)
+      .single();
 
-  if (error || !data) {
+    if (error) {
+      console.error(`Failed to fetch booth "${slug}":`, error.message);
+      return null;
+    }
+
+    if (!data) {
+      console.warn(`Booth not found: "${slug}"`);
+      return null;
+    }
+
+    return data as Booth;
+  } catch (error) {
+    console.error(`Error in getBooth for slug "${slug}":`, error);
+    // Re-throw configuration errors to trigger error boundary
+    if (error instanceof Error && error.message.includes('not configured')) {
+      throw error;
+    }
     return null;
   }
-
-  return data as Booth;
 }
 
-// Fetch nearby booths
+// Fetch nearby booths with error handling
 async function getNearbyBooths(booth: Booth, radiusKm: number = 5): Promise<Booth[]> {
   if (!booth.latitude || !booth.longitude) return [];
 
-  // Approximate degrees for radius (1 degree ≈ 111km)
-  const latDelta = radiusKm / 111;
-  const lngDelta = radiusKm / (111 * Math.cos((booth.latitude * Math.PI) / 180));
+  try {
+    // Approximate degrees for radius (1 degree ≈ 111km)
+    const latDelta = radiusKm / 111;
+    const lngDelta = radiusKm / (111 * Math.cos((booth.latitude * Math.PI) / 180));
 
-  const supabase = createServerClient();
-  const { data, error } = await supabase
-    .from('booths')
-    .select('*')
-    .neq('id', booth.id)
-    .gte('latitude', booth.latitude - latDelta)
-    .lte('latitude', booth.latitude + latDelta)
-    .gte('longitude', booth.longitude - lngDelta)
-    .lte('longitude', booth.longitude + lngDelta)
-    .eq('status', 'active')
-    .limit(3);
+    const supabase = createServerClient();
+    const { data, error } = await supabase
+      .from('booths')
+      .select('*')
+      .neq('id', booth.id)
+      .gte('latitude', booth.latitude - latDelta)
+      .lte('latitude', booth.latitude + latDelta)
+      .gte('longitude', booth.longitude - lngDelta)
+      .lte('longitude', booth.longitude + lngDelta)
+      .eq('status', 'active')
+      .limit(3);
 
-  if (error) return [];
-  return (data as Booth[]) || [];
+    if (error) {
+      console.error('Failed to fetch nearby booths:', error.message);
+      return [];
+    }
+    return (data as Booth[]) || [];
+  } catch (error) {
+    console.error('Error in getNearbyBooths:', error);
+    return [];
+  }
 }
 
 // ISR: Revalidate booth pages every 5 minutes
