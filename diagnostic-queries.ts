@@ -21,7 +21,7 @@ async function runDiagnostics() {
       console.log('Error:', error.message);
     } else if (rawContent) {
       // Group by source_id
-      const grouped = rawContent.reduce((acc: any, row: any) => {
+      const grouped = rawContent.reduce((acc: Record<string, { count: number; totalLength: number }>, row: { source_id: string; content: string | null }) => {
         if (!acc[row.source_id]) {
           acc[row.source_id] = { count: 0, totalLength: 0 };
         }
@@ -32,7 +32,7 @@ async function runDiagnostics() {
 
       console.log(`Total pages crawled: ${rawContent.length}`);
       console.log('\nBreakdown by source:');
-      Object.entries(grouped).forEach(([sourceId, stats]: [string, any]) => {
+      Object.entries(grouped).forEach(([sourceId, stats]: [string, { count: number; totalLength: number }]) => {
         console.log(`  Source ${sourceId}: ${stats.count} pages, avg ${Math.round(stats.totalLength / stats.count)} chars`);
       });
     }
@@ -61,7 +61,14 @@ async function runDiagnostics() {
       console.log(`Total crawl runs: ${metrics.length}`);
 
       // Group by source and status
-      const grouped = metrics.reduce((acc: any, row: any) => {
+      interface GroupedMetric {
+        source_name: string;
+        status: string;
+        count: number;
+        total_pages: number;
+        total_booths: number;
+      }
+      const grouped = metrics.reduce((acc: Record<string, GroupedMetric>, row: { source_name?: string | null; status?: string | null; pages_crawled?: number | null; booths_extracted?: number | null }) => {
         const key = `${row.source_name || 'unknown'}_${row.status || 'unknown'}`;
         if (!acc[key]) {
           acc[key] = {
@@ -80,8 +87,8 @@ async function runDiagnostics() {
 
       console.log('\nBreakdown by source and status:');
       Object.values(grouped)
-        .sort((a: any, b: any) => b.total_booths - a.total_booths)
-        .forEach((stat: any) => {
+        .sort((a: GroupedMetric, b: GroupedMetric) => b.total_booths - a.total_booths)
+        .forEach((stat: GroupedMetric) => {
           console.log(`  ${stat.source_name} (${stat.status}): ${stat.count} runs, ${stat.total_pages} pages, ${stat.total_booths} booths`);
         });
     }

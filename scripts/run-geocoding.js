@@ -5,6 +5,7 @@
  * Uses EventSource to stream progress updates
  */
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const https = require('https');
 
 const SUPABASE_URL = 'https://tmgbmcbwfkvmylmfpkzy.supabase.co';
@@ -180,7 +181,7 @@ async function main() {
   try {
     console.log('Starting geocoding process...\n');
 
-    const result = await makeRequest();
+    const _result = await makeRequest();
 
     const duration = ((Date.now() - startTime) / 1000).toFixed(1);
 

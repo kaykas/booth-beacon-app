@@ -4,6 +4,7 @@
  * Check how many booths are missing coordinates
  */
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const https = require('https');
 
 const SUPABASE_URL = 'https://tmgbmcbwfkvmylmfpkzy.supabase.co';
@@ -15,6 +16,7 @@ if (!SUPABASE_SERVICE_ROLE_KEY) {
   process.exit(1);
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function querySupabase(query) {
   return new Promise((resolve, reject) => {
     const url = new URL('/rest/v1/booths', SUPABASE_URL);
@@ -83,10 +85,10 @@ function countMissing(query) {
     };
 
     const req = https.request(options, (res) => {
-      let data = '';
+      let _data = '';
 
       res.on('data', (chunk) => {
-        data += chunk;
+        _data += chunk;
       });
 
       res.on('end', () => {
