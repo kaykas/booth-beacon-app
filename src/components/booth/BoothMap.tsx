@@ -424,7 +424,7 @@ function createInfoWindowContent(booth: Booth): string {
   const isBrokenUnsplashUrl = booth.ai_preview_url?.includes('source.unsplash.com');
 
   // Use photo_exterior_url, or ai_preview_url only if it's not broken
-  const photoUrl = booth.photo_exterior_url || (!isBrokenUnsplashUrl ? booth.ai_preview_url : null) || '/placeholder-booth.jpg';
+  const photoUrl = booth.photo_exterior_url || (!isBrokenUnsplashUrl ? booth.ai_preview_url : null) || '/placeholder-booth.svg';
   const hasAiPreview = booth.ai_preview_url && !booth.photo_exterior_url && !isBrokenUnsplashUrl;
 
   // Trigger AI preview generation if booth has no photo and no AI preview
@@ -463,7 +463,7 @@ function createInfoWindowContent(booth: Booth): string {
           src="${photoUrl}"
           alt="${booth.name}"
           style="width: 100%; height: 200px; object-fit: cover; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);"
-          onerror="this.src='/placeholder-booth.jpg'"
+          onerror="this.src='/placeholder-booth.svg'"
         />
         <div style="position: absolute; top: 8px; right: 8px; background: ${statusColor}; color: white; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
           ${statusText}
