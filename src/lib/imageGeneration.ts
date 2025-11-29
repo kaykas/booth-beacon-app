@@ -278,6 +278,7 @@ export async function uploadGeneratedImage(
 
 /**
  * Update booth record with the generated AI preview URL
+ * Uses anon key since AI preview updates should be allowed through RLS policies
  */
 export async function updateBoothAIPreview(
   boothId: string,
@@ -286,14 +287,14 @@ export async function updateBoothAIPreview(
   const { createClient } = await import('@supabase/supabase-js');
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  if (!supabaseUrl || !supabaseServiceKey) {
+  if (!supabaseUrl || !supabaseAnonKey) {
     throw new Error('Supabase configuration is missing');
   }
 
-  // Use service role key for admin operations
-  const supabase = createClient(supabaseUrl, supabaseServiceKey);
+  // Use anon key with RLS policies
+  const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
   const { error } = await supabase
     .from('booths')
