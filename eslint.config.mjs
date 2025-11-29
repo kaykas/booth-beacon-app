@@ -12,6 +12,19 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Test files and utilities (non-production code):
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "test-*.ts",
+    "crawl-*.ts",
+    "trigger-*.ts",
+    "run-*.ts",
+    "*-crawler*.ts",
+    "check-*.ts",
+    "count-*.ts",
+    "update-*.ts",
+    // Supabase functions (deployed separately):
+    "supabase/functions/**",
   ]),
 ]);
 

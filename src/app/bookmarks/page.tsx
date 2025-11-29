@@ -174,7 +174,7 @@ export default function BookmarksPage() {
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                           {/* Left: Booth Preview */}
                           <div className="lg:col-span-1">
-                            <Link href={`/booth/${booth.id}`}>
+                            <Link href={`/booth/${booth.slug}`}>
                               <div className="relative aspect-[4/3] lg:aspect-square">
                                 <BoothImage booth={booth} size="card" showAiBadge />
                               </div>
@@ -186,7 +186,7 @@ export default function BookmarksPage() {
                             {/* Header */}
                             <div className="flex items-start justify-between mb-4">
                               <div className="flex-1">
-                                <Link href={`/booth/${booth.id}`}>
+                                <Link href={`/booth/${booth.slug}`}>
                                   <h3 className="font-display text-2xl font-semibold text-neutral-900 hover:text-primary transition">
                                     {booth.name}
                                   </h3>
@@ -266,7 +266,7 @@ export default function BookmarksPage() {
                             {/* Actions */}
                             <div className="flex flex-wrap gap-2">
                               <Button variant="default" asChild className="flex-1 sm:flex-none">
-                                <Link href={`/booth/${booth.id}`}>View Details</Link>
+                                <Link href={`/booth/${booth.slug}`}>View Details</Link>
                               </Button>
                               <Button variant="outline" asChild className="flex-1 sm:flex-none">
                                 <a

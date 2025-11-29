@@ -161,8 +161,8 @@ export default function SubmitBoothPage() {
         machine_year: null,
         machine_manufacturer: null,
         machine_serial: null,
-        booth_type: (formData.booth_type as string) || null,
-        photo_type: (formData.photo_type as string) || null,
+        booth_type: (formData.booth_type as BoothInsert['booth_type']) || null,
+        photo_type: (formData.photo_type as BoothInsert['photo_type']) || null,
         operator_id: null,
         operator_name: null,
         photo_exterior_url: formData.photo_url.trim() || null,
@@ -186,9 +186,9 @@ export default function SubmitBoothPage() {
         last_verified: null,
       };
 
-      const { data, error} = await supabase
+      const { error } = await supabase
         .from('booths')
-        .insert(submissionData)
+        .insert([submissionData] as never)
         .select()
         .single();
 

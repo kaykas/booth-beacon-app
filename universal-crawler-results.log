@@ -1,0 +1,550 @@
+
+================================================================================
+🚀 UNIVERSAL CRAWLER - ALL SOURCES
+================================================================================
+
+✓ Found 38 enabled sources
+
+
+================================================================================
+🚀 Accidentally Wes Anderson
+================================================================================
+
+📡 Firecrawl: https://accidentallywesanderson.com/photobooths
+✓ Scraped 11706 chars
+
+🤖 Claude extracting...
+✓ Found 0 booths
+
+
+================================================================================
+🚀 Airial Travel Brooklyn
+================================================================================
+
+📡 Firecrawl: https://www.airialtravel.com/brooklyn-photo-booths
+❌ Airial Travel Brooklyn failed: Failed to scrape URL. Status code: 500. Error: All scraping engines failed! -- Double check the URL to make sure it's not broken. If the issue persists, contact us at help@firecrawl.com.
+
+================================================================================
+🚀 Aperture Tours Berlin
+================================================================================
+
+📡 Firecrawl: https://aperturetours.com/berlin-photo-booths
+✓ Scraped 16627 chars
+
+🤖 Claude extracting...
+✓ Found 0 booths
+
+
+================================================================================
+🚀 Autophoto
+================================================================================
+
+📡 Firecrawl: https://autophoto.org
+✓ Scraped 940 chars
+
+🤖 Claude extracting...
+✓ Found 0 booths
+
+
+================================================================================
+🚀 autophoto.org
+================================================================================
+
+📡 Firecrawl: https://autophoto.org/
+✓ Scraped 940 chars
+
+🤖 Claude extracting...
+✓ Found 0 booths
+
+
+================================================================================
+🚀 Block Club Chicago
+================================================================================
+
+📡 Firecrawl: https://blockclubchicago.org/2025/03/21/chicagos-vintage-photo-booths-are-a-dying-breed-meet-the-women-trying-to-keep-them-alive/
+✓ Scraped 19964 chars
+
+🤖 Claude extracting...
+✓ Found 8 booths
+
+💾 Inserting...
+  ✓ Vintage House Chicago - Chicago
+  ✓ Rainbo Club - Chicago
+  ✓ Skylark - Chicago
+  ✓ Weegee's Lounge - Chicago
+  ✓ Cole's Bar - Chicago
+  ✓ Village Tap - Chicago
+  ✓ Holiday Club - Chicago
+  ✓ Smartbar - Chicago
+
+✅ Block Club Chicago: 8/8 inserted
+
+
+================================================================================
+🚀 Classic Photo Booth Co
+================================================================================
+
+📡 Firecrawl: https://classicphotoboothco.com/locations
+✓ Scraped 115 chars
+
+🤖 Claude extracting...
+✓ Found 0 booths
+
+
+================================================================================
+🚀 classicphotoboothco.com
+================================================================================
+
+📡 Firecrawl: https://classicphotoboothco.com/
+✓ Scraped 3110 chars
+
+🤖 Claude extracting...
+✓ Found 2 booths
+
+💾 Inserting...
+  ✓ Classic Photo Booth Co. - Los Angeles
+  ✓ Classic Photo Booth Co. - Amsterdam
+
+✅ classicphotoboothco.com: 2/2 inserted
+
+
+================================================================================
+🚀 Concrete Playground
+================================================================================
+
+📡 Firecrawl: https://concreteplayground.com/photo-booths
+✓ Scraped 13068 chars
+
+🤖 Claude extracting...
+✓ Found 0 booths
+
+
+================================================================================
+🚀 Digital Cosmonaut Berlin
+================================================================================
+
+📡 Firecrawl: https://digitalcosmonaut.com/photo-booths-berlin
+✓ Scraped 12624 chars
+
+🤖 Claude extracting...
+✓ Found 0 booths
+
+
+================================================================================
+🚀 Do The Bay SF
+================================================================================
+
+📡 Firecrawl: https://dothebay.com/photo-booths-san-francisco
+✓ Scraped 1011 chars
+
+🤖 Claude extracting...
+✓ Found 0 booths
+
+
+================================================================================
+🚀 Flash Pack
+================================================================================
+
+📡 Firecrawl: https://www.theflashpack.com/photobooths
+✓ Scraped 13470 chars
+
+🤖 Claude extracting...
+✓ Found 0 booths
+
+
+================================================================================
+🚀 Flash Pack London
+================================================================================
+
+📡 Firecrawl: https://www.theflashpack.com/london/photo-booths
+✓ Scraped 13470 chars
+
+🤖 Claude extracting...
+✓ Found 0 booths
+
+
+================================================================================
+🚀 Flickr Photobooth Group
+================================================================================
+
+📡 Firecrawl: https://www.flickr.com/groups/photobooth/
+❌ Flickr Photobooth Group failed: Failed to scrape URL. Status code: 403. Error: This website is not currently supported. If you are part of an enterprise, please reach out to help@firecrawl.com to discuss the possibility of getting it activated on your account.
+
+================================================================================
+🚀 Fotoautomat Berlin
+================================================================================
+
+📡 Firecrawl: https://www.fotoautomat-berlin.de
+✓ Scraped 1075 chars
+
+🤖 Claude extracting...
+✓ Found 1 booths
+
+💾 Inserting...
+  ✓ Fotoautomat Berlin - Berlin
+
+✅ Fotoautomat Berlin: 1/1 inserted
+
+
+================================================================================
+🚀 Fotoautomat FR
+================================================================================
+
+📡 Firecrawl: https://www.fotoautomat.fr
+✓ Scraped 9455 chars
+
+🤖 Claude extracting...
+✓ Found 13 booths
+
+💾 Inserting...
+  ✓ Palais de Tokyo - Paris
+  ✓ Bonton - Paris
+  ✓ kasarna Karlin - Prague
+  ✓ Galerie nationale Národní - Prague
+  ✓ Le Centquatre - Paris
+  ✓ Buttes Chaumont - Paris
+  ✓ Lieu Unique - Nantes
+  ✓ Fotoautomat Studio - Paris
+  ✓ Pasaz U Nováků - Prague
+  ✓ @kasarna_karlin - Prague
+  ✓ @camppraha - Prague
+  ✓ @dum.u.novaku - Prague
+
+✅ Fotoautomat FR: 12/13 inserted
+
+
+================================================================================
+🚀 Fotoautomat Wien
+================================================================================
+
+📡 Firecrawl: https://www.fotoautomat-wien.at
+❌ Fotoautomat Wien failed: No response received while trying to scrape URL. This may be a network error or the server is unreachable.
+
+================================================================================
+🚀 Fotoautomatica
+================================================================================
+
+📡 Firecrawl: https://www.fotoautomatica.it
+✓ Scraped 4838 chars
+
+🤖 Claude extracting...
+✓ Found 1 booths
+
+💾 Inserting...
+  ✓ Fotoautomatica - Firenze
+
+✅ Fotoautomatica: 1/1 inserted
+
+
+================================================================================
+🚀 Girl in Florence
+================================================================================
+
+📡 Firecrawl: https://www.girl-in-florence.com/photo-booths/
+❌ Girl in Florence failed: No response received while trying to scrape URL. This may be a network error or the server is unreachable.
+
+================================================================================
+🚀 Locale Magazine LA
+================================================================================
+
+📡 Firecrawl: https://localemagazine.com/best-la-photo-booths/
+✓ Scraped 17638 chars
+
+🤖 Claude extracting...
+✓ Found 9 booths
+
+💾 Inserting...
+
+✅ Locale Magazine LA: 0/9 inserted
+
+
+================================================================================
+🚀 Lomography Locations
+================================================================================
+
+📡 Firecrawl: https://www.lomography.com/magazine/tipster/photobooth-locations
+✓ Scraped 23869 chars
+
+🤖 Claude extracting...
+✓ Found 0 booths
+
+
+================================================================================
+🚀 lomography.com
+================================================================================
+
+📡 Firecrawl: https://www.lomography.com/photos/booths
+✓ Scraped 23620 chars
+
+🤖 Claude extracting...
+✓ Found 0 booths
+
+
+================================================================================
+🚀 London World
+================================================================================
+
+📡 Firecrawl: https://londonworld.com/photo-booths
+✓ Scraped 1676 chars
+
+🤖 Claude extracting...
+✓ Found 0 booths
+
+
+================================================================================
+🚀 Metro Auto Photo
+================================================================================
+
+📡 Firecrawl: https://www.metroautophoto.com
+❌ Metro Auto Photo failed: No response received while trying to scrape URL. This may be a network error or the server is unreachable.
+
+================================================================================
+🚀 Misadventures with Andi
+================================================================================
+
+📡 Firecrawl: https://www.misadventureswithand.com/photo-booths
+❌ Misadventures with Andi failed: No response received while trying to scrape URL. This may be a network error or the server is unreachable.
+
+================================================================================
+🚀 No Camera Bag Vienna
+================================================================================
+
+📡 Firecrawl: https://www.nocamerabag.com/vienna-photo-booths
+✓ Scraped 784 chars
+
+🤖 Claude extracting...
+✓ Found 0 booths
+
+
+================================================================================
+🚀 Phelt Magazine Berlin
+================================================================================
+
+📡 Firecrawl: https://pheltmag.com/berlin-photobooths
+❌ Phelt Magazine Berlin failed: No response received while trying to scrape URL. This may be a network error or the server is unreachable.
+
+================================================================================
+🚀 Photoautomat DE
+================================================================================
+
+📡 Firecrawl: https://www.photoautomat.de
+✓ Scraped 647 chars
+
+🤖 Claude extracting...
+✓ Found 1 booths
+
+💾 Inserting...
+  ✓ Photoautomat - Berlin
+
+✅ Photoautomat DE: 1/1 inserted
+
+
+================================================================================
+🚀 photoautomat.de
+================================================================================
+
+📡 Firecrawl: https://www.photoautomat.de/
+✓ Scraped 647 chars
+
+🤖 Claude extracting...
+✓ Found 1 booths
+
+💾 Inserting...
+  ✓ Photoautomat - Berlin
+
+✅ photoautomat.de: 1/1 inserted
+
+
+================================================================================
+🚀 photobooth.net
+================================================================================
+
+📡 Firecrawl: https://www.photobooth.net/
+✓ Scraped 23941 chars
+
+🤖 Claude extracting...
+✓ Found 0 booths
+
+
+================================================================================
+🚀 Photobooth.net
+================================================================================
+
+📡 Firecrawl: https://www.photobooth.net/locations/
+✓ Scraped 2878 chars
+
+🤖 Claude extracting...
+✓ Found 4 booths
+
+💾 Inserting...
+  ✓ Roommate Collective
+  ✓ The Lodge at Bryant Park
+  ✓ Sid Gold's Request Room
+  ✓  - Orange County
+
+✅ Photobooth.net: 4/4 inserted
+
+
+================================================================================
+🚀 Photomatic
+================================================================================
+
+📡 Firecrawl: https://photomatic.com.au
+✓ Scraped 4035 chars
+
+🤖 Claude extracting...
+✓ Found 0 booths
+
+
+================================================================================
+🚀 photomatic.net
+================================================================================
+
+📡 Firecrawl: https://photomatic.net/
+❌ photomatic.net failed: No response received while trying to scrape URL. This may be a network error or the server is unreachable.
+
+================================================================================
+🚀 Photomatica West Coast
+================================================================================
+
+📡 Firecrawl: https://www.photomatica.com
+✓ Scraped 4495 chars
+
+🤖 Claude extracting...
+✓ Found 2 booths
+
+💾 Inserting...
+  ✓ The Photo Booth Museum - San Francisco
+  ✓ The Photo Booth Museum - Los Angeles
+
+✅ Photomatica West Coast: 2/2 inserted
+
+
+================================================================================
+🚀 photomatica.com
+================================================================================
+
+📡 Firecrawl: https://photomatica.com/
+✓ Scraped 4495 chars
+
+🤖 Claude extracting...
+✓ Found 2 booths
+
+💾 Inserting...
+  ✓ The Photo Booth Museum - San Francisco
+  ✓ The Photo Booth Museum - Los Angeles
+
+✅ photomatica.com: 2/2 inserted
+
+
+================================================================================
+🚀 Roxy Hotel NYC
+================================================================================
+
+📡 Firecrawl: https://www.roxyhotelnyc.com/photo-booth
+✓ Scraped 1480 chars
+
+🤖 Claude extracting...
+✓ Found 1 booths
+
+💾 Inserting...
+  ✓ The Roxy Hotel New York - New York
+
+✅ Roxy Hotel NYC: 1/1 inserted
+
+
+================================================================================
+🚀 Time Out Chicago
+================================================================================
+
+📡 Firecrawl: https://www.timeout.com/chicago/bars/20-chicago-bars-with-a-photo-booth
+✓ Scraped 15060 chars
+
+🤖 Claude extracting...
+✓ Found 10 booths
+
+💾 Inserting...
+  ✓ Bar DeVille - Chicago
+  ✓ Beauty Bar - Chicago
+  ✓ The Charleston - Chicago
+  ✓ Empty Bottle - Chicago
+  ✓ Fat Cat - Chicago
+  ✓ The Flat Iron - Chicago
+  ✓ Four Farthings - Chicago
+  ✓ Holiday Club - Chicago
+  ✓ Liar's Club - Chicago
+  ✓ Lincoln Tap Room - Chicago
+
+✅ Time Out Chicago: 10/10 inserted
+
+
+================================================================================
+🚀 Time Out LA
+================================================================================
+
+📡 Firecrawl: https://www.timeout.com/los-angeles/news/vintage-photo-booths-are-having-a-moment-we-found-some-of-l-a-s-remaining-ones-121324
+✓ Scraped 12517 chars
+
+🤖 Claude extracting...
+✓ Found 7 booths
+
+💾 Inserting...
+  ✓ Cha Cha Lounge - Silver Lake
+  ✓ Alex's Bar - Long Beach
+  ✓ Vidiots - Eagle Rock
+  ✓ The Short Stop - Echo Park
+  ✓ Backstage - Culver City
+  ✓ The Blind Donkey - Long Beach
+  ✓ 4100 Bar - Silver Lake
+
+✅ Time Out LA: 7/7 inserted
+
+
+================================================================================
+✅ COMPLETE
+   Duration: 292.4s
+   Sources crawled: 38
+   Booths found: 62
+   Booths inserted: 52
+================================================================================
+
+
+Results by source:
+  Accidentally Wes Anderson: 0/0
+  Airial Travel Brooklyn: 0/0 (Failed to scrape URL. Status code: 500. Error: All scraping engines failed! -- Double check the URL to make sure it's not broken. If the issue persists, contact us at help@firecrawl.com.)
+  Aperture Tours Berlin: 0/0
+  Autophoto: 0/0
+  autophoto.org: 0/0
+  Block Club Chicago: 8/8
+  Classic Photo Booth Co: 0/0
+  classicphotoboothco.com: 2/2
+  Concrete Playground: 0/0
+  Digital Cosmonaut Berlin: 0/0
+  Do The Bay SF: 0/0
+  Flash Pack: 0/0
+  Flash Pack London: 0/0
+  Flickr Photobooth Group: 0/0 (Failed to scrape URL. Status code: 403. Error: This website is not currently supported. If you are part of an enterprise, please reach out to help@firecrawl.com to discuss the possibility of getting it activated on your account.)
+  Fotoautomat Berlin: 1/1
+  Fotoautomat FR: 12/13
+  Fotoautomat Wien: 0/0 (No response received while trying to scrape URL. This may be a network error or the server is unreachable.)
+  Fotoautomatica: 1/1
+  Girl in Florence: 0/0 (No response received while trying to scrape URL. This may be a network error or the server is unreachable.)
+  Locale Magazine LA: 0/9
+  Lomography Locations: 0/0
+  lomography.com: 0/0
+  London World: 0/0
+  Metro Auto Photo: 0/0 (No response received while trying to scrape URL. This may be a network error or the server is unreachable.)
+  Misadventures with Andi: 0/0 (No response received while trying to scrape URL. This may be a network error or the server is unreachable.)
+  No Camera Bag Vienna: 0/0
+  Phelt Magazine Berlin: 0/0 (No response received while trying to scrape URL. This may be a network error or the server is unreachable.)
+  Photoautomat DE: 1/1
+  photoautomat.de: 1/1
+  photobooth.net: 0/0
+  Photobooth.net: 4/4
+  Photomatic: 0/0
+  photomatic.net: 0/0 (No response received while trying to scrape URL. This may be a network error or the server is unreachable.)
+  Photomatica West Coast: 2/2
+  photomatica.com: 2/2
+  Roxy Hotel NYC: 1/1
+  Time Out Chicago: 10/10
+  Time Out LA: 7/7

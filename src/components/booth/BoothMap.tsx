@@ -90,7 +90,7 @@ export function BoothMap({
   const mapInstanceRef = useRef<google.maps.Map | null>(null);
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [markers, setMarkers] = useState<google.maps.Marker[]>([]);
-  const [markerClusterer, setMarkerClusterer] = useState<any>(null);
+  const [markerClusterer, setMarkerClusterer] = useState<MarkerClusterer | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [internalUserLocation, setInternalUserLocation] = useState<Coordinates | null>(null);
@@ -481,7 +481,7 @@ function createInfoWindowContent(booth: Booth): string {
         </span>
       </div>
       <a
-        href="/booth/${booth.id}"
+        href="/booth/${booth.slug}"
         style="display: block; text-align: center; padding: 10px 20px; background: linear-gradient(135deg, #d14371 0%, #c73e3a 100%); color: white; text-decoration: none; border-radius: 8px; font-size: 14px; font-weight: 600; box-shadow: 0 2px 6px rgba(209, 67, 113, 0.3); transition: all 0.2s ease;"
         onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 12px rgba(209, 67, 113, 0.4)';"
         onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 6px rgba(209, 67, 113, 0.3)';"

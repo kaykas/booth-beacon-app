@@ -1229,7 +1229,7 @@ class SmithsonianExtractor extends BaseExtractor {
  */
 
 function normalizeParisAddress(address: string): { normalized: string; postal_code?: string } {
-  let normalized = address
+  const normalized = address
     .replace(/\b(rue|avenue|boulevard|place)\b/gi, (match) =>
       match.charAt(0).toUpperCase() + match.slice(1).toLowerCase()
     )
@@ -1243,7 +1243,7 @@ function normalizeParisAddress(address: string): { normalized: string; postal_co
 }
 
 function normalizeViennaAddress(address: string, districtText?: string): { normalized: string; postal_code?: string } {
-  let normalized = address
+  const normalized = address
     .replace(/\b(straße|strasse|gasse|platz|ring|weg)\b/gi, (match) =>
       match.charAt(0).toUpperCase() + match.slice(1).toLowerCase()
     );

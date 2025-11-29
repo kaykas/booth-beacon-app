@@ -160,11 +160,11 @@ export function GeocodingPanel() {
         setCurrentEventSource(null);
       };
 
-    } catch (error: any) {
+    } catch (error) {
       console.error('Geocoding error:', error);
-      setGeocodingStatus('Error: ' + error.message);
+      setGeocodingStatus('Error: ' + (error instanceof Error ? error.message : 'Unknown error'));
       setGeocodingRunning(false);
-      toast.error('Geocoding failed: ' + error.message);
+      toast.error('Geocoding failed: ' + (error instanceof Error ? error.message : 'Unknown error'));
     }
   };
 

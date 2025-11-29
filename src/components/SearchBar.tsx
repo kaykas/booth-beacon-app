@@ -16,6 +16,7 @@ interface SearchBarProps {
 
 interface SearchResult {
   id: string;
+  slug?: string;
   name: string;
   city: string;
   country: string;
@@ -64,7 +65,7 @@ export function SearchBar({
         // Search booths
         const { data: booths, error } = await supabase
           .from('booths')
-          .select('id, name, city, country')
+          .select('id, slug, name, city, country')
           .or(`name.ilike.%${searchTerm}%,city.ilike.%${searchTerm}%,country.ilike.%${searchTerm}%,address.ilike.%${searchTerm}%`)
           .limit(10);
 
@@ -72,9 +73,10 @@ export function SearchBar({
 
         // Process results
         const boothResults: SearchResult[] = (
-          booths as Array<{ id: string; name: string; city: string; country: string }>
+          booths as Array<{ id: string; slug: string; name: string; city: string; country: string }>
         )?.map((b) => ({
           id: b.id,
+          slug: b.slug,
           name: b.name,
           city: b.city || '',
           country: b.country || '',
@@ -84,7 +86,7 @@ export function SearchBar({
         // Extract unique cities
         const cities = Array.from(
           new Set(
-            (booths as Array<{ id: string; name: string; city: string; country: string }>)
+            (booths as Array<{ id: string; slug: string; name: string; city: string; country: string }>)
               ?.map((b) => `${b.city}, ${b.country}`)
               .filter(Boolean) || []
           )
@@ -104,7 +106,7 @@ export function SearchBar({
         // Extract unique countries
         const countries = Array.from(
           new Set(
-            (booths as Array<{ id: string; name: string; city: string; country: string }>)
+            (booths as Array<{ id: string; slug: string; name: string; city: string; country: string }>)
               ?.map((b) => b.country)
               .filter(Boolean) || []
           )
@@ -169,7 +171,7 @@ export function SearchBar({
   const handleSelect = (result: SearchResult) => {
     if (result.type === 'booth') {
       // Navigate to booth detail page
-      router.push(`/booth/${result.id}`);
+      router.push(`/booth/${result.slug}`);
     } else if (result.type === 'city') {
       // Navigate to search page with city filter
       router.push(`/search?city=${encodeURIComponent(result.city)}&country=${encodeURIComponent(result.country)}`);

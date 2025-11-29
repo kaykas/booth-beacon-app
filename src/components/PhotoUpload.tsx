@@ -84,13 +84,13 @@ export function PhotoUpload({ boothId, onUploadComplete }: PhotoUploadProps) {
       } = supabase.storage.from('photos').getPublicUrl(filePath);
 
       // Create database record
-      const { error: dbError } = await supabase.from('booth_user_photos').insert({
+      const { error: dbError } = await supabase.from('booth_user_photos').insert([{
         user_id: user.id,
         booth_id: boothId,
         photo_url: publicUrl,
         caption: caption.trim() || null,
         moderation_status: 'pending',
-      });
+      }] as never);
 
       if (dbError) throw dbError;
 

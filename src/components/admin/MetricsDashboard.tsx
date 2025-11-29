@@ -101,20 +101,20 @@ export function MetricsDashboard() {
         throw boothsError;
       }
 
-      const booths = (allBooths as any[]) || [];
+      const booths = (allBooths as Array<Record<string, unknown>>) || [];
       const totalBooths = booths.length;
 
       // Calculate booth metrics
       const boothsAddedToday = booths.filter(
-        (b) => new Date(b.created_at) >= todayStart
+        (b) => new Date(b.created_at as string) >= todayStart
       ).length || 0;
 
       const boothsAddedThisWeek = booths.filter(
-        (b) => new Date(b.created_at) >= weekStart
+        (b) => new Date(b.created_at as string) >= weekStart
       ).length || 0;
 
       const boothsAddedThisMonth = booths.filter(
-        (b) => new Date(b.created_at) >= monthStart
+        (b) => new Date(b.created_at as string) >= monthStart
       ).length || 0;
 
       const boothsWithPhotos = booths.filter(
@@ -129,7 +129,7 @@ export function MetricsDashboard() {
       const inactiveBooths = totalBooths - activeBooths;
 
       // Calculate completeness score (0-100)
-      const calculateCompleteness = (booth: any): number => {
+      const calculateCompleteness = (booth: Record<string, unknown>): number => {
         let score = 0;
         const fields = [
           'name',
@@ -184,7 +184,7 @@ export function MetricsDashboard() {
         // Don't throw - continue with empty metrics
       }
 
-      const metrics = (metricsError ? [] : crawlerMetrics as any[]) || [];
+      const metrics = (metricsError ? [] : crawlerMetrics as Array<Record<string, unknown>>) || [];
       const successfulCrawls = metrics.filter(
         (m) => m.status === 'success'
       ).length || 0;
@@ -193,10 +193,10 @@ export function MetricsDashboard() {
 
       const durations = metrics
         .filter((m) => m.duration_ms)
-        .map((m) => m.duration_ms);
+        .map((m) => m.duration_ms as number);
       const averageCrawlDuration =
         durations && durations.length > 0
-          ? durations.reduce((sum, d) => sum + d, 0) / durations.length / 1000
+          ? durations.reduce((sum, d) => (sum as number) + (d as number), 0) / durations.length / 1000
           : 0;
 
       // Fetch crawl sources for performance data
@@ -210,13 +210,13 @@ export function MetricsDashboard() {
         // Don't throw - continue with empty sources
       }
 
-      const sources = (sourcesError ? [] : crawlSources as any[]) || [];
+      const sources = (sourcesError ? [] : crawlSources as Array<Record<string, unknown>>) || [];
       const failedSources = sources
         .filter((s) => s.status === 'error' && s.last_error_message)
         .map((s) => ({
-          source_name: s.source_name,
-          last_error_message: s.last_error_message,
-          last_error_timestamp: s.last_error_timestamp,
+          source_name: s.source_name as string,
+          last_error_message: s.last_error_message as string,
+          last_error_timestamp: s.last_error_timestamp as string,
         })) || [];
 
       // Calculate source performance (last 7 days)
@@ -225,26 +225,26 @@ export function MetricsDashboard() {
           const { data: sourceMetrics } = await supabase
             .from('crawler_metrics')
             .select('*')
-            .eq('source_name', source.source_name)
+            .eq('source_name', source.source_name as string)
             .gte('started_at', last7Days.toISOString());
 
-          const sourceMetricsArray = (sourceMetrics as any[]) || [];
+          const sourceMetricsArray = (sourceMetrics as Array<Record<string, unknown>>) || [];
           const total = sourceMetricsArray.length || 0;
           const successful = sourceMetricsArray.filter((m) => m.status === 'success').length || 0;
           const success_rate = total > 0 ? (successful / total) * 100 : 0;
 
           const avgDuration =
             sourceMetricsArray && sourceMetricsArray.length > 0
-              ? sourceMetricsArray.reduce((sum, m) => sum + (m.duration_ms || 0), 0) /
+              ? sourceMetricsArray.reduce((sum, m) => (sum as number) + ((m.duration_ms as number) || 0), 0) /
                 sourceMetricsArray.length /
                 1000
               : 0;
 
           return {
-            source_name: source.source_name,
+            source_name: source.source_name as string,
             success_rate,
             avg_duration: avgDuration,
-            last_crawl: source.last_crawl_timestamp || 'Never',
+            last_crawl: (source.last_crawl_timestamp as string) || 'Never',
           };
         }) || []
       );
@@ -256,7 +256,7 @@ export function MetricsDashboard() {
         .select('created_at')
         .gte('created_at', last30Days.toISOString());
 
-      const recentBoothsArray = (recentBooths as any[]) || [];
+      const recentBoothsArray = (recentBooths as Array<{ created_at: string }>) || [];
       const boothsByDayMap = new Map<string, number>();
       for (let i = 0; i < 30; i++) {
         const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
@@ -282,11 +282,11 @@ export function MetricsDashboard() {
       }
 
       metrics.forEach((metric) => {
-        const dateStr = metric.started_at.split('T')[0];
+        const dateStr = (metric.started_at as string).split('T')[0];
         const current = crawlMetricsByDayMap.get(dateStr);
         if (current) {
-          current.booths += metric.booths_extracted || 0;
-          current.duration += metric.duration_ms || 0;
+          current.booths += (metric.booths_extracted as number) || 0;
+          current.duration += (metric.duration_ms as number) || 0;
           current.count += 1;
           crawlMetricsByDayMap.set(dateStr, current);
         }
@@ -326,9 +326,9 @@ export function MetricsDashboard() {
 
       setLastRefresh(new Date());
       setError(null);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error fetching metrics:', error);
-      setError(error.message || 'Failed to fetch metrics');
+      setError(error instanceof Error ? error.message : 'Failed to fetch metrics');
     } finally {
       setLoading(false);
     }

@@ -296,7 +296,7 @@ function enhancePhotoboothNetMarkdown(markdown: string, html: string): string {
 
   let currentCountry = '';
   let currentState = '';
-  let currentCity = '';
+  const currentCity = '';
 
   for (const line of lines) {
     const trimmed = line.trim();

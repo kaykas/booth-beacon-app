@@ -51,6 +51,7 @@ export default function AdminPage() {
   const router = useRouter();
   const [isAdmin, setIsAdmin] = useState(false);
   const [adminCheckComplete, setAdminCheckComplete] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState({
     totalBooths: 0,
     activeBooths: 0,
@@ -84,6 +85,7 @@ export default function AdminPage() {
   const [reconnectAttempt, setReconnectAttempt] = useState(0);
   const [maxReconnectAttempts] = useState(5);
   const [reconnectTimeoutId, setReconnectTimeoutId] = useState<NodeJS.Timeout | null>(null);
+  const [selectedSource, setSelectedSource] = useState<string>('');
 
   // Geocoding state (for future feature)
   // Commented out to fix lint errors until feature is implemented
@@ -276,7 +278,7 @@ export default function AdminPage() {
 
     const timeoutId = setTimeout(() => {
       addActivity('reconnect', `Reconnecting... (attempt ${attemptNum}/${maxReconnectAttempts})`, 'info');
-      startCrawler(sourceName);
+      startCrawler(_sourceName);
     }, delay);
 
     setReconnectTimeoutId(timeoutId);
@@ -703,17 +705,17 @@ export default function AdminPage() {
                     {pendingPhotos.map((photo) => (
                       <div key={photo.id} className="border border-neutral-700 rounded-lg overflow-hidden bg-neutral-900">
                         <img
-                          src={photo.photo_url}
-                          alt={photo.caption || 'User photo'}
+                          src={photo.photo_url as string}
+                          alt={(photo.caption as string) || 'User photo'}
                           className="w-full aspect-square object-cover"
                         />
                         <div className="p-4">
-                          <p className="font-medium mb-1 text-white">{photo.booth?.name}</p>
+                          <p className="font-medium mb-1 text-white">{(photo.booth as { name?: string })?.name}</p>
                           <p className="text-sm text-neutral-400 mb-2">
-                            {photo.booth?.city}, {photo.booth?.country}
+                            {(photo.booth as { city?: string })?.city}, {(photo.booth as { country?: string })?.country}
                           </p>
-                          {photo.caption && (
-                            <p className="text-sm text-neutral-300 mb-3 italic">&quot;{photo.caption}&quot;</p>
+                          {(photo.caption as string | null) && (
+                            <p className="text-sm text-neutral-300 mb-3 italic">&quot;{String(photo.caption)}&quot;</p>
                           )}
                           <div className="flex gap-2">
                             <Button
@@ -964,7 +966,7 @@ export default function AdminPage() {
                       <h3 className="font-semibold text-white">Recent Crawler Logs</h3>
                       <select
                         value={logFilter}
-                        onChange={(e) => setLogFilter(e.target.value)}
+                        onChange={(e) => setLogFilter(e.target.value as 'all' | 'info' | 'warning' | 'error')}
                         className="px-3 py-1 bg-neutral-800 border border-neutral-700 rounded text-white text-sm"
                       >
                         <option value="all">All Logs</option>
@@ -996,14 +998,14 @@ export default function AdminPage() {
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center justify-between gap-2 mb-1">
                                 <span className="text-neutral-300 font-medium truncate">
-                                  {log.operation_type}
+                                  {String(log.operation_type)}
                                 </span>
                                 <span className="text-neutral-500 text-xs flex-shrink-0">
-                                  {new Date(log.timestamp).toLocaleTimeString()}
+                                  {new Date(log.timestamp as string).toLocaleTimeString()}
                                 </span>
                               </div>
-                              <p className="text-neutral-400 text-xs break-words">{log.message}</p>
-                              {log.details && Object.keys(log.details).length > 0 && (
+                              <p className="text-neutral-400 text-xs break-words">{String(log.message)}</p>
+                              {(log.details as Record<string, unknown> | null) && Object.keys(log.details as Record<string, unknown>).length > 0 && (
                                 <details className="mt-2">
                                   <summary className="text-neutral-500 text-xs cursor-pointer hover:text-neutral-400">
                                     View details
@@ -1052,28 +1054,28 @@ export default function AdminPage() {
                                 <Badge
                                   variant="secondary"
                                   className={
-                                    source.enabled
+                                    (source.enabled as boolean)
                                       ? 'bg-green-900 text-green-100'
                                       : 'bg-gray-700 text-gray-300'
                                   }
                                 >
-                                  {source.enabled ? 'Enabled' : 'Disabled'}
+                                  {(source.enabled as boolean) ? 'Enabled' : 'Disabled'}
                                 </Badge>
-                                {source.status === 'error' && (
+                                {(source.status as string) === 'error' && (
                                   <Badge variant="destructive">Error</Badge>
                                 )}
                               </div>
                               <p className="text-xs text-neutral-400 truncate">
-                                {source.source_url}
+                                {source.source_url as string}
                               </p>
                               <div className="flex items-center gap-4 mt-2 text-xs text-neutral-500">
-                                <span>Priority: {source.priority}</span>
-                                {source.total_booths_found > 0 && (
-                                  <span>Found: {source.total_booths_found} booths</span>
+                                <span>Priority: {String(source.priority)}</span>
+                                {(source.total_booths_found as number | null) && (source.total_booths_found as number) > 0 && (
+                                  <span>Found: {String(source.total_booths_found)} booths</span>
                                 )}
-                                {source.last_successful_crawl && (
+                                {(source.last_successful_crawl as string | null) && (
                                   <span>
-                                    Last: {new Date(source.last_successful_crawl).toLocaleDateString()}
+                                    Last: {new Date(source.last_successful_crawl as string).toLocaleDateString()}
                                   </span>
                                 )}
                               </div>
@@ -1081,7 +1083,7 @@ export default function AdminPage() {
                             <Button
                               size="sm"
                               variant="outline"
-                              disabled={crawlerRunning || !source.enabled}
+                              disabled={crawlerRunning || !(source.enabled as boolean)}
                               onClick={() => {
                                 setSelectedSource(source.source_name);
                                 startCrawler(source.source_name);
@@ -1121,7 +1123,7 @@ export default function AdminPage() {
                         <span className="text-neutral-400">
                           {crawlSources.length > 0
                             ? Math.round(
-                                crawlSources.reduce((sum, s) => sum + (s.average_crawl_duration_seconds || 0), 0) /
+                                crawlSources.reduce((sum, s) => sum + ((s.average_crawl_duration_seconds as number) || 0), 0) /
                                   crawlSources.length
                               ) + 's'
                             : 'N/A'}

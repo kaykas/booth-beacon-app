@@ -36,8 +36,8 @@ export function AuthDialog({ open, onOpenChange, defaultTab = 'login' }: AuthDia
       toast.success('Welcome back!');
       onOpenChange(false);
       setLoginData({ email: '', password: '' });
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to sign in');
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to sign in');
     } finally {
       setLoading(false);
     }
@@ -52,8 +52,8 @@ export function AuthDialog({ open, onOpenChange, defaultTab = 'login' }: AuthDia
       toast.success('Account created! Please check your email to verify.');
       onOpenChange(false);
       setSignupData({ name: '', email: '', password: '' });
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to sign up');
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to sign up');
     } finally {
       setLoading(false);
     }
@@ -63,8 +63,8 @@ export function AuthDialog({ open, onOpenChange, defaultTab = 'login' }: AuthDia
     setLoading(true);
     try {
       await signInWithGoogle();
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to sign in with Google');
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to sign in with Google');
       setLoading(false);
     }
   };

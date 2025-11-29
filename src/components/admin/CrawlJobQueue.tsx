@@ -98,14 +98,14 @@ export const CrawlJobQueue = () => {
       const source = sources.find(s => s.id === selectedSource);
       const { error } = await supabase
         .from('crawl_job_queue')
-        .insert({
+        .insert([{
           source_id: selectedSource,
           source_name: source?.name || '',
           priority: parseInt(priority),
           force_crawl: forceCrawl,
           status: 'pending' as const,
           scheduled_for: new Date().toISOString(),
-        });
+        }] as never);
 
       if (error) throw error;
 
@@ -128,7 +128,7 @@ export const CrawlJobQueue = () => {
     try {
       const { error } = await supabase
         .from('crawl_job_queue')
-        .update({ status: 'cancelled' as const })
+        .update({ status: 'cancelled' as const } as never)
         .eq('id', jobId);
 
       if (error) throw error;
@@ -159,7 +159,7 @@ export const CrawlJobQueue = () => {
   };
 
   const getStatusBadge = (status: QueueJob['status']) => {
-    const variants: Record<QueueJob['status'], { variant: string; label: string; className: string }> = {
+    const variants: Record<QueueJob['status'], { variant: "default" | "destructive" | "outline" | "secondary"; label: string; className: string }> = {
       pending: { variant: "outline", label: "Pending", className: "bg-yellow-950/30 text-yellow-300 border-yellow-500/50" },
       running: { variant: "default", label: "Running", className: "bg-blue-950/30 text-blue-300 border-blue-500/50" },
       completed: { variant: "outline", label: "Completed", className: "bg-green-950/30 text-green-300 border-green-500/50" },

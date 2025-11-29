@@ -54,27 +54,30 @@ export const CrawlPerformanceBreakdown = () => {
       if (error) throw error;
 
       if (data) {
-        const formattedData: PerformanceMetrics[] = data.map((m) => ({
-          source_name: m.source_name,
-          total_duration_ms: m.duration_ms || 0,
-          api_call_duration_ms: m.api_call_duration_ms || 0,
-          extraction_duration_ms: m.extraction_duration_ms || 0,
-          database_duration_ms: Math.max(
-            0,
-            (m.duration_ms || 0) -
-              (m.api_call_duration_ms || 0) -
-              (m.extraction_duration_ms || 0)
-          ),
-          pages_crawled: m.pages_crawled || 0,
-          booths_extracted: m.booths_extracted || 0,
-          completed_at: m.completed_at || '',
-        }));
+        const formattedData: PerformanceMetrics[] = data.map((m) => {
+          const metric = m as Record<string, unknown>;
+          return {
+            source_name: metric.source_name as string,
+            total_duration_ms: (metric.duration_ms as number) || 0,
+            api_call_duration_ms: (metric.api_call_duration_ms as number) || 0,
+            extraction_duration_ms: (metric.extraction_duration_ms as number) || 0,
+            database_duration_ms: Math.max(
+              0,
+              ((metric.duration_ms as number) || 0) -
+                ((metric.api_call_duration_ms as number) || 0) -
+                ((metric.extraction_duration_ms as number) || 0)
+            ),
+            pages_crawled: (metric.pages_crawled as number) || 0,
+            booths_extracted: (metric.booths_extracted as number) || 0,
+            completed_at: (metric.completed_at as string) || '',
+          };
+        });
 
         setMetrics(formattedData);
 
         // Extract unique sources
         const uniqueSources = Array.from(
-          new Set(data.map((m: any) => m.source_name))
+          new Set(data.map((m: Record<string, unknown>) => m.source_name))
         ).filter(Boolean) as string[];
         setSources(uniqueSources);
       }

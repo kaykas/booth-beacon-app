@@ -21,7 +21,6 @@ async function getFeaturedBooths(): Promise<Booth[]> {
     .select('*')
     .eq('status', 'active')
     .eq('is_operational', true)
-    .limit(4)
     .order('updated_at', { ascending: false });
 
   if (error) {
@@ -168,19 +167,27 @@ export default async function Home() {
 
           {/* Filter Chips */}
           <div className="flex flex-wrap gap-2 justify-center mb-6">
-            <Badge className="badge-retro cursor-pointer hover:shadow-glow transition">
-              <MapPin className="w-3 h-3 mr-1" />
-              Near Me
-            </Badge>
-            <Badge className="badge-retro cursor-pointer hover:shadow-glow transition">
-              Berlin
-            </Badge>
-            <Badge className="badge-retro cursor-pointer hover:shadow-glow transition">
-              NYC
-            </Badge>
-            <Badge className="badge-retro cursor-pointer hover:shadow-glow transition">
-              London
-            </Badge>
+            <Link href="/map?nearme=true">
+              <Badge className="badge-retro cursor-pointer hover:shadow-glow transition">
+                <MapPin className="w-3 h-3 mr-1" />
+                Near Me
+              </Badge>
+            </Link>
+            <Link href="/map?city=Berlin">
+              <Badge className="badge-retro cursor-pointer hover:shadow-glow transition">
+                Berlin
+              </Badge>
+            </Link>
+            <Link href="/map?city=New York">
+              <Badge className="badge-retro cursor-pointer hover:shadow-glow transition">
+                NYC
+              </Badge>
+            </Link>
+            <Link href="/map?city=London">
+              <Badge className="badge-retro cursor-pointer hover:shadow-glow transition">
+                London
+              </Badge>
+            </Link>
           </div>
 
           {/* Map */}
@@ -188,7 +195,8 @@ export default async function Home() {
             <Suspense fallback={<div className="h-[500px] bg-neutral-200 animate-pulse"></div>}>
               <BoothMap
                 booths={featuredBooths}
-                zoom={3}
+                center={{ lat: 39.8283, lng: -98.5795 }}
+                zoom={4}
                 showUserLocation={false}
                 showClustering={false}
               />

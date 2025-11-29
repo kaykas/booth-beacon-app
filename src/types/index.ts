@@ -35,6 +35,7 @@ export interface Booth {
   status: 'active' | 'unverified' | 'inactive' | 'closed';
   is_operational: boolean;
   hours?: string;
+  phone?: string;
   cost?: string;
   accepts_cash: boolean;
   accepts_card: boolean;

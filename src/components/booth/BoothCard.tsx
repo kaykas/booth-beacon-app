@@ -38,7 +38,7 @@ export function BoothCard({
       </div>
 
       {/* Image */}
-      <Link href={`/booth/${booth.id}`}>
+      <Link href={`/booth/${booth.slug}`}>
         <div className="aspect-[4/3] relative bg-neutral-100">
           <Image
             src={imageUrl}
@@ -60,7 +60,7 @@ export function BoothCard({
 
       {/* Content */}
       <div className="p-4">
-        <Link href={`/booth/${booth.id}`}>
+        <Link href={`/booth/${booth.slug}`}>
           <h3 className="font-display text-lg font-medium text-neutral-900 truncate hover:text-primary transition">
             {booth.name}
           </h3>
@@ -71,10 +71,10 @@ export function BoothCard({
           {booth.city}, {booth.country}
         </p>
 
-        {showDistance && (booth as any).distance !== undefined && (
+        {showDistance && 'distance' in booth && booth.distance !== undefined && (
           <p className="text-sm text-primary font-medium flex items-center gap-1 mt-1">
             <Navigation className="w-4 h-4 flex-shrink-0" />
-            {formatDistance((booth as any).distance)}
+            {formatDistance(booth.distance as number)}
           </p>
         )}
 
@@ -94,7 +94,7 @@ export function BoothCard({
         {/* Actions */}
         <div className="flex gap-2 mt-4">
           <Link
-            href={`/booth/${booth.id}`}
+            href={`/booth/${booth.slug}`}
             className="flex-1 px-4 py-2 bg-primary text-white text-sm font-medium rounded hover:bg-primary-dark transition text-center"
           >
             View Details

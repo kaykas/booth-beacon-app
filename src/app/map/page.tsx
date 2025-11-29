@@ -36,29 +36,7 @@ export default function MapPage() {
   const [selectedCity, setSelectedCity] = useState<string>('all');
   const [selectedCountry, setSelectedCountry] = useState<string>('all');
 
-  // Fetch all booths on mount
-  useEffect(() => {
-    fetchBooths();
-  }, []);
-
-  // Get user location on mount
-  useEffect(() => {
-    if ('geolocation' in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setUserLocation({
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          });
-        },
-        (error) => {
-          console.error('Error getting user location:', error);
-        }
-      );
-    }
-  }, []);
-
-  async function fetchBooths() {
+  const fetchBooths = useCallback(async () => {
     setLoading(true);
 
     let query = supabase.from('booths').select('*');
@@ -78,7 +56,29 @@ export default function MapPage() {
     }
 
     setLoading(false);
-  }
+  }, [filters.status]);
+
+  // Fetch all booths on mount
+  useEffect(() => {
+    fetchBooths();
+  }, [fetchBooths]);
+
+  // Get user location on mount
+  useEffect(() => {
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          });
+        },
+        (error) => {
+          console.error('Error getting user location:', error);
+        }
+      );
+    }
+  }, []);
 
   // Memoized filter application for performance with 100+ booths
   const computedFilteredBooths = useMemo(() => {
@@ -275,7 +275,7 @@ export default function MapPage() {
                 </label>
                 <Select
                   value={filters.status}
-                  onValueChange={(value: any) => setFilters({ ...filters, status: value })}
+                  onValueChange={(value: string) => setFilters({ ...filters, status: value as 'active' | 'unverified' | 'all' })}
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -295,8 +295,8 @@ export default function MapPage() {
                 </label>
                 <Select
                   value={filters.photoType || 'both'}
-                  onValueChange={(value: any) =>
-                    setFilters({ ...filters, photoType: value === 'both' ? undefined : value })
+                  onValueChange={(value: string) =>
+                    setFilters({ ...filters, photoType: value === 'both' ? undefined : value as 'black-and-white' | 'color' })
                   }
                 >
                   <SelectTrigger>
@@ -341,8 +341,8 @@ export default function MapPage() {
                 </label>
                 <Select
                   value={filters.payment || 'both'}
-                  onValueChange={(value: any) =>
-                    setFilters({ ...filters, payment: value === 'both' ? undefined : value })
+                  onValueChange={(value: string) =>
+                    setFilters({ ...filters, payment: value === 'both' ? undefined : value as 'cash' | 'card' })
                   }
                 >
                   <SelectTrigger>

@@ -7,7 +7,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Fetch all active booths
   const { data: booths } = await supabase
     .from('booths')
-    .select('id, updated_at')
+    .select('slug, updated_at')
     .eq('status', 'active');
 
   // Fetch all published city guides
@@ -52,16 +52,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Booth pages
   const boothPages: MetadataRoute.Sitemap = (booths || []).map((booth) => ({
-    url: `${baseUrl}/booth/${booth.id}`,
-    lastModified: new Date(booth.updated_at),
+    url: `${baseUrl}/booth/${(booth as { slug: string }).slug}`,
+    lastModified: new Date((booth as { updated_at: string }).updated_at),
     changeFrequency: 'weekly' as const,
     priority: 0.8,
   }));
 
   // City guide pages
   const guidePages: MetadataRoute.Sitemap = (guides || []).map((guide) => ({
-    url: `${baseUrl}/guides/${guide.slug}`,
-    lastModified: new Date(guide.updated_at),
+    url: `${baseUrl}/guides/${(guide as { slug: string }).slug}`,
+    lastModified: new Date((guide as { updated_at: string }).updated_at),
     changeFrequency: 'weekly' as const,
     priority: 0.7,
   }));

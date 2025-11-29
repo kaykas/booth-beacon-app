@@ -56,7 +56,7 @@ export async function extractRedditAnalog(
 
   try {
     const lines = markdown.split('\n');
-    let currentThread: { title?: string; content: string[]; author?: string; date?: string } = {
+    const currentThread: { title?: string; content: string[]; author?: string; date?: string } = {
       content: []
     };
 
@@ -320,7 +320,7 @@ export async function extractAnalogCafe(
 
   try {
     const lines = markdown.split('\n');
-    let currentArticle: { title?: string; content: string[]; date?: string } = {
+    const currentArticle: { title?: string; content: string[]; date?: string } = {
       content: []
     };
 
@@ -445,7 +445,7 @@ export async function extractSmithsonian(
 
   try {
     const lines = markdown.split('\n');
-    let currentArticle: { title?: string; content: string[] } = {
+    const currentArticle: { title?: string; content: string[] } = {
       content: []
     };
 

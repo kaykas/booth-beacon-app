@@ -71,12 +71,12 @@ export function ReviewsSection({ boothId }: ReviewsSectionProps) {
     setSubmitting(true);
 
     try {
-      const { error } = await supabase.from('booth_comments').insert({
+      const { error } = await supabase.from('booth_comments').insert([{
         user_id: user.id,
         booth_id: boothId,
         content: content.trim(),
         rating,
-      });
+      }] as never);
 
       if (error) throw error;
 

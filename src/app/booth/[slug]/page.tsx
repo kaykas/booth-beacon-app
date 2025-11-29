@@ -31,16 +31,16 @@ import { Booth } from '@/types';
 
 interface BoothDetailPageProps {
   params: {
-    id: string;
+    slug: string;
   };
 }
 
 // Fetch booth data
-async function getBooth(id: string): Promise<Booth | null> {
+async function getBooth(slug: string): Promise<Booth | null> {
   const { data, error } = await supabase
     .from('booths')
     .select('*')
-    .eq('id', id)
+    .eq('slug', slug)
     .single();
 
   if (error || !data) {
@@ -77,7 +77,7 @@ async function getNearbyBooths(booth: Booth, radiusKm: number = 5): Promise<Boot
 export const revalidate = 300;
 
 export async function generateMetadata({ params }: BoothDetailPageProps): Promise<Metadata> {
-  const booth = await getBooth(params.id);
+  const booth = await getBooth(params.slug);
 
   if (!booth) {
     return {
@@ -105,7 +105,7 @@ export async function generateMetadata({ params }: BoothDetailPageProps): Promis
       title: `${booth.name} - ${booth.city}, ${booth.country}`,
       description,
       type: 'website',
-      url: `https://boothbeacon.org/booth/${booth.id}`,
+      url: `https://boothbeacon.org/booth/${booth.slug}`,
       images: mainPhoto ? [
         {
           url: mainPhoto,
@@ -123,13 +123,13 @@ export async function generateMetadata({ params }: BoothDetailPageProps): Promis
       images: mainPhoto ? [mainPhoto] : [],
     },
     alternates: {
-      canonical: `https://boothbeacon.org/booth/${booth.id}`,
+      canonical: `https://boothbeacon.org/booth/${booth.slug}`,
     },
   };
 }
 
 export default async function BoothDetailPage({ params }: BoothDetailPageProps) {
-  const booth = await getBooth(params.id);
+  const booth = await getBooth(params.slug);
 
   if (!booth) {
     notFound();
@@ -151,10 +151,10 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
   const structuredData = {
     '@context': 'https://schema.org',
     '@type': 'LocalBusiness',
-    '@id': `https://boothbeacon.org/booth/${booth.id}`,
+    '@id': `https://boothbeacon.org/booth/${booth.slug}`,
     name: booth.name,
     description: booth.description || `Analog photo booth in ${booth.city}, ${booth.country}. ${booth.machine_model ? `Features a ${booth.machine_model} machine` : ''} ${booth.photo_type ? `producing ${booth.photo_type} photos` : ''}`.trim(),
-    url: `https://boothbeacon.org/booth/${booth.id}`,
+    url: `https://boothbeacon.org/booth/${booth.slug}`,
     address: {
       '@type': 'PostalAddress',
       streetAddress: booth.address,
@@ -591,7 +591,7 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
                   {nearbyBooths.map((nearby) => (
                     <Link
                       key={nearby.id}
-                      href={`/booth/${nearby.id}`}
+                      href={`/booth/${nearby.slug}`}
                       className="block group"
                     >
                       <div className="flex gap-3">

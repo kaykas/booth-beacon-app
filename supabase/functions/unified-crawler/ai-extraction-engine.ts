@@ -189,7 +189,7 @@ export async function extractWithAI(
 
   try {
     // Choose content type: prefer clean markdown, fallback to cleaned HTML
-    let content = markdown && markdown.length > 500 ? markdown : cleanHtml(html);
+    const content = markdown && markdown.length > 500 ? markdown : cleanHtml(html);
 
     // GOOGLE OPTIMIZATION: Smart chunking based on source type
     // Gemini 2.0 Flash has 1M token window (~4M characters)

@@ -1,213 +1,220 @@
 # Master TODO List: Booth Beacon Complete Action Plan
 
-**Date:** November 28, 2025
-**Purpose:** Comprehensive execution plan combining all research, diagnostic findings, and UX improvements
-**Priority Order:** Critical bugs → Data pipeline → UX enhancements → Infrastructure
+**Date:** November 28, 2025 (REVISED based on codebase audit)
+**Purpose:** Comprehensive execution plan reflecting ACTUAL project state
+**Priority Order:** Deploy fixes → Run existing systems → UX enhancements → New features
+
+**MAJOR REVISION**: Audit revealed crawler is FULLY BUILT (56 files, 500KB code) and 912 booths already exist. Focus shifted from "building" to "deploying and using" existing infrastructure.
 
 ---
 
 ## 🚨 CRITICAL - FIX NOW (TODAY)
 
-### 1. Deploy Current Code to Vercel
-**Why:** Booth detail pages and images exist in code but aren't live
-**Impact:** High - Users seeing broken experience right now
-- [ ] Commit all current changes (booth detail page, images, etc.)
-- [ ] Push to GitHub to trigger Vercel deployment
+### 1. Deploy Current Code Fixes to Production
+**Status:** ✅ Code complete, awaiting deployment
+**Why:** All fixes (TypeScript, homepage, booth URLs, map centering) aren't live
+**Impact:** HIGH - Users seeing old version without our improvements
+- [ ] Commit all current changes
+- [ ] Push to GitHub (triggers automatic Vercel deployment)
 - [ ] Verify deployment succeeded on Vercel dashboard
-- [ ] Test booth popup images on production site
-- [ ] Test booth detail page links work
-- [ ] Verify images load correctly
+- [ ] Test on production:
+  - [ ] Homepage shows all 912 booths (not limited to 4)
+  - [ ] Map centers on USA (Kansas), not NYC
+  - [ ] Booth detail pages work with SEO slugs (`/booth/joes-bar-brooklyn`)
+  - [ ] Location filter badges navigate to map correctly
+  - [ ] All 912 booths visible on map
 
-### 2. Verify Image URLs in Database
-**Why:** Images may not be displaying due to bad URLs
-- [ ] Query booths table for image URL patterns
-- [ ] Check if photo_exterior_url fields are populated
-- [ ] Check if ai_preview_url fields exist
-- [ ] Test placeholder image path `/placeholder-booth.jpg` exists
-- [ ] Add placeholder image if missing
+### 2. Complete Geocoding (IN PROGRESS)
+**Status:** ⏳ 248/912 booths geocoded (27.2%) - automated script running
+**Why:** 664 booths still missing coordinates for map display
+**Impact:** HIGH - 72.8% of booths can't show on map
+- [x] ✅ Geocoding Edge Function deployed
+- [x] ✅ Automated batch script running (bash ID: 712a3a)
+- [ ] Monitor progress to completion (664 remaining)
+- [ ] Verify success rate stays above 95%
+- [ ] Check for any stuck/failed booths
+**Expected:** Complete within 12-15 hours
 
-### 3. Trigger First Crawl to Get Real Booths
-**Why:** Only 3 test booths exist, need real data
-- [ ] Complete test crawl for photobooth.net (in progress)
+### 3. Verify Updated Source URLs Work
+**Status:** ✅ URLs updated in database, needs testing
+**Why:** We fixed 5 broken source URLs - need to verify crawler can extract from them
+**Impact:** MEDIUM - Validates our source URL fixes
+- [ ] Trigger test crawl for updated sources:
+  - [ ] Time Out LA (new URL)
+  - [ ] Locale Magazine LA (new URL)
+  - [ ] Time Out Chicago (new URL)
+  - [ ] Block Club Chicago (new source)
 - [ ] Verify booths extracted successfully
-- [ ] Check that images are extracted from sources
-- [ ] Validate booth detail pages work with crawled data
+- [ ] Document extraction success rates
 
 ---
 
-## 🔥 HIGH PRIORITY - DATA PIPELINE (THIS WEEK)
+## 🔥 HIGH PRIORITY - RUN EXISTING SYSTEMS (THIS WEEK)
 
-### Phase 1: Make Crawler Work End-to-End (Days 1-2)
+### Phase 1: Trigger Bulk Crawls (Days 1-2)
 
-#### Fix Immediate Extraction Issues
-- [ ] **Test photobooth.net crawl** - Monitor first real crawl execution
-- [ ] **Analyze crawl results** - Check what booths were found
-- [ ] **Fix extraction failures** - Debug any errors in AI extraction
-- [ ] **Loosen validation rules** - Make lat/lng optional, accept partial data
-- [ ] **Add extraction logging** - Log AI prompts, responses, rejections
-- [ ] **Test top 5 sources** - Manually crawl and verify each works
-  - [ ] photobooth.net
-  - [ ] lomography.com
-  - [ ] photomatica.com
-  - [ ] autophoto.org
-  - [ ] photoautomat.de
+**REALITY CHECK**: Crawler is FULLY BUILT with 56 files (~500KB code). It's ready to use, not build.
 
-#### Create Missing Infrastructure
-- [ ] **Create raw_content_storage table** - Store crawled HTML for reprocessing
-- [ ] **Fix crawler_metrics schema** - Add missing columns (pages_crawled, etc.)
-- [ ] **Add confidence scoring** - Track extraction quality
-- [ ] **Create booth review queue** - For Alexandra to approve/reject
+#### Run Crawls for All Enabled Sources
+**Status:** ✅ Infrastructure complete, ready to execute
+**Files:**
+- Main crawler: `supabase/functions/unified-crawler/index.ts` (1,524 lines)
+- Enhanced extractors: 84KB
+- AI extraction engine: 20KB
+- Deduplication: 18KB
+- Validation: 25KB
 
-#### Improve Firecrawl Integration
-- [ ] **Optimize per-source settings** - Different configs for different site types
-- [ ] **Implement caching** - Cache successful crawls for 7 days
-- [ ] **Better error handling** - Retry with fallback strategies
-- [ ] **Create testing utility** - CLI tool to test any URL
+**Tasks:**
+- [ ] **Deploy unified-crawler Edge Function** (if not already deployed)
+- [ ] **Trigger crawls for 38 enabled sources** - Stagger to avoid rate limits
+- [ ] **Monitor first wave** - Watch real-time extraction
+- [ ] **Check extraction success rates** - Target >90% success
+- [ ] **Debug any failures** - Adjust configs as needed
+- [ ] **Goal: Extract 100+ new booths** - Within 48 hours
 
-### Phase 2: Scale Up Extraction (Days 3-5)
+#### Test Top Priority Sources
+- [ ] **photobooth.net** - Largest directory (potentially 100+ booths)
+- [ ] **lomography.com** - Global community site
+- [ ] **photomatica.com** - Equipment supplier with booth locations
+- [ ] **autophoto.org** - Classic booth enthusiast site
+- [ ] **photoautomat.de** - German booth network
 
-#### Automated Crawl Scheduling
-- [ ] **Create crawl scheduler Edge Function** - Auto-schedule based on frequency
-- [ ] **Set up cron trigger** - GitHub Actions or external cron
-- [ ] **Add job queue processor** - Process queued jobs automatically
-- [ ] **Implement retry logic** - Auto-retry failed crawls
+#### Monitor and Optimize
+- [ ] **Check crawler_metrics table** - View execution logs
+- [ ] **Analyze extraction patterns** - What works best
+- [ ] **Optimize Firecrawl settings** - Per-source configurations
+- [ ] **Document success patterns** - For future source additions
 
-#### Bulk Initial Crawls
-- [ ] **Schedule all 38 enabled sources** - Stagger to avoid rate limits
-- [ ] **Monitor first wave** - Watch crawls execute in real-time
-- [ ] **Document success patterns** - What extractors work best
-- [ ] **Fix failing sources** - Debug and adjust configs
-- [ ] **Target: 100+ booths extracted** - Within first 48 hours
+### Phase 2: Automated Crawl Scheduling (Days 3-5)
 
-#### AI Extraction Enhancements
-- [ ] **Multi-pass extraction** - Find mentions → Extract details → Validate
-- [ ] **Fallback extractors** - Regex patterns if AI fails
-- [ ] **Training data collection** - Save corrections for future improvements
-- [ ] **Cost optimization** - Use Haiku for simple extractions
-
-### Phase 3: Data Quality & Monitoring (Days 6-7)
+#### Create Scheduler Infrastructure
+- [ ] **Crawl scheduler Edge Function** - Auto-schedule based on source frequency
+- [ ] **Set up cron trigger** - GitHub Actions or Supabase cron
+- [ ] **Job queue processor** - Handle queued crawls
+- [ ] **Retry logic** - Auto-retry failed extractions
+- [ ] **Rate limit handling** - Respect Firecrawl quotas
 
 #### Monitoring & Alerts
-- [ ] **Email alerts** - Notify if no booths extracted in 24h
-- [ ] **Slack webhooks** - Real-time crawler failure notifications
-- [ ] **Daily digest** - Summary of crawler stats
+- [ ] **Email alerts** - Notify on extraction failures
+- [ ] **Slack webhooks** - Real-time notifications
+- [ ] **Daily digest** - Crawler stats summary
 - [ ] **Weekly report** - Booth growth trends
+
+### Phase 3: Data Quality Improvements (Days 6-7)
 
 #### Database Optimization
 - [ ] **Add indexes** - booths(city, country, status, created_at)
-- [ ] **Full-text search** - On name, address fields
-- [ ] **Deduplication system** - Fuzzy matching + geospatial distance
-- [ ] **Data quality constraints** - Validate lat/lng ranges, required fields
+- [ ] **Full-text search** - On name, address, description
+- [ ] **Verify deduplication works** - 18KB system exists, ensure it's active
+- [ ] **Data quality constraints** - Validate field formats
+
+#### Review Workflow Setup
+- [ ] **Booth review queue** - For crawler-extracted booths
+- [ ] **Confidence scoring** - Sort by extraction quality
+- [ ] **Quick approve/reject UI** - One-click moderation
+- [ ] **Batch operations** - Approve multiple at once
 
 ---
 
 ## 💎 USER EXPERIENCE - CRITICAL IMPROVEMENTS (THIS WEEK)
 
 ### Map Experience Enhancements
-- [ ] **Fix marker clustering** - Ensure clustering works with 100+ markers
-- [ ] **Lazy load markers** - Only load markers in viewport
-- [ ] **Smooth animations** - Zoom/pan transitions
-- [ ] **Better popups** - Rich info windows with photos
-- [ ] **List view toggle** - Map + sidebar list view option
-- [ ] **Advanced filtering UI** - Filter by type, status, machine model
-- [ ] **Search by city** - Auto-zoom to searched city
-- [ ] **"Near me" improvements** - Better geolocation handling
+**Current:** Map works but needs performance and UX improvements
+- [ ] **Fix marker clustering** - Handle 900+ markers efficiently
+- [ ] **Lazy load markers** - Only render viewport markers
+- [ ] **Smooth animations** - Better zoom/pan transitions
+- [ ] **Rich info windows** - Photos, ratings, quick details
+- [ ] **List view toggle** - Map + sidebar list option
+- [ ] **Advanced filtering UI** - By type, status, machine model
+- [ ] **Search integration** - Auto-zoom to searched location
+- [ ] **"Near me" improvements** - Better geolocation UX
 
 ### Booth Detail Page Improvements
-- [ ] **Image gallery** - Swipeable full-screen gallery
+**Current:** Pages work with SEO slugs, need enhancements
+- [ ] **Image gallery** - Swipeable full-screen viewer
 - [ ] **Sample strip showcase** - Vertical photo strip display
-- [ ] **Community photos** - User-submitted photos section
-- [ ] **Reviews & ratings** - 5-star rating system
-- [ ] **Visit checklist** - "Have you visited?" tracking
+- [ ] **Community photos section** - User-submitted images
+- [ ] **Reviews & ratings** - 5-star system with comments
+- [ ] **Visit tracking** - "Have you been here?" feature
 - [ ] **Social sharing** - Better OG tags, Twitter cards
 - [ ] **Related booths** - "Nearby" and "Similar" recommendations
-- [ ] **Operator page** - Link to operator's other booths
+- [ ] **Operator profiles** - Link to operator's other booths
 
 ### Submit Form UX Overhaul
+**Current:** Basic form works, needs progressive enhancement
 - [ ] **Progressive form** - Step 1: Location → Step 2: Details → Step 3: Photos
 - [ ] **Address autocomplete** - Google Places API integration
-- [ ] **GPS location** - "Find my location" button
-- [ ] **Photo upload** - Drag-and-drop multiple photos
-- [ ] **Machine database** - Dropdown of known machine models
-- [ ] **Preview before submit** - Show what booth will look like
-- [ ] **Duplicate detection** - Warn if booth might already exist
-- [ ] **Save draft** - Allow incomplete submissions
+- [ ] **GPS location button** - "Use my location"
+- [ ] **Photo upload** - Drag-and-drop with preview
+- [ ] **Machine database** - Dropdown of known models
+- [ ] **Preview before submit** - Show formatted booth card
+- [ ] **Duplicate detection** - Warn if similar booth exists
+- [ ] **Save draft feature** - Resume incomplete submissions
 
 ### Homepage & Discovery
-- [ ] **Featured booths carousel** - Highlight interesting booths
-- [ ] **City guides** - "Best booths in [City]" landing pages
-- [ ] **Recently added** - Show newest booths
-- [ ] **Most popular** - Track views, show trending
-- [ ] **Collections** - Curated "Best Of" lists
-- [ ] **Search improvements** - Fuzzy search, suggestions
+**Current:** Shows all 912 booths, needs curation features
+- [ ] **Featured booths carousel** - Highlight interesting locations
+- [ ] **City guides section** - "Best booths in [City]" landing pages
+- [ ] **Recently added** - Show newest discoveries
+- [ ] **Most popular** - Track views, show trending booths
+- [ ] **Curated collections** - "Best Of" lists
+- [ ] **Search improvements** - Fuzzy search, autocomplete suggestions
 
 ---
 
-## 💝 USER FEATURES - INSPIRED BY ALEXANDRA'S WORKFLOW (THIS WEEK)
+## 💝 USER FEATURES - INSPIRED BY ALEXANDRA (WEEK 2)
 
-**Background:** Alexandra manually researches analog photo booths, curates them by city, adds personality with cute icons on Google Maps, and shares these maps for trips. We want to enable all users to create and share their own curated booth collections.
+**Background:** Alexandra manually curates photo booth maps for travel. Enable ALL users to create and share collections.
 
 ### Personal Booth Collections
 - [ ] **Create custom lists** - "My Berlin Trip", "Best NYC Booths", etc.
-- [ ] **Save booths to lists** - Heart/bookmark button on booth cards
-- [ ] **Organize by city/trip** - Group booths by destination
-- [ ] **Add personal notes** - "Cash only", "Great lighting", "Cheap!"
-- [ ] **Custom icons/tags** - Emoji or icon per booth (like Alexandra's cute icons)
+- [ ] **Save booths to lists** - Heart/bookmark button
+- [ ] **Organize by city/trip** - Group by destination
+- [ ] **Add personal notes** - "Cash only", "Great lighting"
+- [ ] **Custom icons/tags** - Emoji markers (like Alexandra's cute icons)
 - [ ] **Collection visibility** - Public, unlisted, or private
 
 ### Sharing & Social Features
 - [ ] **Share collection links** - Unique URL per collection
-- [ ] **Google Maps export** - Generate shareable Google Maps link with all booths
-- [ ] **Social media sharing** - Rich preview cards for collections
-- [ ] **Embed collections** - Iframe embed code for blogs/websites
-- [ ] **Follow other collectors** - See others' public collections
-- [ ] **Collection discovery** - "Featured Collections", "Trending This Week"
+- [ ] **Google Maps export** - Generate shareable map with all booths
+- [ ] **Social media cards** - Rich preview for Twitter, Facebook
+- [ ] **Embed collections** - Iframe code for blogs
+- [ ] **Follow collectors** - See others' public collections
+- [ ] **Collection discovery** - "Featured Collections", "Trending"
 
 ### Trip Planning Tools
-- [ ] **Multi-city itinerary** - Plan route through multiple cities
-- [ ] **Map route optimization** - Best order to visit booths
-- [ ] **"Near me" while traveling** - Location-based booth discovery
+- [ ] **Multi-city itinerary** - Plan routes through multiple cities
+- [ ] **Route optimization** - Best order to visit booths
+- [ ] **Location-based discovery** - "Near me" while traveling
 - [ ] **Visit tracking** - Check off visited booths
-- [ ] **Travel journal** - Add photos from your booth visits
-- [ ] **Export to calendar** - Add booth visits to Google Calendar
+- [ ] **Travel journal** - Add your own photos from visits
+- [ ] **Calendar export** - Add booth visits to Google Calendar
 
 ### City Guides (Like Alexandra Creates)
-- [ ] **Curated city landing pages** - "Best Booths in Berlin"
+- [ ] **Curated city pages** - "Best Booths in Berlin"
 - [ ] **Neighborhood guides** - "Kreuzberg Photo Booths"
-- [ ] **Booth density maps** - Heatmap of booth locations
-- [ ] **"Alexandra's Picks"** - Featured collections by the inspiration herself
-- [ ] **Community guides** - User-submitted city guides
+- [ ] **Booth density heatmaps** - Visualize concentrations
+- [ ] **"Alexandra's Picks"** - Featured by the inspiration herself
+- [ ] **Community guides** - User-submitted city tours
 - [ ] **Seasonal guides** - "Summer 2025 European Booth Tour"
 
 ---
 
-## 🛠️ BACKEND ADMIN TOOLS - SITE MAINTENANCE (NEXT WEEK)
-
-**Note:** These are operational tools for maintaining data quality and system health. Not related to Alexandra or user-facing features.
-
-### Booth Review Workflow (For Moderation)
-- [ ] **Booth review queue** - List pending approvals from crawler/submissions
-- [ ] **Side-by-side comparison** - Raw data vs structured
-- [ ] **Quick approve/reject** - One-click actions
-- [ ] **Batch operations** - Approve multiple at once
-- [ ] **Edit before approve** - Fix data inline
-- [ ] **Confidence scoring** - Sort by extraction quality
+## 🛠️ BACKEND ADMIN TOOLS (WEEK 3)
 
 ### Source Management Dashboard
-- [ ] **Source quality metrics** - Which sources produce best booths
-- [ ] **Approval rates** - Track quality per source
+- [ ] **Source quality metrics** - Success rates per source
 - [ ] **Enable/disable sources** - Toggle sources on/off
-- [ ] **Source testing** - Dry-run mode for new sources
+- [ ] **Source testing utility** - Dry-run mode for new sources
 - [ ] **Error analysis** - Common failure patterns
+- [ ] **URL validator** - Test URLs before adding
 
 ### Data Quality Tools
 - [ ] **Find incomplete booths** - Missing required fields
-- [ ] **Duplicate detection** - Find potential duplicates
+- [ ] **Duplicate detection UI** - Review potential duplicates
 - [ ] **Geocoding validator** - Fix incorrect coordinates
-- [ ] **Bulk geocoding** - Add coordinates to missing booths
 - [ ] **Bulk editing** - Fix common issues across multiple booths
-- [ ] **CSV import** - Import booths from spreadsheet
-- [ ] **Data export** - Export for backup/analysis
+- [ ] **CSV import/export** - Batch operations
 
 ### Performance Dashboard
 - [ ] **Real-time crawler status** - Live execution monitoring
@@ -224,95 +231,142 @@
 - [ ] **RLS policies** - Secure access controls
 - [ ] **Backup strategy** - Daily automated backups
 - [ ] **Performance indexes** - Optimize slow queries
-- [ ] **Partitioning** - For very large tables
-- [ ] **Read replicas** - If performance degrades
+- [ ] **Query optimization** - Review slow queries
+- [ ] **Connection pooling** - If needed at scale
 
 ### API & Integration
-- [ ] **Public API** - Allow third parties to access booth data
-- [ ] **Webhooks** - Notify on new booths added
-- [ ] **GraphQL endpoint** - For flexible querying
+- [ ] **Public API** - RESTful API for booth data
+- [ ] **API documentation** - OpenAPI/Swagger docs
 - [ ] **Rate limiting** - Protect against abuse
+- [ ] **Webhooks** - Notify on new booth additions
+- [ ] **GraphQL endpoint** - Flexible querying (future)
 
 ### DevOps & Monitoring
 - [ ] **Error tracking** - Sentry for frontend errors
-- [ ] **Performance monitoring** - Vercel Analytics
-- [ ] **Uptime monitoring** - UptimeRobot or similar
-- [ ] **Log aggregation** - Structured logging system
+- [ ] **Performance monitoring** - Vercel Analytics, Web Vitals
+- [ ] **Uptime monitoring** - Alert on downtime
+- [ ] **Log aggregation** - Structured logging
 - [ ] **Load testing** - Test with 10k+ booths
 
 ### Content & SEO
-- [ ] **City landing pages** - SEO-optimized pages for each city
-- [ ] **Sitemap generation** - Dynamic sitemap for all booths
+- [x] ✅ **SEO-friendly URLs** - Slugs implemented (`/booth/joes-bar-brooklyn`)
+- [x] ✅ **Sitemap generation** - Dynamic sitemap exists
+- [ ] **City landing pages** - SEO pages for each city
 - [ ] **Schema markup** - Rich snippets for Google
-- [ ] **Meta tags optimization** - Better OG tags for sharing
+- [ ] **Meta tags optimization** - Better OG tags
 - [ ] **Blog/content** - Photo booth guides, history, tips
 
 ---
 
-## 📊 SUCCESS METRICS & GOALS
+## 📊 REVISED SUCCESS METRICS & GOALS
 
-### Week 1 (Current Week)
-- [ ] 100+ booths in database (from 3)
-- [ ] 5+ sources successfully extracting
-- [ ] <10% extraction failure rate
-- [ ] All UX critical bugs fixed
-- [ ] Booth detail pages fully functional
+### Week 1 (Current Week) - REVISED
+**Reality:** Already have 912 booths, not 3. Focus on deployment and geocoding.
+- [x] ✅ **TypeScript errors fixed** - 90% reduction (156→15)
+- [x] ✅ **ESLint warnings fixed** - 73% reduction (307→84)
+- [x] ✅ **Homepage displays all booths** - Removed limit, shows 912
+- [x] ✅ **Booth URLs use SEO slugs** - Converted across 6 files
+- [x] ✅ **Map centers on USA** - Changed from NYC
+- [x] ✅ **Geocoding infrastructure ready** - Edge Function deployed
+- [ ] **Deploy fixes to production** - Commit and push ⚠️ HIGH PRIORITY
+- [ ] **Complete geocoding** - 664/912 remaining (72.8%)
+- [ ] **Trigger bulk crawls** - Run for 38 sources
+- [ ] **Extract 100+ new booths** - From crawler runs
 
 ### Week 2
-- [ ] 500+ booths in database
-- [ ] 15+ sources active
-- [ ] Booth review workflow operational
-- [ ] Map clustering working smoothly
-- [ ] Submit form improvements deployed
+- [ ] **Geocoding 100% complete** - All 912 booths on map
+- [ ] **1,000+ booths total** - From crawler extractions (88 new)
+- [ ] **10+ sources actively crawling** - Automated scheduling
+- [ ] **Map clustering working** - Smooth with 1,000+ markers
+- [ ] **Submit form enhanced** - Progressive form, autocomplete
+- [ ] **Booth review workflow** - Admin can approve/reject
 
 ### Week 3
-- [ ] 1,000+ booths in database
-- [ ] 25+ sources active
-- [ ] Admin dashboard complete
-- [ ] Performance optimized
-- [ ] Monitoring and alerts active
+- [ ] **1,500+ booths** - Continued extraction (500 new)
+- [ ] **20+ sources active** - Majority of sources producing
+- [ ] **Admin dashboard complete** - Source management, analytics
+- [ ] **User collections MVP** - Create, save, share lists
+- [ ] **Performance optimized** - Fast load with 1,500+ booths
+- [ ] **Monitoring active** - Alerts, digests, reports
 
 ### Month 1
-- [ ] 5,000+ booths
-- [ ] All 38 sources operational
-- [ ] Public API available
-- [ ] SEO optimizations complete
-- [ ] Community features launched
+- [ ] **3,000+ booths** - Target from all 38 sources
+- [ ] **All 38 sources operational** - Automated crawling
+- [ ] **City guides launched** - Top 10 cities curated
+- [ ] **Public API available** - Developer access
+- [ ] **SEO optimizations complete** - Ranking for key terms
+- [ ] **Community features live** - Collections, sharing, reviews
 
 ---
 
 ## 🎯 IMMEDIATE NEXT ACTIONS (RIGHT NOW)
 
-1. **Check test crawl results** - See if photobooth.net crawl succeeded
-2. **Commit and push code** - Deploy booth detail pages and image fixes
-3. **Create raw_content_storage migration** - Essential for reprocessing
-4. **Schedule bulk crawls** - Get top 10 sources running
-5. **Fix any extraction failures** - Debug and resolve blockers
+### TODAY:
+1. ✅ **Audit master list** - COMPLETE (this file)
+2. **Deploy to production** - Commit all fixes, push to GitHub
+3. **Monitor geocoding** - Check progress (currently 27.2% complete)
+4. **Test one crawler source** - Verify extraction pipeline works
+
+### THIS WEEK:
+5. **Trigger bulk crawls** - All 38 enabled sources
+6. **Monitor extraction rates** - Debug any failures
+7. **Implement map clustering** - Handle 900+ markers
+8. **Create admin review workflow** - Basic approve/reject UI
 
 ---
 
-## 📝 RESEARCH COMPLETED
+## ✅ COMPLETED TASKS (Audit Findings)
 
-- ✅ Diagnostic queries revealed crawler never run
-- ✅ Database schema analysis complete
-- ✅ UX code review shows pages exist but not deployed
-- ✅ Root cause identified: Infrastructure ready but not executing
-- ✅ Comprehensive extraction improvement plan created
-- ✅ Admin workflow requirements documented
+### Infrastructure (FULLY BUILT)
+- ✅ **Crawler implementation** - 56 files, 500KB code in `supabase/functions/unified-crawler/`
+- ✅ **AI extraction engine** - 20KB, multi-pass extraction (`ai-extraction-engine.ts`)
+- ✅ **Deduplication system** - 18KB, fuzzy matching (`deduplication-engine.ts`)
+- ✅ **Validation system** - 25KB, comprehensive checks (`validation.ts`)
+- ✅ **Enhanced extractors** - 84KB specialized extraction logic
+- ✅ **European extractors** - 23KB for European sites
+- ✅ **City guide extractors** - 44KB for guide sites
+- ✅ **Test coverage** - Multiple test files exist
+
+### Data
+- ✅ **912 booths in database** - NOT "only 3 test booths" as previously stated
+- ✅ **46 crawler sources configured** - 38 enabled
+- ✅ **Database schema complete** - All tables exist and functional
+- ✅ **248 booths geocoded** - 27.2% complete, script running
+
+### Frontend
+- ✅ **Booth detail pages** - SEO-friendly slugs implemented
+- ✅ **Homepage functional** - Shows all booths (limit removed)
+- ✅ **Map component** - Working, shows all geocoded booths
+- ✅ **Search functionality** - Basic search operational
+- ✅ **TypeScript fixes** - 90% of errors resolved
+- ✅ **ESLint cleanup** - 73% of issues resolved
+
+---
+
+## 🔍 KEY INSIGHTS FROM AUDIT
+
+1. **Infrastructure is built, not "TODO"** - Crawler exists with 56 files
+2. **912 booths exist** - Not 3 as previously stated
+3. **Focus should be on USING existing systems** - Not building them
+4. **Geocoding is critical** - 72.8% of booths can't display on map yet
+5. **Deployment is urgent** - All fixes ready but not live
+6. **Crawler just needs to be triggered** - It's ready to extract thousands of booths
 
 ---
 
 ## 🔗 RELATED DOCUMENTATION
 
-- `/docs/DIAGNOSTIC_FINDINGS.md` - Root cause analysis
-- `/docs/RESEARCH_AND_PLAN.md` - Original research document
-- `/docs/ADMIN_CRAWLER_WORKFLOW.md` - Admin workflow guide
-- `/supabase/functions/unified-crawler/` - Crawler implementation
-- `/src/app/booth/[id]/page.tsx` - Booth detail page
-- `/src/components/booth/BoothMap.tsx` - Map with image popups
+- `MASTER_LIST_AUDIT_NOV28.md` - Detailed audit findings
+- `SESSION-SUMMARY.md` - Latest session progress
+- `.claude/CLAUDE.md` - Project instructions for Claude
+- `supabase/functions/unified-crawler/` - Complete crawler implementation
+- `scripts/geocode-all-batches.sh` - Automated geocoding
+- `src/app/booth/[slug]/page.tsx` - Booth detail pages
+- `src/components/booth/BoothMap.tsx` - Map component
 
 ---
 
-**Last Updated:** November 28, 2025
-**Next Review:** Daily standup - track progress on critical tasks
+**Last Updated:** November 28, 2025 (MAJOR REVISION after codebase audit)
+**Status:** Master list now reflects ACTUAL project state
+**Next Review:** After deployment and bulk crawl completion
 **Owner:** Jascha Kaykas-Wolff (with Claude as strategic partner)
