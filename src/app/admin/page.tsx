@@ -11,7 +11,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { BarChart3, Users, Image, MessageSquare, MapPin, CheckCircle, XCircle, Clock, Database, PlayCircle, PauseCircle, RefreshCw, Shield, Wifi, WifiOff, Activity, AlertCircle, Zap, Loader2, FileText, Heart, Recycle, Eye } from 'lucide-react';
+import { BarChart3, Users, Image, MessageSquare, MapPin, CheckCircle, XCircle, Clock, Database, PlayCircle, PauseCircle, RefreshCw, Shield, Wifi, WifiOff, Activity, AlertCircle, Zap, Loader2, FileText, Heart, Recycle } from 'lucide-react';
 import { toast } from 'sonner';
 import { MetricsDashboard } from '@/components/admin/MetricsDashboard';
 import { CrawlPerformanceBreakdown } from '@/components/admin/CrawlPerformanceBreakdown';
@@ -52,7 +52,7 @@ export default function AdminPage() {
   const router = useRouter();
   const [isAdmin, setIsAdmin] = useState(false);
   const [adminCheckComplete, setAdminCheckComplete] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [_loading, setLoading] = useState(false);
   const [stats, setStats] = useState({
     totalBooths: 0,
     activeBooths: 0,
@@ -86,7 +86,7 @@ export default function AdminPage() {
   const [reconnectAttempt, setReconnectAttempt] = useState(0);
   const [maxReconnectAttempts] = useState(5);
   const [reconnectTimeoutId, setReconnectTimeoutId] = useState<NodeJS.Timeout | null>(null);
-  const [selectedSource, setSelectedSource] = useState<string>('');
+  const [_selectedSource, setSelectedSource] = useState<string>('');
 
   // Geocoding state (for future feature)
   // Commented out to fix lint errors until feature is implemented
@@ -641,47 +641,19 @@ export default function AdminPage() {
           </div>
 
           {/* Tabs */}
-          <Tabs defaultValue="metrics" className="w-full">
+          <Tabs defaultValue="crawler" className="w-full">
             <TabsList className="bg-neutral-800 border-neutral-700">
-              <TabsTrigger value="metrics" className="data-[state=active]:bg-neutral-700 data-[state=active]:text-white">
-                <BarChart3 className="w-4 h-4 mr-2" />
-                Metrics Dashboard
-              </TabsTrigger>
-              <TabsTrigger value="photos" className="data-[state=active]:bg-neutral-700 data-[state=active]:text-white">
-                <Image className="w-4 h-4 mr-2" />
-                Photo Moderation ({stats.pendingPhotos})
-              </TabsTrigger>
               <TabsTrigger value="crawler" className="data-[state=active]:bg-neutral-700 data-[state=active]:text-white">
                 <Database className="w-4 h-4 mr-2" />
-                Data Crawler
+                Crawler & Data
               </TabsTrigger>
-              <TabsTrigger value="users" className="data-[state=active]:bg-neutral-700 data-[state=active]:text-white">
-                <Users className="w-4 h-4 mr-2" />
-                User Management
+              <TabsTrigger value="moderation" className="data-[state=active]:bg-neutral-700 data-[state=active]:text-white">
+                <Eye className="w-4 h-4 mr-2" />
+                Moderation {stats.pendingPhotos > 0 && `(${stats.pendingPhotos})`}
               </TabsTrigger>
-              <TabsTrigger value="analytics" className="data-[state=active]:bg-neutral-700 data-[state=active]:text-white">
+              <TabsTrigger value="advanced" className="data-[state=active]:bg-neutral-700 data-[state=active]:text-white">
                 <Activity className="w-4 h-4 mr-2" />
-                Analytics
-              </TabsTrigger>
-              <TabsTrigger value="logs" className="data-[state=active]:bg-neutral-700 data-[state=active]:text-white">
-                <FileText className="w-4 h-4 mr-2" />
-                Crawler Logs
-              </TabsTrigger>
-              <TabsTrigger value="health" className="data-[state=active]:bg-neutral-700 data-[state=active]:text-white">
-                <Heart className="w-4 h-4 mr-2" />
-                Crawler Health
-              </TabsTrigger>
-              <TabsTrigger value="performance" className="data-[state=active]:bg-neutral-700 data-[state=active]:text-white">
-                <Zap className="w-4 h-4 mr-2" />
-                Performance
-              </TabsTrigger>
-              <TabsTrigger value="queue" className="data-[state=active]:bg-neutral-700 data-[state=active]:text-white">
-                <Clock className="w-4 h-4 mr-2" />
-                Job Queue
-              </TabsTrigger>
-              <TabsTrigger value="reextraction" className="data-[state=active]:bg-neutral-700 data-[state=active]:text-white">
-                <Recycle className="w-4 h-4 mr-2" />
-                Re-extraction
+                Advanced
               </TabsTrigger>
             </TabsList>
 
