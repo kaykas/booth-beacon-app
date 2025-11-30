@@ -18,7 +18,7 @@ import { BoothImage } from '@/components/booth/BoothImage';
 import { BoothMap } from '@/components/booth/BoothMap';
 import { BookmarkButton } from '@/components/BookmarkButton';
 import { ShareButton } from '@/components/ShareButton';
-import { createServerClient } from '@/lib/supabase';
+import { createPublicServerClient } from '@/lib/supabase';
 import { Booth } from '@/types';
 
 interface BoothDetailPageProps {
@@ -30,7 +30,7 @@ interface BoothDetailPageProps {
 // Fetch booth with proper error handling
 async function getBooth(slug: string): Promise<Booth | null> {
   try {
-    const supabase = createServerClient();
+    const supabase = createPublicServerClient();
     const { data, error } = await supabase
       .from('booths')
       .select('*')

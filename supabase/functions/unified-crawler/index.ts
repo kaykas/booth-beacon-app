@@ -234,22 +234,59 @@ async function retryWithBackoff<T>(
 /**
  * Domain-specific configuration for crawling
  * Helps prevent timeouts on slow sites
+ *
+ * UPDATED 2025-11-30: Increased wait times and page limits for JS-heavy and directory sites
  */
 const DOMAIN_CONFIG: Record<string, { pageLimit: number; timeout: number; waitFor: number }> = {
-  'photobooth.net': { pageLimit: 1, timeout: 60000, waitFor: 8000 },
-  'fotoautomat-wien.at': { pageLimit: 1, timeout: 60000, waitFor: 8000 },
-  'autophoto.org': { pageLimit: 2, timeout: 45000, waitFor: 5000 },
-  'lomography.com': { pageLimit: 2, timeout: 45000, waitFor: 5000 },
-  // Default fallback
-  'default': { pageLimit: 3, timeout: 30000, waitFor: 6000 }
+  // GOLD STANDARD: photobooth.net - large directory, needs deep crawling
+  'photobooth.net/locations': { pageLimit: 100, timeout: 120000, waitFor: 10000 },
+  'photobooth.net': { pageLimit: 5, timeout: 60000, waitFor: 8000 },
+
+  // HIGH VALUE: autophoto.org - JavaScript map, needs longer wait
+  'autophoto.org': { pageLimit: 50, timeout: 90000, waitFor: 15000 },
+
+  // EUROPEAN OPERATORS: Well-structured, but large directories
+  'fotoautomat-wien.at': { pageLimit: 10, timeout: 60000, waitFor: 8000 },
+  'photoautomat.de': { pageLimit: 20, timeout: 60000, waitFor: 8000 },
+  'fotoautomatica': { pageLimit: 10, timeout: 60000, waitFor: 8000 },
+  'automatfoto.se': { pageLimit: 10, timeout: 60000, waitFor: 8000 },
+
+  // DIRECTORIES: Need multi-page crawling
+  'classicphotobooth.net': { pageLimit: 50, timeout: 60000, waitFor: 8000 },
+  'photomatica.com': { pageLimit: 30, timeout: 60000, waitFor: 8000 },
+  'lomography.com': { pageLimit: 20, timeout: 45000, waitFor: 8000 },
+
+  // CITY GUIDES: Usually single article pages
+  'timeout.com': { pageLimit: 1, timeout: 30000, waitFor: 6000 },
+  'blockclubchicago.org': { pageLimit: 1, timeout: 30000, waitFor: 6000 },
+
+  // Default fallback - conservative settings
+  'default': { pageLimit: 5, timeout: 30000, waitFor: 6000 }
 };
 
 function getDomainConfig(url: string) {
   try {
-    const hostname = new URL(url).hostname.replace('www.', '');
-    // Check for exact match or substring match
-    const configKey = Object.keys(DOMAIN_CONFIG).find(key => hostname.includes(key));
-    return configKey ? DOMAIN_CONFIG[configKey] : DOMAIN_CONFIG['default'];
+    const parsedUrl = new URL(url);
+    const hostname = parsedUrl.hostname.replace('www.', '');
+    const fullPath = hostname + parsedUrl.pathname;
+
+    // First check for full path match (e.g., "photobooth.net/locations")
+    const pathMatch = Object.keys(DOMAIN_CONFIG).find(key =>
+      key.includes('/') && fullPath.includes(key)
+    );
+    if (pathMatch) {
+      return DOMAIN_CONFIG[pathMatch];
+    }
+
+    // Then check for hostname match (e.g., "autophoto.org")
+    const hostMatch = Object.keys(DOMAIN_CONFIG).find(key =>
+      !key.includes('/') && hostname.includes(key)
+    );
+    if (hostMatch) {
+      return DOMAIN_CONFIG[hostMatch];
+    }
+
+    return DOMAIN_CONFIG['default'];
   } catch {
     return DOMAIN_CONFIG['default'];
   }
