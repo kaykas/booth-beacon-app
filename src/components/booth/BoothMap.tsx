@@ -439,6 +439,19 @@ function createInfoWindowContent(booth: Booth): string {
   // Use photo_exterior_url, or ai_preview_url only if it's not broken
   const photoUrl = booth.photo_exterior_url || (!isBrokenUnsplashUrl ? booth.ai_preview_url : null) || '/placeholder-booth.svg';
   const hasAiPreview = booth.ai_preview_url && !booth.photo_exterior_url && !isBrokenUnsplashUrl;
+  const verifiedDate = booth.last_verified || booth.source_verified_date || booth.last_checked_at;
+  const verificationLabel =
+    booth.verification_badge ||
+    (booth.verification_level === 'official'
+      ? 'Official source verified'
+      : booth.verification_level === 'trusted'
+      ? 'Trusted operator verified'
+      : booth.verification_level === 'community'
+      ? 'Community confirmed'
+      : verifiedDate
+      ? 'Recently verified'
+      : undefined);
+  const primarySource = booth.primary_source || booth.source_primary;
 
   // Trigger AI preview generation if booth has no photo and no AI preview (or broken one)
   if (!booth.photo_exterior_url && (!booth.ai_preview_url || isBrokenUnsplashUrl)) {
@@ -496,9 +509,37 @@ function createInfoWindowContent(booth: Booth): string {
         </span>
       </div>
 
-      <div style="font-size: 12px; color: #6b7280; margin-left: 18px; margin-bottom: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+      <div style="font-size: 12px; color: #6b7280; margin-left: 18px; margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
         ${displayAddress}
       </div>
+
+      ${
+        verificationLabel
+          ? `<div style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 8px; background: #ecfdf3; color: #065f46; border-radius: 999px; font-size: 11px; font-weight: 600; margin-bottom: 6px;">
+              <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z" />
+              </svg>
+              ${verificationLabel}
+            </div>`
+          : ''
+      }
+      ${
+        verifiedDate
+          ? `<div style="display: flex; align-items: center; gap: 6px; color: #4b5563; font-size: 11px; margin-bottom: 4px;">
+              <svg style="width: 13px; height: 13px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z" />
+              </svg>
+              <span>Last checked ${new Date(verifiedDate).toLocaleDateString()}</span>
+            </div>`
+          : ''
+      }
+      ${
+        primarySource
+          ? `<div style="color: #6b7280; font-size: 11px; margin-bottom: 8px;">Primary source: ${primarySource}</div>`
+          : ''
+      }
 
       <!-- Button -->
       <a

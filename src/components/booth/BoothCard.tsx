@@ -1,7 +1,7 @@
 'use client';
 
 import { Booth } from '@/types';
-import { MapPin, Camera, Navigation } from 'lucide-react';
+import { MapPin, Camera, Navigation, ShieldCheck, Clock } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { formatDistance } from '@/lib/distanceUtils';
@@ -33,6 +33,19 @@ export function BoothCard({
   // Use photo_exterior_url, or ai_preview_url only if it's not broken
   const imageUrl = booth.photo_exterior_url || (!isBrokenUnsplashUrl ? booth.ai_preview_url : null) || '/placeholder-booth.svg';
   const hasAiPreview = booth.ai_preview_url && !booth.photo_exterior_url && !isBrokenUnsplashUrl;
+  const verificationLabel =
+    booth.verification_badge ||
+    (booth.verification_level === 'official'
+      ? 'Official source verified'
+      : booth.verification_level === 'trusted'
+      ? 'Trusted operator verified'
+      : booth.verification_level === 'community'
+      ? 'Community confirmed'
+      : booth.last_verified || booth.source_verified_date
+      ? 'Recently verified'
+      : undefined);
+  const verifiedDate = booth.last_verified || booth.source_verified_date || booth.last_checked_at;
+  const primarySource = booth.primary_source || booth.source_primary;
 
   return (
     <div className="group relative bg-white rounded-lg shadow-photo overflow-hidden transition-transform hover:scale-[1.02]">
@@ -87,6 +100,28 @@ export function BoothCard({
             <Camera className="w-4 h-4 flex-shrink-0" />
             {booth.machine_model}
           </p>
+        )}
+
+        {(verificationLabel || primarySource) && (
+          <div className="mt-3 space-y-1 text-xs text-neutral-600">
+            {verificationLabel && (
+              <div className="inline-flex items-center gap-1 rounded-full bg-emerald-50 text-emerald-700 px-2 py-1 font-medium">
+                <ShieldCheck className="w-3 h-3" />
+                {verificationLabel}
+              </div>
+            )}
+            {verifiedDate && (
+              <div className="flex items-center gap-1">
+                <Clock className="w-3 h-3" />
+                <span className="text-[11px]">
+                  Last checked {new Date(verifiedDate).toLocaleDateString()}
+                </span>
+              </div>
+            )}
+            {primarySource && (
+              <p className="text-[11px] text-neutral-500">Primary source: {primarySource}</p>
+            )}
+          </div>
         )}
 
         {booth.photo_type && (
