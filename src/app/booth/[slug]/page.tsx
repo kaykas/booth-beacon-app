@@ -107,10 +107,10 @@ export async function generateMetadata({ params }: BoothDetailPageProps): Promis
   }
 
   const _mainPhoto = booth.photo_exterior_url || booth.ai_preview_url;
-  const description = booth.description || `Analog photo booth in ${booth.city}, ${booth.country}. ${booth.machine_model ? `Features a ${booth.machine_model}` : ''} ${booth.photo_type ? `${booth.photo_type} photo booth` : ''}`.trim();
+  const description = booth.description || `Analog photo booth in ${booth.city || 'Unknown City'}, ${booth.country || 'Unknown Country'}. ${booth.machine_model ? `Features a ${booth.machine_model}` : ''} ${booth.photo_type ? `${booth.photo_type} photo booth` : ''}`.trim();
 
   return {
-    title: `${booth.name} - ${booth.city}, ${booth.country} | Booth Beacon`,
+    title: `${booth.name || 'Photo Booth'} - ${booth.city || 'Unknown City'}, ${booth.country || 'Unknown Country'} | Booth Beacon`,
     description,
     keywords: [
       'photo booth',
@@ -242,10 +242,14 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
             <Link href="/map" className="hover:text-primary transition">
               Booths
             </Link>
-            <span>/</span>
-            <Link href={`/guides/${booth.city.toLowerCase()}`} className="hover:text-primary transition">
-              {booth.city}
-            </Link>
+            {booth.city && (
+              <>
+                <span>/</span>
+                <Link href={`/guides/${booth.city.toLowerCase()}`} className="hover:text-primary transition">
+                  {booth.city}
+                </Link>
+              </>
+            )}
             <span>/</span>
             <span className="text-neutral-900 font-medium">{booth.name}</span>
           </nav>
@@ -296,7 +300,7 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
                   <div className="flex items-center gap-2 text-neutral-600 mb-4">
                     <MapPin className="w-4 h-4" />
                     <span>
-                      {booth.city}, {booth.country}
+                      {[booth.city, booth.country].filter(Boolean).join(', ')}
                     </span>
                   </div>
                 </div>
@@ -322,7 +326,7 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
                   </a>
                 </Button>
                 <ShareButton
-                  title={`${booth.name} - ${booth.city}, ${booth.country}`}
+                  title={`${booth.name} - ${[booth.city, booth.country].filter(Boolean).join(', ')}`}
                   text={`Check out this photo booth: ${booth.name}`}
                 />
               </div>
