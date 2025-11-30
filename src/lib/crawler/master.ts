@@ -17,7 +17,7 @@ const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_SERVICE_KEY, {
 export interface LogEvent {
   type: 'info' | 'error' | 'success' | 'progress';
   message: string;
-  data?: any;
+  data?: unknown;
 }
 
 export type LogCallback = (event: LogEvent) => void;
@@ -86,8 +86,9 @@ export async function processSource(sourceId: string, log: LogCallback) {
       }
       markdown = result.markdown;
       log({ type: 'success', message: `Scraped ${markdown.length} chars` });
-    } catch (err: any) {
-      throw new Error(`Firecrawl failed: ${err.message}`);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      throw new Error(`Firecrawl failed: ${errorMessage}`);
     }
 
     // 3. Extract
@@ -129,10 +130,11 @@ export async function processSource(sourceId: string, log: LogCallback) {
       if (Array.isArray(parsed.booths)) {
         booths = parsed.booths;
       }
-      
+
       log({ type: 'success', message: `Extracted ${booths.length} potential booths` });
-    } catch (err: any) {
-      throw new Error(`Extraction failed: ${err.message}`);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      throw new Error(`Extraction failed: ${errorMessage}`);
     }
 
     // 4. Upsert
@@ -213,9 +215,10 @@ export async function processSource(sourceId: string, log: LogCallback) {
 
     return { success: true, boothsFound: booths.length };
 
-  } catch (error: any) {
-    log({ type: 'error', message: error.message });
-    
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    log({ type: 'error', message: errorMessage });
+
     // Log failure to DB
     await supabase.from('crawl_logs').insert({
       source_id: sourceId,
