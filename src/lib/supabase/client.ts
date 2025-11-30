@@ -75,7 +75,7 @@ export function createServerClient() {
       },
       global: {
         headers: {
-          'x-client-info': 'booth-beacon-app',
+          'x-client-info': 'booth-beacon-app-v2',
         },
       },
     });
