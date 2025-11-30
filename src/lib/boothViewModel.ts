@@ -52,7 +52,7 @@ export function normalizeBooth(data: Partial<Booth> | null): RenderableBooth | n
   const locationLabel = `${city}${country ? `, ${country}` : ''}`;
   const addressDisplay = [address, postalCode, `${city}${state ? `, ${state}` : ''}${country ? `, ${country}` : ''}`]
     .filter(Boolean)
-    .join('\n');
+    .join(', ');
 
   const status = VALID_STATUSES.includes(data.status as Booth['status'])
     ? (data.status as Booth['status'])
