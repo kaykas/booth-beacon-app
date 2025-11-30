@@ -19,6 +19,7 @@ import { LogViewer } from '@/components/LogViewer';
 import { CrawlJobQueue } from '@/components/admin/CrawlJobQueue';
 import { CrawlerHealthDashboard } from '@/components/admin/CrawlerHealthDashboard';
 import { ReextractionQueue } from '@/components/admin/ReextractionQueue';
+import { CrawlerRegistryTable } from '@/components/admin/CrawlerRegistryTable';
 
 interface Photo {
   id: string;
@@ -1162,6 +1163,9 @@ npx tsx scripts/run-discovery.ts`}
                     </details>
                   </div>
                 </Card>
+
+                {/* Crawler Registry */}
+                <CrawlerRegistryTable />
 
                 {/* Metrics Dashboard */}
                 <MetricsDashboard />
