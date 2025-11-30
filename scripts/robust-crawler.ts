@@ -1,12 +1,15 @@
 
 import { createClient } from '@supabase/supabase-js';
 import { FirecrawlAppV1 } from '@mendable/firecrawl-js';
+import { getAdapterForUrl, normalizeBoothCollection, NormalizedBoothData } from './lib/source-adapters';
 
 // Configuration
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://tmgbmcbwfkvmylmfpkzy.supabase.co';
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY; // Must be Service Role Key for writing
 const FIRECRAWL_API_KEY = process.env.FIRECRAWL_API_KEY;
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
+const ALERT_WEBHOOK_URL = process.env.CRAWLER_ALERT_WEBHOOK;
+const ALERT_EMAIL = process.env.CRAWLER_ALERT_EMAIL;
 
 if (!SUPABASE_KEY || !FIRECRAWL_API_KEY || !ANTHROPIC_API_KEY) {
   console.error('Missing required environment variables: SUPABASE_SERVICE_ROLE_KEY, FIRECRAWL_API_KEY, ANTHROPIC_API_KEY');
@@ -15,6 +18,47 @@ if (!SUPABASE_KEY || !FIRECRAWL_API_KEY || !ANTHROPIC_API_KEY) {
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 const firecrawl = new FirecrawlAppV1({ apiKey: FIRECRAWL_API_KEY });
+
+async function sendAlert(message: string, severity: 'error' | 'warn' | 'info', context?: Record<string, unknown>) {
+  const payload = {
+    text: `Crawler ${severity.toUpperCase()}: ${message}`,
+    attachments: context ? [{ text: JSON.stringify(context, null, 2) }] : undefined
+  };
+
+  if (ALERT_WEBHOOK_URL) {
+    try {
+      await fetch(ALERT_WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+    } catch (error) {
+      console.error('Failed to send alert webhook', error);
+    }
+  }
+
+  if (ALERT_EMAIL) {
+    console.log(`Alert email target configured (${ALERT_EMAIL}) - message: ${message}`);
+  }
+}
+
+async function loadRegistryEntries(): Promise<CrawlerRegistryEntry[]> {
+  const { data, error } = await supabase.from('crawler_registry').select('*').eq('enabled', true);
+
+  if (error) {
+    console.warn('Could not load crawler_registry table - continuing without registry tracking', error.message);
+    return [];
+  }
+
+  return data as CrawlerRegistryEntry[];
+}
+
+async function updateRegistryEntry(id: string, updates: Partial<CrawlerRegistryEntry>) {
+  const { error } = await supabase.from('crawler_registry').update(updates).eq('id', id);
+  if (error) {
+    console.warn('Failed to update crawler_registry entry', error.message);
+  }
+}
 
 interface BoothData {
   name: string;
@@ -25,6 +69,23 @@ interface BoothData {
   longitude?: number;
   description?: string;
   status?: string;
+  booth_type?: 'analog' | 'digital' | 'chemical' | 'instant';
+}
+
+interface CrawlerRegistryEntry {
+  id: string;
+  crawl_source_id?: string | null;
+  source_name: string;
+  source_url: string;
+  tier: string;
+  cadence_days: number;
+  last_run?: string;
+  last_success?: string;
+  error_rate?: number;
+  last_result_count?: number;
+  previous_result_count?: number;
+  alert_channel?: string | null;
+  alert_target?: string | null;
 }
 
 // Helper to normalize strings for deduplication
@@ -88,8 +149,14 @@ Return ONLY JSON. No text before or after.`;
   }
 }
 
-async function processSource(source: any) {
+async function processSource(source: any, registryEntry?: CrawlerRegistryEntry) {
   console.log(`\nProcessing source: ${source.source_name} (${source.source_url})`);
+  const startTime = Date.now();
+  const previousCount = registryEntry?.last_result_count || 0;
+
+  if (registryEntry) {
+    await updateRegistryEntry(registryEntry.id, { last_run: new Date().toISOString() });
+  }
 
   try {
     // 1. Scrape with Firecrawl
@@ -106,24 +173,48 @@ async function processSource(source: any) {
     const markdown = scrapeResult.markdown || '';
     console.log(`  Scraped ${markdown.length} chars.`);
 
-    // 2. Extract with Claude
-    console.log(`  Extracting...`);
-    const booths = await extractBooths(markdown, source.source_url);
-    console.log(`  Found ${booths.length} booths.`);
+    // 2. Extract with adapters or Claude
+    const adapter = getAdapterForUrl(source.source_url);
+    let booths: NormalizedBoothData[] = [];
+
+    if (adapter) {
+      booths = adapter(markdown, source.source_url);
+      console.log(`  Adapter extracted ${booths.length} booths.`);
+    }
+
+    if (!booths.length) {
+      console.log('  Falling back to Claude extractor...');
+      booths = (await extractBooths(markdown, source.source_url)) as NormalizedBoothData[];
+    }
+
+    booths = normalizeBoothCollection(booths);
+    console.log(`  Normalized ${booths.length} booths after dedupe/heuristics.`);
 
     if (booths.length === 0) {
-      console.log(`  No booths found.`);
+      await sendAlert(`Zero results for ${source.source_name}`, 'warn', {
+        source: source.source_url
+      });
+      if (registryEntry) {
+        await updateRegistryEntry(registryEntry.id, {
+          previous_result_count: previousCount,
+          last_result_count: 0,
+          error_rate: 100,
+          last_run: new Date().toISOString()
+        });
+      }
       return;
     }
 
     // 3. Upsert into Supabase
     let added = 0;
     let updated = 0;
+    let invalid = 0;
 
     for (const booth of booths) {
       // Basic validation
       if (!booth.name || !booth.city || !booth.country) {
         console.warn(`  Skipping invalid booth: ${JSON.stringify(booth)}`);
+        invalid++;
         continue;
       }
 
@@ -143,6 +234,7 @@ async function processSource(source: any) {
         country: booth.country,
         description: booth.description,
         status: booth.status || 'active',
+        booth_type: booth.booth_type || 'analog',
         // Preserve existing coords if new ones are missing
         ...(booth.latitude ? { latitude: booth.latitude } : {}),
         ...(booth.longitude ? { longitude: booth.longitude } : {}),
@@ -152,7 +244,7 @@ async function processSource(source: any) {
         // Update
         const sourceNames = existing.source_names || [];
         if (!sourceNames.includes(source.source_name)) sourceNames.push(source.source_name);
-        
+
         const sourceUrls = existing.source_urls || [];
         if (!sourceUrls.includes(source.source_url)) sourceUrls.push(source.source_url);
 
@@ -170,7 +262,7 @@ async function processSource(source: any) {
         // Insert
         // Generate a slug
         const slug = `${normalize(booth.name)}-${normalize(booth.city)}`.replace(/\s+/g, '-').substring(0, 50);
-        
+
         await supabase
           .from('booths')
           .insert({
@@ -186,23 +278,65 @@ async function processSource(source: any) {
       }
     }
 
-    console.log(`  Result: ${added} added, ${updated} updated.`);
+    console.log(`  Result: ${added} added, ${updated} updated, ${invalid} invalid.`);
 
     // Update source status
+    const nowIso = new Date().toISOString();
     await supabase.from('crawl_sources').update({
-      last_successful_crawl: new Date().toISOString(),
+      last_crawl_timestamp: nowIso,
+      last_successful_crawl: nowIso,
       total_booths_found: booths.length,
       status: 'active'
     }).eq('id', source.id);
 
+    if (registryEntry) {
+      const dropDetected = previousCount > 0 && booths.length < previousCount * 0.8;
+      await updateRegistryEntry(registryEntry.id, {
+        last_success: nowIso,
+        previous_result_count: previousCount,
+        last_result_count: booths.length,
+        error_rate: Math.round((invalid / Math.max(1, booths.length)) * 10000) / 100,
+        last_run: nowIso
+      });
+
+      if (dropDetected) {
+        await sendAlert(`Run-over-run drop detected for ${registryEntry.source_name}`, 'warn', {
+          previousCount,
+          currentCount: booths.length,
+          source: source.source_url
+        });
+      }
+    }
+
+    if (previousCount > 0 && booths.length === 0) {
+      await sendAlert(`No results returned for ${source.source_name}`, 'warn');
+    }
+
+    const durationMs = Date.now() - startTime;
+    console.log(`  Completed in ${durationMs}ms`);
+
   } catch (error: any) {
     console.error(`  Error processing source: ${error.message}`);
     // Update source with error
+    const errorTimestamp = new Date().toISOString();
     await supabase.from('crawl_sources').update({
       last_error_message: error.message,
-      last_error_timestamp: new Date().toISOString(),
+      last_error_timestamp: errorTimestamp,
+      last_crawl_timestamp: errorTimestamp,
       status: 'error'
     }).eq('id', source.id);
+
+    if (registryEntry) {
+      await updateRegistryEntry(registryEntry.id, {
+        last_run: errorTimestamp,
+        error_rate: 100,
+      });
+    }
+
+    await sendAlert(`Source failed: ${source.source_name}`, 'error', {
+      error: error.message,
+      source: source.source_url
+    });
   }
 }
 
@@ -220,10 +354,26 @@ async function run() {
     return;
   }
 
+  const registryEntries = await loadRegistryEntries();
+  const registryBySourceId = new Map<string, CrawlerRegistryEntry>();
+  const registryByUrl = new Map<string, CrawlerRegistryEntry>();
+  const registryByName = new Map<string, CrawlerRegistryEntry>();
+
+  registryEntries.forEach((entry) => {
+    if (entry.crawl_source_id) registryBySourceId.set(entry.crawl_source_id, entry);
+    registryByUrl.set(entry.source_url, entry);
+    registryByName.set(entry.source_name.toLowerCase(), entry);
+  });
+
   console.log(`Found ${sources?.length} enabled sources.`);
 
   for (const source of sources || []) {
-    await processSource(source);
+    const registryEntry =
+      registryBySourceId.get(source.id) ||
+      registryByUrl.get(source.source_url) ||
+      registryByName.get(String(source.source_name).toLowerCase());
+
+    await processSource(source, registryEntry);
     // Wait a bit to avoid rate limits
     await new Promise(r => setTimeout(r, 2000));
   }
