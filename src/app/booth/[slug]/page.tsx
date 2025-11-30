@@ -49,8 +49,8 @@ async function getBooth(slug: string): Promise<Booth | null> {
   }
 }
 
-// ISR: Revalidate every 5 minutes
-export const revalidate = 300;
+// Force dynamic rendering - no caching to avoid stuck states
+export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({ params }: BoothDetailPageProps): Promise<Metadata> {
   const { slug } = await params;
