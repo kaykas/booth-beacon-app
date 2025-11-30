@@ -88,6 +88,10 @@ export default function AdminPage() {
   const [reconnectTimeoutId, setReconnectTimeoutId] = useState<NodeJS.Timeout | null>(null);
   const [_selectedSource, setSelectedSource] = useState<string>('');
 
+  // Discovery Engine environment variables state
+  const [envVarsStatus, setEnvVarsStatus] = useState<Record<string, boolean> | null>(null);
+  const [envVarsLoading, setEnvVarsLoading] = useState(false);
+
   // Geocoding state (for future feature)
   // Commented out to fix lint errors until feature is implemented
   // const [geocodingRunning, setGeocodingRunning] = useState(false);
@@ -247,6 +251,26 @@ export default function AdminPage() {
       setCrawlSources(sources || []);
     } catch (error) {
       console.error('Error loading crawl sources:', error);
+    }
+  };
+
+  const checkEnvironmentVariables = async () => {
+    setEnvVarsLoading(true);
+    try {
+      const response = await fetch('/api/admin/check-env');
+      const data = await response.json();
+      setEnvVarsStatus(data.envVars);
+
+      if (data.allSet) {
+        toast.success('All environment variables are set');
+      } else {
+        toast.warning('Some environment variables are missing');
+      }
+    } catch (error) {
+      console.error('Error checking environment variables:', error);
+      toast.error('Failed to check environment variables');
+    } finally {
+      setEnvVarsLoading(false);
     }
   };
 
@@ -1048,6 +1072,202 @@ export default function AdminPage() {
                   </div>
                 </div>
               </Card>
+
+                {/* Discovery Engine */}
+                <Card className="p-6 bg-neutral-800 border-neutral-700">
+                  <h2 className="font-display text-2xl font-semibold mb-6 text-white">Discovery Engine (Firecrawl + Claude)</h2>
+
+                  <div className="space-y-6">
+                    {/* Info Banner */}
+                    <div className="bg-blue-950/30 border-2 border-blue-500 rounded-lg p-4">
+                      <div className="flex items-start gap-3">
+                        <Database className="w-6 h-6 text-blue-400 flex-shrink-0 mt-0.5" />
+                        <div className="flex-1">
+                          <div className="font-semibold text-blue-300 mb-2">AI-Powered Booth Discovery</div>
+                          <p className="text-sm text-blue-200 mb-3">
+                            The Discovery Engine uses Firecrawl to search the web and Claude Opus to verify analog booths.
+                            It searches Reddit, blogs, and social media for references to analog photo booths.
+                          </p>
+                          <p className="text-xs text-blue-300">
+                            <strong>Note:</strong> These commands must be run from your terminal with the correct environment variables set.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Required Environment Variables */}
+                    <div className="border border-neutral-700 rounded-lg p-4 bg-neutral-900">
+                      <div className="flex items-center justify-between mb-3">
+                        <h3 className="font-semibold text-white flex items-center gap-2">
+                          <Shield className="w-5 h-5 text-yellow-400" />
+                          Required Environment Variables
+                        </h3>
+                        <Button
+                          size="sm"
+                          onClick={checkEnvironmentVariables}
+                          disabled={envVarsLoading}
+                          className="flex items-center gap-2"
+                        >
+                          {envVarsLoading ? (
+                            <>
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                              Checking...
+                            </>
+                          ) : (
+                            <>
+                              <RefreshCw className="w-4 h-4" />
+                              Check Status
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                      <div className="space-y-2 text-sm font-mono">
+                        <div className="flex items-center justify-between p-2 bg-neutral-800 rounded">
+                          <span className="text-neutral-300">NEXT_PUBLIC_SUPABASE_URL</span>
+                          {envVarsStatus ? (
+                            <Badge
+                              variant="secondary"
+                              className={envVarsStatus.NEXT_PUBLIC_SUPABASE_URL ? "bg-green-900 text-green-100" : "bg-red-900 text-red-100"}
+                            >
+                              {envVarsStatus.NEXT_PUBLIC_SUPABASE_URL ? "Set" : "Missing"}
+                            </Badge>
+                          ) : (
+                            <Badge variant="secondary" className="bg-neutral-700 text-neutral-300">Not Checked</Badge>
+                          )}
+                        </div>
+                        <div className="flex items-center justify-between p-2 bg-neutral-800 rounded">
+                          <span className="text-neutral-300">SUPABASE_SERVICE_ROLE_KEY</span>
+                          {envVarsStatus ? (
+                            <Badge
+                              variant="secondary"
+                              className={envVarsStatus.SUPABASE_SERVICE_ROLE_KEY ? "bg-green-900 text-green-100" : "bg-red-900 text-red-100"}
+                            >
+                              {envVarsStatus.SUPABASE_SERVICE_ROLE_KEY ? "Set" : "Missing"}
+                            </Badge>
+                          ) : (
+                            <Badge variant="secondary" className="bg-neutral-700 text-neutral-300">Not Checked</Badge>
+                          )}
+                        </div>
+                        <div className="flex items-center justify-between p-2 bg-neutral-800 rounded">
+                          <span className="text-neutral-300">ANTHROPIC_API_KEY</span>
+                          {envVarsStatus ? (
+                            <Badge
+                              variant="secondary"
+                              className={envVarsStatus.ANTHROPIC_API_KEY ? "bg-green-900 text-green-100" : "bg-red-900 text-red-100"}
+                            >
+                              {envVarsStatus.ANTHROPIC_API_KEY ? "Set" : "Missing"}
+                            </Badge>
+                          ) : (
+                            <Badge variant="secondary" className="bg-neutral-700 text-neutral-300">Not Checked</Badge>
+                          )}
+                        </div>
+                        <div className="flex items-center justify-between p-2 bg-neutral-800 rounded">
+                          <span className="text-neutral-300">FIRECRAWL_API_KEY</span>
+                          {envVarsStatus ? (
+                            <Badge
+                              variant="secondary"
+                              className={envVarsStatus.FIRECRAWL_API_KEY ? "bg-green-900 text-green-100" : "bg-red-900 text-red-100"}
+                            >
+                              {envVarsStatus.FIRECRAWL_API_KEY ? "Set" : "Missing"}
+                            </Badge>
+                          ) : (
+                            <Badge variant="secondary" className="bg-neutral-700 text-neutral-300">Not Checked</Badge>
+                          )}
+                        </div>
+                      </div>
+                      <p className="text-xs text-neutral-500 mt-3">
+                        Click &quot;Check Status&quot; to verify if all environment variables are properly configured on the server.
+                      </p>
+                    </div>
+
+                    {/* Step 1: Seed Sources */}
+                    <div className="border border-neutral-700 rounded-lg p-4 bg-neutral-900">
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="w-8 h-8 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold">1</div>
+                        <h3 className="font-semibold text-white">Seed Discovery Sources</h3>
+                      </div>
+                      <p className="text-sm text-neutral-400 mb-3">
+                        Populates the <code className="bg-neutral-800 px-1 py-0.5 rounded">crawl_sources</code> table with 20+ master booth operator sources (Photoautomat, Fotoautomat, etc.)
+                      </p>
+                      <div className="bg-neutral-950 rounded p-3 border border-neutral-800">
+                        <code className="text-sm text-green-400">
+                          npx tsx scripts/seed-master-plan.ts
+                        </code>
+                      </div>
+                      <div className="mt-3 text-xs text-neutral-500">
+                        Sources: Europe (Photoautomat Berlin, Fotoautomat Paris), North America (Classic Photo Booth NYC, Photomatica SF), Asia/Oceania
+                      </div>
+                    </div>
+
+                    {/* Step 2: Run Discovery */}
+                    <div className="border border-neutral-700 rounded-lg p-4 bg-neutral-900">
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="w-8 h-8 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold">2</div>
+                        <h3 className="font-semibold text-white">Run Discovery Engine</h3>
+                      </div>
+                      <p className="text-sm text-neutral-400 mb-3">
+                        Searches the web using Firecrawl and validates analog booths with Claude Opus. Auto-saves discoveries with <code className="bg-neutral-800 px-1 py-0.5 rounded">status: &apos;unverified&apos;</code>
+                      </p>
+                      <div className="bg-neutral-950 rounded p-3 border border-neutral-800">
+                        <code className="text-sm text-green-400">
+                          npx tsx scripts/run-discovery.ts
+                        </code>
+                      </div>
+                      <div className="mt-3 space-y-1 text-xs text-neutral-500">
+                        <div className="flex items-start gap-2">
+                          <CheckCircle className="w-3 h-3 mt-0.5 flex-shrink-0 text-green-500" />
+                          <span>Searches Reddit, Lemon8, TikTok, and specialized forums</span>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <CheckCircle className="w-3 h-3 mt-0.5 flex-shrink-0 text-green-500" />
+                          <span>Filters out digital booths (Purikura, Life4Cuts, etc.)</span>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <CheckCircle className="w-3 h-3 mt-0.5 flex-shrink-0 text-green-500" />
+                          <span>Extracts booth details with confidence scoring</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Full Command with Env Vars */}
+                    <div className="border-2 border-purple-500/30 bg-purple-950/20 rounded-lg p-4">
+                      <h3 className="font-semibold text-purple-300 mb-3 flex items-center gap-2">
+                        <FileText className="w-5 h-5" />
+                        Complete Command (with env vars)
+                      </h3>
+                      <div className="bg-neutral-950 rounded p-3 border border-neutral-800 overflow-x-auto">
+                        <pre className="text-xs text-green-400">
+{`export SUPABASE_SERVICE_ROLE_KEY="your_key_here" \\
+export ANTHROPIC_API_KEY="your_key_here" \\
+export FIRECRAWL_API_KEY="your_key_here" && \\
+npx tsx scripts/seed-master-plan.ts && \\
+npx tsx scripts/run-discovery.ts`}
+                        </pre>
+                      </div>
+                    </div>
+
+                    {/* Troubleshooting */}
+                    <details className="border border-neutral-700 rounded-lg bg-neutral-900">
+                      <summary className="p-4 cursor-pointer hover:bg-neutral-850 transition font-semibold text-white">
+                        Troubleshooting & Tips
+                      </summary>
+                      <div className="px-4 pb-4 space-y-3 text-sm text-neutral-400">
+                        <div>
+                          <strong className="text-neutral-300">Issue: &quot;Missing required environment variables&quot;</strong>
+                          <p className="mt-1">Make sure all three API keys are exported in your terminal session before running the scripts.</p>
+                        </div>
+                        <div>
+                          <strong className="text-neutral-300">Issue: &quot;No booths found&quot;</strong>
+                          <p className="mt-1">The discovery queries are Reddit/blog-focused. Results may vary based on current web content. Try running during different times or check Firecrawl credits.</p>
+                        </div>
+                        <div>
+                          <strong className="text-neutral-300">Tip: Start with seed-master-plan first</strong>
+                          <p className="mt-1">The unified crawler above can crawl these seeded sources. Run seed-master-plan, then use the &quot;Start Crawler&quot; button above to crawl them.</p>
+                        </div>
+                      </div>
+                    </details>
+                  </div>
+                </Card>
 
                 {/* Metrics Dashboard */}
                 <MetricsDashboard />
