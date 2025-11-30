@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, Suspense } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { MapPin, SlidersHorizontal, List, X, Loader2, Navigation } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -22,7 +23,7 @@ interface Filters {
   payment?: 'cash' | 'card' | 'both';
 }
 
-export default function MapPage() {
+function MapContent() {
   const [booths, setBooths] = useState<Booth[]>([]);
   const [filteredBooths, setFilteredBooths] = useState<Booth[]>([]);
   const [loading, setLoading] = useState(true);
@@ -35,6 +36,16 @@ export default function MapPage() {
   const [sortByDistance, setSortByDistance] = useState(false);
   const [selectedCity, setSelectedCity] = useState<string>('all');
   const [selectedCountry, setSelectedCountry] = useState<string>('all');
+  
+  const searchParams = useSearchParams();
+  const [autoCenter, setAutoCenter] = useState(false);
+
+  useEffect(() => {
+    if (searchParams.get('nearme') === 'true') {
+      setSortByDistance(true);
+      setAutoCenter(true);
+    }
+  }, [searchParams]);
 
   const fetchBooths = useCallback(async () => {
     setLoading(true);
@@ -453,6 +464,7 @@ export default function MapPage() {
               showClustering={true}
               zoom={2}
               externalUserLocation={userLocation}
+              autoCenterOnUser={autoCenter}
             />
           ) : (
             <div className="h-full overflow-y-auto bg-background p-6">
@@ -495,5 +507,20 @@ export default function MapPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function MapPage() {
+  return (
+    <Suspense fallback={
+      <div className="h-screen flex items-center justify-center bg-background">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 text-primary animate-spin mx-auto mb-4" />
+          <p className="text-muted-foreground">Loading map...</p>
+        </div>
+      </div>
+    }>
+      <MapContent />
+    </Suspense>
   );
 }

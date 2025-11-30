@@ -14,6 +14,7 @@ interface BoothMapProps {
   showClustering?: boolean;
   showUserLocation?: boolean;
   externalUserLocation?: Coordinates | null; // Pass user location from parent to avoid duplicate geolocation requests
+  autoCenterOnUser?: boolean;
 }
 
 // Default center coordinates (NYC)
@@ -85,6 +86,7 @@ export function BoothMap({
   showClustering = true,
   showUserLocation = false,
   externalUserLocation,
+  autoCenterOnUser = false,
 }: BoothMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<google.maps.Map | null>(null);
@@ -343,6 +345,13 @@ export function BoothMap({
     map.panTo(userLocation);
     map.setZoom(14);
   };
+
+  // Auto-center effect
+  useEffect(() => {
+    if (autoCenterOnUser && userLocation && map) {
+      centerOnUser();
+    }
+  }, [autoCenterOnUser, userLocation, map]);
 
   if (error) {
     return (
