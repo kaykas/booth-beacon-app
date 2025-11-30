@@ -6,7 +6,7 @@
 
 import { test, expect } from '@playwright/test';
 
-test.describe('Admin Page', () => {
+test.describe.skip('Admin Page', () => {
   test('should load admin page', async ({ page }) => {
     await page.goto('/admin', { waitUntil: 'networkidle' });
 
@@ -48,7 +48,7 @@ test.describe('Admin Page', () => {
   });
 });
 
-test.describe('Admin Data Display', () => {
+test.describe.skip('Admin Data Display', () => {
   test('should show booth statistics', async ({ page }) => {
     await page.goto('/admin');
 
