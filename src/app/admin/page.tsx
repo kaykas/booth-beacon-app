@@ -455,7 +455,26 @@ export default function AdminPage() {
 
   // Not authenticated
   if (!user) {
-    return null;
+    return (
+      <>
+        <Header />
+        <main className="min-h-screen bg-neutral-900 py-12">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-col items-center justify-center min-h-[60vh]">
+              <Shield className="w-24 h-24 text-amber-500 mb-6" />
+              <h1 className="font-display text-4xl font-semibold mb-4 text-white">Authentication Required</h1>
+              <p className="text-neutral-400 text-lg mb-8 text-center max-w-md">
+                Please sign in to access the admin dashboard.
+              </p>
+              <Button onClick={() => router.push('/')}>
+                Return to Home
+              </Button>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </>
+    );
   }
 
   // Not admin - show access denied
