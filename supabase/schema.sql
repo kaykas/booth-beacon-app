@@ -1,7 +1,7 @@
 -- Booth Beacon Database Schema
 -- Run this in your Supabase SQL Editor: https://supabase.com/dashboard/project/tmgbmcbwfkvmylmfpkzy/sql/new
 
--- Enable UUID extension
+CREATE EXTENSION IF NOT EXISTS postgis;
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- Profiles table (extends Supabase auth.users)
@@ -40,11 +40,27 @@ CREATE TABLE IF NOT EXISTS operators (
   city TEXT,
   country TEXT,
   instagram TEXT,
-  created_at TIMESTAMPTZ DEFAULT NOW()
+  crawl_source_id TEXT,
+  first_seen_at TIMESTAMPTZ,
+  last_seen_at TIMESTAMPTZ,
+  status TEXT CHECK (status IN ('active', 'unverified', 'inactive', 'closed')) DEFAULT 'unverified',
+  verification_status_history JSONB DEFAULT '[]'::jsonb,
+  verified_at TIMESTAMPTZ,
+  moderation_notes TEXT,
+  ingested_by TEXT CHECK (ingested_by IN ('contributor', 'crawler', 'manual')) DEFAULT 'contributor',
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 ALTER TABLE operators ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Operators are viewable by everyone" ON operators FOR SELECT USING (true);
+CREATE POLICY "Contributors can submit operators" ON operators FOR INSERT
+  WITH CHECK (auth.role() = 'authenticated' AND ingested_by = 'contributor');
+CREATE POLICY "Contributors can edit contributed operators" ON operators FOR UPDATE
+  USING (auth.role() = 'authenticated' AND ingested_by = 'contributor');
+CREATE POLICY "Crawler can manage operators" ON operators FOR ALL
+  USING (auth.role() = 'service_role' AND ingested_by = 'crawler')
+  WITH CHECK (auth.role() = 'service_role' AND ingested_by = 'crawler');
 
 -- Machine models table
 CREATE TABLE IF NOT EXISTS machine_models (
@@ -75,6 +91,12 @@ CREATE TABLE IF NOT EXISTS booths (
   postal_code TEXT,
   latitude DECIMAL(10, 8),
   longitude DECIMAL(11, 8),
+  location_geog geography(Point, 4326) GENERATED ALWAYS AS (
+    CASE
+      WHEN latitude IS NOT NULL AND longitude IS NOT NULL THEN
+        ST_SetSRID(ST_MakePoint(longitude::double precision, latitude::double precision), 4326)::geography
+    END
+  ) STORED,
 
   -- Machine details
   machine_model TEXT,
@@ -83,6 +105,10 @@ CREATE TABLE IF NOT EXISTS booths (
   machine_serial TEXT,
   booth_type TEXT CHECK (booth_type IN ('analog', 'chemical', 'digital', 'instant')),
   photo_type TEXT CHECK (photo_type IN ('black-and-white', 'color', 'both')),
+  is_analog_only BOOLEAN DEFAULT false,
+  CONSTRAINT analog_only_booths CHECK (
+    is_analog_only = false OR booth_type IN ('analog', 'chemical')
+  ),
 
   -- Operator
   operator_id UUID REFERENCES operators(id),
@@ -110,9 +136,16 @@ CREATE TABLE IF NOT EXISTS booths (
   features TEXT[],
 
   -- Source tracking
+  crawl_source_id TEXT,
+  first_seen_at TIMESTAMPTZ,
+  last_seen_at TIMESTAMPTZ,
   source_primary TEXT,
   source_urls TEXT[],
   source_verified_date DATE,
+  verification_status_history JSONB DEFAULT '[]'::jsonb,
+  verified_at TIMESTAMPTZ,
+  moderation_notes TEXT,
+  ingested_by TEXT CHECK (ingested_by IN ('contributor', 'crawler', 'manual')) DEFAULT 'contributor',
 
   -- Metadata
   created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -122,12 +155,22 @@ CREATE TABLE IF NOT EXISTS booths (
 
 ALTER TABLE booths ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Booths are viewable by everyone" ON booths FOR SELECT USING (true);
+CREATE POLICY "Contributors can submit booths" ON booths FOR INSERT
+  WITH CHECK (auth.role() = 'authenticated' AND ingested_by = 'contributor');
+CREATE POLICY "Contributors can edit contributed booths" ON booths FOR UPDATE
+  USING (auth.role() = 'authenticated' AND ingested_by = 'contributor');
+CREATE POLICY "Crawler can manage booths" ON booths FOR ALL
+  USING (auth.role() = 'service_role' AND ingested_by = 'crawler')
+  WITH CHECK (auth.role() = 'service_role' AND ingested_by = 'crawler');
 
 -- Create indexes for performance
 CREATE INDEX booths_city_idx ON booths(city);
 CREATE INDEX booths_country_idx ON booths(country);
 CREATE INDEX booths_status_idx ON booths(status);
 CREATE INDEX booths_location_idx ON booths(latitude, longitude);
+CREATE INDEX booths_country_state_idx ON booths(country, state);
+CREATE INDEX booths_location_geog_idx ON booths USING GIST(location_geog);
+CREATE INDEX booths_analog_status_idx ON booths(status) WHERE booth_type IN ('analog', 'chemical');
 
 -- City guides table
 CREATE TABLE IF NOT EXISTS city_guides (
@@ -261,17 +304,61 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- Track ingestion metadata and verification history
+CREATE OR REPLACE FUNCTION handle_ingestion_metadata()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF TG_OP = 'INSERT' THEN
+        NEW.first_seen_at := COALESCE(NEW.first_seen_at, NOW());
+        NEW.last_seen_at := COALESCE(NEW.last_seen_at, NOW());
+        NEW.verification_status_history := COALESCE(NEW.verification_status_history, '[]'::jsonb) ||
+            jsonb_build_object('status', NEW.status, 'at', NOW(), 'by', NEW.ingested_by);
+        IF NEW.status IN ('active', 'unverified') THEN
+            NEW.verified_at := COALESCE(NEW.verified_at, NOW());
+        END IF;
+    ELSIF TG_OP = 'UPDATE' THEN
+        NEW.first_seen_at := COALESCE(OLD.first_seen_at, NEW.first_seen_at, NOW());
+        NEW.last_seen_at := COALESCE(NOW());
+        IF NEW.status IS DISTINCT FROM OLD.status THEN
+            NEW.verification_status_history := COALESCE(NEW.verification_status_history, '[]'::jsonb) ||
+                jsonb_build_object('status', NEW.status, 'at', NOW(), 'by', NEW.ingested_by);
+            IF NEW.status IN ('active', 'unverified') THEN
+                NEW.verified_at := NOW();
+            END IF;
+        END IF;
+    END IF;
+    NEW.updated_at := NOW();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
 -- Add trigger to booths table
 CREATE TRIGGER update_booths_updated_at
     BEFORE UPDATE ON booths
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
+CREATE TRIGGER handle_booth_ingestion
+    BEFORE INSERT OR UPDATE ON booths
+    FOR EACH ROW
+    EXECUTE FUNCTION handle_ingestion_metadata();
+
 -- Add trigger to profiles table
 CREATE TRIGGER update_profiles_updated_at
     BEFORE UPDATE ON profiles
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
+
+-- Add trigger to operators table
+CREATE TRIGGER update_operators_updated_at
+    BEFORE UPDATE ON operators
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER handle_operator_ingestion
+    BEFORE INSERT OR UPDATE ON operators
+    FOR EACH ROW
+    EXECUTE FUNCTION handle_ingestion_metadata();
 
 -- Insert sample data (optional - you can remove this if you want to start fresh)
 INSERT INTO booths (name, slug, address, city, country, latitude, longitude, machine_model, booth_type, photo_type, status, is_operational, description)
