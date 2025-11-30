@@ -349,7 +349,8 @@ export function BoothMap({
   // Auto-center effect
   useEffect(() => {
     if (autoCenterOnUser && userLocation && map) {
-      centerOnUser();
+      map.panTo(userLocation);
+      map.setZoom(14);
     }
   }, [autoCenterOnUser, userLocation, map]);
 
