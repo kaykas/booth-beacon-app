@@ -450,6 +450,7 @@ SOURCE-SPECIFIC GUIDANCE:
 
 /**
  * Build extraction prompt based on source type and content
+ * ENHANCED with detailed source-type-specific instructions
  */
 function buildExtractionPrompt(
   config: AIExtractionConfig,
@@ -469,22 +470,146 @@ function buildExtractionPrompt(
 
   prompt += ".\n\n";
 
-  // Add source-specific guidance
+  // Add DETAILED source-specific guidance
   switch (config.source_type) {
     case 'directory':
-      prompt += "This is a directory/database of photo booths. Extract every listing with complete details.\n\n";
+      prompt += `DIRECTORY EXTRACTION STRATEGY:
+This is a directory/database of photo booths. Extract EVERY listing with complete details.
+
+CRITICAL INSTRUCTIONS:
+1. Extract ALL booth entries - this is a comprehensive directory
+2. Look for structured data: names, addresses, cities, countries
+3. Extract coordinates if provided (lat/lng or coordinates)
+4. Extract machine types/models if mentioned
+5. Look for status indicators (active, closed, removed)
+6. Extract any pricing, hours, or contact information
+7. Parse tables, lists, and structured HTML carefully
+8. Don't skip ANY entries even if they seem incomplete
+
+WHAT TO EXTRACT:
+- Venue/location name (REQUIRED)
+- Full street address (REQUIRED)
+- City, state/region, country
+- Coordinates if available
+- Machine model/type if mentioned
+- Cost, hours, contact info
+- Status (active/closed)
+
+\n\n`;
       break;
+
     case 'city_guide':
-      prompt += "This is a city guide article. Look for recommendations, venue names, and addresses mentioned in the text.\n\n";
+      prompt += `CITY GUIDE EXTRACTION STRATEGY:
+This is a city guide article, listicle, or blog post mentioning photo booths.
+
+CRITICAL INSTRUCTIONS:
+1. Look for venue names, bar names, restaurant names where photo booths are mentioned
+2. Extract addresses when provided - they might be in different formats
+3. If only a neighborhood is mentioned (e.g., "Silver Lake", "Wicker Park"), that's okay - include it
+4. Extract ANY pricing information mentioned (e.g., "$5", "free", "$1.50")
+5. Look for phrases like "located at", "find it at", "address:", venue descriptions
+6. Include ALL venues mentioned, even if details are sparse
+7. The content will be in markdown format with headings, numbered lists, or narrative text
+
+IMPORTANT PATTERNS TO LOOK FOR:
+- Numbered lists: "1. Venue Name" or "## Venue Name"
+- Inline mentions: "You can find a booth at [Venue Name] in [Location]"
+- Address patterns: "123 Main St", "at 456 Oak Ave", "located at 789 Park"
+- Neighborhood mentions: "in Silver Lake", "Wicker Park location", "on the Lower East Side"
+
+PARTIAL DATA IS OK:
+If a venue is mentioned but some fields are missing, STILL INCLUDE IT.
+It's better to have partial data than no data.
+If no full address, extract neighborhood, cross streets, or venue name.
+
+\n\n`;
       break;
+
     case 'blog':
-      prompt += "This is a blog post. Extract any photo booth locations mentioned, including personal experiences and details.\n\n";
+      prompt += `BLOG/TRAVEL SITE EXTRACTION STRATEGY:
+This is a blog post or travel article mentioning photo booths in context.
+
+CRITICAL INSTRUCTIONS:
+1. Extract any photo booth locations mentioned, including personal experiences
+2. Look for venue names, landmarks, or businesses where booths are located
+3. Extract addresses, neighborhoods, or geographic descriptions
+4. Capture user experiences and contextual details (ambiance, condition, etc.)
+5. Include pricing, cost, or operational details if mentioned
+6. Note if the author mentions the booth is still there or has been removed
+7. Extract from prose, captions, or inline descriptions
+
+CONTEXT IS VALUABLE:
+- "We found a booth at [Venue] in [Neighborhood]" - Extract both venue and location
+- "The booth near [Landmark]" - Include landmark as location context
+- "It costs about $5" - Include pricing
+- "Last time I checked it was still there" - Mark as active
+
+HANDLE UNCERTAINTY:
+- If author is unsure about status, still include but note uncertainty
+- If multiple locations mentioned without clear structure, extract each one
+- Personal anecdotes often contain valuable location data
+
+\n\n`;
       break;
+
     case 'community':
-      prompt += "This is community content (forum/reddit/social). Extract user-reported locations with context.\n\n";
+      prompt += `COMMUNITY CONTENT EXTRACTION STRATEGY:
+This is community content (forum, reddit, social media) with user-reported locations.
+
+CRITICAL INSTRUCTIONS:
+1. Extract user-reported locations with surrounding context
+2. Look for comments, posts, or threads mentioning photo booths
+3. Capture venue names, addresses, and user experiences
+4. Note if users report booths as working, broken, or removed
+5. Extract from comment chains and discussion threads
+6. Include community knowledge about booth history or changes
+7. Be aware of slang or informal location descriptions
+
+USER REPORTS ARE VALUABLE:
+- "I saw one at [Location]" - Valid report even without full address
+- "The booth at [Venue] is gone now" - Include with status: removed
+- "Still works as of [Date]" - Include reported date
+- Cross-referenced reports about same location add confidence
+
+COMMUNITY PATTERNS:
+- Look for location queries and responses
+- Extract from "Does anyone know..." threads
+- Capture user corrections or updates
+- Note consensus among multiple users
+
+\n\n`;
       break;
+
     case 'operator':
-      prompt += "This is a photo booth operator site. Extract all their booth locations and details.\n\n";
+      prompt += `OPERATOR SITE EXTRACTION STRATEGY:
+This is a photo booth operator's website listing their booth locations.
+
+CRITICAL INSTRUCTIONS:
+1. This operator owns/manages these booths - extract ALL their locations
+2. Look for location pages, store locators, "Where to Find Us" sections
+3. Extract complete operational details (hours, contact, machine specs)
+4. Often formatted as tables, lists, or map markers
+5. May include venue partnership information
+6. Extract machine models and types if specified
+7. Capture pricing, hours, and operational policies
+8. Note if location is permanent installation vs rotating
+
+OPERATOR DATA IS HIGH QUALITY:
+- Addresses are usually complete and accurate
+- Machine models and types are specified
+- Operational status is current
+- Contact information is authoritative
+- Hours and pricing are official
+
+WHAT TO PRIORITIZE:
+- Complete venue/location lists
+- Store locator data
+- Partnership venues
+- Installation details
+- Machine specifications
+- Pricing and policies
+
+\n\n`;
       break;
   }
 
