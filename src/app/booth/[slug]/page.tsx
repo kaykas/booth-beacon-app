@@ -1,7 +1,6 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
 import {
   MapPin,
   Navigation,
@@ -25,6 +24,8 @@ import { ReviewsSection } from '@/components/ReviewsSection';
 import { ShareButton } from '@/components/ShareButton';
 import { createPublicServerClient } from '@/lib/supabase';
 import { Booth } from '@/types';
+import { SafeRender } from '@/components/SafeRender';
+import { transformBooth } from '@/lib/transformers/booth-transformer';
 
 interface BoothDetailPageProps {
   params: Promise<{
@@ -98,16 +99,19 @@ export const revalidate = 300;
 
 export async function generateMetadata({ params }: BoothDetailPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const booth = await getBooth(slug);
+  const rawBooth = await getBooth(slug);
 
-  if (!booth) {
+  if (!rawBooth) {
     return {
       title: 'Booth Not Found | Booth Beacon',
     };
   }
 
+  // Transform data for safe access
+  const booth = transformBooth(rawBooth);
+
   const _mainPhoto = booth.photo_exterior_url || booth.ai_preview_url;
-  const description = booth.description || `Analog photo booth in ${booth.city}, ${booth.country}. ${booth.machine_model ? `Features a ${booth.machine_model}` : ''} ${booth.photo_type ? `${booth.photo_type} photo booth` : ''}`.trim();
+  const description = booth.description || `Analog photo booth in ${booth.city}, ${booth.country}. ${booth.machineDescription}`.trim();
 
   return {
     title: `${booth.name} - ${booth.city}, ${booth.country} | Booth Beacon`,
@@ -117,9 +121,7 @@ export async function generateMetadata({ params }: BoothDetailPageProps): Promis
       'analog photo booth',
       booth.city,
       booth.country,
-      booth.machine_model,
-      booth.machine_manufacturer,
-      'photobooth',
+      booth.machine_model || 'photobooth',
       'instant photos',
     ].filter((k): k is string => typeof k === 'string' && k.length > 0),
     openGraph: {
@@ -151,13 +153,17 @@ export async function generateMetadata({ params }: BoothDetailPageProps): Promis
 
 export default async function BoothDetailPage({ params }: BoothDetailPageProps) {
   const { slug } = await params;
-  const booth = await getBooth(slug);
+  const rawBooth = await getBooth(slug);
 
-  if (!booth) {
+  if (!rawBooth) {
     notFound();
   }
 
-  const nearbyBooths = await getNearbyBooths(booth);
+  // TRANSFORM: Create a safe view model (NO NULLS allowed in critical fields)
+  const booth = transformBooth(rawBooth);
+  
+  // Pass RAW booth to nearby search (it needs the raw lat/lng numbers)
+  const nearbyBooths = await getNearbyBooths(rawBooth);
 
   // Photo URLs
   const photos = [
@@ -167,7 +173,6 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
   ].filter(Boolean);
 
   const hasPhotos = photos.length > 0;
-  const _mainPhotoLocal = hasPhotos ? photos[0] : booth.ai_preview_url;
 
   // Generate enhanced structured data for SEO (LocalBusiness + Place)
   const structuredData = {
@@ -175,7 +180,7 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
     '@type': 'LocalBusiness',
     '@id': `https://boothbeacon.org/booth/${booth.slug}`,
     name: booth.name,
-    description: booth.description || `Analog photo booth in ${booth.city}, ${booth.country}. ${booth.machine_model ? `Features a ${booth.machine_model} machine` : ''} ${booth.photo_type ? `producing ${booth.photo_type} photos` : ''}`.trim(),
+    description: booth.description || `Analog photo booth in ${booth.city}, ${booth.country}.`,
     url: `https://boothbeacon.org/booth/${booth.slug}`,
     address: {
       '@type': 'PostalAddress',
@@ -199,28 +204,6 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
     openingHours: booth.hours,
     telephone: booth.phone || undefined,
     additionalType: 'https://schema.org/TouristAttraction',
-    amenityFeature: [
-      booth.booth_type && {
-        '@type': 'LocationFeatureSpecification',
-        name: 'Booth Type',
-        value: booth.booth_type,
-      },
-      booth.photo_type && {
-        '@type': 'LocationFeatureSpecification',
-        name: 'Photo Type',
-        value: booth.photo_type === 'black-and-white' ? 'Black & White' : booth.photo_type,
-      },
-      booth.machine_model && {
-        '@type': 'LocationFeatureSpecification',
-        name: 'Machine Model',
-        value: booth.machine_model,
-      },
-      booth.machine_manufacturer && {
-        '@type': 'LocationFeatureSpecification',
-        name: 'Manufacturer',
-        value: booth.machine_manufacturer,
-      },
-    ].filter(Boolean),
   };
 
   return (
@@ -242,12 +225,25 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
             <Link href="/map" className="hover:text-primary transition">
               Booths
             </Link>
+            
+            {/* Safe conditional link - booth.city is GUARANTEED string now, but hasCity tells us if it's real */}
+            {booth.hasCity ? (
+              <>
+                <span>/</span>
+                <Link href={`/guides/${booth.city.toLowerCase()}`} className="hover:text-primary transition">
+                  {booth.city}
+                </Link>
+              </>
+            ) : (
+              // Fallback breadcrumb if no city
+              <>
+                <span>/</span>
+                <span>Locations</span>
+              </>
+            )}
+            
             <span>/</span>
-            <Link href={`/guides/${booth.city.toLowerCase()}`} className="hover:text-primary transition">
-              {booth.city}
-            </Link>
-            <span>/</span>
-            <span className="text-neutral-900 font-medium">{booth.name}</span>
+            <span className="text-neutral-900 font-medium truncate max-w-[200px]">{booth.name}</span>
           </nav>
         </div>
       </div>
@@ -259,11 +255,13 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
             {/* Photo Gallery */}
             <div className="relative h-64 sm:h-80 lg:h-[600px]">
               <div className="w-full h-full">
-                <BoothImage
-                  booth={booth}
-                  size="hero"
-                  showAiBadge={true}
-                />
+                <SafeRender name="BoothImage" fallback={<div className="w-full h-full bg-neutral-100 flex items-center justify-center text-neutral-400">Image Unavailable</div>}>
+                  <BoothImage
+                    booth={rawBooth} 
+                    size="hero"
+                    showAiBadge={true}
+                  />
+                </SafeRender>
               </div>
 
               {/* Photo Badge */}
@@ -296,7 +294,7 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
                   <div className="flex items-center gap-2 text-neutral-600 mb-4">
                     <MapPin className="w-4 h-4" />
                     <span>
-                      {booth.city}, {booth.country}
+                      {booth.locationString}
                     </span>
                   </div>
                 </div>
@@ -322,7 +320,7 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
                   </a>
                 </Button>
                 <ShareButton
-                  title={`${booth.name} - ${booth.city}, ${booth.country}`}
+                  title={`${booth.name} - ${booth.locationString}`}
                   text={`Check out this photo booth: ${booth.name}`}
                 />
               </div>
@@ -540,12 +538,14 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
               {/* Map */}
               {booth.latitude && booth.longitude && (
                 <div className="mb-4 rounded-lg overflow-hidden">
-                  <BoothMap
-                    booths={[booth]}
-                    center={{ lat: booth.latitude, lng: booth.longitude }}
-                    zoom={15}
-                    showUserLocation={false}
-                  />
+                  <SafeRender name="BoothMap">
+                    <BoothMap
+                      booths={[rawBooth]}
+                      center={{ lat: booth.latitude, lng: booth.longitude }}
+                      zoom={15}
+                      showUserLocation={false}
+                    />
+                  </SafeRender>
                 </div>
               )}
 
@@ -618,7 +618,9 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
                     >
                       <div className="flex gap-3">
                         <div className="flex-shrink-0">
-                          <BoothImage booth={nearby} size="thumbnail" />
+                          <SafeRender name="BoothImage" fallback={<div className="w-24 h-24 bg-neutral-200" />}>
+                            <BoothImage booth={nearby} size="thumbnail" />
+                          </SafeRender>
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="font-medium text-neutral-900 group-hover:text-primary transition truncate">
