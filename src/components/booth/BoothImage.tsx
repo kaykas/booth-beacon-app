@@ -19,6 +19,7 @@ export function BoothImage({
   onAddPhoto,
 }: BoothImageProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const [hasImageError, setHasImageError] = useState(false);
 
   // Check if AI preview URL is the broken Unsplash Source API
   const isBrokenUnsplashUrl = booth.ai_preview_url?.includes('source.unsplash.com');
@@ -26,7 +27,7 @@ export function BoothImage({
   // Use photo_exterior_url, or ai_preview_url only if it's not broken
   const imageUrl = booth.photo_exterior_url || (!isBrokenUnsplashUrl ? booth.ai_preview_url : null);
   const hasAiPreview = booth.ai_preview_url && !booth.photo_exterior_url && !isBrokenUnsplashUrl;
-  const hasNoImage = !imageUrl;
+  const hasNoImage = !imageUrl || hasImageError;
 
   const sizeClasses = {
     thumbnail: 'w-24 h-24',
@@ -67,6 +68,7 @@ export function BoothImage({
                 ? '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
                 : '96px'
             }
+            onError={() => setHasImageError(true)}
           />
           {hasAiPreview && showAiBadge && (
             <div className="absolute bottom-2 right-2 px-2 py-1 bg-black/60 text-white text-xs rounded backdrop-blur-sm">
