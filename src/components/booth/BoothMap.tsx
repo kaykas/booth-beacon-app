@@ -427,8 +427,8 @@ function createInfoWindowContent(booth: Booth): string {
   const photoUrl = booth.photo_exterior_url || (!isBrokenUnsplashUrl ? booth.ai_preview_url : null) || '/placeholder-booth.svg';
   const hasAiPreview = booth.ai_preview_url && !booth.photo_exterior_url && !isBrokenUnsplashUrl;
 
-  // Trigger AI preview generation if booth has no photo and no AI preview
-  if (!booth.photo_exterior_url && !booth.ai_preview_url) {
+  // Trigger AI preview generation if booth has no photo and no AI preview (or broken one)
+  if (!booth.photo_exterior_url && (!booth.ai_preview_url || isBrokenUnsplashUrl)) {
     triggerAIPreviewGeneration(booth.id);
   }
 

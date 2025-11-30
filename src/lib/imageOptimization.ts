@@ -23,7 +23,6 @@ export function getOptimizedImageUrl(
 
   // If it's a Supabase Storage URL, we can optimize it
   if (originalUrl.includes('supabase.co/storage')) {
-    const url = new URL(originalUrl);
     const searchParams = new URLSearchParams();
 
     if (width) searchParams.set('width', width.toString());

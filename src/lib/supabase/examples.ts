@@ -113,7 +113,7 @@ export async function createBookmark(userId: string, boothId: string) {
       user_id: userId,
       booth_id: boothId,
       visited: false,
-    } as any)
+    })
     .select()
     .single();
 
@@ -154,7 +154,7 @@ export async function addBoothComment(
       booth_id: boothId,
       content,
       rating,
-    } as any)
+    })
     .select()
     .single();
 
@@ -194,7 +194,7 @@ export async function fetchNearbyBooths(query: NearbyBoothsQuery) {
     lng: query.longitude,
     radius_km: query.radius_km || 5,
     max_results: query.limit || 20,
-  } as any);
+  });
 
   if (error) throw error;
   return data;
@@ -208,7 +208,7 @@ export async function createBooth(booth: Partial<Booth>) {
 
   const { data, error } = await serverClient
     .from('booths')
-    .insert(booth as any)
+    .insert(booth)
     .select()
     .single();
 
@@ -224,7 +224,7 @@ export async function updateBooth(boothId: string, updates: Partial<Booth>) {
   const serverClient = createServerClient();
 
   // TODO: Fix type casting once database schema is finalized
-  const { data, error } = await (serverClient as any)
+  const { data, error } = await serverClient
     .from('booths')
     .update({
       ...updates,
@@ -330,7 +330,7 @@ export async function getBoothStats() {
     .select('country')
     .not('country', 'is', null);
 
-  const uniqueCountries = new Set(countries?.map((b: any) => b.country)).size;
+  const uniqueCountries = new Set(countries?.map((b) => b.country)).size;
 
   return {
     totalBooths: totalBooths || 0,
