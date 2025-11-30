@@ -2,6 +2,9 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
+    // Booth photos can live across Supabase storage, user-submitted hosts,
+    // AI providers, or legacy image CDNs. Allow a broad set of remote hosts so
+    // rendering never fails when new sources are added.
     remotePatterns: [
       {
         protocol: 'https',
@@ -10,6 +13,11 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'images.unsplash.com',
+      },
+      // Generic fallback to accept any HTTPS image host used by booth records
+      {
+        protocol: 'https',
+        hostname: '**',
       },
     ],
     formats: ['image/avif', 'image/webp'],

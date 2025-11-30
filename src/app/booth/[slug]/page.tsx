@@ -19,7 +19,7 @@ import { BoothMap } from '@/components/booth/BoothMap';
 import { BookmarkButton } from '@/components/BookmarkButton';
 import { ShareButton } from '@/components/ShareButton';
 import { createPublicServerClient } from '@/lib/supabase';
-import { Booth } from '@/types';
+import { normalizeBooth, RenderableBooth } from '@/lib/boothViewModel';
 
 interface BoothDetailPageProps {
   params: Promise<{
@@ -28,7 +28,7 @@ interface BoothDetailPageProps {
 }
 
 // Fetch booth with proper error handling
-async function getBooth(slug: string): Promise<Booth | null> {
+async function getBooth(slug: string): Promise<RenderableBooth | null> {
   try {
     const supabase = createPublicServerClient();
     const { data, error } = await supabase
@@ -42,7 +42,14 @@ async function getBooth(slug: string): Promise<Booth | null> {
       return null;
     }
 
-    return data as Booth;
+    const booth = normalizeBooth(data);
+
+    if (!booth) {
+      console.warn(`Booth data invalid for slug "${slug}"`, data);
+      return null;
+    }
+
+    return booth;
   } catch (error) {
     console.error(`Error fetching booth "${slug}":`, error);
     return null;
@@ -62,8 +69,9 @@ export async function generateMetadata({ params }: BoothDetailPageProps): Promis
 
   const city = booth.city || 'Unknown Location';
   const country = booth.country || '';
-  const title = `${booth.name} - ${city}${country ? `, ${country}` : ''} | Booth Beacon`;
-  const description = booth.description || `Analog photo booth in ${city}${country ? `, ${country}` : ''}.`;
+  const title = `${booth.name} - ${booth.locationLabel || city}${country ? `, ${country}` : ''} | Booth Beacon`;
+  const description =
+    booth.description || `Analog photo booth in ${booth.locationLabel || city}${country ? `, ${country}` : ''}.`;
 
   return {
     title,
@@ -87,11 +95,11 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
   }
 
   // Safe field access with defaults
+  const locationString = booth.locationLabel;
+  const address = booth.addressDisplay;
+  const hasValidLocation = booth.hasValidLocation;
   const city = booth.city || 'Location Unknown';
   const country = booth.country || '';
-  const locationString = `${city}${country ? `, ${country}` : ''}`;
-  const address = booth.address || 'Address not available';
-  const hasValidLocation = booth.latitude && booth.longitude;
 
   return (
     <div className="min-h-screen bg-neutral-50">
