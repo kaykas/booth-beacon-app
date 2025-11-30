@@ -15,14 +15,14 @@ export async function middleware(req: NextRequest) {
         get(name: string) {
           return req.cookies.get(name)?.value;
         },
-        set(name: string, value: string, options: any) {
+        set(name: string, value: string, options: Record<string, unknown> = {}) {
           res.cookies.set({
             name,
             value,
             ...options,
           });
         },
-        remove(name: string, options: any) {
+        remove(name: string, options: Record<string, unknown> = {}) {
           res.cookies.set({
             name,
             value: '',
@@ -49,14 +49,6 @@ export async function middleware(req: NextRequest) {
     redirectUrl.searchParams.set('login', 'required');
     return NextResponse.redirect(redirectUrl);
   }
-
-  // Add security headers
-  res.headers.set('X-DNS-Prefetch-Control', 'on');
-  res.headers.set('X-Content-Type-Options', 'nosniff');
-  res.headers.set('X-Frame-Options', 'SAMEORIGIN');
-  res.headers.set('X-XSS-Protection', '1; mode=block');
-  res.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-  res.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
 
   // Add cache headers based on route type and authentication status
   const cacheType = getCacheConfigForRoute(req.nextUrl.pathname, !!session);
