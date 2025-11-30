@@ -91,45 +91,45 @@ export function createServerClient() {
  * Use this for server components that only need to read public data
  *
  * @returns A Supabase client configured for public server-side reads
+ * @throws Error if configuration is invalid
  */
 export function createPublicServerClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  // Validate configuration
+  // Validate configuration - FAIL FAST if not configured
   if (!url || url === 'https://placeholder.supabase.co') {
-    console.error('❌ NEXT_PUBLIC_SUPABASE_URL is not configured');
-    // Return a basic client that will fail gracefully
-    return createClient<Database>(supabaseUrl, supabaseAnonKey, {
-      auth: {
-        persistSession: false,
-        autoRefreshToken: false,
-      },
-    });
+    const error = new Error(
+      'NEXT_PUBLIC_SUPABASE_URL is not configured. Please set it in Vercel environment variables.'
+    );
+    console.error('❌ Supabase Configuration Error:', error.message);
+    throw error;
   }
 
   if (!anonKey || anonKey === 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.placeholder') {
-    console.error('❌ NEXT_PUBLIC_SUPABASE_ANON_KEY is not configured');
-    // Return a basic client that will fail gracefully
-    return createClient<Database>(supabaseUrl, supabaseAnonKey, {
+    const error = new Error(
+      'NEXT_PUBLIC_SUPABASE_ANON_KEY is not configured. Please set it in Vercel environment variables.'
+    );
+    console.error('❌ Supabase Configuration Error:', error.message);
+    throw error;
+  }
+
+  try {
+    return createClient<Database>(url, anonKey, {
       auth: {
         persistSession: false,
         autoRefreshToken: false,
       },
-    });
-  }
-
-  return createClient<Database>(url, anonKey, {
-    auth: {
-      persistSession: false,
-      autoRefreshToken: false,
-    },
-    global: {
-      headers: {
-        'x-client-info': 'booth-beacon-app-public',
+      global: {
+        headers: {
+          'x-client-info': 'booth-beacon-app-public',
+        },
       },
-    },
-  });
+    });
+  } catch (error) {
+    console.error('❌ Failed to create Supabase public client:', error);
+    throw error;
+  }
 }
 
 /**
