@@ -70,7 +70,9 @@ async function checkSources() {
     .order('created_at', { ascending: false })
     .limit(20);
 
-  if (booths) {
+  if (boothsError) {
+    console.error('Error fetching booths:', boothsError);
+  } else if (booths) {
     console.log(`\n📊 Recent booth additions (last 20):\n`);
     booths.forEach(booth => {
       const sources = Array.isArray(booth.source_names) ? booth.source_names.join(', ') : booth.source_names;

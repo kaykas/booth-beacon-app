@@ -69,16 +69,17 @@ async function retryWithBackoff<T>(
   maxRetries: number = 3,
   initialDelay: number = 1000
 ): Promise<T> {
-  let lastError: any;
+  let lastError: unknown;
 
   for (let i = 0; i < maxRetries; i++) {
     try {
       return await fn();
-    } catch (error: any) {
+    } catch (error) {
       lastError = error;
+      const err = error as { status?: number; message?: string };
 
       // Don't retry on 400 errors (bad request)
-      if (error.status === 400 || error.message?.includes('ZERO_RESULTS')) {
+      if (err.status === 400 || err.message?.includes('ZERO_RESULTS')) {
         throw error;
       }
 
@@ -338,8 +339,9 @@ async function run() {
       // Rate limiting: 1 request per second minimum
       await sleep(1000);
 
-    } catch (error: any) {
-      console.error(`  ❌ Error: ${error.message}`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error(`  ❌ Error: ${message}`);
       failed++;
       processedIds.add(booth.id); // Mark as processed to avoid retry loops
     }

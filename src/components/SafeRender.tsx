@@ -11,6 +11,7 @@ interface Props {
 
 interface State {
   hasError: boolean;
+  error?: Error;
 }
 
 export class SafeRender extends Component<Props, State> {
@@ -19,8 +20,8 @@ export class SafeRender extends Component<Props, State> {
     this.state = { hasError: false };
   }
 
-  static getDerivedStateFromError(_: Error): State {
-    return { hasError: true };
+  static getDerivedStateFromError(error: Error): State {
+    return { hasError: true, error };
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
@@ -30,9 +31,16 @@ export class SafeRender extends Component<Props, State> {
   render() {
     if (this.state.hasError) {
       return this.props.fallback || (
-        <div className="flex items-center justify-center p-4 bg-neutral-50 border border-neutral-200 rounded text-neutral-400 text-sm">
-          <AlertTriangle className="w-4 h-4 mr-2" />
-          <span>Failed to load {this.props.name || 'component'}</span>
+        <div className="flex flex-col items-center justify-center p-4 bg-red-50 border border-red-200 rounded text-red-600 text-sm">
+          <div className="flex items-center mb-2">
+            <AlertTriangle className="w-4 h-4 mr-2" />
+            <span className="font-semibold">Failed to load {this.props.name || 'component'}</span>
+          </div>
+          {this.state.error && (
+            <pre className="text-xs bg-red-100 p-2 rounded max-w-full overflow-auto whitespace-pre-wrap">
+              {this.state.error.message}
+            </pre>
+          )}
         </div>
       );
     }

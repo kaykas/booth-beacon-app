@@ -39,7 +39,7 @@ interface BoothData {
   photos?: string[];
 }
 
-async function extractBoothFromPage(markdown: string, url: string): Promise<BoothData | null> {
+async function extractBoothFromPage(markdown: string, _url: string): Promise<BoothData | null> {
   console.log('  🤖 Extracting booth data with Claude...');
 
   const prompt = `Extract the photo booth information from this page.
@@ -101,8 +101,9 @@ Return ONLY JSON:
     const booth = JSON.parse(jsonMatch[0]);
     return booth;
 
-  } catch (error: any) {
-    console.error('    ❌ Extraction failed:', error.message);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error('    ❌ Extraction failed:', message);
     return null;
   }
 }
@@ -200,9 +201,11 @@ async function deepCrawl() {
     console.log(`   Failed: ${failed}`);
     console.log(`${'='.repeat(80)}\n`);
 
-  } catch (error: any) {
-    console.error('❌ Deep crawl failed:', error.message);
-    console.error(error.stack);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    const stack = error instanceof Error ? error.stack : undefined;
+    console.error('❌ Deep crawl failed:', message);
+    if (stack) console.error(stack);
   }
 }
 

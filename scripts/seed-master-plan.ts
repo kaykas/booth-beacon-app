@@ -52,13 +52,17 @@ async function seed() {
     const { error } = await supabase
       .from('crawl_sources')
       .upsert({
+        name: source.name,
         source_name: source.name,
+        base_url: source.url,
         source_url: source.url,
-        // You might need to adjust column names based on your exact schema
-        // Assuming 'type' or 'category' column exists, if not, we put it in notes or ignore
+        source_type: source.type,
+        extractor_type: source.type,
+        country_focus: source.region,
         enabled: true,
         priority: source.type === 'core' ? 100 : 50,
-      }, { onConflict: 'source_url' });
+        notes: source.notes || null,
+      }, { onConflict: 'name' });
 
     if (error) {
       console.error(`❌ Failed to seed ${source.name}:`, error.message);

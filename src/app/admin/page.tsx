@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useAuth } from '@/lib/auth/AuthContext';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
@@ -87,6 +87,7 @@ export default function AdminPage() {
   const [maxReconnectAttempts] = useState(5);
   const [reconnectTimeoutId, setReconnectTimeoutId] = useState<NodeJS.Timeout | null>(null);
   const [_selectedSource, setSelectedSource] = useState<string>('');
+  const stopRef = useRef(false);
 
   // Discovery Engine environment variables state
   const [envVarsStatus, setEnvVarsStatus] = useState<Record<string, boolean> | null>(null);
@@ -279,55 +280,18 @@ export default function AdminPage() {
     setActivityFeed(prev => [{type, message, timestamp: new Date(), status}, ...prev].slice(0, 50));
   };
 
-  // Auto-reconnect with exponential backoff
-  const attemptReconnect = (_sourceName?: string, _totalBooths?: number, _completedSources?: number) => {
-    if (reconnectAttempt >= maxReconnectAttempts) {
-      setCrawlerStatus(`Max reconnection attempts (${maxReconnectAttempts}) reached`);
-      setConnectionStatus('error');
-      setCrawlerState('error');
-      setCrawlerRunning(false);
-      addActivity('error', `Failed to reconnect after ${maxReconnectAttempts} attempts`, 'error');
-      toast.error(`Failed to reconnect after ${maxReconnectAttempts} attempts. Please try again later.`);
-      return;
-    }
-
-    // Exponential backoff: 3s, 6s, 12s, 24s, 48s
-    const delay = Math.min(3000 * Math.pow(2, reconnectAttempt), 48000);
-    setReconnectAttempt(prev => prev + 1);
-    setConnectionStatus('reconnecting');
-
-    const attemptNum = reconnectAttempt + 1;
-    setCrawlerStatus(`Connection lost. Reconnecting in ${delay/1000}s (attempt ${attemptNum}/${maxReconnectAttempts})...`);
-    addActivity('reconnect', `Attempting reconnection ${attemptNum}/${maxReconnectAttempts} in ${delay/1000}s`, 'warning');
-    toast.warning(`Connection lost. Reconnecting in ${delay/1000}s (attempt ${attemptNum}/${maxReconnectAttempts})...`);
-
-    const timeoutId = setTimeout(() => {
-      addActivity('reconnect', `Reconnecting... (attempt ${attemptNum}/${maxReconnectAttempts})`, 'info');
-      startCrawler(_sourceName);
-    }, delay);
-
-    setReconnectTimeoutId(timeoutId);
-  };
-
   const stopCrawler = () => {
-    // Clear reconnection timeout if active
-    if (reconnectTimeoutId) {
-      clearTimeout(reconnectTimeoutId);
-      setReconnectTimeoutId(null);
-    }
-
+    stopRef.current = true;
+    setCrawlerRunning(false);
+    setCrawlerStatus('Stopping...');
+    setCrawlerState('idle');
+    setConnectionStatus('disconnected');
+    addActivity('stop', 'Crawler stop requested', 'warning');
+    toast.info('Stopping crawler after current source finishes...');
+    
     if (currentEventSource) {
       currentEventSource.close();
       setCurrentEventSource(null);
-      setCrawlerRunning(false);
-      setCrawlerStatus('Crawler stopped by user');
-      setCrawlerState('idle');
-      setConnectionStatus('disconnected');
-      setCurrentSource('');
-      setCurrentStage('');
-      setReconnectAttempt(0);
-      addActivity('stop', 'Crawler stopped by user', 'warning');
-      toast.info('Crawler stopped');
     }
   };
 
@@ -339,221 +303,130 @@ export default function AdminPage() {
 
     // Reset all states
     setCrawlerRunning(true);
-    setCrawlerStatus('Starting crawler...');
+    stopRef.current = false;
+    setCrawlerStatus('Initializing crawler...');
     setCrawlerState('connecting');
     setConnectionStatus('connecting');
-    setCrawlerProgress({ current: 0, total: 0, percentage: 0 });
-    setCurrentBoothCount(0);
     setCurrentSource('');
     setCurrentStage('');
-    if (reconnectAttempt === 0) {
-      setActivityFeed([]); // Only clear activity feed on fresh start, not reconnect
-    }
+    setActivityFeed([]);
     setCrawlStartTime(new Date());
     setLastError('');
     setErrorCount(0);
-    addActivity('start', reconnectAttempt > 0 ? 'Reconnecting to crawler...' : 'Initiating crawler connection...', 'info');
-    toast.info(reconnectAttempt > 0 ? 'Reconnecting to crawler...' : 'Starting crawler with real-time streaming...');
+    setCurrentBoothCount(0);
 
-    let eventSource: EventSource | null = null;
-    let totalBooths = 0;
+    // Get list of sources to run
+    // If specific source requested, use that. Otherwise use all enabled sources.
+    let sourcesToRun = crawlSources.filter(s => s.enabled);
+    if (sourceName) {
+      sourcesToRun = sourcesToRun.filter(s => s.source_name === sourceName);
+    } else {
+      // Refresh sources list to be sure
+      try {
+        const { data: refreshedSources } = await supabase
+          .from('crawl_sources')
+          .select('*')
+          .eq('enabled', true)
+          .order('priority', { ascending: false });
+        if (refreshedSources) sourcesToRun = refreshedSources;
+      } catch (e) {
+        console.error('Failed to refresh sources', e);
+      }
+    }
+
+    if (sourcesToRun.length === 0) {
+      toast.error('No enabled sources found');
+      setCrawlerRunning(false);
+      setCrawlerState('idle');
+      setConnectionStatus('disconnected');
+      return;
+    }
+
+    setCrawlerProgress({ current: 0, total: sourcesToRun.length, percentage: 0 });
+    addActivity('start', `Starting crawl of ${sourcesToRun.length} sources`, 'info');
+    setConnectionStatus('connected');
+    setCrawlerState('running');
+
     let completedSources = 0;
-    let hasReceivedData = false;
 
-    try {
-      // Use EventSource for real-time streaming via secure API proxy
-      const params = new URLSearchParams({
-        stream: 'true',
-        force_crawl: 'true',
-        ...(sourceName && { source_name: sourceName }),
-      });
-
-      // Call secure Next.js API route (handles SERVICE_ROLE_KEY server-side)
-      eventSource = new EventSource(`/api/crawler?${params}`);
-
-      setCurrentEventSource(eventSource);
-
-      // Connection opened
-      eventSource.onopen = () => {
-        setConnectionStatus('connected');
-        setCrawlerState('running');
-        addActivity('connection', 'Connected to crawler', 'success');
-      };
-
-      eventSource.onmessage = (event) => {
-        try {
-          hasReceivedData = true;
-          const data = JSON.parse(event.data);
-
-          // Handle different event types
-          switch (data.type) {
-            case 'start':
-              setCrawlerStatus(`Starting crawl of ${data.total_sources} sources...`);
-              setCrawlerProgress({ current: 0, total: data.total_sources, percentage: 0 });
-              setCrawlerState('running');
-              addActivity('start', `Starting crawl of ${data.total_sources} sources`, 'info');
-              break;
-
-            case 'source_start':
-              setCurrentSource(data.source_name);
-              setCurrentStage('crawling');
-              setCrawlerStatus(`Crawling ${data.source_name}...`);
-              addActivity('source', `Started crawling ${data.source_name}`, 'info');
-              break;
-
-            case 'batch_crawled':
-              setCurrentStage('crawling');
-              setCrawlerStatus(`${data.source_name}: Crawled ${data.pages_crawled} pages`);
-              addActivity('batch', `Crawled ${data.pages_crawled} pages from ${data.source_name}`, 'info');
-              break;
-
-            case 'extraction_progress':
-              setCurrentStage('extracting');
-              setCrawlerStatus(`${data.source_name}: Extracting page ${data.page_index}/${data.total_pages} (${data.booths_extracted_so_far} booths found)`);
-              if (data.page_index === 1 || data.page_index % 5 === 0) {
-                addActivity('extract', `Extracting page ${data.page_index}/${data.total_pages} - ${data.booths_extracted_so_far} booths found`, 'info');
-              }
-              break;
-
-            case 'batch_complete':
-              setCurrentStage('saving');
-              setCrawlerStatus(`${data.source_name}: Batch ${data.batch_number} complete - ${data.booths_so_far} total booths`);
-              totalBooths = data.booths_so_far;
-              setCurrentBoothCount(data.booths_so_far);
-              addActivity('batch', `Batch ${data.batch_number} complete - ${data.booths_so_far} total booths`, 'success');
-              break;
-
-            case 'source_complete':
-              completedSources++;
-              setCurrentBoothCount(data.booths_found || totalBooths);
-              setCrawlerProgress(prev => ({
-                current: completedSources,
-                total: prev.total,
-                percentage: prev.total > 0 ? Math.round((completedSources / prev.total) * 100) : 0
-              }));
-              setCurrentStage('');
-              addActivity('source', `✓ ${data.source_name} complete: ${data.booths_found} booths`, 'success');
-              toast.success(`${data.source_name} complete: ${data.booths_found} booths`);
-              break;
-
-            case 'batch_error':
-            case 'source_error':
-              setErrorCount(prev => prev + 1);
-              setLastError(data.error);
-              addActivity('error', `${data.source_name}: ${data.error}`, 'error');
-              toast.error(`${data.source_name}: ${data.error}`);
-              break;
-
-            case 'complete':
-              setCrawlerStatus('Crawler completed successfully');
-              setCrawlerState('complete');
-              setCurrentStage('');
-              setCurrentSource('');
-              setReconnectAttempt(0); // Reset reconnect counter on successful completion
-              addActivity('complete', `Crawler complete! Found ${data.summary?.total_booths_found || totalBooths} booths`, 'success');
-              toast.success(`Crawler complete! Found ${data.summary?.total_booths_found || totalBooths} booths`);
-              if (eventSource) {
-                eventSource.close();
-                setCurrentEventSource(null);
-              }
-              setConnectionStatus('disconnected');
-
-              // Reload data
-              loadAdminData();
-              loadCrawlerMetrics();
-              loadCrawlerLogs();
-              setCrawlerRunning(false);
-              break;
-
-            case 'error':
-              setErrorCount(prev => prev + 1);
-              setLastError(data.error || 'Crawler failed');
-              addActivity('error', data.error || 'Crawler failed', 'error');
-              throw new Error(data.error || 'Crawler failed');
-          }
-        } catch (parseError) {
-          console.error('Error parsing event:', parseError);
-        }
-      };
-
-      eventSource.onerror = (error) => {
-        console.error('EventSource error:', error);
-        if (eventSource) eventSource.close();
-        setConnectionStatus('error');
-        setCrawlerState('error');
-        setCurrentStage('');
-
-        // Provide helpful error message based on what happened
-        if (!hasReceivedData) {
-          setCrawlerStatus('Failed to connect to crawler');
-          setLastError('Failed to connect to crawler. Please check your network connection.');
-          addActivity('error', 'Failed to connect to crawler', 'error');
-
-          // Attempt auto-reconnect for connection failures
-          attemptReconnect(sourceName, totalBooths, completedSources);
-        } else if (totalBooths > 0 || completedSources > 0) {
-          setCrawlerStatus(`Crawler stopped (${completedSources} sources completed, ${totalBooths} booths found before disconnect)`);
-          setLastError(`Connection lost after processing ${completedSources} sources`);
-          addActivity('error', `Connection lost after processing ${completedSources} sources and finding ${totalBooths} booths`, 'warning');
-
-          // Still reload data to show what was completed
-          setTimeout(() => {
-            loadAdminData();
-            loadCrawlerMetrics();
-            loadCrawlerLogs();
-          }, 1000);
-
-          // Attempt auto-reconnect to continue crawling
-          attemptReconnect(sourceName, totalBooths, completedSources);
-        } else {
-          setCrawlerStatus('Connection error during crawl');
-          setLastError('Lost connection to crawler. No data was received.');
-          addActivity('error', 'Lost connection to crawler. No data was received.', 'error');
-
-          // Attempt auto-reconnect
-          attemptReconnect(sourceName, totalBooths, completedSources);
-        }
-      };
-
-      // Timeout after 10 minutes
-      const timeoutId = setTimeout(() => {
-        if (crawlerRunning && eventSource) {
-          eventSource.close();
-          if (totalBooths > 0 || completedSources > 0) {
-            setCrawlerStatus(`Crawler timeout (${completedSources} sources completed, ${totalBooths} booths found)`);
-            toast.warning(`Crawler timed out after 10 minutes. ${completedSources} sources completed with ${totalBooths} booths found.`, {
-              duration: 10000,
-            });
-            // Reload data to show what was completed
-            loadAdminData();
-            loadCrawlerMetrics();
-            loadCrawlerLogs();
-          } else {
-            setCrawlerStatus('Crawler timed out');
-            toast.error('Crawler timed out after 10 minutes with no results.');
-          }
-          setCrawlerRunning(false);
-        }
-      }, 600000);
-
-      // Store timeout ID to clear it if crawl completes normally
-      if (eventSource) {
-        (eventSource as ExtendedEventSource).timeoutId = timeoutId;
+    // --- CLIENT SIDE ORCHESTRATION LOOP ---
+    for (let i = 0; i < sourcesToRun.length; i++) {
+      // Check for stop signal
+      if (stopRef.current) {
+        addActivity('stop', 'Crawler stopped by user', 'warning');
+        break;
       }
 
-    } catch (error) {
-      console.error('Crawler error:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      setCrawlerStatus('Error: ' + errorMessage);
-      setCrawlerState('error');
-      setConnectionStatus('error');
-      setLastError(errorMessage);
-      setErrorCount(prev => prev + 1);
-      addActivity('error', 'Crawler failed: ' + errorMessage, 'error');
-      toast.error('Crawler failed: ' + errorMessage);
-      setCrawlerRunning(false);
-      if (eventSource) eventSource.close();
+      const source = sourcesToRun[i];
+      setCurrentSource(source.source_name);
+      setCrawlerStatus(`Processing ${source.source_name} (${i + 1}/${sourcesToRun.length})...`);
+      addActivity('source', `Starting ${source.source_name}`, 'info');
+
+      try {
+        // Process single source via SSE
+        await new Promise<void>((resolve, reject) => {
+          const es = new EventSource(`/api/crawler/run-source?sourceId=${source.id}`);
+          setCurrentEventSource(es);
+          
+          es.onmessage = (event) => {
+            try {
+              const data = JSON.parse(event.data);
+              
+              if (data.type === 'progress') {
+                setCurrentStage(data.message);
+              } else if (data.type === 'info') {
+                addActivity('info', data.message, 'info');
+              } else if (data.type === 'success') {
+                addActivity('success', data.message, 'success');
+              } else if (data.type === 'error') {
+                addActivity('error', data.message, 'error');
+                setLastError(data.message);
+                setErrorCount(prev => prev + 1);
+              } else if (data.type === 'complete') {
+                es.close();
+                setCurrentEventSource(null);
+                resolve();
+              }
+            } catch (e) {
+              console.error('Parse error', e);
+            }
+          };
+
+          es.onerror = (err) => {
+            console.error('EventSource failed', err);
+            es.close();
+            setCurrentEventSource(null);
+            // Treat network error as failure but don't crash whole crawler
+            reject(new Error('Connection lost'));
+          };
+        });
+
+        addActivity('source', `Completed ${source.source_name}`, 'success');
+        
+      } catch (error: any) {
+        addActivity('error', `Failed ${source.source_name}: ${error.message}`, 'error');
+        setErrorCount(prev => prev + 1);
+      }
+
+      completedSources++;
+      setCrawlerProgress({ 
+        current: completedSources, 
+        total: sourcesToRun.length, 
+        percentage: Math.round((completedSources / sourcesToRun.length) * 100) 
+      });
+      
+      // Refresh logs/metrics occasionally
+      loadCrawlerMetrics();
+      loadCrawlerLogs();
     }
+
+    setCrawlerStatus('Crawl complete');
+    setCrawlerState('complete');
+    setCrawlerRunning(false);
+    setConnectionStatus('disconnected');
+    setCurrentStage('');
+    toast.success('Crawler run finished');
+    loadAdminData();
   };
 
   // Loading state

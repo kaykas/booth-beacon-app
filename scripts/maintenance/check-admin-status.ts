@@ -65,7 +65,7 @@ async function checkStatus() {
 
   if (rawContent && rawContent.length > 0) {
     rawContent.forEach(rc => {
-      const sourceName = (rc.crawl_sources as any)?.source_name || 'Unknown';
+      const sourceName = (rc.crawl_sources as unknown as { source_name: string })?.source_name || 'Unknown';
       console.log(`${new Date(rc.created_at).toISOString()} - ${sourceName}`);
     });
   } else {

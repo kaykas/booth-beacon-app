@@ -85,7 +85,7 @@ async function checkSchema() {
         });
       }
     }
-  } catch (err) {
+  } catch (_err) {
     console.log('Queue table may not exist or has different schema');
   }
 
