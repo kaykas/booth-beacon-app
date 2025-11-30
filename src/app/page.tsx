@@ -10,17 +10,36 @@ import { SearchBar } from '@/components/SearchBar';
 import { PhotoStrips } from '@/components/PhotoStrips';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
-import { supabase } from '@/lib/supabase';
+import { FoundersStory } from '@/components/home/FoundersStory';
+import { createPublicServerClient } from '@/lib/supabase';
 import { Booth } from '@/types';
 
-// Fetch featured booths (server component)
+function getPublicSupabaseClient() {
+  try {
+    return createPublicServerClient();
+  } catch (error) {
+    console.error('Unable to create Supabase client in home page:', error);
+    return null;
+  }
+}
+
+// Fetch featured booths for the grid (server component)
 async function getFeaturedBooths(): Promise<Booth[]> {
+  const supabase = getPublicSupabaseClient();
+
+  if (!supabase) {
+    return [];
+  }
+
   const { data, error } = await supabase
     .from('booths')
-    .select('*')
+    .select(
+      `id, name, slug, city, country, latitude, longitude, photo_exterior_url, photo_interior_url, photo_sample_strips, status, is_operational, updated_at`
+    )
     .eq('status', 'active')
     .eq('is_operational', true)
-    .order('updated_at', { ascending: false });
+    .order('updated_at', { ascending: false })
+    .limit(8);
 
   if (error) {
     console.error('Error fetching featured booths:', error);
@@ -30,24 +49,60 @@ async function getFeaturedBooths(): Promise<Booth[]> {
   return (data as Booth[]) || [];
 }
 
+// Fetch booths for the map display (more booths for better USA coverage)
+async function getMapBooths(): Promise<Booth[]> {
+  const supabase = getPublicSupabaseClient();
+
+  if (!supabase) {
+    return [];
+  }
+
+  const { data, error } = await supabase
+    .from('booths')
+    .select(
+      `id, name, slug, city, country, latitude, longitude, photo_exterior_url, status, is_operational`
+    )
+    .eq('status', 'active')
+    .eq('is_operational', true)
+    .not('latitude', 'is', null)
+    .not('longitude', 'is', null)
+    .limit(100);
+
+  if (error) {
+    console.error('Error fetching map booths:', error);
+    return [];
+  }
+
+  return (data as Booth[]) || [];
+}
+
 // Fetch booth stats
-async function getBoothStats() {
+async function getBoothStats(): Promise<{ totalBooths: number; countries: number; operational: number }> {
+  const supabase = getPublicSupabaseClient();
+
+  if (!supabase) {
+    return { totalBooths: 0, countries: 0, operational: 0 };
+  }
+
   const { data: booths, error, count } = await supabase
     .from('booths')
-    .select('country', { count: 'exact' });
+    .select('country, is_operational', { count: 'exact' });
 
   if (error) {
     console.error('Error fetching stats:', error);
-    return { totalBooths: 0, countries: 0 };
+    return { totalBooths: 0, countries: 0, operational: 0 };
   }
 
-  const uniqueCountries = new Set(
-    (booths as Array<{ country: string }>)?.map((b) => b.country).filter(Boolean) || []
-  );
+  const boothSummaries = (booths as Array<{ country: string; is_operational: boolean }>) || [];
+
+  const uniqueCountries = new Set(boothSummaries.map((b) => b.country).filter(Boolean));
+
+  const operationalCount = boothSummaries.filter((booth) => booth.is_operational).length;
 
   return {
     totalBooths: count || 0,
     countries: uniqueCountries.size,
+    operational: operationalCount,
   };
 }
 
@@ -55,8 +110,11 @@ async function getBoothStats() {
 export const revalidate = 3600;
 
 export default async function Home() {
-  const featuredBooths = await getFeaturedBooths();
-  const stats = await getBoothStats();
+  const [featuredBooths, mapBooths, stats] = await Promise.all([
+    getFeaturedBooths(),
+    getMapBooths(),
+    getBoothStats(),
+  ]);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -137,7 +195,7 @@ export default async function Home() {
               </div>
               <div className="text-center">
                 <div className="text-3xl font-bold text-primary mb-1">
-                  {stats.totalBooths ? stats.totalBooths.toLocaleString() : "..."}
+                  {stats.operational ? stats.operational.toLocaleString() : "..."}
                 </div>
                 <div className="text-sm text-muted-foreground">Operational</div>
               </div>
@@ -148,6 +206,8 @@ export default async function Home() {
         {/* Decorative pink gradient line */}
         <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary to-transparent"></div>
       </section>
+
+      <FoundersStory />
 
       {/* Divider */}
       <div className="divider-analog my-0"></div>
@@ -193,11 +253,11 @@ export default async function Home() {
           <div className="mb-6 rounded-lg overflow-hidden shadow-photo vignette">
             <Suspense fallback={<div className="h-[500px] bg-neutral-200 animate-pulse"></div>}>
               <BoothMap
-                booths={featuredBooths}
+                booths={mapBooths}
                 center={{ lat: 39.8283, lng: -98.5795 }}
                 zoom={4}
                 showUserLocation={false}
-                showClustering={false}
+                showClustering={true}
               />
             </Suspense>
           </div>
