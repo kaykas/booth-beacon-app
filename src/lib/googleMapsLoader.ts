@@ -64,8 +64,8 @@ export function loadGoogleMaps(): Promise<typeof google> {
 
     // Use callback approach for more reliable loading
     const callbackName = `initGoogleMaps_${Date.now()}`;
-    (window as any)[callbackName] = () => {
-      delete (window as any)[callbackName];
+    (window as unknown as Record<string, unknown>)[callbackName] = () => {
+      delete (window as unknown as Record<string, unknown>)[callbackName];
       waitForGoogleMaps().then(resolve).catch(reject);
     };
 
@@ -76,7 +76,7 @@ export function loadGoogleMaps(): Promise<typeof google> {
 
     script.onerror = (event) => {
       googleMapsPromise = null; // Reset so we can retry
-      delete (window as any)[callbackName];
+      delete (window as unknown as Record<string, unknown>)[callbackName];
       console.error('Google Maps script load error:', event);
       reject(new Error('Google Maps script failed to load. Check if the API key is valid and the Maps JavaScript API is enabled in Google Cloud Console.'));
     };

@@ -178,7 +178,7 @@ export function useMarkVisited() {
     try {
       const { error } = await supabase
         .from('booth_bookmarks')
-        // @ts-ignore - Supabase typing issue
+        // @ts-expect-error - Supabase typing issue
         .update({
           visited,
           visited_at: visited ? new Date().toISOString() : null,
@@ -214,7 +214,7 @@ export function useUpdateNotes() {
     try {
       const { error } = await supabase
         .from('booth_bookmarks')
-        // @ts-ignore - Supabase typing issue
+        // @ts-expect-error - Supabase typing issue
         .update({ notes })
         .eq('id', bookmarkId);
 

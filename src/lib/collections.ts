@@ -270,7 +270,7 @@ export async function getCollectionStats() {
       return { totalBooths: 0, totalCountries: 0 };
     }
 
-    const uniqueCountries = new Set(data?.map((b: any) => b.country));
+    const uniqueCountries = new Set(data?.map((b) => b.country));
 
     return {
       totalBooths: count || 0,

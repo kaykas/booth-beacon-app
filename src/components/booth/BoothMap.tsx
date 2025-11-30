@@ -89,8 +89,8 @@ export function BoothMap({
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<google.maps.Map | null>(null);
   const [map, setMap] = useState<google.maps.Map | null>(null);
-  const [markers, setMarkers] = useState<google.maps.Marker[]>([]);
-  const [markerClusterer, setMarkerClusterer] = useState<MarkerClusterer | null>(null);
+  const markersRef = useRef<google.maps.Marker[]>([]);
+  const markerClustererRef = useRef<MarkerClusterer | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [internalUserLocation, setInternalUserLocation] = useState<Coordinates | null>(null);
@@ -101,7 +101,10 @@ export function BoothMap({
   const userLocation = externalUserLocation ?? internalUserLocation;
 
   // Memoize center and zoom to prevent unnecessary re-renders
-  const stableCenter = useMemo(() => center || DEFAULT_CENTER, [center?.lat, center?.lng]);
+  const stableCenter = useMemo(() => ({
+    lat: center?.lat ?? DEFAULT_CENTER.lat,
+    lng: center?.lng ?? DEFAULT_CENTER.lng
+  }), [center?.lat, center?.lng]);
   const stableZoom = useMemo(() => zoom ?? DEFAULT_ZOOM, [zoom]);
 
   // Initialize Google Maps using robust loader - only once
@@ -150,9 +153,9 @@ export function BoothMap({
     if (!map || booths.length === 0) return;
 
     // Clear existing markers and clusterer
-    markers.forEach((marker) => marker.setMap(null));
-    if (markerClusterer) {
-      markerClusterer.clearMarkers();
+    markersRef.current.forEach((marker) => marker.setMap(null));
+    if (markerClustererRef.current) {
+      markerClustererRef.current.clearMarkers();
     }
 
     const newMarkers: google.maps.Marker[] = [];
@@ -195,7 +198,7 @@ export function BoothMap({
       newMarkers.push(marker);
     });
 
-    setMarkers(newMarkers);
+    markersRef.current = newMarkers;
 
     // Add marker clustering if enabled
     if (showClustering && newMarkers.length > 0) {
@@ -229,7 +232,7 @@ export function BoothMap({
           },
         },
       });
-      setMarkerClusterer(clusterer);
+      markerClustererRef.current = clusterer;
     }
 
     // Fit map to show all booths if we have multiple
@@ -239,8 +242,8 @@ export function BoothMap({
 
     // Cleanup function
     return () => {
-      if (markerClusterer) {
-        markerClusterer.clearMarkers();
+      if (markerClustererRef.current) {
+        markerClustererRef.current.clearMarkers();
       }
     };
   }, [map, booths, onBoothClick, showClustering]);
@@ -431,10 +434,6 @@ function createInfoWindowContent(booth: Booth): string {
   if (!booth.photo_exterior_url && (!booth.ai_preview_url || isBrokenUnsplashUrl)) {
     triggerAIPreviewGeneration(booth.id);
   }
-
-  const machineInfo = booth.machine_model
-    ? `${booth.machine_model} • ${booth.booth_type || 'analog'}`
-    : booth.booth_type || 'Unknown type';
 
   // Status badge
   const statusColors = {

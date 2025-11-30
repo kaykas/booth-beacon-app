@@ -1,3 +1,6 @@
+import { SupabaseClient } from '@supabase/supabase-js';
+import { Database } from './supabase/types';
+
 // Geocoding utility functions for admin panel
 
 export interface GeocodeProgress {
@@ -20,7 +23,7 @@ export interface GeocodeResult {
   error?: string;
 }
 
-export async function getMissingCoordsCount(supabase: any): Promise<number> {
+export async function getMissingCoordsCount(supabase: SupabaseClient<Database>): Promise<number> {
   try {
     const { count } = await supabase
       .from('booths')

@@ -68,7 +68,6 @@ export function LogViewer({ initialLimit = 50 }: LogViewerProps) {
   const [filteredLogs, setFilteredLogs] = useState<CrawlerLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [autoRefresh, setAutoRefresh] = useState(false);
-  const [refreshInterval, setRefreshInterval] = useState<NodeJS.Timeout | null>(null);
 
   // Filters
   const [levelFilter, setLevelFilter] = useState<string>('all');
@@ -157,22 +156,21 @@ export function LogViewer({ initialLimit = 50 }: LogViewerProps) {
   }, [fetchLogs]);
 
   useEffect(() => {
+    let interval: NodeJS.Timeout;
+
     if (autoRefresh) {
-      const interval = setInterval(() => {
+      // Initial fetch
+      fetchLogs();
+      // Set interval
+      interval = setInterval(() => {
         fetchLogs();
-      }, 5000); // Refresh every 5 seconds
-      setRefreshInterval(interval);
-    } else {
-      if (refreshInterval) {
-        clearInterval(refreshInterval);
-        setRefreshInterval(null);
-      }
+      }, 5000);
     }
 
     return () => {
-      if (refreshInterval) clearInterval(refreshInterval);
+      if (interval) clearInterval(interval);
     };
-  }, [autoRefresh, fetchLogs]); // removed refreshInterval from deps to avoid infinite loop
+  }, [autoRefresh, fetchLogs]);
 
   // Pagination calculations
   const indexOfLastLog = currentPage * logsPerPage;
