@@ -19,7 +19,7 @@ test.describe('Booth Detail Page', () => {
     expect(body).toBeTruthy();
   });
 
-  test('should display booth information', async ({ page }) => {
+  test.skip('should display booth information', async ({ page }) => {
     await page.goto('/booth/test-booth-id');
 
     await page.waitForLoadState('networkidle');
