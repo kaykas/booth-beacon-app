@@ -9,11 +9,9 @@ import {
   ExternalLink,
   Clock,
   DollarSign,
-  Camera,
   AlertCircle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { StatusBadge } from '@/components/booth/StatusBadge';
 import { BoothImage } from '@/components/booth/BoothImage';

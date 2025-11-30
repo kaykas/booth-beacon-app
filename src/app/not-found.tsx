@@ -15,8 +15,8 @@ export default function NotFound() {
         </h1>
         
         <p className="text-neutral-500 mb-8 text-lg">
-          Looks like this photo booth has moved or doesn't exist anymore. 
-          Let's get you back to developing some memories.
+          Looks like this photo booth has moved or doesn&apos;t exist anymore.
+          Let&apos;s get you back to developing some memories.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-3 justify-center">

@@ -18,8 +18,8 @@ export async function GET(request: NextRequest) {
   const stream = new ReadableStream({
     async start(controller) {
       const encoder = new TextEncoder();
-      
-      const send = (data: any) => {
+
+      const send = (data: LogEvent | { type: string; message: string }) => {
         controller.enqueue(encoder.encode(`data: ${JSON.stringify(data)}\n\n`));
       };
 
@@ -30,8 +30,9 @@ export async function GET(request: NextRequest) {
       try {
         await processSource(sourceId, logCallback);
         send({ type: 'complete', message: 'Source finished' });
-      } catch (error: any) {
-        send({ type: 'error', message: error.message });
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        send({ type: 'error', message: errorMessage });
       } finally {
         controller.close();
       }

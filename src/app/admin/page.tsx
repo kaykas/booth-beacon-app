@@ -43,9 +43,10 @@ interface CrawlerMetric {
   [key: string]: unknown;
 }
 
-interface ExtendedEventSource extends EventSource {
-  timeoutId?: NodeJS.Timeout;
-}
+// Unused interface ExtendedEventSource - commented for future implementation
+// interface ExtendedEventSource extends EventSource {
+//   timeoutId?: NodeJS.Timeout;
+// }
 
 export default function AdminPage() {
   const { user, loading: authLoading } = useAuth();
@@ -83,9 +84,9 @@ export default function AdminPage() {
   const [crawlStartTime, setCrawlStartTime] = useState<Date | null>(null);
   const [lastError, setLastError] = useState<string>('');
   const [errorCount, setErrorCount] = useState(0);
-  const [reconnectAttempt, setReconnectAttempt] = useState(0);
+  const [_reconnectAttempt, _setReconnectAttempt] = useState(0);
   const [maxReconnectAttempts] = useState(5);
-  const [reconnectTimeoutId, setReconnectTimeoutId] = useState<NodeJS.Timeout | null>(null);
+  const [_reconnectTimeoutId, _setReconnectTimeoutId] = useState<NodeJS.Timeout | null>(null);
   const [_selectedSource, setSelectedSource] = useState<string>('');
   const stopRef = useRef(false);
 
@@ -402,9 +403,10 @@ export default function AdminPage() {
         });
 
         addActivity('source', `Completed ${source.source_name}`, 'success');
-        
-      } catch (error: any) {
-        addActivity('error', `Failed ${source.source_name}: ${error.message}`, 'error');
+
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        addActivity('error', `Failed ${source.source_name}: ${errorMessage}`, 'error');
         setErrorCount(prev => prev + 1);
       }
 
