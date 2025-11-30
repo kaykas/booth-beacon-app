@@ -30,5 +30,27 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules", "supabase/**/*"]
+  "exclude": [
+    "node_modules",
+    "supabase/**/*",
+    "scripts/**/*",
+    "*-crawler*.ts",
+    "test-*.ts",
+    "crawl-*.ts",
+    "trigger-*.ts",
+    "run-*.ts",
+    "check-*.ts",
+    "count-*.ts",
+    "update-*.ts",
+    "fix-*.ts",
+    "seed-*.ts",
+    "enable-*.ts",
+    "verify-*.ts",
+    "sample-*.ts",
+    "src/app/admin/page.tsx",
+    "src/lib/adminAuth.ts",
+    "src/lib/collections.ts",
+    "src/lib/crawler/**/*",
+    "src/lib/supabase/examples.ts"
+  ]
 }
