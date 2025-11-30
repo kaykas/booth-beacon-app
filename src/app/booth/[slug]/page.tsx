@@ -5,7 +5,6 @@ import Image from 'next/image';
 import {
   MapPin,
   Navigation,
-  Copy,
   ExternalLink,
   Clock,
   DollarSign,
@@ -16,6 +15,7 @@ import { Card } from '@/components/ui/card';
 import { StatusBadge } from '@/components/booth/StatusBadge';
 import { BoothImage } from '@/components/booth/BoothImage';
 import { BoothMap } from '@/components/booth/BoothMap';
+import { CopyAddressButton } from '@/components/booth/CopyAddressButton';
 import { BookmarkButton } from '@/components/BookmarkButton';
 import { ShareButton } from '@/components/ShareButton';
 import { createPublicServerClient } from '@/lib/supabase';
@@ -56,8 +56,32 @@ async function getBooth(slug: string): Promise<RenderableBooth | null> {
   }
 }
 
-// Force dynamic rendering - no caching to avoid stuck states
-export const dynamic = 'force-dynamic';
+// Static generation with ISR - regenerate every hour
+export const revalidate = 3600; // 1 hour
+export const dynamicParams = true; // Allow dynamic params for new booths
+
+// Generate static pages for all booths at build time
+export async function generateStaticParams() {
+  try {
+    const supabase = createPublicServerClient();
+    const { data: booths, error } = await supabase
+      .from('booths')
+      .select('slug')
+      .not('slug', 'is', null);
+
+    if (error) {
+      console.error('Error generating static params:', error);
+      return [];
+    }
+
+    return (booths || []).map((booth) => ({
+      slug: booth.slug,
+    }));
+  } catch (error) {
+    console.error('Error in generateStaticParams:', error);
+    return [];
+  }
+}
 
 export async function generateMetadata({ params }: BoothDetailPageProps): Promise<Metadata> {
   const { slug } = await params;
@@ -311,15 +335,7 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
 
                 {hasValidLocation && (
                   <>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="w-full"
-                      onClick={() => navigator.clipboard.writeText(address)}
-                    >
-                      <Copy className="w-4 h-4 mr-2" />
-                      Copy Address
-                    </Button>
+                    <CopyAddressButton address={address} />
 
                     <Button variant="default" size="sm" className="w-full" asChild>
                       <a
