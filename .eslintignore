@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+.next/
+out/
+build/
+
+# Testing
+coverage/
+.vitest/
+
+# Maintenance scripts (not part of production build)
+scripts/maintenance/
+improved-extraction.ts
+fix-source-urls.ts
+test-*.ts
+crawl-*.ts
+trigger-*.ts
+run-crawler*.ts
+check-*.ts
+seed-*.ts
+enable-*.ts
+update-*.ts
+verify-*.ts
+count-*.ts
+sample-*.ts
