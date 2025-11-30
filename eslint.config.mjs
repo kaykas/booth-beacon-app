@@ -36,6 +36,16 @@ const eslintConfig = defineConfig([
     "check-*.ts",
     "count-*.ts",
     "update-*.ts",
+    "fix-*.ts",
+    "seed-*.ts",
+    "enable-*.ts",
+    "verify-*.ts",
+    "sample-*.ts",
+    "improved-extraction.ts",
+    // Maintenance scripts directory:
+    "scripts/maintenance/**",
+    "scripts/master-crawler.ts",
+    "scripts/robust-crawler.ts",
     // Supabase functions (deployed separately):
     "supabase/functions/**",
   ]),
