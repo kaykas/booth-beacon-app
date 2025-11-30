@@ -58,7 +58,7 @@ function constructLocationPrompt(
   city: string,
   country: string,
   address?: string,
-  boothName?: string
+  _boothName?: string
 ): string {
   // Create a descriptive prompt that focuses on the location
   // NOT the photo booth itself
@@ -208,7 +208,7 @@ export async function uploadGeneratedImage(
   const filePath = `ai-previews/${fileName}`;
 
   // Upload to Supabase storage
-  const { data, error } = await supabase.storage
+  const { error } = await supabase.storage
     .from('booth-images')
     .upload(filePath, blob, {
       contentType: 'image/png',
