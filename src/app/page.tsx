@@ -23,7 +23,7 @@ function getPublicSupabaseClient() {
   }
 }
 
-// Fetch featured booths (server component)
+// Fetch featured booths for the grid (server component)
 async function getFeaturedBooths(): Promise<Booth[]> {
   const supabase = getPublicSupabaseClient();
 
@@ -43,6 +43,33 @@ async function getFeaturedBooths(): Promise<Booth[]> {
 
   if (error) {
     console.error('Error fetching featured booths:', error);
+    return [];
+  }
+
+  return (data as Booth[]) || [];
+}
+
+// Fetch booths for the map display (more booths for better USA coverage)
+async function getMapBooths(): Promise<Booth[]> {
+  const supabase = getPublicSupabaseClient();
+
+  if (!supabase) {
+    return [];
+  }
+
+  const { data, error } = await supabase
+    .from('booths')
+    .select(
+      `id, name, slug, city, country, latitude, longitude, photo_exterior_url, status, is_operational`
+    )
+    .eq('status', 'active')
+    .eq('is_operational', true)
+    .not('latitude', 'is', null)
+    .not('longitude', 'is', null)
+    .limit(100);
+
+  if (error) {
+    console.error('Error fetching map booths:', error);
     return [];
   }
 
@@ -83,8 +110,9 @@ async function getBoothStats(): Promise<{ totalBooths: number; countries: number
 export const revalidate = 3600;
 
 export default async function Home() {
-  const [featuredBooths, stats] = await Promise.all([
+  const [featuredBooths, mapBooths, stats] = await Promise.all([
     getFeaturedBooths(),
+    getMapBooths(),
     getBoothStats(),
   ]);
 
@@ -225,11 +253,11 @@ export default async function Home() {
           <div className="mb-6 rounded-lg overflow-hidden shadow-photo vignette">
             <Suspense fallback={<div className="h-[500px] bg-neutral-200 animate-pulse"></div>}>
               <BoothMap
-                booths={featuredBooths}
+                booths={mapBooths}
                 center={{ lat: 39.8283, lng: -98.5795 }}
                 zoom={4}
                 showUserLocation={false}
-                showClustering={false}
+                showClustering={true}
               />
             </Suspense>
           </div>
