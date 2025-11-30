@@ -446,61 +446,62 @@ function createInfoWindowContent(booth: Booth): string {
   const statusColor = statusColors[booth.status] || statusColors.unverified;
   const statusText = booth.status.charAt(0).toUpperCase() + booth.status.slice(1);
 
-  // Address info
+  // Address info - truncate if too long
   const address = booth.address || 'Address not available';
+  const displayAddress = address.length > 40 ? address.substring(0, 37) + '...' : address;
 
-  // AI Preview badge HTML
+  // AI Preview badge HTML - smaller and tighter
   const aiBadge = hasAiPreview
-    ? `<div style="position: absolute; bottom: 8px; right: 8px; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(8px); color: white; padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 600; letter-spacing: 0.5px;">
-         AI Preview
-       </div>`
+    ? `<div style="position: absolute; bottom: 6px; right: 6px; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(4px); color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 600; letter-spacing: 0.5px;">AI PREVIEW</div>`
     : '';
 
   return `
-    <div style="max-width: 320px; font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">
-      <div style="position: relative; margin-bottom: 14px;">
+    <div style="width: 260px; font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; padding-bottom: 2px;">
+      <!-- Image Container -->
+      <div style="position: relative; height: 140px; margin-bottom: 10px; border-radius: 8px; overflow: hidden; background-color: #f3f4f6;">
         <img
           src="${photoUrl}"
           alt="${booth.name}"
-          style="width: 100%; height: 200px; object-fit: cover; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);"
-          onerror="this.src='/placeholder-booth.svg'"
+          style="width: 100%; height: 100%; object-fit: cover; transition: opacity 0.3s;"
+          onerror="this.onerror=null; this.src='/placeholder-booth.svg';"
         />
-        <div style="position: absolute; top: 8px; right: 8px; background: ${statusColor}; color: white; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+        <!-- Status Badge -->
+        <div style="position: absolute; top: 8px; left: 8px; background: ${statusColor}; color: white; padding: 2px 8px; border-radius: 12px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
           ${statusText}
         </div>
         ${aiBadge}
       </div>
-      <h3 style="margin: 0 0 8px 0; font-size: 19px; font-weight: 700; color: #1A1A1A; line-height: 1.3;">
+
+      <!-- Content -->
+      <h3 style="margin: 0 0 4px 0; font-size: 16px; font-weight: 700; color: #111827; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
         ${booth.name}
       </h3>
-      <div style="margin-bottom: 10px;">
-        <div style="display: flex; align-items: center; margin-bottom: 4px;">
-          <svg style="width: 16px; height: 16px; margin-right: 6px; color: #6b7280;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-          </svg>
-          <span style="font-size: 14px; color: #4b5563; line-height: 1.4;">${booth.city || 'Unknown'}, ${booth.country || 'Unknown'}</span>
-        </div>
-        <div style="font-size: 13px; color: #6b7280; margin-left: 22px; line-height: 1.4;">
-          ${address}
-        </div>
-      </div>
-      <div style="display: flex; align-items: center; margin-bottom: 14px;">
-        <svg style="width: 16px; height: 16px; margin-right: 6px; color: #6b7280;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
+
+      <div style="display: flex; align-items: center; margin-bottom: 4px; color: #4b5563;">
+        <svg style="width: 14px; height: 14px; margin-right: 4px; flex-shrink: 0;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
         </svg>
-        <span style="font-size: 13px; color: #4b5563;">
-          ${machineInfo}
+        <span style="font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+          ${booth.city}, ${booth.country}
         </span>
       </div>
+
+      <div style="font-size: 12px; color: #6b7280; margin-left: 18px; margin-bottom: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+        ${displayAddress}
+      </div>
+
+      <!-- Button -->
       <a
         href="/booth/${booth.slug}"
-        style="display: block; text-align: center; padding: 10px 20px; background: linear-gradient(135deg, #d14371 0%, #c73e3a 100%); color: white; text-decoration: none; border-radius: 8px; font-size: 14px; font-weight: 600; box-shadow: 0 2px 6px rgba(209, 67, 113, 0.3); transition: all 0.2s ease;"
-        onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 12px rgba(209, 67, 113, 0.4)';"
-        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 6px rgba(209, 67, 113, 0.3)';"
+        style="display: flex; align-items: center; justify-content: center; width: 100%; padding: 8px 0; background: linear-gradient(135deg, #d14371 0%, #c73e3a 100%); color: white; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: 600; transition: transform 0.1s ease; box-shadow: 0 2px 4px rgba(209, 67, 113, 0.25);"
+        onmouseover="this.style.transform='scale(1.02)'"
+        onmouseout="this.style.transform='scale(1)'"
       >
-        View Details →
+        View Details
+        <svg style="width: 14px; height: 14px; margin-left: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+        </svg>
       </a>
     </div>
   `;

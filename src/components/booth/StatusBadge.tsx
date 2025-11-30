@@ -37,7 +37,7 @@ export function StatusBadge({ status, size = 'md' }: StatusBadgeProps) {
     lg: 'text-base px-4 py-2',
   };
 
-  const config = statusConfig[status];
+  const config = statusConfig[status] || statusConfig.unverified;
 
   return (
     <span
