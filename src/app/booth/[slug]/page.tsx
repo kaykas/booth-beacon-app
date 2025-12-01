@@ -88,7 +88,10 @@ export async function generateMetadata({ params }: BoothDetailPageProps): Promis
   const booth = await getBooth(slug);
 
   if (!booth) {
-    return { title: 'Booth Not Found | Booth Beacon' };
+    return {
+      title: 'Booth Not Found | Booth Beacon',
+      description: 'The photo booth you are looking for could not be found.',
+    };
   }
 
   const city = booth.city || 'Unknown Location';
@@ -96,6 +99,9 @@ export async function generateMetadata({ params }: BoothDetailPageProps): Promis
   const title = `${booth.name} - ${booth.locationLabel || city}${country ? `, ${country}` : ''} | Booth Beacon`;
   const description =
     booth.description || `Analog photo booth in ${booth.locationLabel || city}${country ? `, ${country}` : ''}.`;
+
+  // Use AI-generated image or exterior photo for OG image if available
+  const ogImage = booth.photo_exterior_url || booth.ai_generated_image_url || booth.ai_preview_url;
 
   return {
     title,
@@ -106,6 +112,22 @@ export async function generateMetadata({ params }: BoothDetailPageProps): Promis
       type: 'website',
       url: `https://boothbeacon.org/booth/${booth.slug}`,
       siteName: 'Booth Beacon',
+      ...(ogImage && {
+        images: [
+          {
+            url: ogImage,
+            width: 1200,
+            height: 630,
+            alt: booth.name,
+          },
+        ],
+      }),
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      ...(ogImage && { images: [ogImage] }),
     },
   };
 }
@@ -147,7 +169,7 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
             {/* Image */}
-            <div className="relative h-64 sm:h-80 lg:h-[500px]">
+            <div className="relative h-64 sm:h-80 lg:h-[500px] bg-neutral-100">
               <BoothImage booth={booth} size="hero" showAiBadge={true} />
             </div>
 
@@ -309,14 +331,23 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
               <h3 className="font-semibold text-lg mb-4">Location</h3>
 
               {/* Map */}
-              {hasValidLocation && (
+              {hasValidLocation && booth.latitude && booth.longitude && (
                 <div className="mb-4 rounded-lg overflow-hidden h-48">
                   <BoothMap
                     booths={[booth]}
-                    center={{ lat: booth.latitude!, lng: booth.longitude! }}
+                    center={{ lat: booth.latitude, lng: booth.longitude }}
                     zoom={15}
                     showUserLocation={false}
                   />
+                </div>
+              )}
+
+              {!hasValidLocation && (
+                <div className="mb-4 rounded-lg overflow-hidden h-48 bg-neutral-100 flex items-center justify-center text-neutral-500 text-sm">
+                  <div className="text-center">
+                    <MapPin className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                    <p>Location coordinates not available</p>
+                  </div>
                 </div>
               )}
 
@@ -333,7 +364,7 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
                   </div>
                 </div>
 
-                {hasValidLocation && (
+                {hasValidLocation && booth.latitude && booth.longitude && (
                   <>
                     <CopyAddressButton address={address} />
 
@@ -348,6 +379,12 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
                       </a>
                     </Button>
                   </>
+                )}
+
+                {!hasValidLocation && (
+                  <div className="text-xs text-neutral-500 italic mt-2">
+                    Precise coordinates not available for this booth.
+                  </div>
                 )}
               </div>
             </Card>

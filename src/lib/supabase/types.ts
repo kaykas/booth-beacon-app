@@ -48,6 +48,9 @@ export interface Booth {
   photo_sample_strips: string[] | null;
   ai_preview_url: string | null;
   ai_preview_generated_at: string | null;
+  ai_generated_image_url: string | null;
+  ai_image_prompt: string | null;
+  ai_image_generated_at: string | null;
 
   // Operational
   status: BoothStatus;

@@ -26,11 +26,11 @@ export function BoothImage({
 
   // Priority: photo_exterior_url > ai_generated_image_url > ai_preview_url (if not broken)
   const imageUrl = booth.photo_exterior_url
-    || (booth as any).ai_generated_image_url
+    || booth.ai_generated_image_url
     || (!isBrokenUnsplashUrl ? booth.ai_preview_url : null);
 
-  const hasAiGenerated = (booth as any).ai_generated_image_url && !booth.photo_exterior_url;
-  const hasAiPreview = booth.ai_preview_url && !booth.photo_exterior_url && !(booth as any).ai_generated_image_url && !isBrokenUnsplashUrl;
+  const hasAiGenerated = booth.ai_generated_image_url && !booth.photo_exterior_url;
+  const hasAiPreview = booth.ai_preview_url && !booth.photo_exterior_url && !booth.ai_generated_image_url && !isBrokenUnsplashUrl;
   const hasNoImage = !imageUrl || hasImageError;
 
   const sizeClasses = {

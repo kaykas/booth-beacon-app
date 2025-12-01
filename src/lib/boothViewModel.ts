@@ -77,6 +77,7 @@ export function normalizeBooth(data: Partial<Booth> | null): RenderableBooth | n
     photo_exterior_url: safeUrl(data.photo_exterior_url),
     photo_interior_url: safeUrl(data.photo_interior_url),
     ai_preview_url: safeUrl(data.ai_preview_url),
+    ai_generated_image_url: safeUrl(data.ai_generated_image_url),
     locationLabel,
     addressDisplay,
     hasValidLocation,
