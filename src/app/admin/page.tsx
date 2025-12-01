@@ -19,6 +19,7 @@ import { LogViewer } from '@/components/LogViewer';
 import { CrawlJobQueue } from '@/components/admin/CrawlJobQueue';
 import { CrawlerHealthDashboard } from '@/components/admin/CrawlerHealthDashboard';
 import { ReextractionQueue } from '@/components/admin/ReextractionQueue';
+import { DatabaseStatusOverview } from '@/components/admin/DatabaseStatusOverview';
 
 interface Photo {
   id: string;
@@ -577,6 +578,9 @@ export default function AdminPage() {
 
             <TabsContent value="crawler" className="mt-6">
               <div className="space-y-6">
+                {/* Database Status Overview - TOP PRIORITY */}
+                <DatabaseStatusOverview />
+
                 {/* Crawler Controls */}
               <Card className="p-6 bg-neutral-800 border-neutral-700">
                 <h2 className="font-display text-2xl font-semibold mb-6 text-white">Data Crawler Controls</h2>

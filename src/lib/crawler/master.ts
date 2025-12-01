@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import FirecrawlApp from '@mendable/firecrawl-js';
+import { FirecrawlAppV1 as FirecrawlApp } from '@mendable/firecrawl-js';
 import { Database } from '@/lib/supabase/types';
 
 // Configuration
