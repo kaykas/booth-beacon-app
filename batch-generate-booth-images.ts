@@ -96,7 +96,13 @@ async function fetchBoothsNeedingImages(): Promise<string[]> {
 async function generateImagesForBatch(
   boothIds: string[],
   retryCount = 0
-): Promise<{ success: boolean; results: any[] }> {
+): Promise<{ success: boolean; results: Array<{
+  booth_id: string;
+  success?: boolean;
+  image_url?: string;
+  prompt?: string;
+  error?: string;
+}> }> {
   try {
     if (DRY_RUN) {
       console.log(`🧪 [DRY RUN] Would call Edge Function for ${boothIds.length} booths...`);

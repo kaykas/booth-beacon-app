@@ -213,7 +213,7 @@ export default async function CityPage({ params, searchParams }: PageProps) {
             Missing Coordinates?
           </h3>
           <p className="text-sm text-muted-foreground">
-            Some booths in {city} don't have map coordinates yet. We're working on geocoding all
+            Some booths in {city} don&apos;t have map coordinates yet. We&apos;re working on geocoding all
             locations. You can help by submitting location data if you visit these booths.
           </p>
         </div>

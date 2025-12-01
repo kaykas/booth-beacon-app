@@ -252,7 +252,7 @@ async function BrowseContent({ searchParams }: { searchParams: SearchParams }) {
           Missing Coordinates?
         </h3>
         <p className="text-sm text-muted-foreground">
-          Many booths in our database don't have map coordinates yet. We're working on geocoding all
+          Many booths in our database don&apos;t have map coordinates yet. We&apos;re working on geocoding all
           locations. In the meantime, you can filter to show only booths without coordinates to help
           us identify which ones need attention.
         </p>

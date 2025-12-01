@@ -65,11 +65,6 @@ export default async function CountryPage({ params, searchParams }: PageProps) {
   const breadcrumbs = getLocationBreadcrumbs(country);
   const totalPages = Math.ceil(totalCount / limit);
 
-  // Calculate stats
-  const operationalCount = booths.filter(
-    (booth) => booth.status === 'active' && booth.is_operational
-  ).length;
-
   return (
     <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       {/* Breadcrumbs */}
