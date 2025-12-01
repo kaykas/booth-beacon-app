@@ -24,9 +24,13 @@ export function BoothImage({
   // Check if AI preview URL is the broken Unsplash Source API
   const isBrokenUnsplashUrl = booth.ai_preview_url?.includes('source.unsplash.com');
 
-  // Use photo_exterior_url, or ai_preview_url only if it's not broken
-  const imageUrl = booth.photo_exterior_url || (!isBrokenUnsplashUrl ? booth.ai_preview_url : null);
-  const hasAiPreview = booth.ai_preview_url && !booth.photo_exterior_url && !isBrokenUnsplashUrl;
+  // Priority: photo_exterior_url > ai_generated_image_url > ai_preview_url (if not broken)
+  const imageUrl = booth.photo_exterior_url
+    || booth.ai_generated_image_url
+    || (!isBrokenUnsplashUrl ? booth.ai_preview_url : null);
+
+  const hasAiGenerated = booth.ai_generated_image_url && !booth.photo_exterior_url;
+  const hasAiPreview = booth.ai_preview_url && !booth.photo_exterior_url && !booth.ai_generated_image_url && !isBrokenUnsplashUrl;
   const hasNoImage = !imageUrl || hasImageError;
 
   const sizeClasses = {
@@ -60,7 +64,7 @@ export function BoothImage({
             src={imageUrl}
             alt={booth.name}
             fill
-            className={`object-cover transition-opacity ${hasAiPreview ? 'opacity-95' : 'opacity-100'}`}
+            className={`object-cover transition-opacity ${hasAiGenerated || hasAiPreview ? 'opacity-95' : 'opacity-100'}`}
             sizes={
               size === 'hero'
                 ? '100vw'
@@ -70,6 +74,11 @@ export function BoothImage({
             }
             onError={() => setHasImageError(true)}
           />
+          {hasAiGenerated && showAiBadge && (
+            <div className="absolute bottom-2 right-2 px-2 py-1 bg-purple-600/80 text-white text-xs rounded backdrop-blur-sm flex items-center gap-1">
+              <span className="text-[10px]">✨</span> AI Art
+            </div>
+          )}
           {hasAiPreview && showAiBadge && (
             <div className="absolute bottom-2 right-2 px-2 py-1 bg-black/60 text-white text-xs rounded backdrop-blur-sm">
               AI Preview
@@ -88,6 +97,13 @@ export function BoothImage({
             <Upload className="w-4 h-4" />
             {hasNoImage ? 'Add Photo' : 'Add Real Photo'}
           </button>
+        </div>
+      )}
+
+      {/* Tooltip for AI-Generated Art */}
+      {hasAiGenerated && showAiBadge && isHovered && (
+        <div className="absolute top-2 left-2 right-2 p-2 bg-purple-800/85 text-white text-xs rounded backdrop-blur-sm">
+          Artistic AI-generated visualization of this location. Help us by adding a real photo!
         </div>
       )}
 

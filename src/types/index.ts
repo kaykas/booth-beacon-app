@@ -30,6 +30,9 @@ export interface Booth {
   photo_sample_strips?: string[];
   ai_preview_url?: string;
   ai_preview_generated_at?: string;
+  ai_generated_image_url?: string;
+  ai_image_prompt?: string;
+  ai_image_generated_at?: string;
 
   // Operational
   status: 'active' | 'unverified' | 'inactive' | 'closed';
