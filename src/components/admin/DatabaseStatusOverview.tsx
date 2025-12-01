@@ -381,7 +381,7 @@ export function DatabaseStatusOverview() {
             {stats.workingSources < stats.enabledSources * 0.5 && (
               <div className="flex items-start gap-2 text-neutral-300">
                 <span className="text-yellow-400">•</span>
-                <span>Investigate {stats.enabledSources - stats.workingSources} enabled sources that aren't extracting data</span>
+                <span>Investigate {stats.enabledSources - stats.workingSources} enabled sources that are not extracting data</span>
               </div>
             )}
           </div>
