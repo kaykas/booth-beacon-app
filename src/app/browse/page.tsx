@@ -20,6 +20,22 @@ interface SearchParams {
   hasCoordinates?: string;
 }
 
+// Helper to build URLSearchParams safely
+function buildSearchParams(base: SearchParams, overrides: Record<string, string>) {
+  const params: Record<string, string> = {};
+
+  // Copy base params, filtering out undefined
+  if (base.query) params.query = base.query;
+  if (base.country) params.country = base.country;
+  if (base.hasCoordinates) params.hasCoordinates = base.hasCoordinates;
+  if (base.page) params.page = base.page;
+
+  // Apply overrides
+  Object.assign(params, overrides);
+
+  return new URLSearchParams(params).toString();
+}
+
 async function BrowseContent({ searchParams }: { searchParams: SearchParams }) {
   const page = parseInt(searchParams.page || '1', 10);
   const limit = 100;
@@ -199,7 +215,7 @@ async function BrowseContent({ searchParams }: { searchParams: SearchParams }) {
         <div className="mt-12 flex items-center justify-center gap-2">
           {currentPage > 1 && (
             <a
-              href={`/browse?${new URLSearchParams({ ...searchParams, page: String(currentPage - 1) }).toString()}`}
+              href={`/browse?${buildSearchParams(searchParams, { page: String(currentPage - 1) })}`}
               className="rounded-md border border-border bg-background px-4 py-2 font-semibold text-foreground hover:bg-accent"
             >
               Previous
@@ -222,7 +238,7 @@ async function BrowseContent({ searchParams }: { searchParams: SearchParams }) {
               return (
                 <a
                   key={pageNum}
-                  href={`/browse?${new URLSearchParams({ ...searchParams, page: String(pageNum) }).toString()}`}
+                  href={`/browse?${buildSearchParams(searchParams, { page: String(pageNum) })}`}
                   className={`rounded-md px-4 py-2 font-semibold ${
                     pageNum === currentPage
                       ? 'bg-primary text-white'
@@ -237,7 +253,7 @@ async function BrowseContent({ searchParams }: { searchParams: SearchParams }) {
 
           {hasMore && (
             <a
-              href={`/browse?${new URLSearchParams({ ...searchParams, page: String(currentPage + 1) }).toString()}`}
+              href={`/browse?${buildSearchParams(searchParams, { page: String(currentPage + 1) })}`}
               className="rounded-md border border-border bg-background px-4 py-2 font-semibold text-foreground hover:bg-accent"
             >
               Next
