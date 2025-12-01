@@ -181,8 +181,8 @@ async function crawlSource(sourceName: string) {
           address: booth.address || '',  // Fallback to empty string if no address
           city: booth.city,
           country: booth.country,
-          latitude: booth.latitude,
-          longitude: booth.longitude,
+          latitude: booth.latitude || null,     // Convert empty string to null for numeric field
+          longitude: booth.longitude || null,   // Convert empty string to null for numeric field
           status: booth.status || 'active',
           source_names: [source.name],
           created_at: new Date().toISOString(),

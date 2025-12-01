@@ -158,8 +158,8 @@ async function crawlSource(source: any): Promise<CrawlResult> {
           address: booth.address || '',
           city: booth.city,
           country: booth.country,
-          latitude: booth.latitude,
-          longitude: booth.longitude,
+          latitude: booth.latitude || null,     // Convert empty string to null for numeric field
+          longitude: booth.longitude || null,   // Convert empty string to null for numeric field
           status: booth.status || 'active',
           source_id: source.id,
           source_names: [source.name],
