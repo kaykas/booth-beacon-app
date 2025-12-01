@@ -26,8 +26,8 @@ interface BoothData {
   address?: string;
   city?: string;
   country?: string;
-  lat?: number;
-  lng?: number;
+  latitude?: number;
+  longitude?: number;
   machine_type?: string;
   machine_model?: string;
   cost?: string;
@@ -61,7 +61,7 @@ CRITICAL RULES:
 Content:
 ${content.substring(0, 50000)}
 
-Return ONLY a JSON array like: [{"name": "...", "address": "...", "city": "...", "country": "...", "lat": ..., "lng": ..., "machine_type": "...", "cost": "...", "status": "active"}]`;
+Return ONLY a JSON array like: [{"name": "...", "address": "...", "city": "...", "country": "...", "latitude": ..., "longitude": ..., "machine_type": "...", "cost": "...", "status": "active"}]`;
 
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -158,6 +158,8 @@ async function crawlSource(source: any): Promise<CrawlResult> {
           address: booth.address || '',
           city: booth.city,
           country: booth.country,
+          latitude: booth.latitude,
+          longitude: booth.longitude,
           status: booth.status || 'active',
           source_id: source.id,
           source_names: [source.name],
