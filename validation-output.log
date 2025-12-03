@@ -1,0 +1,118 @@
+
+=== CRAWLER SOURCE VALIDATION ===
+
+Testing all enabled sources...
+
+Found 15 enabled sources to validate.
+
+Validating 1/15: Booth by Bryant...Validating 2/15: Photoautomat Berlin...Validating 3/15: Fotoautomat France...Validating 4/15: Eternalog Fotobooth...Validating 5/15: Automatfoto - Stockholm Network...Validating 6/15: Find My Film Lab...Validating 7/15: Photo Illusion...Validating 8/15: Automatfoto Sweden...Validating 9/15: Find My Film Lab - LA...Validating 10/15: Photomatica SF/LA...Validating 11/15: autophoto.org...Validating 12/15: Fotoautomatica Florence...Validating 13/15: Fotoautomat Wien...Validating 14/15: photobooth.net...Validating 15/15: Photoautomat Berlin/Leipzig...
+
+=== VALIDATION RESULTS ===
+
+📊 Summary:
+  ✅ Working: 5
+  ⚠️  Needs Testing: 10
+  🔧 Needs Config: 0
+  ❌ Broken: 0
+
+
+✅ WORKING SOURCES (5):
+
+1. Automatfoto - Stockholm Network
+   URL: https://automatfoto.se/
+   Extractor: discovery
+   Booths found: 16
+   HTTP Status: 200 (733ms)
+
+2. Find My Film Lab - LA
+   URL: https://findmyfilmlab.com/photobooths
+   Extractor: discovery
+   Booths found: 18
+   HTTP Status: 200 (409ms)
+
+3. autophoto.org
+   URL: https://autophoto.org/booth-locator
+   Extractor: autophoto
+   Booths found: 23
+   HTTP Status: 200 (405ms)
+
+4. Fotoautomatica Florence
+   URL: https://www.fotoautomatica.com/
+   Extractor: core
+   Booths found: 6
+   HTTP Status: 200 (939ms)
+
+5. photobooth.net
+   URL: https://www.photobooth.net/locations/browse.php?ddState=0
+   Extractor: photobooth_net
+   Booths found: 15
+   HTTP Status: 200 (251ms)
+
+
+⚠️  NEEDS TESTING (10):
+
+1. Booth by Bryant
+   URL: https://www.boothbybryant.com
+   Extractor: discovery
+   HTTP Status: 200 (240ms)
+   Issues: Never found any booths
+
+2. Photoautomat Berlin
+   URL: http://www.photoautomat.de/standorte.html
+   Extractor: universal
+   HTTP Status: 200 (1708ms)
+   Issues: Never found any booths
+
+3. Fotoautomat France
+   URL: https://fotoautomat.fr/en/our-adresses/
+   Extractor: discovery
+   HTTP Status: 200 (550ms)
+   Issues: Never found any booths
+
+4. Eternalog Fotobooth
+   URL: https://eternalog-fotobooth.com
+   Extractor: universal
+   HTTP Status: 200 (1040ms)
+   Issues: Never found any booths
+
+5. Find My Film Lab
+   URL: https://findmyfilmlab.com/photobooths
+   Extractor: universal
+   HTTP Status: 200 (740ms)
+   Issues: Never found any booths
+
+6. Photo Illusion
+   URL: https://www.photoillusion.com/
+   Extractor: discovery
+   HTTP Status: 200 (202ms)
+   Issues: Never found any booths
+
+7. Automatfoto Sweden
+   URL: https://automatfoto.se/
+   Extractor: discovery
+   HTTP Status: 200 (648ms)
+   Issues: Never found any booths
+
+8. Photomatica SF/LA
+   URL: https://www.photomatica.com/find-a-booth-near-you
+   Extractor: discovery
+   HTTP Status: 200 (218ms)
+   Issues: Never found any booths
+
+9. Fotoautomat Wien
+   URL: https://www.fotoautomatwien.com/
+   Extractor: discovery
+   HTTP Status: 200 (580ms)
+   Issues: Never found any booths
+
+10. Photoautomat Berlin/Leipzig
+   URL: http://www.photoautomat.de/standorte.html
+   Extractor: core
+   HTTP Status: 200 (1384ms)
+   Issues: Never found any booths
+
+
+📄 Exporting detailed results to validation-results.json...
+
+✅ Complete! Results saved to validation-results.json
+

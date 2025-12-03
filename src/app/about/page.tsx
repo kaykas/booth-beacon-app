@@ -168,9 +168,9 @@ export default function AboutPage() {
               <div className="prose prose-lg max-w-none">
                 <p className="text-muted-foreground leading-relaxed mb-6">
                   Classic Photo Booth Beacon was born from one of the most romantic gestures{' '}
-                  <strong className="text-foreground">Jascha Kaykas-Wolff</strong> has ever witnessed.
+                  <strong className="text-foreground">Jascha</strong> has ever witnessed.
                   From the very beginning of their relationship,{' '}
-                  <strong className="text-foreground">Alexandra Roberts</strong> made it her mission
+                  <strong className="text-foreground">Alexandra</strong> made it her mission
                   to find every single analog photo booth in any city they traveled to together.
                 </p>
 

@@ -1,0 +1,227 @@
+{
+  "timestamp": "2025-12-01T18:23:48.840Z",
+  "summary": {
+    "total": 15,
+    "working": 5,
+    "needsTesting": 10,
+    "needsConfig": 0,
+    "broken": 0
+  },
+  "results": [
+    {
+      "source_id": "2652b605-0b48-41e9-b529-819278a8462f",
+      "source_name": "Booth by Bryant",
+      "source_url": "https://www.boothbybryant.com",
+      "extractor_type": "discovery",
+      "url_accessible": true,
+      "http_status": 200,
+      "response_time_ms": 240,
+      "total_booths_found": 0,
+      "last_crawled": null,
+      "recommendation": "⚠️ NEEDS TESTING - URL works but no booths yet",
+      "errors": [
+        "Never found any booths"
+      ]
+    },
+    {
+      "source_id": "a6eb60de-4c91-43c3-9ee9-f15a608c6f74",
+      "source_name": "Photoautomat Berlin",
+      "source_url": "http://www.photoautomat.de/standorte.html",
+      "extractor_type": "universal",
+      "url_accessible": true,
+      "http_status": 200,
+      "response_time_ms": 1708,
+      "total_booths_found": 0,
+      "last_crawled": null,
+      "recommendation": "⚠️ NEEDS TESTING - URL works but no booths yet",
+      "errors": [
+        "Never found any booths"
+      ]
+    },
+    {
+      "source_id": "8e86c918-e190-46fd-825e-092159c9b6ea",
+      "source_name": "Fotoautomat France",
+      "source_url": "https://fotoautomat.fr/en/our-adresses/",
+      "extractor_type": "discovery",
+      "url_accessible": true,
+      "http_status": 200,
+      "response_time_ms": 550,
+      "total_booths_found": 0,
+      "last_crawled": null,
+      "recommendation": "⚠️ NEEDS TESTING - URL works but no booths yet",
+      "errors": [
+        "Never found any booths"
+      ]
+    },
+    {
+      "source_id": "6ea21991-64ae-4986-aa9f-47b4bc71ea2d",
+      "source_name": "Eternalog Fotobooth",
+      "source_url": "https://eternalog-fotobooth.com",
+      "extractor_type": "universal",
+      "url_accessible": true,
+      "http_status": 200,
+      "response_time_ms": 1040,
+      "total_booths_found": 0,
+      "last_crawled": "2025-11-29T15:24:08.534",
+      "recommendation": "⚠️ NEEDS TESTING - URL works but no booths yet",
+      "errors": [
+        "Never found any booths"
+      ]
+    },
+    {
+      "source_id": "1ae976ca-5f25-447a-b4b8-45165651d3b2",
+      "source_name": "Automatfoto - Stockholm Network",
+      "source_url": "https://automatfoto.se/",
+      "extractor_type": "discovery",
+      "url_accessible": true,
+      "http_status": 200,
+      "response_time_ms": 733,
+      "total_booths_found": 16,
+      "last_crawled": "2025-11-29T08:31:02.661",
+      "recommendation": "✅ WORKING - Keep enabled",
+      "errors": []
+    },
+    {
+      "source_id": "28584ea2-1c01-452c-9260-fd2200a2b5c9",
+      "source_name": "Find My Film Lab",
+      "source_url": "https://findmyfilmlab.com/photobooths",
+      "extractor_type": "universal",
+      "url_accessible": true,
+      "http_status": 200,
+      "response_time_ms": 740,
+      "total_booths_found": 0,
+      "last_crawled": "2025-11-29T08:33:19.998",
+      "recommendation": "⚠️ NEEDS TESTING - URL works but no booths yet",
+      "errors": [
+        "Never found any booths"
+      ]
+    },
+    {
+      "source_id": "9a4101c4-15d5-4e1c-a70f-c3ccb8284d28",
+      "source_name": "Photo Illusion",
+      "source_url": "https://www.photoillusion.com/",
+      "extractor_type": "discovery",
+      "url_accessible": true,
+      "http_status": 200,
+      "response_time_ms": 202,
+      "total_booths_found": 0,
+      "last_crawled": null,
+      "recommendation": "⚠️ NEEDS TESTING - URL works but no booths yet",
+      "errors": [
+        "Never found any booths"
+      ]
+    },
+    {
+      "source_id": "9f7cd896-1303-46b7-8479-9ebfd3ef42fb",
+      "source_name": "Automatfoto Sweden",
+      "source_url": "https://automatfoto.se/",
+      "extractor_type": "discovery",
+      "url_accessible": true,
+      "http_status": 200,
+      "response_time_ms": 648,
+      "total_booths_found": 0,
+      "last_crawled": "2025-11-30T23:40:57.957",
+      "recommendation": "⚠️ NEEDS TESTING - URL works but no booths yet",
+      "errors": [
+        "Never found any booths"
+      ]
+    },
+    {
+      "source_id": "502104e0-9a66-40a7-bdb0-82901cc8e713",
+      "source_name": "Find My Film Lab - LA",
+      "source_url": "https://findmyfilmlab.com/photobooths",
+      "extractor_type": "discovery",
+      "url_accessible": true,
+      "http_status": 200,
+      "response_time_ms": 409,
+      "total_booths_found": 18,
+      "last_crawled": "2025-12-01T01:07:59.862",
+      "recommendation": "✅ WORKING - Keep enabled",
+      "errors": []
+    },
+    {
+      "source_id": "1599fbc5-72ec-4244-a285-32327a8523d2",
+      "source_name": "Photomatica SF/LA",
+      "source_url": "https://www.photomatica.com/find-a-booth-near-you",
+      "extractor_type": "discovery",
+      "url_accessible": true,
+      "http_status": 200,
+      "response_time_ms": 218,
+      "total_booths_found": 0,
+      "last_crawled": "2025-11-30T23:30:45.445",
+      "recommendation": "⚠️ NEEDS TESTING - URL works but no booths yet",
+      "errors": [
+        "Never found any booths"
+      ]
+    },
+    {
+      "source_id": "ad9c5a6e-0a4d-40dc-bf4f-450714c70dcf",
+      "source_name": "autophoto.org",
+      "source_url": "https://autophoto.org/booth-locator",
+      "extractor_type": "autophoto",
+      "url_accessible": true,
+      "http_status": 200,
+      "response_time_ms": 405,
+      "total_booths_found": 23,
+      "last_crawled": "2025-11-30T02:13:45.638",
+      "recommendation": "✅ WORKING - Keep enabled",
+      "errors": []
+    },
+    {
+      "source_id": "7c9765bd-e904-4fb6-a3c6-59112ef86bf4",
+      "source_name": "Fotoautomatica Florence",
+      "source_url": "https://www.fotoautomatica.com/",
+      "extractor_type": "core",
+      "url_accessible": true,
+      "http_status": 200,
+      "response_time_ms": 939,
+      "total_booths_found": 6,
+      "last_crawled": "2025-11-30T02:36:16.633",
+      "recommendation": "✅ WORKING - Keep enabled",
+      "errors": []
+    },
+    {
+      "source_id": "f74b7aae-1bf6-4add-9fd6-d932d18d2588",
+      "source_name": "Fotoautomat Wien",
+      "source_url": "https://www.fotoautomatwien.com/",
+      "extractor_type": "discovery",
+      "url_accessible": true,
+      "http_status": 200,
+      "response_time_ms": 580,
+      "total_booths_found": 0,
+      "last_crawled": "2025-11-29T02:02:39.795",
+      "recommendation": "⚠️ NEEDS TESTING - URL works but no booths yet",
+      "errors": [
+        "Never found any booths"
+      ]
+    },
+    {
+      "source_id": "087a727c-ea9b-4bc6-b114-e5f88fbe3f21",
+      "source_name": "photobooth.net",
+      "source_url": "https://www.photobooth.net/locations/browse.php?ddState=0",
+      "extractor_type": "photobooth_net",
+      "url_accessible": true,
+      "http_status": 200,
+      "response_time_ms": 251,
+      "total_booths_found": 15,
+      "last_crawled": "2025-11-30T02:11:30.234",
+      "recommendation": "✅ WORKING - Keep enabled",
+      "errors": []
+    },
+    {
+      "source_id": "c411a5e3-137b-4e6e-adeb-7f6dd56400a7",
+      "source_name": "Photoautomat Berlin/Leipzig",
+      "source_url": "http://www.photoautomat.de/standorte.html",
+      "extractor_type": "core",
+      "url_accessible": true,
+      "http_status": 200,
+      "response_time_ms": 1384,
+      "total_booths_found": 0,
+      "last_crawled": "2025-11-30T02:35:41.79",
+      "recommendation": "⚠️ NEEDS TESTING - URL works but no booths yet",
+      "errors": [
+        "Never found any booths"
+      ]
+    }
+  ]
+}

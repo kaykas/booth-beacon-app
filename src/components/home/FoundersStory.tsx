@@ -17,8 +17,8 @@ export function FoundersStory() {
           <div className="space-y-3 text-lg leading-relaxed text-muted-foreground">
             <p>
               Classic Photo Booth Beacon started as a gift from{' '}
-              <span className="font-semibold text-foreground">Jascha Kaykas-Wolff</span> to{' '}
-              <span className="font-semibold text-foreground">Alexandra Roberts</span>, who mapped every
+              <span className="font-semibold text-foreground">Jascha</span> to{' '}
+              <span className="font-semibold text-foreground">Alexandra</span>, who mapped every
               authentic photochemical booth on their travels so they could chase real chemical photographs together.
             </p>
             <p>

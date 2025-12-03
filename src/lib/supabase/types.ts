@@ -66,6 +66,24 @@ export interface Booth {
   access_instructions: string | null;
   features: string[] | null;
 
+  // Contact & Social (Enrichment)
+  phone: string | null;
+  email: string | null;
+  website: string | null;
+  instagram: string | null;
+
+  // Google Maps Enrichment
+  google_place_id: string | null;
+  google_rating: number | null;
+  google_user_ratings_total: number | null;
+  google_photos: string[] | null;
+  google_enriched_at: string | null;
+  google_business_status: string | null;
+  google_formatted_address: string | null;
+  google_phone: string | null;
+  google_website: string | null;
+  google_opening_hours: any | null;
+
   // Source tracking
   source_primary: string | null;
   source_urls: string[] | null;
@@ -191,6 +209,18 @@ export interface PageCache {
   crawled_at: string;
 }
 
+export interface BoothEnrichment {
+  id: string;
+  booth_id: string;
+  google_attempted_at: string | null;
+  google_enriched_at: string | null;
+  google_error: string | null;
+  google_place_id: string | null;
+  google_data: any | null;
+  created_at: string;
+  updated_at: string;
+}
+
 // ============================================================================
 // Database Schema Type
 // ============================================================================
@@ -278,6 +308,15 @@ export interface Database {
           crawled_at?: string;
         };
         Update: Partial<Omit<PageCache, 'id' | 'crawled_at'>>;
+      };
+      booth_enrichments: {
+        Row: BoothEnrichment;
+        Insert: Omit<BoothEnrichment, 'id' | 'created_at' | 'updated_at'> & {
+          id?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Omit<BoothEnrichment, 'id' | 'created_at'>>;
       };
     };
     Views: {

@@ -24,14 +24,13 @@ const supabase = createClient(
 );
 
 interface BoothEnrichment {
-  google_place_id?: string;
-  hours?: string;
-  phone?: string;
-  website?: string;
-  google_rating?: number;
-  google_user_ratings_total?: number;
-  google_photos?: string[];
-  is_operational?: boolean;
+  // Map to existing columns since Google-specific columns don't exist yet
+  hours?: string;           // Using existing 'hours' column
+  phone?: string;           // Using existing 'phone' column
+  website?: string;         // Using existing 'website' column
+  is_operational?: boolean; // Using existing 'is_operational' column
+  photos?: string[];        // Using existing 'photos' column
+  description?: string;     // Append Google rating info to description
 }
 
 /**
@@ -98,50 +97,44 @@ async function getPlaceDetails(placeId: string): Promise<BoothEnrichment> {
     });
 
     const result = response.data.result;
-    const enrichment: BoothEnrichment = {
-      google_place_id: placeId
-    };
+    const enrichment: BoothEnrichment = {};
 
-    // Hours
+    // Hours - using existing 'hours' column
     if (result.opening_hours?.weekday_text) {
       enrichment.hours = result.opening_hours.weekday_text.join(', ');
     }
 
-    // Phone
+    // Phone - using existing 'phone' column
     if (result.formatted_phone_number) {
       enrichment.phone = result.formatted_phone_number;
     }
 
-    // Website
+    // Website - using existing 'website' column
     if (result.website) {
       enrichment.website = result.website;
     }
 
-    // Rating
-    if (result.rating) {
-      enrichment.google_rating = result.rating;
-    }
-
-    if (result.user_ratings_total) {
-      enrichment.google_user_ratings_total = result.user_ratings_total;
-    }
-
-    // Photos (up to 5)
+    // Photos - using existing 'photos' column (stored as string array)
     if (result.photos && result.photos.length > 0) {
       const photoReferences = result.photos.slice(0, 5).map(photo => photo.photo_reference);
-      enrichment.google_photos = photoReferences.map(ref =>
+      enrichment.photos = photoReferences.map(ref =>
         `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=${ref}&key=${GOOGLE_MAPS_API_KEY}`
       );
     }
 
-    // Operational status
+    // Operational status - using existing 'is_operational' column
     enrichment.is_operational = result.business_status === 'OPERATIONAL';
+
+    // Include rating in description for now (since we don't have google_rating column)
+    if (result.rating && result.user_ratings_total) {
+      enrichment.description = `Google Rating: ${result.rating}/5.0 (${result.user_ratings_total} reviews)`;
+    }
 
     return enrichment;
 
   } catch (error: any) {
     console.error(`    Error getting place details: ${error.message}`);
-    return { google_place_id: placeId };
+    return {};
   }
 }
 
@@ -174,8 +167,9 @@ async function enrichBooth(booth: any): Promise<BoothEnrichment | null> {
   if (enrichment.hours) console.log(`   🕒 Hours: ${enrichment.hours.substring(0, 50)}...`);
   if (enrichment.phone) console.log(`   📞 Phone: ${enrichment.phone}`);
   if (enrichment.website) console.log(`   🌐 Website: ${enrichment.website}`);
-  if (enrichment.google_rating) console.log(`   ⭐ Rating: ${enrichment.google_rating} (${enrichment.google_user_ratings_total} reviews)`);
-  if (enrichment.google_photos) console.log(`   📸 Photos: ${enrichment.google_photos.length}`);
+  if (enrichment.description) console.log(`   ⭐ ${enrichment.description}`);
+  if (enrichment.photos) console.log(`   📸 Photos: ${enrichment.photos.length}`);
+  if (enrichment.is_operational !== undefined) console.log(`   ✅ Operational: ${enrichment.is_operational}`);
 
   return enrichment;
 }
@@ -189,14 +183,13 @@ async function main() {
   const BATCH_SIZE = parseInt(process.argv[2] || '20');
   console.log(`Batch size: ${BATCH_SIZE} booths\n`);
 
-  // Get booths that need enrichment (active, with coordinates, missing enrichment data)
+  // Get booths that need enrichment (active, with coordinates)
   const { data: booths, error } = await supabase
     .from('booths')
-    .select('*')
+    .select('id, name, address, city, country, latitude, longitude, status')
     .eq('status', 'active')
     .not('latitude', 'is', null)
     .not('longitude', 'is', null)
-    .is('google_place_id', null)
     .limit(BATCH_SIZE);
 
   if (error) {

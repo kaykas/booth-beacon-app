@@ -22,6 +22,8 @@
     "batch:generate-images": "tsx batch-generate-booth-images.ts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.71.0",
+    "@googlemaps/google-maps-services-js": "^3.4.2",
     "@googlemaps/js-api-loader": "^2.0.2",
     "@googlemaps/markerclusterer": "^2.6.2",
     "@mendable/firecrawl-js": "^4.7.0",
