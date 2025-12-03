@@ -177,9 +177,10 @@ async function updateBoothWithVenueData(boothId: string, venue: PlaceDetails): P
     updates.longitude = venue.geometry.location.lng;
   }
 
-  if (venue.place_id) {
-    updates.google_place_id = venue.place_id;
-  }
+  // Note: google_place_id column doesn't exist in database yet
+  // if (venue.place_id) {
+  //   updates.google_place_id = venue.place_id;
+  // }
 
   updates.updated_at = new Date().toISOString();
 
@@ -268,7 +269,7 @@ export async function GET(request: NextRequest) {
         // Query booths needing enrichment (missing critical fields)
         const { data: booths, error } = await supabase
           .from('booths')
-          .select('id, name, city, state, country, address, phone, website, hours, photo_exterior_url, ai_preview_url, photos, google_place_id, latitude, longitude, status')
+          .select('id, name, city, state, country, address, phone, website, hours, photo_exterior_url, ai_preview_url, photos, latitude, longitude, status')
           .eq('status', 'active')
           .or('address.is.null,phone.is.null,website.is.null')
           .limit(batchSize);
