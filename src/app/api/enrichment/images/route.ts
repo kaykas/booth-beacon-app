@@ -21,9 +21,8 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY!,
-});
+// OpenAI client will be initialized lazily in the handler
+// to avoid build-time errors when API key isn't available
 
 interface LogEvent {
   type: 'info' | 'error' | 'success' | 'progress';
@@ -51,7 +50,7 @@ function constructPrompt(booth: BoothQualityData): string {
   return `${locationDescription}. ${styleDirective}`;
 }
 
-async function generateImage(booth: BoothQualityData): Promise<string | null> {
+async function generateImage(booth: BoothQualityData, openai: OpenAI): Promise<string | null> {
   try {
     const prompt = constructPrompt(booth);
 
@@ -123,7 +122,7 @@ async function updateBooth(boothId: string, imageUrl: string): Promise<void> {
   }
 }
 
-async function processBooth(booth: BoothQualityData, log: (event: LogEvent) => void): Promise<boolean> {
+async function processBooth(booth: BoothQualityData, openai: OpenAI, log: (event: LogEvent) => void): Promise<boolean> {
   try {
     const score = calculateQualityScore(booth);
     const needs = determineEnrichmentNeeds(booth);
@@ -143,7 +142,7 @@ async function processBooth(booth: BoothQualityData, log: (event: LogEvent) => v
 
     // Generate image
     log({ type: 'progress', message: 'Generating AI image...' });
-    const tempImageUrl = await generateImage(booth);
+    const tempImageUrl = await generateImage(booth, openai);
 
     if (!tempImageUrl) {
       log({ type: 'error', message: 'Image generation failed' });
@@ -200,6 +199,11 @@ export async function GET(request: NextRequest) {
       };
 
       try {
+        // Initialize OpenAI client inside the handler
+        const openai = new OpenAI({
+          apiKey: process.env.OPENAI_API_KEY!,
+        });
+
         log({ type: 'info', message: 'Starting AI image generation...' });
 
         // Query booths without images
@@ -233,7 +237,7 @@ export async function GET(request: NextRequest) {
         for (let i = 0; i < booths.length; i++) {
           log({ type: 'progress', message: `Processing ${i + 1}/${booths.length}` });
 
-          const success = await processBooth(booths[i] as BoothQualityData, log);
+          const success = await processBooth(booths[i] as BoothQualityData, openai, log);
 
           if (success) {
             succeeded++;
