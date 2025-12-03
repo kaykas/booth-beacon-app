@@ -355,50 +355,71 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* City Guides Preview */}
+      {/* Photo Tours Section */}
       <section className="py-16 px-4 bg-background">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center justify-between mb-8">
             <div>
               <h2 className="font-display text-4xl font-semibold text-foreground mb-2">
-                City Guides
+                Photo Tours
               </h2>
               <p className="text-lg text-muted-foreground">
-                Curated photo booth tours in your favorite cities
+                Curated photo booth tours in the world's most iconic cities
               </p>
             </div>
-            <Button asChild variant="outline" className="border-primary/20 hover:border-primary">
-              <Link href="/guides">View All Guides</Link>
-            </Button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* City guide cards with images */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* City tour cards with images */}
             {[
-              { city: 'Berlin', image: 'https://images.unsplash.com/photo-1560969184-10fe8719e047?w=600&h=400&fit=crop', booths: 15, neighborhoods: 5 },
-              { city: 'New York', image: 'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=600&h=400&fit=crop', booths: 22, neighborhoods: 6 },
-              { city: 'London', image: 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=600&h=400&fit=crop', booths: 18, neighborhoods: 4 },
-            ].map((guide) => (
+              {
+                city: 'Berlin',
+                slug: 'berlin',
+                image: 'https://images.unsplash.com/photo-1560969184-10fe8719e047?w=600&h=400&fit=crop',
+                description: 'Kreuzberg clubs to Mitte cafes'
+              },
+              {
+                city: 'New York',
+                slug: 'new-york',
+                image: 'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=600&h=400&fit=crop',
+                description: 'Brooklyn bars to Grand Central'
+              },
+              {
+                city: 'London',
+                slug: 'london',
+                image: 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=600&h=400&fit=crop',
+                description: 'Soho pubs to Shoreditch cool'
+              },
+              {
+                city: 'San Francisco',
+                slug: 'san-francisco',
+                image: 'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=600&h=400&fit=crop',
+                description: 'Mission murals to North Beach'
+              },
+            ].map((tour) => (
               <Link
-                key={guide.city}
-                href={`/guides/${guide.city.toLowerCase().replace(' ', '-')}`}
-                className="group relative h-64 rounded-lg overflow-hidden cursor-pointer shadow-photo hover:shadow-xl transition-all hover:-translate-y-1 vignette"
+                key={tour.city}
+                href={`/tours/${tour.slug}`}
+                className="group relative h-80 rounded-lg overflow-hidden cursor-pointer shadow-photo hover:shadow-xl transition-all hover:-translate-y-1 vignette"
               >
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-10"></div>
                 <Image
-                  src={guide.image}
-                  alt={`${guide.city} cityscape for photo booth guide`}
+                  src={tour.image}
+                  alt={`${tour.city} cityscape for photo booth tour`}
                   fill
                   className="object-cover transition-transform duration-500 group-hover:scale-105"
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                   loading="lazy"
                 />
                 <div className="absolute bottom-0 left-0 right-0 p-6 z-20 text-white">
+                  <Badge className="bg-primary/80 text-white mb-3 backdrop-blur-sm">
+                    Photo Tour
+                  </Badge>
                   <h3 className="text-2xl font-semibold mb-2">
-                    {guide.city} Photo Booth Tour
+                    {tour.city}
                   </h3>
                   <p className="text-sm opacity-90">
-                    {guide.booths} booths • {guide.neighborhoods} neighborhoods
+                    {tour.description}
                   </p>
                 </div>
               </Link>
