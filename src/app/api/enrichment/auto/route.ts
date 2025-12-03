@@ -1,0 +1,166 @@
+/**
+ * AUTO-ENRICHMENT API
+ *
+ * Automatically enriches newly crawled booths to 80% quality
+ * Called by crawler after adding new booths to database
+ *
+ * Process:
+ * 1. Receives array of booth IDs
+ * 2. Calculates quality score for each
+ * 3. Runs venue enrichment if needed
+ * 4. Runs image generation if needed
+ * 5. Continues until quality >= 80%
+ *
+ * Usage: POST /api/enrichment/auto
+ * Body: { boothIds: string[] }
+ */
+
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+import { calculateQualityScore, determineEnrichmentNeeds, type BoothQualityData } from '@/lib/dataQuality';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
+interface EnrichmentRequest {
+  boothIds: string[];
+}
+
+interface EnrichmentResult {
+  boothId: string;
+  initialScore: number;
+  finalScore: number;
+  enrichmentsApplied: string[];
+  success: boolean;
+}
+
+async function enrichBooth(boothId: string): Promise<EnrichmentResult> {
+  const enrichmentsApplied: string[] = [];
+
+  try {
+    // Fetch booth data
+    const { data: booth, error } = await supabase
+      .from('booths')
+      .select('*')
+      .eq('id', boothId)
+      .single();
+
+    if (error || !booth) {
+      throw new Error(`Booth not found: ${boothId}`);
+    }
+
+    const initialScore = calculateQualityScore(booth as BoothQualityData);
+    const needs = determineEnrichmentNeeds(booth as BoothQualityData);
+
+    // Skip if already high quality
+    if (initialScore.score >= 80) {
+      return {
+        boothId,
+        initialScore: initialScore.score,
+        finalScore: initialScore.score,
+        enrichmentsApplied: [],
+        success: true,
+      };
+    }
+
+    // Apply venue enrichment if needed
+    if (needs.needsVenueData) {
+      try {
+        const venueResponse = await fetch(
+          `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/enrichment/venue?batchSize=1&boothId=${boothId}`
+        );
+        if (venueResponse.ok) {
+          enrichmentsApplied.push('venue');
+        }
+      } catch (error) {
+        console.error('Venue enrichment failed:', error);
+      }
+    }
+
+    // Apply image generation if needed
+    if (needs.needsImage) {
+      try {
+        const imageResponse = await fetch(
+          `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/enrichment/images?batchSize=1&boothId=${boothId}`
+        );
+        if (imageResponse.ok) {
+          enrichmentsApplied.push('image');
+        }
+      } catch (error) {
+        console.error('Image enrichment failed:', error);
+      }
+    }
+
+    // Fetch updated booth
+    const { data: updatedBooth } = await supabase
+      .from('booths')
+      .select('*')
+      .eq('id', boothId)
+      .single();
+
+    const finalScore = updatedBooth
+      ? calculateQualityScore(updatedBooth as BoothQualityData)
+      : initialScore;
+
+    return {
+      boothId,
+      initialScore: initialScore.score,
+      finalScore: finalScore.score,
+      enrichmentsApplied,
+      success: true,
+    };
+  } catch (error) {
+    return {
+      boothId,
+      initialScore: 0,
+      finalScore: 0,
+      enrichmentsApplied,
+      success: false,
+    };
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const body: EnrichmentRequest = await request.json();
+    const { boothIds } = body;
+
+    if (!boothIds || !Array.isArray(boothIds)) {
+      return NextResponse.json(
+        { error: 'Missing or invalid boothIds array' },
+        { status: 400 }
+      );
+    }
+
+    // Enrich each booth
+    const results: EnrichmentResult[] = [];
+
+    for (const boothId of boothIds) {
+      const result = await enrichBooth(boothId);
+      results.push(result);
+
+      // Rate limiting between booths
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
+
+    const successful = results.filter(r => r.success).length;
+    const improved = results.filter(r => r.finalScore > r.initialScore).length;
+
+    return NextResponse.json({
+      success: true,
+      processed: results.length,
+      successful,
+      improved,
+      results,
+    });
+  } catch (error) {
+    return NextResponse.json(
+      {
+        error: error instanceof Error ? error.message : 'Unknown error',
+      },
+      { status: 500 }
+    );
+  }
+}

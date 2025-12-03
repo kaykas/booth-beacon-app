@@ -134,6 +134,8 @@ export async function processSource(sourceId: string, log: LogCallback) {
     }
 
     // 3. Upsert to Database
+    const newBoothIds: string[] = [];
+
     if (booths.length > 0) {
       log({ type: 'progress', message: 'Saving to database...' });
 
@@ -175,19 +177,50 @@ export async function processSource(sourceId: string, log: LogCallback) {
           }).eq('id', existing.id);
           updated++;
         } else {
-          await supabase.from('booths').insert({
+          const { data: newBooth } = await supabase.from('booths').insert({
             ...boothPayload,
             slug,
             source_urls: [source.source_url],
             source_primary: source.source_name,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
-          });
+          }).select('id').single();
+
+          if (newBooth) {
+            newBoothIds.push(newBooth.id);
+          }
           added++;
         }
       }
 
       log({ type: 'success', message: `Saved: ${added} new, ${updated} updated` });
+
+      // 3.5 Trigger auto-enrichment for new booths
+      if (newBoothIds.length > 0) {
+        log({ type: 'info', message: `Triggering auto-enrichment for ${newBoothIds.length} new booths...` });
+
+        try {
+          const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+          const enrichResponse = await fetch(`${appUrl}/api/enrichment/auto`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ boothIds: newBoothIds })
+          });
+
+          if (enrichResponse.ok) {
+            const enrichResult = await enrichResponse.json();
+            log({
+              type: 'success',
+              message: `Auto-enrichment completed: ${enrichResult.improved || 0} booths improved`
+            });
+          } else {
+            log({ type: 'error', message: 'Auto-enrichment failed (non-blocking)' });
+          }
+        } catch (enrichError) {
+          // Non-blocking error - enrichment can be run manually later
+          log({ type: 'error', message: 'Auto-enrichment request failed (non-blocking)' });
+        }
+      }
     }
 
     // 4. Update Source Stats
