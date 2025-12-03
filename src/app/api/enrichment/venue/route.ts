@@ -140,7 +140,7 @@ async function findVenueForBooth(booth: BoothQualityData): Promise<PlaceDetails 
 
       // Rate limiting
       await new Promise(resolve => setTimeout(resolve, 100));
-    } catch (error) {
+    } catch (_error) {
       // Continue to next query
     }
   }

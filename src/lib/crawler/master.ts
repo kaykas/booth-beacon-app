@@ -122,7 +122,7 @@ export async function processSource(sourceId: string, log: LogCallback) {
       }
 
       // Extract booths from result
-      const extractData = result.extract as any;
+      const extractData = result.extract as { booths?: ExtractedBooth[] };
       if (extractData && Array.isArray(extractData.booths)) {
         booths = extractData.booths;
       }
@@ -216,7 +216,7 @@ export async function processSource(sourceId: string, log: LogCallback) {
           } else {
             log({ type: 'error', message: 'Auto-enrichment failed (non-blocking)' });
           }
-        } catch (enrichError) {
+        } catch (_enrichError) {
           // Non-blocking error - enrichment can be run manually later
           log({ type: 'error', message: 'Auto-enrichment request failed (non-blocking)' });
         }

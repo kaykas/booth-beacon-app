@@ -111,7 +111,7 @@ async function enrichBooth(boothId: string): Promise<EnrichmentResult> {
       enrichmentsApplied,
       success: true,
     };
-  } catch (error) {
+  } catch (_error) {
     return {
       boothId,
       initialScore: 0,
