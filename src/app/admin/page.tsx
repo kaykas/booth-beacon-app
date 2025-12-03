@@ -581,6 +581,35 @@ export default function AdminPage() {
                 {/* Database Status Overview - TOP PRIORITY */}
                 <DatabaseStatusOverview />
 
+                {/* Data Enrichment Card */}
+                <Card className="p-6 bg-gradient-to-br from-purple-900/20 to-blue-900/20 border-purple-500/30">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="p-3 bg-purple-500/20 rounded-lg">
+                          <Zap className="w-8 h-8 text-purple-400" />
+                        </div>
+                        <div>
+                          <h2 className="font-display text-2xl font-semibold text-white">Data Enrichment</h2>
+                          <p className="text-purple-300 text-sm">Enhance booth data quality with Google Places & AI</p>
+                        </div>
+                      </div>
+                      <p className="text-neutral-300 mb-4">
+                        Automatically enrich booth data with venue information from Google Places API and generate AI images with DALL-E 3.
+                        Target: 80% data quality across all booths.
+                      </p>
+                      <div className="flex gap-2">
+                        <Link href="/admin/enrichment">
+                          <Button className="bg-purple-600 hover:bg-purple-700">
+                            <Zap className="w-4 h-4 mr-2" />
+                            Open Enrichment Dashboard
+                          </Button>
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+
                 {/* Crawler Controls */}
               <Card className="p-6 bg-neutral-800 border-neutral-700">
                 <h2 className="font-display text-2xl font-semibold mb-6 text-white">Data Crawler Controls</h2>
