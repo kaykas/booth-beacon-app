@@ -9,6 +9,10 @@ import {
   Clock,
   DollarSign,
   AlertCircle,
+  Star,
+  Phone,
+  Globe,
+  Instagram,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -180,10 +184,55 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
                   <h1 className="text-3xl lg:text-4xl font-bold text-neutral-900 mb-2">
                     {booth.name}
                   </h1>
-                  <div className="flex items-center gap-2 text-neutral-600 mb-4">
+                  <div className="flex items-center gap-2 text-neutral-600 mb-3">
                     <MapPin className="w-4 h-4 flex-shrink-0" />
                     <span>{locationString}</span>
                   </div>
+
+                  {/* Quick Stats Pills */}
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {booth.booth_type && (
+                      <span className="px-2 py-1 bg-neutral-100 text-neutral-700 text-xs rounded font-medium capitalize">
+                        {booth.booth_type}
+                      </span>
+                    )}
+                    {booth.machine_model && (
+                      <span className="px-2 py-1 bg-neutral-100 text-neutral-700 text-xs rounded font-medium">
+                        {booth.machine_model}
+                      </span>
+                    )}
+                    {booth.cost && (
+                      <span className="px-2 py-1 bg-amber-100 text-amber-800 text-xs rounded font-medium">
+                        {booth.cost}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Google Rating */}
+                  {(booth as any).google_rating && (
+                    <div className="flex items-center gap-2 mb-4">
+                      <div className="flex items-center">
+                        {[...Array(5)].map((_, i) => (
+                          <Star
+                            key={i}
+                            className={`w-4 h-4 ${
+                              i < Math.floor((booth as any).google_rating)
+                                ? 'fill-yellow-400 text-yellow-400'
+                                : 'text-neutral-300'
+                            }`}
+                          />
+                        ))}
+                      </div>
+                      <span className="text-sm text-neutral-600">
+                        {(booth as any).google_rating.toFixed(1)}
+                        {(booth as any).google_user_ratings_total && (
+                          <span className="text-neutral-500">
+                            {' '}({(booth as any).google_user_ratings_total} reviews)
+                          </span>
+                        )}
+                      </span>
+                    </div>
+                  )}
                 </div>
                 <StatusBadge status={booth.status || 'active'} />
               </div>
@@ -217,7 +266,7 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
               )}
 
               {/* Machine Info */}
-              {(booth.machine_model || booth.machine_manufacturer) && (
+              {(booth.machine_model || booth.machine_manufacturer || (booth as any).operator_name) && (
                 <div className="space-y-2 mb-6">
                   <h3 className="text-sm font-semibold text-neutral-500 uppercase tracking-wide">
                     Machine Details
@@ -232,6 +281,12 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
                     <div className="flex justify-between">
                       <span className="text-neutral-600">Manufacturer</span>
                       <span className="font-medium">{booth.machine_manufacturer}</span>
+                    </div>
+                  )}
+                  {(booth as any).operator_name && (
+                    <div className="flex justify-between">
+                      <span className="text-neutral-600">Operator</span>
+                      <span className="font-medium">{(booth as any).operator_name}</span>
                     </div>
                   )}
                 </div>
@@ -251,13 +306,34 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
                     <span className="font-medium">{booth.cost}</span>
                   </div>
                 )}
-                {booth.hours && (
+                {booth.hours ? (
                   <div className="flex justify-between">
                     <span className="text-neutral-600 flex items-center">
                       <Clock className="w-4 h-4 mr-1" />
                       Hours
                     </span>
                     <span className="font-medium">{booth.hours}</span>
+                  </div>
+                ) : (
+                  <div className="text-xs text-neutral-500 italic py-2">
+                    Hours not listed - check venue hours before visiting
+                  </div>
+                )}
+                {((booth as any).accepts_cash || (booth as any).accepts_card) && (
+                  <div className="flex justify-between items-center">
+                    <span className="text-neutral-600">Payment</span>
+                    <div className="flex gap-2">
+                      {(booth as any).accepts_cash && (
+                        <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded font-medium">
+                          💵 Cash
+                        </span>
+                      )}
+                      {(booth as any).accepts_card && (
+                        <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded font-medium">
+                          💳 Card
+                        </span>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>
@@ -293,7 +369,7 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
             )}
 
             {/* Photos Section */}
-            {(booth.photo_exterior_url || booth.photo_interior_url) && (
+            {(booth.photo_exterior_url || booth.photo_interior_url || (booth as any).google_photos) && (
               <Card className="p-6">
                 <h2 className="text-xl font-semibold mb-4">Photos</h2>
                 <div className="grid grid-cols-2 gap-4">
@@ -319,6 +395,17 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
                       />
                     </div>
                   )}
+                  {(booth as any).google_photos?.map((photoUrl: string, index: number) => (
+                    <div key={index} className="relative aspect-square bg-neutral-200 rounded-lg overflow-hidden">
+                      <Image
+                        src={photoUrl}
+                        alt={`${booth.name} photo ${index + 1}`}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 768px) 50vw, 33vw"
+                      />
+                    </div>
+                  ))}
                 </div>
               </Card>
             )}
@@ -326,6 +413,48 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
 
           {/* Right Column - Sidebar */}
           <div className="space-y-6">
+            {/* Contact Info Card */}
+            {((booth as any).phone || (booth as any).website || (booth as any).instagram) && (
+              <Card className="p-6">
+                <h3 className="font-semibold text-lg mb-4">Contact</h3>
+                <div className="space-y-3">
+                  {(booth as any).phone && (
+                    <a
+                      href={`tel:${(booth as any).phone}`}
+                      className="flex items-center gap-3 text-neutral-700 hover:text-primary transition"
+                    >
+                      <Phone className="w-4 h-4 flex-shrink-0" />
+                      <span className="text-sm">{(booth as any).phone}</span>
+                    </a>
+                  )}
+                  {(booth as any).website && (
+                    <a
+                      href={(booth as any).website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 text-neutral-700 hover:text-primary transition"
+                    >
+                      <Globe className="w-4 h-4 flex-shrink-0" />
+                      <span className="text-sm">Website</span>
+                      <ExternalLink className="w-3 h-3 ml-auto" />
+                    </a>
+                  )}
+                  {(booth as any).instagram && (
+                    <a
+                      href={`https://instagram.com/${(booth as any).instagram.replace('@', '')}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 text-neutral-700 hover:text-primary transition"
+                    >
+                      <Instagram className="w-4 h-4 flex-shrink-0" />
+                      <span className="text-sm">@{(booth as any).instagram.replace('@', '')}</span>
+                      <ExternalLink className="w-3 h-3 ml-auto" />
+                    </a>
+                  )}
+                </div>
+              </Card>
+            )}
+
             {/* Location Card */}
             <Card className="p-6">
               <h3 className="font-semibold text-lg mb-4">Location</h3>
@@ -370,12 +499,16 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
 
                     <Button variant="default" size="sm" className="w-full" asChild>
                       <a
-                        href={`https://www.google.com/maps/search/?api=1&query=${booth.latitude},${booth.longitude}`}
+                        href={
+                          (booth as any).google_place_id
+                            ? `https://www.google.com/maps/place/?q=place_id:${(booth as any).google_place_id}`
+                            : `https://www.google.com/maps/search/?api=1&query=${booth.latitude},${booth.longitude}`
+                        }
                         target="_blank"
                         rel="noopener noreferrer"
                       >
                         <ExternalLink className="w-4 h-4 mr-2" />
-                        Open in Google Maps
+                        {(booth as any).google_place_id ? 'View on Google Maps' : 'Open in Google Maps'}
                       </a>
                     </Button>
                   </>
@@ -399,6 +532,19 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
                 Report Issue
               </Button>
             </Card>
+          </div>
+        </div>
+
+        {/* Source Attribution Footer */}
+        <div className="mt-8 pt-6 border-t border-neutral-200">
+          <div className="text-center text-sm text-neutral-500">
+            <p>
+              Data from {(booth as any).source_primary || 'community sources'}
+              {(booth as any).last_verified && ` · Last verified ${new Date((booth as any).last_verified).toLocaleDateString()}`}
+            </p>
+            <p className="mt-2 text-xs">
+              Help us keep this information accurate by reporting any changes or errors
+            </p>
           </div>
         </div>
       </div>
