@@ -44,7 +44,7 @@ async function enrichVenueData(batchSize: number = 50) {
     console.log(`\n📦 Processing venue batch ${batchNum}/${totalBatches} (${batchSize} booths)...`);
 
     try {
-      const response = await fetch(`http://localhost:3000/api/enrichment/venue?batchSize=${batchSize}`);
+      const response = await fetch(`https://boothbeacon.org/api/enrichment/venue?batchSize=${batchSize}`);
 
       if (!response.ok) {
         console.error(`❌ Batch ${batchNum} failed:`, response.statusText);
@@ -79,7 +79,7 @@ async function enrichVenueData(batchSize: number = 50) {
                            log.type === 'success' ? '✅' :
                            log.type === 'warning' ? '⚠️' : 'ℹ️';
               console.log(`  ${prefix} ${log.message}`);
-            } catch (e) {
+            } catch (_e) {
               // Skip invalid JSON
             }
           }
@@ -119,7 +119,7 @@ async function enrichImages(batchSize: number = 100) {
     console.log(`\n📦 Processing image batch ${batchNum}/${totalBatches} (${batchSize} booths, ~$${batchCost})...`);
 
     try {
-      const response = await fetch(`http://localhost:3000/api/enrichment/images?batchSize=${batchSize}`);
+      const response = await fetch(`https://boothbeacon.org/api/enrichment/images?batchSize=${batchSize}`);
 
       if (!response.ok) {
         console.error(`❌ Batch ${batchNum} failed:`, response.statusText);
@@ -154,7 +154,7 @@ async function enrichImages(batchSize: number = 100) {
                            log.type === 'success' ? '✅' :
                            log.type === 'warning' ? '⚠️' : 'ℹ️';
               console.log(`  ${prefix} ${log.message}`);
-            } catch (e) {
+            } catch (_e) {
               // Skip invalid JSON
             }
           }

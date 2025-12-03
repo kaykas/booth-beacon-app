@@ -1,289 +1,274 @@
-#!/usr/bin/env tsx
 /**
- * Batch script to generate AI images for booths without photos
+ * BATCH AI IMAGE GENERATION
  *
- * This script:
- * 1. Queries the database for booths that need AI-generated images
- * 2. Calls the generate-booth-art Edge Function in batches
- * 3. Implements rate limiting and error handling
- * 4. Reports statistics on completion
+ * Proactively generates AI images for ALL booths without photos.
+ * Uses OpenAI DALL-E 3 to create vintage photobooth aesthetic images.
+ *
+ * Process:
+ * 1. Query all booths without photo_exterior_url or ai_preview_url
+ * 2. Generate DALL-E 3 image for each booth
+ * 3. Download temporary image and upload to Supabase storage
+ * 4. Update booth record with permanent image URL
+ *
+ * Cost: ~$0.04 per image (DALL-E 3 standard quality)
+ * Rate limit: ~50 images per minute
  *
  * Usage:
- *   npx tsx batch-generate-booth-images.ts
- *
- * Environment variables required:
- *   - NEXT_PUBLIC_SUPABASE_URL
- *   - SUPABASE_SERVICE_ROLE_KEY
+ *   OPENAI_API_KEY=sk-xxx npx tsx batch-generate-booth-images.ts [batch_size] [--dry-run]
  */
 
+import OpenAI from 'openai';
 import { createClient } from '@supabase/supabase-js';
-import type { Database } from './src/lib/supabase/types';
+import * as https from 'https';
+import * as http from 'http';
 
-// Configuration
-const EDGE_FUNCTION_URL = 'https://tmgbmcbwfkvmylmfpkzy.supabase.co/functions/v1/generate-booth-art';
-const BATCH_SIZE = 5; // Process 5 booths at a time
-const DELAY_BETWEEN_BATCHES = 5000; // 5 seconds delay between batches
-const MAX_RETRIES = 3; // Retry failed requests up to 3 times
-const DRY_RUN = process.env.DRY_RUN === 'true'; // Set to true to test without calling API
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY!
+});
 
-// Environment variables
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://tmgbmcbwfkvmylmfpkzy.supabase.co';
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
-if (!SUPABASE_SERVICE_ROLE_KEY) {
-  console.error('❌ Error: SUPABASE_SERVICE_ROLE_KEY environment variable is not set');
-  console.error('Please set it in your .env.local file or pass it as an environment variable');
-  process.exit(1);
+interface BoothData {
+  id: string;
+  name: string;
+  city: string;
+  state: string | null;
+  country: string;
+  address: string | null;
+  photo_exterior_url: string | null;
+  ai_preview_url: string | null;
 }
-
-// Statistics tracking
-interface Stats {
-  totalFound: number;
-  totalProcessed: number;
-  successful: number;
-  failed: number;
-  errors: Array<{ booth_id: string; error: string }>;
-}
-
-const stats: Stats = {
-  totalFound: 0,
-  totalProcessed: 0,
-  successful: 0,
-  failed: 0,
-  errors: [],
-};
-
-// Initialize Supabase client
-const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
 /**
- * Fetch booths that need AI-generated images
+ * Construct a DALL-E 3 prompt for a booth location
  */
-async function fetchBoothsNeedingImages(): Promise<string[]> {
-  console.log('🔍 Querying database for booths without images...\n');
+function constructPrompt(booth: BoothData): string {
+  let locationDescription = '';
 
-  const { data, error } = await supabase
-    .from('booths')
-    .select('id, name, city, country')
-    .is('photo_exterior_url', null)
-    .is('ai_preview_url', null)
-    .eq('status', 'active')
-    .order('created_at', { ascending: true });
+  if (booth.address) {
+    locationDescription = `street view of ${booth.address}, ${booth.city}, ${booth.country}`;
+  } else {
+    locationDescription = `iconic street view of ${booth.city}, ${booth.country}`;
+  }
+
+  const styleDirective = `
+    Style: Vintage photo booth strip aesthetic.
+    The image should have a warm, slightly faded nostalgic look,
+    similar to old film photography from the 1960s-1980s.
+    Soft edges, slight vignetting, and warm color tones.
+    This is a LOCATION VIEW, not a photo booth machine.
+  `.trim();
+
+  return `${locationDescription}. ${styleDirective}`;
+}
+
+/**
+ * Generate image using DALL-E 3
+ */
+async function generateImage(booth: BoothData): Promise<string | null> {
+  try {
+    const prompt = constructPrompt(booth);
+    console.log(`   Generating with prompt: ${prompt.substring(0, 80)}...`);
+
+    const response = await openai.images.generate({
+      model: 'dall-e-3',
+      prompt: prompt,
+      n: 1,
+      size: '1024x1024',
+      quality: 'standard',
+      response_format: 'url',
+    });
+
+    const imageUrl = response.data[0]?.url;
+    if (!imageUrl) {
+      console.error('   ❌ DALL-E returned no image URL');
+      return null;
+    }
+
+    console.log('   ✅ Image generated');
+    return imageUrl;
+  } catch (error: any) {
+    console.error(`   ❌ DALL-E error: ${error.message}`);
+    return null;
+  }
+}
+
+/**
+ * Download image from URL to buffer
+ */
+async function downloadImage(url: string): Promise<Buffer> {
+  return new Promise((resolve, reject) => {
+    const client = url.startsWith('https') ? https : http;
+    client.get(url, (response) => {
+      if (response.statusCode !== 200) {
+        reject(new Error(`Failed to download: ${response.statusCode}`));
+        return;
+      }
+      const chunks: Buffer[] = [];
+      response.on('data', (chunk) => chunks.push(chunk));
+      response.on('end', () => resolve(Buffer.concat(chunks)));
+      response.on('error', reject);
+    }).on('error', reject);
+  });
+}
+
+/**
+ * Upload image to Supabase storage
+ */
+async function uploadToSupabase(imageBuffer: Buffer, boothId: string): Promise<string> {
+  const fileName = `booth-${boothId}-ai-preview-${Date.now()}.png`;
+  const filePath = `ai-previews/${fileName}`;
+
+  const { error } = await supabase.storage
+    .from('booth-images')
+    .upload(filePath, imageBuffer, {
+      contentType: 'image/png',
+      cacheControl: '31536000',
+      upsert: false,
+    });
 
   if (error) {
-    console.error('❌ Database query error:', error);
-    throw error;
+    throw new Error(`Supabase upload failed: ${error.message}`);
   }
 
-  if (!data || data.length === 0) {
-    console.log('✅ No booths found that need AI-generated images');
-    return [];
-  }
+  const { data: publicUrlData } = supabase.storage
+    .from('booth-images')
+    .getPublicUrl(filePath);
 
-  console.log(`📊 Found ${data.length} booths without images:\n`);
-  data.forEach((booth, index) => {
-    console.log(`   ${index + 1}. ${booth.name} (${booth.city}, ${booth.country})`);
-  });
-  console.log('');
-
-  stats.totalFound = data.length;
-  return data.map(booth => booth.id);
+  return publicUrlData.publicUrl;
 }
 
 /**
- * Generate images for a batch of booths
+ * Update booth with AI preview URL
  */
-async function generateImagesForBatch(
-  boothIds: string[],
-  retryCount = 0
-): Promise<{ success: boolean; results: Array<{
-  booth_id: string;
-  success?: boolean;
-  image_url?: string;
-  prompt?: string;
-  error?: string;
-}> }> {
+async function updateBooth(boothId: string, imageUrl: string): Promise<void> {
+  const { error } = await supabase
+    .from('booths')
+    .update({
+      ai_preview_url: imageUrl,
+      ai_preview_generated_at: new Date().toISOString(),
+    })
+    .eq('id', boothId);
+
+  if (error) {
+    throw new Error(`Database update failed: ${error.message}`);
+  }
+}
+
+/**
+ * Process a single booth
+ */
+async function processBooth(booth: BoothData): Promise<boolean> {
   try {
-    if (DRY_RUN) {
-      console.log(`🧪 [DRY RUN] Would call Edge Function for ${boothIds.length} booths...`);
-      // Simulate successful response
-      await delay(1000); // Simulate API delay
-      return {
-        success: true,
-        results: boothIds.map(id => ({
-          booth_id: id,
-          success: true,
-          image_url: `https://example.com/dry-run-image-${id}.png`,
-          prompt: 'Dry run - no actual image generated'
-        }))
-      };
-    }
+    console.log(`\n📍 ${booth.name} (${booth.city}, ${booth.country})`);
 
-    console.log(`📤 Calling Edge Function for ${boothIds.length} booths...`);
+    const tempImageUrl = await generateImage(booth);
+    if (!tempImageUrl) return false;
 
-    const response = await fetch(EDGE_FUNCTION_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
-      },
-      body: JSON.stringify({ booth_ids: boothIds }),
-    });
+    console.log('   ⬇️  Downloading image...');
+    const imageBuffer = await downloadImage(tempImageUrl);
+    console.log(`   ✅ Downloaded (${(imageBuffer.length / 1024).toFixed(1)} KB)`);
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Edge Function returned ${response.status}: ${errorText}`);
-    }
+    console.log('   ⬆️  Uploading to Supabase...');
+    const permanentUrl = await uploadToSupabase(imageBuffer, booth.id);
+    console.log('   ✅ Uploaded');
 
-    const result = await response.json();
-    return result;
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    console.error(`❌ Error calling Edge Function:`, errorMessage);
+    console.log('   💾 Updating database...');
+    await updateBooth(booth.id, permanentUrl);
+    console.log('   ✅ Complete');
 
-    // Retry logic
-    if (retryCount < MAX_RETRIES) {
-      console.log(`🔄 Retrying batch (attempt ${retryCount + 1}/${MAX_RETRIES})...`);
-      await delay(2000 * (retryCount + 1)); // Exponential backoff
-      return generateImagesForBatch(boothIds, retryCount + 1);
-    }
-
-    // If all retries failed, mark all booths in batch as failed
-    return {
-      success: false,
-      results: boothIds.map(id => ({
-        booth_id: id,
-        error: errorMessage,
-      })),
-    };
+    return true;
+  } catch (error: any) {
+    console.error(`   ❌ Error: ${error.message}`);
+    return false;
   }
-}
-
-/**
- * Process batches of booths
- */
-async function processBatches(boothIds: string[]): Promise<void> {
-  const totalBatches = Math.ceil(boothIds.length / BATCH_SIZE);
-
-  console.log(`🚀 Starting batch processing:`);
-  console.log(`   Total booths: ${boothIds.length}`);
-  console.log(`   Batch size: ${BATCH_SIZE}`);
-  console.log(`   Total batches: ${totalBatches}`);
-  console.log(`   Delay between batches: ${DELAY_BETWEEN_BATCHES}ms\n`);
-
-  for (let i = 0; i < boothIds.length; i += BATCH_SIZE) {
-    const batchNumber = Math.floor(i / BATCH_SIZE) + 1;
-    const batch = boothIds.slice(i, i + BATCH_SIZE);
-
-    console.log(`\n${'='.repeat(70)}`);
-    console.log(`📦 Processing batch ${batchNumber}/${totalBatches} (${batch.length} booths)`);
-    console.log(`${'='.repeat(70)}\n`);
-
-    const result = await generateImagesForBatch(batch);
-
-    // Process results
-    if (result.results) {
-      for (const item of result.results) {
-        stats.totalProcessed++;
-
-        if (item.success) {
-          stats.successful++;
-          console.log(`✅ Success: ${item.booth_id}`);
-          if (item.image_url) {
-            console.log(`   Image URL: ${item.image_url}`);
-          }
-        } else {
-          stats.failed++;
-          stats.errors.push({
-            booth_id: item.booth_id,
-            error: item.error || 'Unknown error',
-          });
-          console.log(`❌ Failed: ${item.booth_id}`);
-          console.log(`   Error: ${item.error || 'Unknown error'}`);
-        }
-      }
-    }
-
-    // Delay between batches (except for the last batch)
-    if (i + BATCH_SIZE < boothIds.length) {
-      console.log(`\n⏳ Waiting ${DELAY_BETWEEN_BATCHES / 1000} seconds before next batch...`);
-      await delay(DELAY_BETWEEN_BATCHES);
-    }
-  }
-}
-
-/**
- * Print final statistics
- */
-function printStatistics(): void {
-  console.log(`\n${'='.repeat(70)}`);
-  console.log(`📊 FINAL STATISTICS`);
-  console.log(`${'='.repeat(70)}\n`);
-
-  console.log(`Total booths found:       ${stats.totalFound}`);
-  console.log(`Total booths processed:   ${stats.totalProcessed}`);
-  console.log(`✅ Successful:            ${stats.successful}`);
-  console.log(`❌ Failed:                ${stats.failed}`);
-
-  if (stats.errors.length > 0) {
-    console.log(`\n${'─'.repeat(70)}`);
-    console.log(`❌ ERRORS (${stats.errors.length}):`);
-    console.log(`${'─'.repeat(70)}\n`);
-
-    stats.errors.forEach((error, index) => {
-      console.log(`${index + 1}. Booth ID: ${error.booth_id}`);
-      console.log(`   Error: ${error.error}\n`);
-    });
-  }
-
-  const successRate = stats.totalProcessed > 0
-    ? ((stats.successful / stats.totalProcessed) * 100).toFixed(1)
-    : '0.0';
-
-  console.log(`\nSuccess rate: ${successRate}%`);
-  console.log(`\n${'='.repeat(70)}\n`);
-}
-
-/**
- * Delay helper function
- */
-function delay(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 /**
  * Main execution
  */
 async function main() {
-  console.log('\n🎨 Booth Beacon - Batch Image Generator\n');
-  if (DRY_RUN) {
-    console.log('🧪 DRY RUN MODE - No actual API calls will be made\n');
+  console.log('🎨 BATCH AI IMAGE GENERATION\n');
+
+  const BATCH_SIZE = parseInt(process.argv[2] || '50');
+  const DRY_RUN = process.argv[3] === '--dry-run';
+
+  console.log(`Batch size: ${BATCH_SIZE} booths`);
+  console.log(`Mode: ${DRY_RUN ? 'DRY RUN (no API calls)' : 'PRODUCTION'}\n`);
+
+  const { data: booths, error } = await supabase
+    .from('booths')
+    .select('id, name, city, state, country, address, photo_exterior_url, ai_preview_url')
+    .eq('status', 'active')
+    .is('photo_exterior_url', null)
+    .is('ai_preview_url', null)
+    .limit(BATCH_SIZE);
+
+  if (error) {
+    console.error('❌ Database error:', error);
+    return;
   }
-  console.log(`${'='.repeat(70)}\n`);
 
-  try {
-    // Step 1: Fetch booths that need images
-    const boothIds = await fetchBoothsNeedingImages();
+  if (!booths || booths.length === 0) {
+    console.log('✨ All booths already have images!');
+    return;
+  }
 
-    if (boothIds.length === 0) {
-      console.log('✅ All booths have images! Nothing to do.\n');
-      return;
+  console.log(`Found ${booths.length} booths needing images\n`);
+  const estimatedCost = booths.length * 0.04;
+  console.log(`💰 Estimated cost: $${estimatedCost.toFixed(2)} (${booths.length} × $0.04)\n`);
+
+  if (DRY_RUN) {
+    console.log('DRY RUN: Would process these booths:');
+    booths.slice(0, 5).forEach((booth, i) => {
+      console.log(`${i + 1}. ${booth.name} (${booth.city}, ${booth.country})`);
+    });
+    if (booths.length > 5) {
+      console.log(`... and ${booths.length - 5} more`);
+    }
+    console.log('\nRun without --dry-run to execute.');
+    return;
+  }
+
+  console.log('='.repeat(60));
+  console.log('Starting image generation...\n');
+
+  let succeeded = 0;
+  let failed = 0;
+  const startTime = Date.now();
+
+  for (let i = 0; i < booths.length; i++) {
+    const booth = booths[i];
+    console.log(`[${i + 1}/${booths.length}]`);
+
+    const success = await processBooth(booth);
+
+    if (success) {
+      succeeded++;
+    } else {
+      failed++;
     }
 
-    // Step 2: Process batches
-    await processBatches(boothIds);
-
-    // Step 3: Print statistics
-    printStatistics();
-
-    // Exit with appropriate code
-    process.exit(stats.failed > 0 ? 1 : 0);
-  } catch (error) {
-    console.error('\n❌ Fatal error:', error);
-    console.error('Stack trace:', error instanceof Error ? error.stack : 'No stack trace');
-    process.exit(1);
+    if (i < booths.length - 1) {
+      await new Promise(resolve => setTimeout(resolve, 1200));
+    }
   }
+
+  const duration = ((Date.now() - startTime) / 1000 / 60).toFixed(1);
+  const actualCost = succeeded * 0.04;
+
+  console.log('\n' + '='.repeat(60));
+  console.log('📊 RESULTS');
+  console.log('='.repeat(60));
+  console.log(`✅ Succeeded: ${succeeded}`);
+  console.log(`❌ Failed: ${failed}`);
+  console.log(`⏱️  Duration: ${duration} minutes`);
+  console.log(`💰 Actual cost: $${actualCost.toFixed(2)}`);
+  console.log('='.repeat(60));
+  console.log('\n✨ Done!');
 }
 
-// Run the script
-main();
+main().catch(console.error);

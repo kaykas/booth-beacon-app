@@ -1,6 +1,6 @@
 /**
  * Image Generation Service
- * Generates AI images for photo booth locations using Google's Imagen API
+ * Generates AI images for photo booth locations using OpenAI DALL-E 3
  * Creates vintage photo booth strip style images of the location
  */
 
@@ -19,7 +19,7 @@ interface ImageGenerationResult {
 
 /**
  * Generate a vintage photo booth strip style image of a location
- * using Google's Imagen API
+ * using OpenAI DALL-E 3
  */
 export async function generateLocationImage(
   options: GenerateImageOptions
@@ -34,8 +34,8 @@ export async function generateLocationImage(
 
     console.log('Generating AI image with prompt:', prompt);
 
-    // Call Google's Imagen API
-    const imageUrl = await callImagenAPI(prompt);
+    // Call OpenAI DALL-E 3 API
+    const imageUrl = await callDallEAPI(prompt);
 
     return {
       success: true,
@@ -86,27 +86,27 @@ function constructLocationPrompt(
 /**
  * Call an AI image generation API to create an image
  * Returns the URL or data URL of the generated image
- * 
+ *
  * Strategy:
- * 1. Google Imagen API (Primary)
+ * 1. OpenAI DALL-E 3 (Primary)
  * 2. Generic placeholder (Fallback)
  */
-async function callImagenAPI(prompt: string): Promise<string> {
-  // Strategy 1: Use Imagen API if available (Primary)
-  const apiKey = process.env.GOOGLE_IMAGEN_API_KEY;
+async function callDallEAPI(prompt: string): Promise<string> {
+  // Strategy 1: Use DALL-E 3 if available (Primary)
+  const apiKey = process.env.OPENAI_API_KEY;
 
   if (apiKey) {
     try {
-      console.log('Attempting to generate image with Google Imagen...');
-      const imageUrl = await tryImagenAPI(prompt, apiKey);
+      console.log('Attempting to generate image with OpenAI DALL-E 3...');
+      const imageUrl = await tryDallEAPI(prompt, apiKey);
       if (imageUrl) {
         return imageUrl;
       }
     } catch (error) {
-      console.warn('Imagen API failed:', error);
+      console.warn('DALL-E 3 API failed:', error);
     }
   } else {
-    console.warn('GOOGLE_IMAGEN_API_KEY is not set. Skipping AI generation.');
+    console.warn('OPENAI_API_KEY is not set. Skipping AI generation.');
   }
 
   // Strategy 2: Generic placeholder
@@ -115,56 +115,38 @@ async function callImagenAPI(prompt: string): Promise<string> {
 }
 
 /**
- * Try to use Google's Imagen API
+ * Try to use OpenAI's DALL-E 3 API
  */
-async function tryImagenAPI(prompt: string, apiKey: string): Promise<string | null> {
+async function tryDallEAPI(prompt: string, apiKey: string): Promise<string | null> {
   try {
-    // Using the Gemini API endpoint for image generation
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/image-generation-001:generate?key=${apiKey}`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          prompt: { text: prompt },
-          sampleCount: 1,
-          aspectRatio: '3:4', // Portrait for booth strips
-          safetyConfig: {
-            safetyFilterLevel: 'BLOCK_ONLY_HIGH'
-          }
-        }),
-      }
-    );
+    const { default: OpenAI } = await import('openai');
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`Imagen API error (${response.status}):`, errorText);
+    const openai = new OpenAI({
+      apiKey: apiKey,
+    });
+
+    console.log('Calling DALL-E 3 with prompt:', prompt);
+
+    const response = await openai.images.generate({
+      model: "dall-e-3",
+      prompt: prompt,
+      n: 1,
+      size: "1024x1024",
+      quality: "standard",
+      response_format: "url",
+    });
+
+    const imageUrl = response.data[0]?.url;
+
+    if (!imageUrl) {
+      console.error('DALL-E 3 API returned no image URL');
       return null;
     }
 
-    const data = await response.json();
-
-    // Check for standard Gemini Image Generation response structure
-    if (data.images && data.images.length > 0) {
-      const image = data.images[0];
-      if (image.imageBytes) {
-        return `data:image/png;base64,${image.imageBytes}`;
-      }
-    }
-    
-    // Fallback check for older/Vertex format (just in case)
-    if (data.predictions && data.predictions.length > 0) {
-      const prediction = data.predictions[0];
-      if (prediction.bytesBase64Encoded) {
-        return `data:image/png;base64,${prediction.bytesBase64Encoded}`;
-      }
-    }
-
-    return null;
+    console.log('DALL-E 3 successfully generated image');
+    return imageUrl;
   } catch (error) {
-    console.error('Imagen API exception:', error);
+    console.error('DALL-E 3 API exception:', error);
     return null;
   }
 }

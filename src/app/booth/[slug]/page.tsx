@@ -307,12 +307,18 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
                   </div>
                 )}
                 {booth.hours ? (
-                  <div className="flex justify-between">
-                    <span className="text-neutral-600 flex items-center">
+                  <div className="space-y-2">
+                    <div className="text-neutral-700 font-semibold flex items-center">
                       <Clock className="w-4 h-4 mr-1" />
                       Hours
-                    </span>
-                    <span className="font-medium">{booth.hours}</span>
+                    </div>
+                    <div className="text-sm text-neutral-900 space-y-0.5 pl-5">
+                      {booth.hours.split('\n').map((line, i) => (
+                        <div key={i} className="leading-relaxed">
+                          {line}
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 ) : (
                   <div className="text-xs text-neutral-500 italic py-2">

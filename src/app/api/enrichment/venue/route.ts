@@ -301,7 +301,7 @@ function getPhotoUrl(photoReference: string): string {
   return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&photo_reference=${photoReference}&key=${GOOGLE_MAPS_API_KEY}`;
 }
 
-async function updateBoothWithVenueData(boothId: string, venue: PlaceDetails, attempted: boolean = false): Promise<void> {
+async function updateBoothWithVenueData(boothId: string, venue: PlaceDetails): Promise<void> {
   const updates: Record<string, unknown> = {};
 
   if (venue.formatted_address) {
