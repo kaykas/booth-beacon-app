@@ -209,7 +209,7 @@ export async function GET(request: NextRequest) {
         // Query booths without images
         const { data: booths, error } = await supabase
           .from('booths')
-          .select('id, name, city, state, country, address, phone, website, hours, photo_exterior_url, ai_preview_url, photos, google_place_id, latitude, longitude, status')
+          .select('id, name, city, state, country, address, phone, website, hours, photo_exterior_url, ai_preview_url, photos, latitude, longitude, status')
           .eq('status', 'active')
           .is('photo_exterior_url', null)
           .is('ai_preview_url', null)
