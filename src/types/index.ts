@@ -53,6 +53,11 @@ export interface Booth {
   source_primary?: string;
   source_urls?: string[];
   source_verified_date?: string;
+  primary_source?: string;
+  verification_badge?: string;
+  verification_level?: 'community' | 'trusted' | 'official';
+  verification_notes?: string;
+  last_checked_at?: string;
 
   // Metadata
   created_at: string;

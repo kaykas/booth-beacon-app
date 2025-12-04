@@ -3,16 +3,16 @@
 import { useState, useEffect, useMemo, useCallback, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { MapPin, SlidersHorizontal, List, X, Loader2, Navigation } from 'lucide-react';
+import { MapPin, SlidersHorizontal, List, X, Loader2, Navigation, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { BoothMap } from '@/components/booth/BoothMap';
 import { BoothCard } from '@/components/booth/BoothCard';
 import { SearchBar } from '@/components/SearchBar';
-import { supabase } from '@/lib/supabase';
 import { Booth, Coordinates } from '@/types';
 import { sortBoothsByDistance } from '@/lib/distanceUtils';
+import { Switch } from '@/components/ui/switch';
 
 interface Filters {
   location?: string;
@@ -21,12 +21,15 @@ interface Filters {
   operator?: string;
   status?: 'active' | 'unverified' | 'all';
   payment?: 'cash' | 'card' | 'both';
+  analogOnly?: boolean;
+  verifiedWindow?: number;
 }
 
 function MapContent() {
   const [booths, setBooths] = useState<Booth[]>([]);
   const [filteredBooths, setFilteredBooths] = useState<Booth[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [view, setView] = useState<'map' | 'list'>('map');
   const [showFilters, setShowFilters] = useState(true);
   const [filters, setFilters] = useState<Filters>({
@@ -36,6 +39,10 @@ function MapContent() {
   const [sortByDistance, setSortByDistance] = useState(false);
   const [selectedCity, setSelectedCity] = useState<string>('all');
   const [selectedCountry, setSelectedCountry] = useState<string>('all');
+  const [hasMore, setHasMore] = useState(true);
+  const [page, setPage] = useState(0);
+  const [serverCount, setServerCount] = useState<number | null>(null);
+  const pageSize = 150;
   
   const searchParams = useSearchParams();
   const [autoCenter, setAutoCenter] = useState(false);
@@ -47,32 +54,67 @@ function MapContent() {
     }
   }, [searchParams]);
 
-  const fetchBooths = useCallback(async () => {
-    setLoading(true);
+  const fetchBooths = useCallback(
+    async (reset = false) => {
+      const nextPage = reset ? 0 : page;
+      if (reset) {
+        setLoading(true);
+        setHasMore(true);
+        setPage(0);
+      } else {
+        setIsLoadingMore(true);
+      }
 
-    let query = supabase.from('booths').select('*');
+      const params = new URLSearchParams({
+        limit: pageSize.toString(),
+        offset: (nextPage * pageSize).toString(),
+        status: filters.status || 'all',
+      });
 
-    // Apply status filter to the query if not "all"
-    if (filters.status && filters.status !== 'all') {
-      query = query.eq('status', filters.status);
-    }
+      if (filters.analogOnly) {
+        params.set('analogOnly', 'true');
+      }
 
-    const { data, error } = await query;
+      if (filters.machineModel && filters.machineModel !== 'all') {
+        params.set('machineModel', filters.machineModel);
+      }
 
-    if (error) {
-      console.error('Error fetching booths:', error);
-      setBooths([]);
-    } else {
-      setBooths((data as Booth[]) || []);
-    }
+      if (filters.operator && filters.operator !== 'all') {
+        params.set('operator', filters.operator);
+      }
 
-    setLoading(false);
-  }, [filters.status]);
+      if (filters.verifiedWindow) {
+        const since = new Date();
+        since.setDate(since.getDate() - filters.verifiedWindow);
+        params.set('verifiedSince', since.toISOString());
+      }
+
+      try {
+        const response = await fetch(`/api/booths/map?${params.toString()}`);
+        const payload = (await response.json()) as { data: Booth[]; hasMore: boolean; count?: number };
+
+        setBooths((prev) => (reset ? payload.data : [...prev, ...payload.data]));
+        setHasMore(payload.hasMore);
+        setServerCount(payload.count ?? payload.data?.length ?? null);
+        setPage(nextPage + 1);
+      } catch (error) {
+        console.error('Error fetching booths:', error);
+        if (reset) {
+          setBooths([]);
+        }
+      } finally {
+        setLoading(false);
+        setIsLoadingMore(false);
+      }
+    },
+    [filters.analogOnly, filters.machineModel, filters.operator, filters.status, filters.verifiedWindow, page, pageSize]
+  );
 
   // Fetch all booths on mount
   useEffect(() => {
-    fetchBooths();
-  }, [fetchBooths]);
+    fetchBooths(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters.analogOnly, filters.machineModel, filters.operator, filters.status, filters.verifiedWindow]);
 
   // Get user location on mount
   useEffect(() => {
@@ -94,6 +136,19 @@ function MapContent() {
   // Memoized filter application for performance with 100+ booths
   const computedFilteredBooths = useMemo(() => {
     let filtered = [...booths];
+
+    if (filters.analogOnly) {
+      filtered = filtered.filter((booth) => booth.booth_type === 'analog' || booth.booth_type === 'chemical');
+    }
+
+    if (filters.verifiedWindow) {
+      const threshold = new Date();
+      threshold.setDate(threshold.getDate() - filters.verifiedWindow);
+      filtered = filtered.filter((booth) => {
+        const lastVerified = booth.last_verified || booth.source_verified_date || booth.last_checked_at;
+        return lastVerified ? new Date(lastVerified) >= threshold : false;
+      });
+    }
 
     // City filter
     if (selectedCity && selectedCity !== 'all') {
@@ -158,6 +213,8 @@ function MapContent() {
     setFilters({ status: 'all' });
     setSelectedCity('all');
     setSelectedCountry('all');
+    setPage(0);
+    setHasMore(true);
   }, []);
 
   // Get unique cities and countries for filter dropdowns - memoized for performance
@@ -167,6 +224,14 @@ function MapContent() {
   );
   const countries = useMemo(
     () => Array.from(new Set(booths.map((b) => b.country).filter(Boolean))).sort(),
+    [booths]
+  );
+  const machineModels = useMemo(
+    () => Array.from(new Set(booths.map((b) => b.machine_model).filter(Boolean))).sort(),
+    [booths]
+  );
+  const operators = useMemo(
+    () => Array.from(new Set(booths.map((b) => b.operator_name).filter(Boolean))).sort(),
     [booths]
   );
 
@@ -299,6 +364,38 @@ function MapContent() {
                 </Select>
               </div>
 
+              {/* Verification freshness */}
+              <div>
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium text-muted-foreground mb-2 block">
+                    Verified recently
+                  </label>
+                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                </div>
+                <Select
+                  value={(filters.verifiedWindow ?? 0).toString()}
+                  onValueChange={(value) =>
+                    setFilters({
+                      ...filters,
+                      verifiedWindow: value === '0' ? undefined : Number(value),
+                    })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="0">Any recency</SelectItem>
+                    <SelectItem value="30">Last 30 days</SelectItem>
+                    <SelectItem value="90">Last 90 days</SelectItem>
+                    <SelectItem value="180">Last 6 months</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground mt-2">
+                  Prioritize booths with fresh checks and verified primary sources.
+                </p>
+              </div>
+
               {/* Photo Type Filter */}
               <div>
                 <label className="text-sm font-medium text-muted-foreground mb-2 block">
@@ -321,6 +418,18 @@ function MapContent() {
                 </Select>
               </div>
 
+              {/* Analog & Chemical Only */}
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Analog & chemical only</p>
+                  <p className="text-xs text-muted-foreground">Hide digital and instant booths.</p>
+                </div>
+                <Switch
+                  checked={filters.analogOnly ?? false}
+                  onCheckedChange={(checked) => setFilters({ ...filters, analogOnly: checked })}
+                />
+              </div>
+
               {/* Machine Model Filter */}
               <div>
                 <label className="text-sm font-medium text-muted-foreground mb-2 block">
@@ -337,10 +446,34 @@ function MapContent() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Models</SelectItem>
-                    <SelectItem value="Photo-Me Model 9">Photo-Me Model 9</SelectItem>
-                    <SelectItem value="Photo-Me Model 11">Photo-Me Model 11</SelectItem>
-                    <SelectItem value="Photomatic Deluxe">Photomatic Deluxe</SelectItem>
-                    <SelectItem value="Other">Other</SelectItem>
+                    {machineModels.map((model) => (
+                      <SelectItem key={model} value={model}>
+                        {model}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Operator Filter */}
+              <div>
+                <label className="text-sm font-medium text-muted-foreground mb-2 block">Operator</label>
+                <Select
+                  value={filters.operator || 'all'}
+                  onValueChange={(value) =>
+                    setFilters({ ...filters, operator: value === 'all' ? undefined : value })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="All operators" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Operators</SelectItem>
+                    {operators.map((operator) => (
+                      <SelectItem key={operator} value={operator}>
+                        {operator}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -374,6 +507,8 @@ function MapContent() {
                 filters.photoType ||
                 filters.machineModel ||
                 filters.operator ||
+                filters.analogOnly ||
+                filters.verifiedWindow ||
                 (filters.status && filters.status !== 'all') ||
                 filters.payment) && (
                 <div>
@@ -400,11 +535,30 @@ function MapContent() {
                         </button>
                       </Badge>
                     )}
+                    {filters.analogOnly && (
+                      <Badge variant="secondary">
+                        Analog & chemical
+                        <button onClick={() => setFilters({ ...filters, analogOnly: false })} className="ml-1">
+                          ×
+                        </button>
+                      </Badge>
+                    )}
                     {filters.location && (
                       <Badge variant="secondary">
                         Location: {filters.location}
                         <button
                           onClick={() => setFilters({ ...filters, location: undefined })}
+                          className="ml-1"
+                        >
+                          ×
+                        </button>
+                      </Badge>
+                    )}
+                    {filters.verifiedWindow && (
+                      <Badge variant="secondary">
+                        Verified &lt; {filters.verifiedWindow} days
+                        <button
+                          onClick={() => setFilters({ ...filters, verifiedWindow: undefined })}
                           className="ml-1"
                         >
                           ×
@@ -433,6 +587,33 @@ function MapContent() {
                         </button>
                       </Badge>
                     )}
+                    {filters.operator && (
+                      <Badge variant="secondary">
+                        Operator: {filters.operator}
+                        <button
+                          onClick={() => setFilters({ ...filters, operator: undefined })}
+                          className="ml-1"
+                        >
+                          ×
+                        </button>
+                      </Badge>
+                    )}
+                    {filters.status && filters.status !== 'all' && (
+                      <Badge variant="secondary">
+                        Status: {filters.status}
+                        <button onClick={() => setFilters({ ...filters, status: 'all' })} className="ml-1">
+                          ×
+                        </button>
+                      </Badge>
+                    )}
+                    {filters.payment && (
+                      <Badge variant="secondary">
+                        Payment: {filters.payment}
+                        <button onClick={() => setFilters({ ...filters, payment: undefined })} className="ml-1">
+                          ×
+                        </button>
+                      </Badge>
+                    )}
                   </div>
                 </div>
               )}
@@ -442,7 +623,7 @@ function MapContent() {
             <div className="mt-6 pt-6 border-t border-primary/10">
               <div className="text-sm text-muted-foreground">
                 Showing <span className="font-semibold text-foreground">{filteredBooths.length}</span> of{' '}
-                <span className="font-semibold text-foreground">{booths.length}</span> booths
+                <span className="font-semibold text-foreground">{serverCount ?? booths.length}</span> booths
               </div>
             </div>
           </aside>
@@ -485,7 +666,7 @@ function MapContent() {
                       No booths found
                     </h3>
                     <p className="text-muted-foreground mb-4">
-                      Try adjusting your filters or search term.
+                      Help Alexandra find the next booth by widening the search or clearing filters.
                     </p>
                     <Button onClick={clearFilters}>Clear Filters</Button>
                   </div>
@@ -499,6 +680,13 @@ function MapContent() {
                         showDistance={sortByDistance && userLocation !== null}
                       />
                     ))}
+                  </div>
+                )}
+                {hasMore && filteredBooths.length > 0 && (
+                  <div className="mt-8 text-center">
+                    <Button onClick={fetchBooths} disabled={isLoadingMore} variant="outline">
+                      {isLoadingMore ? 'Loading more booths...' : 'Load more verified booths'}
+                    </Button>
                   </div>
                 )}
               </div>

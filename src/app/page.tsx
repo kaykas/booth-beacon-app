@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { Suspense } from 'react';
-import { MapPin, Bookmark, Camera, Search } from 'lucide-react';
+import { MapPin, Bookmark, Camera, Search, ShieldCheck, Clock3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { BoothCard } from '@/components/booth/BoothCard';
@@ -105,8 +105,8 @@ async function getBoothStats(): Promise<{ totalBooths: number; countries: number
   };
 }
 
-// ISR: Revalidate home page every hour
-export const revalidate = 3600;
+// ISR: Revalidate home page every 15 minutes to keep verification data fresh
+export const revalidate = 900;
 
 export default async function Home() {
   const [featuredBooths, mapBooths, stats] = await Promise.all([
@@ -114,6 +114,16 @@ export default async function Home() {
     getMapBooths(),
     getBoothStats(),
   ]);
+
+  const latestVerification = featuredBooths
+    .map((booth) => booth.last_verified || booth.source_verified_date || booth.last_checked_at)
+    .filter(Boolean)
+    .sort()
+    .pop();
+
+  const primarySources = Array.from(
+    new Set(featuredBooths.map((booth) => booth.primary_source || booth.source_primary).filter(Boolean))
+  );
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -221,6 +231,24 @@ export default async function Home() {
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               From Berlin dive bars to Brooklyn train stations, find authentic analog photo booths near you.
             </p>
+            <div className="flex flex-col md:flex-row items-center justify-center gap-3 mt-4">
+              <div className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-700 px-4 py-2 rounded-full text-sm font-medium">
+                <ShieldCheck className="w-4 h-4" />
+                Verified locations
+                {latestVerification && (
+                  <span className="inline-flex items-center gap-1 text-emerald-800">
+                    <Clock3 className="w-4 h-4" />
+                    Last checked {new Date(latestVerification).toLocaleDateString()}
+                  </span>
+                )}
+              </div>
+              {primarySources.length > 0 && (
+                <p className="text-sm text-muted-foreground">
+                  Primary sources: {primarySources.slice(0, 3).join(', ')}
+                  {primarySources.length > 3 ? ' +' + (primarySources.length - 3) + ' more' : ''}
+                </p>
+              )}
+            </div>
           </div>
 
           {/* Filter Chips */}
