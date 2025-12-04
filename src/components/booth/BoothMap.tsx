@@ -436,9 +436,13 @@ function createInfoWindowContent(booth: Booth): string {
   // Check if AI preview URL is the broken Unsplash Source API
   const isBrokenUnsplashUrl = booth.ai_preview_url?.includes('source.unsplash.com');
 
-  // Use photo_exterior_url, or ai_preview_url only if it's not broken
-  const photoUrl = booth.photo_exterior_url || (!isBrokenUnsplashUrl ? booth.ai_preview_url : null) || '/placeholder-booth.svg';
-  const hasAiPreview = booth.ai_preview_url && !booth.photo_exterior_url && !isBrokenUnsplashUrl;
+  // Priority: photo_exterior_url > ai_generated_image_url > ai_preview_url (if not broken)
+  const photoUrl = booth.photo_exterior_url
+    || booth.ai_generated_image_url
+    || (!isBrokenUnsplashUrl ? booth.ai_preview_url : null)
+    || '/placeholder-booth.svg';
+  const hasAiGenerated = booth.ai_generated_image_url && !booth.photo_exterior_url;
+  const hasAiPreview = booth.ai_preview_url && !booth.photo_exterior_url && !booth.ai_generated_image_url && !isBrokenUnsplashUrl;
 
   // Trigger AI preview generation if booth has no photo and no AI preview (or broken one)
   if (!booth.photo_exterior_url && (!booth.ai_preview_url || isBrokenUnsplashUrl)) {
@@ -459,8 +463,10 @@ function createInfoWindowContent(booth: Booth): string {
   const address = booth.address || 'Address not available';
   const displayAddress = address.length > 40 ? address.substring(0, 37) + '...' : address;
 
-  // AI Preview badge HTML - smaller and tighter
-  const aiBadge = hasAiPreview
+  // AI badge HTML - smaller and tighter
+  const aiBadge = hasAiGenerated
+    ? `<div style="position: absolute; bottom: 6px; right: 6px; background: rgba(147, 51, 234, 0.9); backdrop-filter: blur(4px); color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 600; letter-spacing: 0.5px;">✨ AI ART</div>`
+    : hasAiPreview
     ? `<div style="position: absolute; bottom: 6px; right: 6px; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(4px); color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 600; letter-spacing: 0.5px;">AI PREVIEW</div>`
     : '';
 

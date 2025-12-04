@@ -30,9 +30,13 @@ export function BoothCard({
   // Check if AI preview URL is the broken Unsplash Source API
   const isBrokenUnsplashUrl = booth.ai_preview_url?.includes('source.unsplash.com');
 
-  // Use photo_exterior_url, or ai_preview_url only if it's not broken
-  const imageUrl = booth.photo_exterior_url || (!isBrokenUnsplashUrl ? booth.ai_preview_url : null) || '/placeholder-booth.svg';
-  const hasAiPreview = booth.ai_preview_url && !booth.photo_exterior_url && !isBrokenUnsplashUrl;
+  // Priority: photo_exterior_url > ai_generated_image_url > ai_preview_url (if not broken)
+  const imageUrl = booth.photo_exterior_url
+    || booth.ai_generated_image_url
+    || (!isBrokenUnsplashUrl ? booth.ai_preview_url : null)
+    || '/placeholder-booth.svg';
+  const hasAiGenerated = booth.ai_generated_image_url && !booth.photo_exterior_url;
+  const hasAiPreview = booth.ai_preview_url && !booth.photo_exterior_url && !booth.ai_generated_image_url && !isBrokenUnsplashUrl;
 
   return (
     <div className="group relative bg-white rounded-lg shadow-photo overflow-hidden transition-transform hover:scale-[1.02]">
@@ -51,6 +55,11 @@ export function BoothCard({
             className="object-cover"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
+          {hasAiGenerated && (
+            <span className="absolute bottom-2 right-2 px-2 py-1 bg-purple-600/80 text-white text-xs rounded flex items-center gap-1">
+              <span className="text-[10px]">✨</span> AI Art
+            </span>
+          )}
           {hasAiPreview && (
             <span className="absolute bottom-2 right-2 px-2 py-1 bg-black/60 text-white text-xs rounded">
               AI Preview

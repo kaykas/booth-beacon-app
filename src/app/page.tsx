@@ -34,7 +34,7 @@ async function getFeaturedBooths(): Promise<Booth[]> {
   const { data, error } = await supabase
     .from('booths')
     .select(
-      `id, name, slug, city, country, latitude, longitude, photo_exterior_url, photo_interior_url, photo_sample_strips, status, is_operational, updated_at`
+      `id, name, slug, city, country, latitude, longitude, photo_exterior_url, photo_interior_url, photo_sample_strips, ai_preview_url, ai_generated_image_url, status, is_operational, updated_at`
     )
     .eq('status', 'active')
     .eq('is_operational', true)
@@ -60,7 +60,7 @@ async function getMapBooths(): Promise<Booth[]> {
   const { data, error } = await supabase
     .from('booths')
     .select(
-      `id, name, slug, city, country, latitude, longitude, photo_exterior_url, status, is_operational`
+      `id, name, slug, city, country, latitude, longitude, photo_exterior_url, ai_preview_url, ai_generated_image_url, status, is_operational`
     )
     .eq('status', 'active')
     .eq('is_operational', true)
