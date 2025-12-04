@@ -41,9 +41,6 @@ export function generateCityTourMapUrl(options: MapUrlOptions): string {
   const maxWaypoints = 20;
   const selectedBooths = validBooths.slice(0, maxWaypoints);
 
-  // Create the map title with editorial attribution
-  const mapTitle = `Photo Booth Tour: ${city} | Curated by ${attribution}`;
-
   // Build the waypoints parameter
   // Format: waypoints=lat1,lng1|lat2,lng2|lat3,lng3
   const waypoints = selectedBooths
@@ -80,8 +77,8 @@ export function generateCityTourMapUrl(options: MapUrlOptions): string {
  */
 function generateSimplifiedTourMapUrl(
   booths: Booth[],
-  city: string,
-  attribution: string
+  _city: string,
+  _attribution: string
 ): string {
   const destination = `${booths[0].latitude},${booths[0].longitude}`;
   const waypoints = booths

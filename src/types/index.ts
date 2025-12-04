@@ -42,6 +42,15 @@ export interface Booth {
   cost?: string;
   accepts_cash: boolean;
   accepts_card: boolean;
+  website?: string;
+  instagram?: string;
+
+  // Google Places API integration
+  google_place_id?: string;
+  google_rating?: number;
+  google_user_ratings_total?: number;
+  google_photos?: string[];
+  google_website?: string;
 
   // Content
   description?: string;

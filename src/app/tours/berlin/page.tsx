@@ -1,6 +1,5 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import Image from 'next/image';
 import { MapPin, ArrowLeft, Camera, Clock, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -83,8 +82,8 @@ export default async function BerlinTourPage() {
             </h1>
 
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl">
-              Berlin's photo booth culture is legendary. From gritty Kreuzberg clubs to trendy Mitte cafes,
-              discover the city's most authentic analog photo spots. Each booth tells a story of Berlin's
+              Berlin&apos;s photo booth culture is legendary. From gritty Kreuzberg clubs to trendy Mitte cafes,
+              discover the city&apos;s most authentic analog photo spots. Each booth tells a story of Berlin&apos;s
               vibrant nightlife, artistic spirit, and love for analog nostalgia.
             </p>
 
@@ -145,26 +144,26 @@ export default async function BerlinTourPage() {
                 </Card>
               )}
 
-              {/* About Berlin's Scene */}
+              {/* About Berlin&apos;s Scene */}
               <Card className="p-6 card-vintage">
                 <h2 className="font-display text-2xl font-semibold mb-4 text-foreground">
-                  Berlin's Photo Booth Culture
+                  Berlin&apos;s Photo Booth Culture
                 </h2>
                 <div className="prose prose-invert max-w-none">
                   <p className="text-muted-foreground leading-relaxed mb-4">
-                    Berlin has one of Europe's most vibrant photo booth scenes. The city's DIY spirit and
-                    love for analog technology means you'll find vintage photobooths in the most unexpected
+                    Berlin has one of Europe&apos;s most vibrant photo booth scenes. The city&apos;s DIY spirit and
+                    love for analog technology means you&apos;ll find vintage photobooths in the most unexpected
                     places - from underground techno clubs to cozy neighborhood bars.
                   </p>
                   <p className="text-muted-foreground leading-relaxed mb-4">
-                    Many of Berlin's booths are lovingly maintained by passionate operators who source rare
+                    Many of Berlin&apos;s booths are lovingly maintained by passionate operators who source rare
                     machines from across Europe. Some use original photochemical processes, producing
                     authentic analog strips with that unmistakable vintage aesthetic.
                   </p>
                   <p className="text-muted-foreground leading-relaxed">
                     The best time to booth-hunt in Berlin? Late afternoon through evening, when cafes and
-                    bars come alive. Don't be surprised to find booths tucked away in unexpected corners -
-                    that's part of Berlin's charm.
+                    bars come alive. Don&apos;t be surprised to find booths tucked away in unexpected corners -
+                    that&apos;s part of Berlin&apos;s charm.
                   </p>
                 </div>
               </Card>
@@ -216,7 +215,7 @@ export default async function BerlinTourPage() {
                   </li>
                   <li className="flex gap-2">
                     <span className="text-primary">•</span>
-                    <span>Berlin's public transport is excellent - use the U-Bahn to hop between neighborhoods</span>
+                    <span>Berlin&apos;s public transport is excellent - use the U-Bahn to hop between neighborhoods</span>
                   </li>
                   <li className="flex gap-2">
                     <span className="text-primary">•</span>

@@ -1,6 +1,5 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import Image from 'next/image';
 import { MapPin, ArrowLeft, Camera, Clock, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -83,8 +82,8 @@ export default async function SanFranciscoTourPage() {
             </h1>
 
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl">
-              San Francisco's counterculture spirit lives on in its photo booth scene. From psychedelic
-              Mission District spots to vintage machines in North Beach, discover where the Bay Area's
+              San Francisco&apos;s counterculture spirit lives on in its photo booth scene. From psychedelic
+              Mission District spots to vintage machines in North Beach, discover where the Bay Area&apos;s
               free spirits have been capturing memories since the Summer of Love.
             </p>
 
@@ -148,23 +147,23 @@ export default async function SanFranciscoTourPage() {
               {/* About SF's Scene */}
               <Card className="p-6 card-vintage">
                 <h2 className="font-display text-2xl font-semibold mb-4 text-foreground">
-                  San Francisco's Bohemian Booth Culture
+                  San Francisco&apos;s Bohemian Booth Culture
                 </h2>
                 <div className="prose prose-invert max-w-none">
                   <p className="text-muted-foreground leading-relaxed mb-4">
-                    San Francisco's photo booth scene reflects the city's artistic soul. The Mission District,
+                    San Francisco&apos;s photo booth scene reflects the city&apos;s artistic soul. The Mission District,
                     with its vibrant murals and dive bars, houses some of the most characterful booths in
-                    America. Each one feels like a portal to SF's colorful past.
+                    America. Each one feels like a portal to SF&apos;s colorful past.
                   </p>
                   <p className="text-muted-foreground leading-relaxed mb-4">
-                    The city's independent spirit means many booths are maintained by passionate individuals
-                    who treat them as art installations. You'll find everything from pristine vintage
+                    The city&apos;s independent spirit means many booths are maintained by passionate individuals
+                    who treat them as art installations. You&apos;ll find everything from pristine vintage
                     machines to heavily customized modern setups with unique backdrops and lighting.
                   </p>
                   <p className="text-muted-foreground leading-relaxed">
-                    SF's temperate weather and walkable neighborhoods make booth hunting a joy year-round.
+                    SF&apos;s temperate weather and walkable neighborhoods make booth hunting a joy year-round.
                     Combine your tour with stops at iconic locations - many booths sit in legendary venues
-                    that defined San Francisco's music and art scenes.
+                    that defined San Francisco&apos;s music and art scenes.
                   </p>
                 </div>
               </Card>

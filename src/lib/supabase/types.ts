@@ -12,6 +12,40 @@ export type BoothType = 'analog' | 'chemical' | 'digital' | 'instant';
 export type PhotoType = 'black-and-white' | 'color' | 'both';
 export type ModerationStatus = 'pending' | 'approved' | 'rejected';
 
+// Google Places API Opening Hours type
+export interface GoogleOpeningHours {
+  open_now?: boolean;
+  periods?: Array<{
+    open: { day: number; time: string };
+    close?: { day: number; time: string };
+  }>;
+  weekday_text?: string[];
+}
+
+// Google Places API data stored in enrichments
+export interface GooglePlacesData {
+  place_id?: string;
+  name?: string;
+  formatted_address?: string;
+  rating?: number;
+  user_ratings_total?: number;
+  business_status?: string;
+  opening_hours?: GoogleOpeningHours;
+  formatted_phone_number?: string;
+  website?: string;
+  photos?: Array<{
+    photo_reference: string;
+    height: number;
+    width: number;
+  }>;
+  geometry?: {
+    location: {
+      lat: number;
+      lng: number;
+    };
+  };
+}
+
 // ============================================================================
 // Core Table Types
 // ============================================================================
@@ -82,7 +116,7 @@ export interface Booth {
   google_formatted_address: string | null;
   google_phone: string | null;
   google_website: string | null;
-  google_opening_hours: any | null;
+  google_opening_hours: GoogleOpeningHours | null;
 
   // Source tracking
   source_primary: string | null;
@@ -216,7 +250,7 @@ export interface BoothEnrichment {
   google_enriched_at: string | null;
   google_error: string | null;
   google_place_id: string | null;
-  google_data: any | null;
+  google_data: GooglePlacesData | null;
   created_at: string;
   updated_at: string;
 }

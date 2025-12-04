@@ -18,9 +18,9 @@ const supabase = createClient(
 );
 
 interface RouteParams {
-  params: {
+  params: Promise<{
     city: string;
-  };
+  }>;
 }
 
 /**
@@ -33,7 +33,7 @@ export async function GET(
   { params }: RouteParams
 ) {
   try {
-    const citySlug = params.city;
+    const { city: citySlug } = await params;
 
     // Convert slug to city name (e.g., "san-francisco" -> "San Francisco")
     const cityName = citySlug
@@ -89,7 +89,7 @@ export async function GET(
       title,
       description,
       attribution: 'Curated by Booth Beacon',
-      booths: booths.map((booth: any) => ({
+      booths: booths.map((booth: Booth) => ({
         id: booth.id,
         name: booth.name,
         address: booth.address,
@@ -97,10 +97,11 @@ export async function GET(
         longitude: booth.longitude,
       })),
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error generating map URL:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json(
-      { error: 'Internal server error', message: error.message },
+      { error: 'Internal server error', message: errorMessage },
       { status: 500 }
     );
   }

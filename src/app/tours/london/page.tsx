@@ -1,6 +1,5 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import Image from 'next/image';
 import { MapPin, ArrowLeft, Camera, Clock, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -83,7 +82,7 @@ export default async function LondonTourPage() {
             </h1>
 
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl">
-              London's photo booth heritage runs deep. From vintage machines in Soho to modern setups in
+              London&apos;s photo booth heritage runs deep. From vintage machines in Soho to modern setups in
               Shoreditch, the capital offers a perfect blend of British nostalgia and contemporary cool.
               These booths have witnessed decades of London life, from mod culture to modern hipsters.
             </p>
@@ -145,24 +144,24 @@ export default async function LondonTourPage() {
                 </Card>
               )}
 
-              {/* About London's Scene */}
+              {/* About London&apos;s Scene */}
               <Card className="p-6 card-vintage">
                 <h2 className="font-display text-2xl font-semibold mb-4 text-foreground">
-                  London's Photo Booth Heritage
+                  London&apos;s Photo Booth Heritage
                 </h2>
                 <div className="prose prose-invert max-w-none">
                   <p className="text-muted-foreground leading-relaxed mb-4">
-                    London has been home to photo booths since the 1920s. The city's pub culture and love
+                    London has been home to photo booths since the 1920s. The city&apos;s pub culture and love
                     for quirky traditions means many classic booths have been lovingly preserved in their
                     original locations, creating living museums of British social history.
                   </p>
                   <p className="text-muted-foreground leading-relaxed mb-4">
-                    East London's creative renaissance has brought new life to the booth scene, with
-                    Shoreditch and Hackney featuring some of Europe's coolest installations. Meanwhile,
+                    East London&apos;s creative renaissance has brought new life to the booth scene, with
+                    Shoreditch and Hackney featuring some of Europe&apos;s coolest installations. Meanwhile,
                     West End arcades and tourist spots maintain the classic British booth experience.
                   </p>
                   <p className="text-muted-foreground leading-relaxed">
-                    The Tube makes booth-hopping easy - many of London's best machines are within walking
+                    The Tube makes booth-hopping easy - many of London&apos;s best machines are within walking
                     distance of major stations. Pair your booth tour with proper pub visits for the full
                     British experience.
                   </p>

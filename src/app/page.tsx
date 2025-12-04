@@ -365,7 +365,7 @@ export default async function Home() {
                 Photo Tours
               </h2>
               <p className="text-lg text-muted-foreground">
-                Curated photo booth tours in the world's most iconic cities
+                Curated photo booth tours in the world&apos;s most iconic cities
               </p>
             </div>
           </div>

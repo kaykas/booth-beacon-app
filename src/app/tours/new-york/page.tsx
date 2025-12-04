@@ -1,6 +1,5 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import Image from 'next/image';
 import { MapPin, ArrowLeft, Camera, Clock, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -85,7 +84,7 @@ export default async function NewYorkTourPage() {
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl">
               New York City is the birthplace of the modern photo booth. From vintage machines in Brooklyn
               dive bars to iconic booths in Grand Central Terminal, discover where New Yorkers have been
-              capturing memories for generations. Each booth is a piece of the city's endless story.
+              capturing memories for generations. Each booth is a piece of the city&apos;s endless story.
             </p>
 
             {/* Stats */}
@@ -148,7 +147,7 @@ export default async function NewYorkTourPage() {
               {/* About NYC's Scene */}
               <Card className="p-6 card-vintage">
                 <h2 className="font-display text-2xl font-semibold mb-4 text-foreground">
-                  New York's Photo Booth Legacy
+                  New York&apos;s Photo Booth Legacy
                 </h2>
                 <div className="prose prose-invert max-w-none">
                   <p className="text-muted-foreground leading-relaxed mb-4">
@@ -157,13 +156,13 @@ export default async function NewYorkTourPage() {
                     analog setups, NYC offers an incredible diversity of booth experiences.
                   </p>
                   <p className="text-muted-foreground leading-relaxed mb-4">
-                    Brooklyn's creative scene has embraced photo booths as an art form, with many bars and
+                    Brooklyn&apos;s creative scene has embraced photo booths as an art form, with many bars and
                     venues featuring vintage machines as centerpieces. Manhattan still houses some historic
                     booths in unexpected locations - train stations, delis, and old-school arcades.
                   </p>
                   <p className="text-muted-foreground leading-relaxed">
-                    The city's 24/7 energy means many booths are accessible at all hours. Whether you're
-                    catching a late train at Grand Central or closing down a Brooklyn bar at 3am, there's
+                    The city&apos;s 24/7 energy means many booths are accessible at all hours. Whether you&apos;re
+                    catching a late train at Grand Central or closing down a Brooklyn bar at 3am, there&apos;s
                     always a booth nearby ready to capture the moment.
                   </p>
                 </div>
@@ -216,7 +215,7 @@ export default async function NewYorkTourPage() {
                   </li>
                   <li className="flex gap-2">
                     <span className="text-primary">•</span>
-                    <span>Brooklyn's best booths are in Williamsburg, Bushwick, and Park Slope</span>
+                    <span>Brooklyn&apos;s best booths are in Williamsburg, Bushwick, and Park Slope</span>
                   </li>
                   <li className="flex gap-2">
                     <span className="text-primary">•</span>
