@@ -65,7 +65,8 @@ async function getMapBooths(): Promise<Booth[]> {
     .eq('status', 'active')
     .eq('is_operational', true)
     .not('latitude', 'is', null)
-    .not('longitude', 'is', null);
+    .not('longitude', 'is', null)
+    .limit(5000);
 
   if (error) {
     console.error('Error fetching map booths:', error);
