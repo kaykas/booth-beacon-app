@@ -1,0 +1,6 @@
+# Maintenance and enrichment scripts
+*.ts
+!src/**/*.ts
+!src/**/*.tsx
+
+# Keep linting for source code only

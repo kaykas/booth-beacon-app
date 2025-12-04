@@ -252,7 +252,7 @@ export default function EnrichmentPage() {
             {/* Image Generation */}
             <Card className="p-6">
               <div className="flex items-center gap-3 mb-4">
-                <Image className="h-6 w-6 text-primary" aria-hidden="true" />
+                <Image className="h-6 w-6 text-primary" aria-hidden="true" alt="" />
                 <div>
                   <h2 className="text-xl font-semibold">AI Image Generation</h2>
                   <p className="text-sm text-muted-foreground">
