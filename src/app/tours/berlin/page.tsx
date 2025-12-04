@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { BoothCard } from '@/components/booth/BoothCard';
 import { BoothMap } from '@/components/booth/BoothMap';
+import { GoogleMapsButton } from '@/components/GoogleMapsButton';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { createPublicServerClient } from '@/lib/supabase';
@@ -117,9 +118,21 @@ export default async function BerlinTourPage() {
               {/* Map */}
               {validBooths.length > 0 && (
                 <Card className="p-6 card-vintage">
-                  <h2 className="font-display text-2xl font-semibold mb-4 text-foreground">
-                    Tour Map
-                  </h2>
+                  <div className="flex justify-between items-start mb-4">
+                    <h2 className="font-display text-2xl font-semibold text-foreground">
+                      Tour Map
+                    </h2>
+                    <GoogleMapsButton
+                      city="Berlin"
+                      booths={booths}
+                      variant="primary"
+                      size="sm"
+                    />
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Explore all {booths.length} photo booths across Berlin.
+                    Open in Google Maps to save your custom tour and navigate with turn-by-turn directions.
+                  </p>
                   <div className="h-[500px] rounded-lg overflow-hidden shadow-photo vignette">
                     <BoothMap
                       booths={booths}
