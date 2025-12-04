@@ -39,11 +39,12 @@ function MapContent() {
   
   const searchParams = useSearchParams();
   const [autoCenter, setAutoCenter] = useState(false);
+  const [shouldCenterOnLoad, setShouldCenterOnLoad] = useState(false);
 
   useEffect(() => {
     if (searchParams.get('nearme') === 'true') {
       setSortByDistance(true);
-      setAutoCenter(true);
+      setShouldCenterOnLoad(true);
     }
   }, [searchParams]);
 
@@ -90,6 +91,13 @@ function MapContent() {
       );
     }
   }, []);
+
+  // Enable auto-center once we have user location (for "Near Me" feature)
+  useEffect(() => {
+    if (shouldCenterOnLoad && userLocation && !autoCenter) {
+      setAutoCenter(true);
+    }
+  }, [shouldCenterOnLoad, userLocation, autoCenter]);
 
   // Memoized filter application for performance with 100+ booths
   const computedFilteredBooths = useMemo(() => {

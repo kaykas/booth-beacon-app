@@ -42,6 +42,13 @@ const eslintConfig = defineConfig([
     "verify-*.ts",
     "sample-*.ts",
     "batch-*.ts",
+    "enrich-*.ts",
+    "apply-*.ts",
+    "autonomous-*.ts",
+    "geocode-*.ts",
+    "generate-*.ts",
+    "venue-*.ts",
+    "bulk-*.ts",
     "improved-extraction.ts",
     // Maintenance scripts directory:
     "scripts/maintenance/**",
