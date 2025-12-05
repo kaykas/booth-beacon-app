@@ -21,6 +21,12 @@ interface SearchResult {
   type: 'booth' | 'city' | 'country';
 }
 
+// Sanitize search term to prevent SQL injection via LIKE patterns
+const sanitizeSearchTerm = (term: string): string => {
+  // Escape special characters used in SQL LIKE patterns: %, _, and \
+  return term.replace(/[%_\\]/g, '\\$&');
+};
+
 export function SearchBar({
   placeholder = 'Search by city, country, or booth name...',
   className = '',
@@ -57,7 +63,7 @@ export function SearchBar({
     const searchTimeout = setTimeout(async () => {
       setIsLoading(true);
       try {
-        const searchTerm = query.toLowerCase().trim();
+        const searchTerm = sanitizeSearchTerm(query.toLowerCase().trim());
 
         // Search booths
         const { data: booths, error } = await supabase
