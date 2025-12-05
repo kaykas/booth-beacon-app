@@ -113,6 +113,7 @@ async function getBoothStats(): Promise<{ totalBooths: number; countries: number
 
 // ISR: Revalidate home page every hour
 export const revalidate = 3600;
+// Force cache clear: 2025-12-05
 
 export default async function Home() {
   const [featuredBooths, mapBooths, stats] = await Promise.all([
