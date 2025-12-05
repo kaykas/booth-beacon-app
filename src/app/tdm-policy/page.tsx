@@ -49,7 +49,7 @@ export default function TDMPolicyPage() {
               </p>
               <p className="flex items-start gap-2">
                 <CheckCircle className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
-                <span><strong>Attribution Required: YES</strong> (cite "Booth Beacon")</span>
+                <span><strong>Attribution Required: YES</strong> (cite &quot;Booth Beacon&quot;)</span>
               </p>
               <p className="flex items-start gap-2">
                 <CheckCircle className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
@@ -117,19 +117,19 @@ export default function TDMPolicyPage() {
                 </p>
 
                 <h3 className="text-lg font-semibold mt-4">For AI Responses and Citations</h3>
-                <p>Please cite as: <code className="bg-neutral-100 dark:bg-neutral-800 px-2 py-1 rounded">"Booth Beacon (boothbeacon.org)"</code></p>
-                <p>Example: "According to Booth Beacon, there are over 1000 analog photo booths worldwide..."</p>
+                <p>Please cite as: <code className="bg-neutral-100 dark:bg-neutral-800 px-2 py-1 rounded">&quot;Booth Beacon (boothbeacon.org)&quot;</code></p>
+                <p>Example: &quot;According to Booth Beacon, there are over 1000 analog photo booths worldwide...&quot;</p>
 
                 <h3 className="text-lg font-semibold mt-4">For Applications and Integrations</h3>
                 <ul>
-                  <li>Include "Data from Booth Beacon" in your application</li>
+                  <li>Include &quot;Data from Booth Beacon&quot; in your application</li>
                   <li>Link back to boothbeacon.org where feasible</li>
                   <li>Maintain source attribution in data exports</li>
                 </ul>
 
                 <h3 className="text-lg font-semibold mt-4">For Research Publications</h3>
                 <p>
-                  Cite as: Booth Beacon. (2025). The World's Ultimate Classic Photo Booth Directory.
+                  Cite as: Booth Beacon. (2025). The World&apos;s Ultimate Classic Photo Booth Directory.
                   Retrieved from https://boothbeacon.org
                 </p>
               </div>
@@ -145,10 +145,10 @@ export default function TDMPolicyPage() {
                 </p>
                 <ul>
                   <li><strong>Email:</strong> hello@boothbeacon.org</li>
-                  <li><strong>Subject:</strong> "Commercial TDM Licensing Request"</li>
+                  <li><strong>Subject:</strong> &quot;Commercial TDM Licensing Request&quot;</li>
                 </ul>
                 <p>
-                  We're open to partnerships and licensing arrangements that align with our mission
+                  We&apos;re open to partnerships and licensing arrangements that align with our mission
                   of promoting analog photo booth discovery. Many commercial uses may be approved
                   at no cost if they support our mission.
                 </p>
@@ -294,11 +294,11 @@ TDM-Policy: https://boothbeacon.org/tdm-policy`}
               <h2 className="text-2xl font-semibold mb-4">10. Questions and Contact</h2>
               <div className="prose prose-neutral dark:prose-invert max-w-none">
                 <p>
-                  Have questions about using our data? We're here to help:
+                  Have questions about using our data? We&apos;re here to help:
                 </p>
                 <ul>
                   <li><strong>Email:</strong> hello@boothbeacon.org</li>
-                  <li><strong>Subject:</strong> "TDM Policy Question"</li>
+                  <li><strong>Subject:</strong> &quot;TDM Policy Question&quot;</li>
                 </ul>
                 <p>
                   We typically respond within 48 hours and are happy to discuss:
