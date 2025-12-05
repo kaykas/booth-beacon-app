@@ -51,14 +51,14 @@ function MapContent() {
   const fetchBooths = useCallback(async () => {
     setLoading(true);
 
-    let query = supabase.from('booths').select('*');
+    let query = supabase.from('booths').select('*').limit(10000);
 
     // Apply status filter to the query if not "all"
     if (filters.status && filters.status !== 'all') {
       query = query.eq('status', filters.status);
     }
 
-    const { data, error } = await query;
+    const { data, error} = await query;
 
     if (error) {
       console.error('Error fetching booths:', error);
