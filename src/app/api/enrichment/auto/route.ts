@@ -18,10 +18,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { calculateQualityScore, determineEnrichmentNeeds, type BoothQualityData } from '@/lib/dataQuality';
+import { getRequiredEnv } from '@/lib/utils';
 
 const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
+  getRequiredEnv('NEXT_PUBLIC_SUPABASE_URL'),
+  getRequiredEnv('SUPABASE_SERVICE_ROLE_KEY')
 );
 
 interface EnrichmentRequest {
@@ -39,6 +40,7 @@ interface EnrichmentResult {
 
 async function enrichBooth(boothId: string): Promise<EnrichmentResult> {
   const enrichmentsApplied: string[] = [];
+  const errors: string[] = [];
 
   try {
     // Fetch booth data
@@ -79,16 +81,25 @@ async function enrichBooth(boothId: string): Promise<EnrichmentResult> {
           );
           if (venueResponse.ok) {
             enrichmentsApplied.push('venue');
+          } else {
+            const errorMsg = `Venue enrichment returned status ${venueResponse.status}`;
+            errors.push(errorMsg);
+            console.error(errorMsg);
           }
         } finally {
           clearTimeout(timeoutId);
         }
       } catch (error) {
-        if (error instanceof Error && error.name === 'AbortError') {
-          console.error('Venue enrichment timed out after 30 seconds');
-        } else {
-          console.error('Venue enrichment failed:', error);
+        let errorMsg = 'Venue enrichment failed';
+        if (error instanceof Error) {
+          if (error.name === 'AbortError') {
+            errorMsg = 'Venue enrichment timed out after 30 seconds';
+          } else {
+            errorMsg = `Venue enrichment failed: ${error.message}`;
+          }
         }
+        errors.push(errorMsg);
+        console.error(errorMsg);
       }
     }
 
@@ -105,16 +116,25 @@ async function enrichBooth(boothId: string): Promise<EnrichmentResult> {
           );
           if (imageResponse.ok) {
             enrichmentsApplied.push('image');
+          } else {
+            const errorMsg = `Image enrichment returned status ${imageResponse.status}`;
+            errors.push(errorMsg);
+            console.error(errorMsg);
           }
         } finally {
           clearTimeout(timeoutId);
         }
       } catch (error) {
-        if (error instanceof Error && error.name === 'AbortError') {
-          console.error('Image enrichment timed out after 30 seconds');
-        } else {
-          console.error('Image enrichment failed:', error);
+        let errorMsg = 'Image enrichment failed';
+        if (error instanceof Error) {
+          if (error.name === 'AbortError') {
+            errorMsg = 'Image enrichment timed out after 30 seconds';
+          } else {
+            errorMsg = `Image enrichment failed: ${error.message}`;
+          }
         }
+        errors.push(errorMsg);
+        console.error(errorMsg);
       }
     }
 
@@ -134,14 +154,17 @@ async function enrichBooth(boothId: string): Promise<EnrichmentResult> {
       initialScore: initialScore.score,
       finalScore: finalScore.score,
       enrichmentsApplied,
-      success: true,
+      errors: errors.length > 0 ? errors : undefined,
+      success: enrichmentsApplied.length > 0 || initialScore.score >= 80,
     };
-  } catch (_error) {
+  } catch (error) {
+    const errorMsg = error instanceof Error ? error.message : 'Unknown error';
     return {
       boothId,
       initialScore: 0,
       finalScore: 0,
       enrichmentsApplied,
+      errors: [errorMsg],
       success: false,
     };
   }
