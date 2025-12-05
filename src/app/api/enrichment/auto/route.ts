@@ -33,6 +33,7 @@ interface EnrichmentResult {
   initialScore: number;
   finalScore: number;
   enrichmentsApplied: string[];
+  errors?: string[];
   success: boolean;
 }
 
@@ -68,28 +69,52 @@ async function enrichBooth(boothId: string): Promise<EnrichmentResult> {
     // Apply venue enrichment if needed
     if (needs.needsVenueData) {
       try {
-        const venueResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/enrichment/venue?batchSize=1&boothId=${boothId}`
-        );
-        if (venueResponse.ok) {
-          enrichmentsApplied.push('venue');
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
+        try {
+          const venueResponse = await fetch(
+            `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/enrichment/venue?batchSize=1&boothId=${boothId}`,
+            { signal: controller.signal }
+          );
+          if (venueResponse.ok) {
+            enrichmentsApplied.push('venue');
+          }
+        } finally {
+          clearTimeout(timeoutId);
         }
       } catch (error) {
-        console.error('Venue enrichment failed:', error);
+        if (error instanceof Error && error.name === 'AbortError') {
+          console.error('Venue enrichment timed out after 30 seconds');
+        } else {
+          console.error('Venue enrichment failed:', error);
+        }
       }
     }
 
     // Apply image generation if needed
     if (needs.needsImage) {
       try {
-        const imageResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/enrichment/images?batchSize=1&boothId=${boothId}`
-        );
-        if (imageResponse.ok) {
-          enrichmentsApplied.push('image');
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
+        try {
+          const imageResponse = await fetch(
+            `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/enrichment/images?batchSize=1&boothId=${boothId}`,
+            { signal: controller.signal }
+          );
+          if (imageResponse.ok) {
+            enrichmentsApplied.push('image');
+          }
+        } finally {
+          clearTimeout(timeoutId);
         }
       } catch (error) {
-        console.error('Image enrichment failed:', error);
+        if (error instanceof Error && error.name === 'AbortError') {
+          console.error('Image enrichment timed out after 30 seconds');
+        } else {
+          console.error('Image enrichment failed:', error);
+        }
       }
     }
 
