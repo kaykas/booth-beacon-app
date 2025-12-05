@@ -103,7 +103,7 @@ export default function APIDocsPage() {
                   </div>
                   <div className="flex items-start gap-2">
                     <code className="bg-neutral-100 dark:bg-neutral-800 px-2 py-1 rounded text-xs">country</code>
-                    <span className="text-sm text-muted-foreground">Filter by country (e.g., "United States", "Germany")</span>
+                    <span className="text-sm text-muted-foreground">Filter by country (e.g., &quot;United States&quot;, &quot;Germany&quot;)</span>
                   </div>
                   <div className="flex items-start gap-2">
                     <code className="bg-neutral-100 dark:bg-neutral-800 px-2 py-1 rounded text-xs">city</code>
@@ -398,7 +398,7 @@ export default function APIDocsPage() {
                     When using our API data, please provide attribution:
                   </p>
                   <code className="block bg-background p-3 rounded text-sm">
-                    "Data from Booth Beacon (boothbeacon.org)"
+                    &quot;Data from Booth Beacon (boothbeacon.org)&quot;
                   </code>
                 </div>
                 <div>
@@ -426,8 +426,8 @@ export default function APIDocsPage() {
           <Card className="p-8 bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20 text-center">
             <h2 className="text-2xl font-semibold mb-4">Questions or Need Help?</h2>
             <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
-              We're here to help you integrate Booth Beacon data into your application.
-              Whether you're building an AI agent, travel app, or research project, we'd love to hear from you.
+              We&apos;re here to help you integrate Booth Beacon data into your application.
+              Whether you&apos;re building an AI agent, travel app, or research project, we&apos;d love to hear from you.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a

@@ -36,7 +36,7 @@ export default function TDMPolicyPage() {
           <Card className="p-6 bg-primary/5 border-primary/20 mb-8">
             <h2 className="text-2xl font-semibold mb-4 flex items-center gap-2">
               <CheckCircle className="w-6 h-6 text-primary" />
-              TL;DR: We're AI-Friendly
+              TL;DR: We&apos;re AI-Friendly
             </h2>
             <div className="space-y-2 text-lg">
               <p className="flex items-start gap-2">

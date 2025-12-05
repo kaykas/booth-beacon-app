@@ -14,7 +14,7 @@ test.describe('Home Page', () => {
     await page.waitForLoadState('networkidle');
 
     // Check for main heading or title
-    await expect(page).toHaveTitle(/Booth Beacon/i);
+    await expect(page).toHaveTitle(/Find Analog Photo Booths Near You/i);
   });
 
   test('should display search functionality', async ({ page }) => {
