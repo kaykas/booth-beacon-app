@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/lib/auth/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { BoothBookmark, Booth } from '@/types';
+import { Database } from '@/lib/supabase/types';
 import { toast } from 'sonner';
 
 export interface BookmarkWithBooth extends BoothBookmark {
@@ -137,14 +138,14 @@ export function useToggleBookmark() {
         return false;
       } else {
         // Add bookmark
+        const insertData: Database['public']['Tables']['booth_bookmarks']['Insert'] = {
+          user_id: user.id,
+          booth_id: boothId,
+          visited: false,
+        };
         const { error } = await supabase
           .from('booth_bookmarks')
-          // @ts-expect-error - Supabase typing issue
-          .insert({
-            user_id: user.id,
-            booth_id: boothId,
-            visited: false,
-          })
+          .insert(insertData)
           .select()
           .single();
 
@@ -176,13 +177,13 @@ export function useMarkVisited() {
     setLoading(true);
 
     try {
+      const updateData: Database['public']['Tables']['booth_bookmarks']['Update'] = {
+        visited,
+        visited_at: visited ? new Date().toISOString() : null,
+      };
       const { error } = await supabase
         .from('booth_bookmarks')
-        // @ts-expect-error - Supabase typing issue
-        .update({
-          visited,
-          visited_at: visited ? new Date().toISOString() : null,
-        })
+        .update(updateData)
         .eq('id', bookmarkId);
 
       if (error) throw error;
@@ -212,10 +213,12 @@ export function useUpdateNotes() {
     setLoading(true);
 
     try {
+      const updateData: Database['public']['Tables']['booth_bookmarks']['Update'] = {
+        notes,
+      };
       const { error } = await supabase
         .from('booth_bookmarks')
-        // @ts-expect-error - Supabase typing issue
-        .update({ notes })
+        .update(updateData)
         .eq('id', bookmarkId);
 
       if (error) throw error;
