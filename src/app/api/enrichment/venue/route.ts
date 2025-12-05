@@ -14,13 +14,14 @@
 import { NextRequest } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { calculateQualityScore, determineEnrichmentNeeds, type BoothQualityData } from '@/lib/dataQuality';
+import { getRequiredEnv } from '@/lib/utils';
 
 const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
+  getRequiredEnv('NEXT_PUBLIC_SUPABASE_URL'),
+  getRequiredEnv('SUPABASE_SERVICE_ROLE_KEY')
 );
 
-const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY_BACKEND!;
+const GOOGLE_MAPS_API_KEY = getRequiredEnv('GOOGLE_MAPS_API_KEY_BACKEND');
 
 interface LogEvent {
   type: 'info' | 'error' | 'success' | 'progress' | 'warning';
@@ -129,6 +130,9 @@ async function searchGooglePlaces(query: string): Promise<PlaceSearchResult[]> {
   url.searchParams.append('key', GOOGLE_MAPS_API_KEY);
 
   const response = await fetch(url.toString());
+  if (!response.ok) {
+    throw new Error(`Google Places API error: ${response.status} ${response.statusText}`);
+  }
   const data = await response.json();
 
   if (data.status === 'OK' && data.results) {
@@ -149,6 +153,9 @@ async function nearbySearch(lat: number, lng: number, keyword: string): Promise<
   url.searchParams.append('key', GOOGLE_MAPS_API_KEY);
 
   const response = await fetch(url.toString());
+  if (!response.ok) {
+    throw new Error(`Google Places API error: ${response.status} ${response.statusText}`);
+  }
   const data = await response.json();
 
   if (data.status === 'OK' && data.results) {
@@ -168,6 +175,9 @@ async function getPlaceDetails(placeId: string): Promise<PlaceDetails | null> {
   url.searchParams.append('key', GOOGLE_MAPS_API_KEY);
 
   const response = await fetch(url.toString());
+  if (!response.ok) {
+    throw new Error(`Google Places API error: ${response.status} ${response.statusText}`);
+  }
   const data = await response.json();
 
   if (data.status === 'OK' && data.result) {
