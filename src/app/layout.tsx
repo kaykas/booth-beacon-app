@@ -3,6 +3,7 @@ import { Fraunces, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth/AuthContext";
 import { Toaster } from "@/components/ui/sonner";
+import { generateOrganizationSchema, injectStructuredData } from "@/lib/seo/structuredData";
 
 const fraunces = Fraunces({
   variable: "--font-display",
@@ -46,10 +47,16 @@ export const metadata: Metadata = {
     'film photo booth',
     'instant photos',
     'photo booth directory',
+    'photo booth locator',
+    'retro photo booth',
+    '35mm photo booth',
+    'chemical photo booth',
+    'photo booth near me',
   ],
   authors: [{ name: 'Booth Beacon' }],
   creator: 'Booth Beacon',
   publisher: 'Booth Beacon',
+  category: 'Travel & Entertainment',
   robots: {
     index: true,
     follow: true,
@@ -83,12 +90,18 @@ export const metadata: Metadata = {
     description: 'Discover authentic analog photo booths around the world. The ultimate directory of vintage photochemical machines.',
     images: ['/og-image.png'],
     creator: '@boothbeacon',
+    site: '@boothbeacon',
   },
   alternates: {
     canonical: 'https://boothbeacon.org',
   },
   verification: {
     google: 'your-google-verification-code',
+  },
+  other: {
+    'mobile-web-app-capable': 'yes',
+    'apple-mobile-web-app-capable': 'yes',
+    'apple-mobile-web-app-status-bar-style': 'black-translucent',
   },
 };
 
@@ -97,6 +110,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const organizationSchema = generateOrganizationSchema();
+
   return (
     <html lang="en">
       <head>
@@ -106,6 +121,12 @@ export default function RootLayout({
         <link rel="preconnect" href="https://images.unsplash.com" />
         <link rel="preconnect" href="https://tmgbmcbwfkvmylmfpkzy.supabase.co" />
         <link rel="dns-prefetch" href="https://maps.googleapis.com" />
+
+        {/* Structured Data - Organization Schema */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: injectStructuredData(organizationSchema) }}
+        />
       </head>
       <body
         className={`${fraunces.variable} ${inter.variable} ${jetbrainsMono.variable} antialiased`}

@@ -13,6 +13,7 @@ import {
   Phone,
   Globe,
   Instagram,
+  Camera,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -22,8 +23,16 @@ import { BoothMap } from '@/components/booth/BoothMap';
 import { CopyAddressButton } from '@/components/booth/CopyAddressButton';
 import { BookmarkButton } from '@/components/BookmarkButton';
 import { ShareButton } from '@/components/ShareButton';
+import { BoothStats } from '@/components/BoothStats';
+import { NearbyBooths } from '@/components/booth/NearbyBooths';
+import { SimilarBooths } from '@/components/booth/SimilarBooths';
 import { createPublicServerClient } from '@/lib/supabase';
 import { normalizeBooth, RenderableBooth } from '@/lib/boothViewModel';
+import {
+  generateLocalBusinessSchema,
+  generateBreadcrumbSchema,
+  injectStructuredData,
+} from '@/lib/seo/structuredData';
 
 interface BoothDetailPageProps {
   params: Promise<{
@@ -151,8 +160,28 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
   const city = booth.city || 'Location Unknown';
   const country = booth.country || '';
 
+  // Generate structured data
+  const localBusinessSchema = generateLocalBusinessSchema(booth);
+  const breadcrumbSchema = generateBreadcrumbSchema([
+    { name: 'Home', url: 'https://boothbeacon.org' },
+    { name: 'Booths', url: 'https://boothbeacon.org/map' },
+    { name: booth.name, url: `https://boothbeacon.org/booth/${booth.slug}` },
+  ]);
+
   return (
     <div className="min-h-screen bg-neutral-50">
+      {/* Structured Data - LocalBusiness Schema */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: injectStructuredData(localBusinessSchema) }}
+      />
+
+      {/* Structured Data - Breadcrumb Schema */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: injectStructuredData(breadcrumbSchema) }}
+      />
+
       {/* Breadcrumbs */}
       <div className="bg-white border-b border-neutral-200">
         <div className="max-w-7xl mx-auto px-4 py-3">
@@ -223,14 +252,15 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
                           />
                         ))}
                       </div>
-                      <span className="text-sm text-neutral-600">
+                      <span className="text-sm font-medium text-neutral-700">
                         {booth.google_rating.toFixed(1)}
-                        {booth.google_user_ratings_total && (
-                          <span className="text-neutral-500">
-                            {' '}({booth.google_user_ratings_total} reviews)
-                          </span>
-                        )}
                       </span>
+                      {booth.google_user_ratings_total && (
+                        <span className="text-sm text-neutral-500">
+                          ({booth.google_user_ratings_total} reviews)
+                        </span>
+                      )}
+                      <span className="text-xs text-neutral-400">· Google</span>
                     </div>
                   )}
                 </div>
@@ -272,9 +302,14 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
                     Machine Details
                   </h3>
                   {booth.machine_model && (
-                    <div className="flex justify-between">
+                    <div className="flex justify-between items-center">
                       <span className="text-neutral-600">Model</span>
-                      <span className="font-medium">{booth.machine_model}</span>
+                      <Link
+                        href={`/machines/${booth.machine_model.toLowerCase().replace(/\s+/g, '-')}`}
+                        className="font-medium text-primary hover:underline"
+                      >
+                        {booth.machine_model}
+                      </Link>
                     </div>
                   )}
                   {booth.machine_manufacturer && (
@@ -375,44 +410,70 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
             )}
 
             {/* Photos Section */}
-            {(booth.photo_exterior_url || booth.photo_interior_url || booth.google_photos) && (
+            {(booth.photo_exterior_url || booth.photo_interior_url || booth.google_photos) ? (
               <Card className="p-6">
                 <h2 className="text-xl font-semibold mb-4">Photos</h2>
-                <div className="grid grid-cols-2 gap-4">
-                  {booth.photo_exterior_url && (
-                    <div className="relative aspect-square bg-neutral-200 rounded-lg overflow-hidden">
-                      <Image
-                        src={booth.photo_exterior_url}
-                        alt={`${booth.name} exterior`}
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 768px) 50vw, 33vw"
-                      />
+
+                {/* Primary Photos */}
+                {(booth.photo_exterior_url || booth.photo_interior_url) && (
+                  <div className="grid grid-cols-2 gap-4 mb-6">
+                    {booth.photo_exterior_url && (
+                      <div className="relative aspect-square bg-neutral-200 rounded-lg overflow-hidden">
+                        <Image
+                          src={booth.photo_exterior_url}
+                          alt={`${booth.name} exterior`}
+                          fill
+                          className="object-cover"
+                          sizes="(max-width: 768px) 50vw, 33vw"
+                        />
+                      </div>
+                    )}
+                    {booth.photo_interior_url && (
+                      <div className="relative aspect-square bg-neutral-200 rounded-lg overflow-hidden">
+                        <Image
+                          src={booth.photo_interior_url}
+                          alt={`${booth.name} interior`}
+                          fill
+                          className="object-cover"
+                          sizes="(max-width: 768px) 50vw, 33vw"
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Google Photos Gallery */}
+                {booth.google_photos && booth.google_photos.length > 0 && (
+                  <div>
+                    <h3 className="font-semibold mb-3 text-sm text-neutral-500">Photos from Google</h3>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                      {booth.google_photos.slice(0, 6).map((url, i) => (
+                        <div key={i} className="relative aspect-square bg-neutral-200 rounded-lg overflow-hidden">
+                          <Image
+                            src={url}
+                            alt={`${booth.name} photo ${i + 1}`}
+                            fill
+                            className="object-cover"
+                            sizes="(max-width: 768px) 50vw, 33vw"
+                          />
+                        </div>
+                      ))}
                     </div>
-                  )}
-                  {booth.photo_interior_url && (
-                    <div className="relative aspect-square bg-neutral-200 rounded-lg overflow-hidden">
-                      <Image
-                        src={booth.photo_interior_url}
-                        alt={`${booth.name} interior`}
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 768px) 50vw, 33vw"
-                      />
-                    </div>
-                  )}
-                  {booth.google_photos?.map((photoUrl: string, index: number) => (
-                    <div key={index} className="relative aspect-square bg-neutral-200 rounded-lg overflow-hidden">
-                      <Image
-                        src={photoUrl}
-                        alt={`${booth.name} photo ${index + 1}`}
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 768px) 50vw, 33vw"
-                      />
-                    </div>
-                  ))}
-                </div>
+                  </div>
+                )}
+              </Card>
+            ) : (
+              <Card className="p-8 bg-gradient-to-br from-neutral-100 to-neutral-200 text-center">
+                <Camera className="w-12 h-12 mx-auto text-neutral-400 mb-3" />
+                <h3 className="font-semibold text-neutral-700 mb-2 text-lg">
+                  This booth needs photos!
+                </h3>
+                <p className="text-neutral-600 text-sm mb-4">
+                  Help others discover this booth by sharing photos of its exterior or interior
+                </p>
+                <Button variant="outline" size="sm" disabled className="cursor-not-allowed">
+                  Upload Photos (Coming Soon)
+                </Button>
               </Card>
             )}
           </div>
@@ -528,6 +589,9 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
               </div>
             </Card>
 
+            {/* Community Stats */}
+            <BoothStats boothId={booth.id} />
+
             {/* Report Issue */}
             <Card className="p-6 bg-neutral-50">
               <h3 className="font-semibold text-sm mb-2">Report an Issue</h3>
@@ -540,6 +604,34 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
             </Card>
           </div>
         </div>
+
+        {/* Discovery Section - Nearby & Similar Booths */}
+        {hasValidLocation && booth.latitude && booth.longitude && (
+          <div className="mt-12">
+            <h2 className="text-2xl font-bold mb-6">Discover More Booths</h2>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Nearby Booths */}
+              <NearbyBooths
+                boothId={booth.id}
+                latitude={booth.latitude}
+                longitude={booth.longitude}
+                radiusKm={25}
+                limit={6}
+              />
+
+              {/* Similar Booths */}
+              <SimilarBooths boothId={booth.id} limit={6} />
+            </div>
+          </div>
+        )}
+
+        {/* If no valid location, still show similar booths */}
+        {!hasValidLocation && (
+          <div className="mt-12">
+            <h2 className="text-2xl font-bold mb-6">You Might Also Like</h2>
+            <SimilarBooths boothId={booth.id} limit={6} />
+          </div>
+        )}
 
         {/* Source Attribution Footer */}
         <div className="mt-8 pt-6 border-t border-neutral-200">

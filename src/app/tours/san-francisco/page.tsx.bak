@@ -11,25 +11,17 @@ import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { createPublicServerClient } from '@/lib/supabase';
 import { Booth } from '@/types';
-import { generateTourMetadata } from '@/lib/seo/metadata';
-import {
-  generateCollectionPageSchema,
-  generateBreadcrumbSchema,
-  injectStructuredData,
-} from '@/lib/seo/structuredData';
 
 // ISR: Revalidate every hour
 export const revalidate = 3600;
 
-export async function generateMetadata(): Promise<Metadata> {
-  return generateTourMetadata(
-    'New York',
-    "Discover New York City's iconic photo booth scene. From Brooklyn dive bars to Manhattan train stations, find the city's best analog photobooths."
-  );
-}
+export const metadata: Metadata = {
+  title: 'San Francisco Photo Booth Tour | Booth Beacon',
+  description: 'Discover San Francisco\'s eclectic photo booth scene. From Mission murals to Haight-Ashbury vibes, explore the Bay Area\'s most unique analog photobooths.',
+};
 
-// Fetch booths for New York
-async function getNewYorkBooths(): Promise<Booth[]> {
+// Fetch booths for San Francisco
+async function getSanFranciscoBooths(): Promise<Booth[]> {
   const supabase = createPublicServerClient();
 
   if (!supabase) {
@@ -39,20 +31,20 @@ async function getNewYorkBooths(): Promise<Booth[]> {
   const { data, error } = await supabase
     .from('booths')
     .select('*')
-    .eq('city', 'New York')
+    .eq('city', 'San Francisco')
     .eq('status', 'active')
     .order('name', { ascending: true });
 
   if (error) {
-    console.error('Error fetching New York booths:', error);
+    console.error('Error fetching San Francisco booths:', error);
     return [];
   }
 
   return (data as Booth[]) || [];
 }
 
-export default async function NewYorkTourPage() {
-  const booths = await getNewYorkBooths();
+export default async function SanFranciscoTourPage() {
+  const booths = await getSanFranciscoBooths();
 
   // Calculate center for map based on booths
   const validBooths = booths.filter(b => b.latitude && b.longitude);
@@ -61,30 +53,10 @@ export default async function NewYorkTourPage() {
         lat: validBooths.reduce((sum, b) => sum + (b.latitude || 0), 0) / validBooths.length,
         lng: validBooths.reduce((sum, b) => sum + (b.longitude || 0), 0) / validBooths.length,
       }
-    : { lat: 40.7128, lng: -74.0060 }; // Default NYC center
-
-  // Generate structured data
-  const collectionSchema = generateCollectionPageSchema(
-    'New York',
-    booths.map(b => ({ name: b.name, slug: b.slug }))
-  );
-  const breadcrumbSchema = generateBreadcrumbSchema([
-    { name: 'Home', url: 'https://boothbeacon.org' },
-    { name: 'Tours', url: 'https://boothbeacon.org' },
-    { name: 'New York', url: 'https://boothbeacon.org/tours/new-york' },
-  ]);
+    : { lat: 37.7749, lng: -122.4194 }; // Default SF center
 
   return (
     <div className="flex flex-col min-h-screen">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: injectStructuredData(collectionSchema) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: injectStructuredData(breadcrumbSchema) }}
-      />
-
       <Header />
 
       {/* Hero Section */}
@@ -104,30 +76,30 @@ export default async function NewYorkTourPage() {
             {/* Hero content */}
             <Badge className="badge-retro mb-4">Photo Tour</Badge>
             <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
-              New York Photo Booth
+              San Francisco Photo Booth
               <br />
               <span className="text-gradient-pink">Tour</span>
             </h1>
 
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl">
-              New York City is the birthplace of the modern photo booth. From vintage machines in Brooklyn
-              dive bars to iconic booths in Grand Central Terminal, discover where New Yorkers have been
-              capturing memories for generations. Each booth is a piece of the city&apos;s endless story.
+              San Francisco's counterculture spirit lives on in its photo booth scene. From psychedelic
+              Mission District spots to vintage machines in North Beach, discover where the Bay Area's
+              free spirits have been capturing memories since the Summer of Love.
             </p>
 
             {/* Stats */}
             <div className="flex flex-wrap gap-6 mb-8">
               <div className="flex items-center gap-2 text-muted-foreground">
                 <MapPin className="w-5 h-5 text-primary" />
-                <span className="font-medium">{booths.length} booths in NYC</span>
+                <span className="font-medium">{booths.length} booths in SF</span>
               </div>
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Camera className="w-5 h-5 text-primary" />
-                <span className="font-medium">Vintage & Modern</span>
+                <span className="font-medium">Eclectic Mix</span>
               </div>
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Clock className="w-5 h-5 text-primary" />
-                <span className="font-medium">Multi-day adventure</span>
+                <span className="font-medium">Full day tour</span>
               </div>
             </div>
           </div>
@@ -150,21 +122,21 @@ export default async function NewYorkTourPage() {
                       Tour Map
                     </h2>
                     <GoogleMapsButton
-                      city="New York"
+                      city="San Francisco"
                       booths={booths}
                       variant="primary"
                       size="sm"
                     />
                   </div>
                   <p className="text-sm text-muted-foreground mb-4">
-                    Explore all {booths.length} photo booths across New York.
+                    Explore all {booths.length} photo booths across San Francisco.
                     Open in Google Maps to save your custom tour and navigate with turn-by-turn directions.
                   </p>
                   <div className="h-[500px] rounded-lg overflow-hidden shadow-photo vignette">
                     <BoothMap
                       booths={booths}
                       center={center}
-                      zoom={11}
+                      zoom={12}
                       showUserLocation={true}
                       showClustering={true}
                     />
@@ -172,26 +144,26 @@ export default async function NewYorkTourPage() {
                 </Card>
               )}
 
-              {/* About NYC's Scene */}
+              {/* About SF's Scene */}
               <Card className="p-6 card-vintage">
                 <h2 className="font-display text-2xl font-semibold mb-4 text-foreground">
-                  New York&apos;s Photo Booth Legacy
+                  San Francisco's Bohemian Booth Culture
                 </h2>
                 <div className="prose prose-invert max-w-none">
                   <p className="text-muted-foreground leading-relaxed mb-4">
-                    The photo booth was invented in New York City in 1925, and the city has maintained its
-                    status as a photo booth mecca ever since. From classic Photomatic machines to modern
-                    analog setups, NYC offers an incredible diversity of booth experiences.
+                    San Francisco's photo booth scene reflects the city's artistic soul. The Mission District,
+                    with its vibrant murals and dive bars, houses some of the most characterful booths in
+                    America. Each one feels like a portal to SF's colorful past.
                   </p>
                   <p className="text-muted-foreground leading-relaxed mb-4">
-                    Brooklyn&apos;s creative scene has embraced photo booths as an art form, with many bars and
-                    venues featuring vintage machines as centerpieces. Manhattan still houses some historic
-                    booths in unexpected locations - train stations, delis, and old-school arcades.
+                    The city's independent spirit means many booths are maintained by passionate individuals
+                    who treat them as art installations. You'll find everything from pristine vintage
+                    machines to heavily customized modern setups with unique backdrops and lighting.
                   </p>
                   <p className="text-muted-foreground leading-relaxed">
-                    The city&apos;s 24/7 energy means many booths are accessible at all hours. Whether you&apos;re
-                    catching a late train at Grand Central or closing down a Brooklyn bar at 3am, there&apos;s
-                    always a booth nearby ready to capture the moment.
+                    SF's temperate weather and walkable neighborhoods make booth hunting a joy year-round.
+                    Combine your tour with stops at iconic locations - many booths sit in legendary venues
+                    that defined San Francisco's music and art scenes.
                   </p>
                 </div>
               </Card>
@@ -199,7 +171,7 @@ export default async function NewYorkTourPage() {
               {/* Booths Grid */}
               <div>
                 <h2 className="font-display text-3xl font-semibold mb-6 text-foreground">
-                  All Booths in New York
+                  All Booths in San Francisco
                 </h2>
                 {booths.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -211,12 +183,12 @@ export default async function NewYorkTourPage() {
                   <Card className="p-12 text-center">
                     <Camera className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
                     <p className="text-lg text-muted-foreground mb-4">
-                      No booths found in New York yet.
+                      No booths found in San Francisco yet.
                     </p>
                     <Button asChild variant="outline">
                       <Link href="/submit">
                         <Camera className="w-4 h-4 mr-2" />
-                        Submit a NYC Booth
+                        Submit an SF Booth
                       </Link>
                     </Button>
                   </Card>
@@ -235,23 +207,23 @@ export default async function NewYorkTourPage() {
                 <ul className="space-y-3 text-sm text-muted-foreground">
                   <li className="flex gap-2">
                     <span className="text-primary">•</span>
-                    <span>Most booths cost $5-10 for a strip of 4 photos</span>
+                    <span>Most booths are in bars and require you to be 21+ to enter</span>
                   </li>
                   <li className="flex gap-2">
                     <span className="text-primary">•</span>
-                    <span>Grand Central Terminal has multiple booths - a must-visit for enthusiasts</span>
+                    <span>The Mission has the highest density of working analog booths</span>
                   </li>
                   <li className="flex gap-2">
                     <span className="text-primary">•</span>
-                    <span>Brooklyn&apos;s best booths are in Williamsburg, Bushwick, and Park Slope</span>
+                    <span>BART and Muni make booth-hopping across neighborhoods easy</span>
                   </li>
                   <li className="flex gap-2">
                     <span className="text-primary">•</span>
-                    <span>Many bars with booths require a purchase to use them during busy hours</span>
+                    <span>Many booths have custom backdrops or decorations - each is unique</span>
                   </li>
                   <li className="flex gap-2">
                     <span className="text-primary">•</span>
-                    <span>Check if booths are B&W or color before you pay - NYC has amazing variety</span>
+                    <span>Bring layers - SF weather changes block by block, especially near the coast</span>
                   </li>
                 </ul>
               </Card>
@@ -262,12 +234,12 @@ export default async function NewYorkTourPage() {
                   Popular Neighborhoods
                 </h3>
                 <div className="space-y-2">
-                  <Badge className="badge-retro mr-2 mb-2">Williamsburg</Badge>
-                  <Badge className="badge-retro mr-2 mb-2">East Village</Badge>
-                  <Badge className="badge-retro mr-2 mb-2">Lower East Side</Badge>
-                  <Badge className="badge-retro mr-2 mb-2">Bushwick</Badge>
-                  <Badge className="badge-retro mr-2 mb-2">Park Slope</Badge>
-                  <Badge className="badge-retro mr-2 mb-2">Midtown</Badge>
+                  <Badge className="badge-retro mr-2 mb-2">Mission District</Badge>
+                  <Badge className="badge-retro mr-2 mb-2">Haight-Ashbury</Badge>
+                  <Badge className="badge-retro mr-2 mb-2">North Beach</Badge>
+                  <Badge className="badge-retro mr-2 mb-2">Castro</Badge>
+                  <Badge className="badge-retro mr-2 mb-2">SoMa</Badge>
+                  <Badge className="badge-retro mr-2 mb-2">Marina</Badge>
                 </div>
               </Card>
 

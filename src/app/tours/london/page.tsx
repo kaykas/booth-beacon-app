@@ -11,14 +11,22 @@ import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { createPublicServerClient } from '@/lib/supabase';
 import { Booth } from '@/types';
+import { generateTourMetadata } from '@/lib/seo/metadata';
+import {
+  generateCollectionPageSchema,
+  generateBreadcrumbSchema,
+  injectStructuredData,
+} from '@/lib/seo/structuredData';
 
 // ISR: Revalidate every hour
 export const revalidate = 3600;
 
-export const metadata: Metadata = {
-  title: 'London Photo Booth Tour | Booth Beacon',
-  description: 'Explore London\'s classic photo booth scene. From East End pubs to West End arcades, discover the UK capital\'s finest analog photobooths.',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return generateTourMetadata(
+    'London',
+    "Explore London's classic photo booth scene. From East End pubs to West End arcades, discover the UK capital's finest analog photobooths."
+  );
+}
 
 // Fetch booths for London
 async function getLondonBooths(): Promise<Booth[]> {
@@ -55,8 +63,28 @@ export default async function LondonTourPage() {
       }
     : { lat: 51.5074, lng: -0.1278 }; // Default London center
 
+  // Generate structured data
+  const collectionSchema = generateCollectionPageSchema(
+    'London',
+    booths.map(b => ({ name: b.name, slug: b.slug }))
+  );
+  const breadcrumbSchema = generateBreadcrumbSchema([
+    { name: 'Home', url: 'https://boothbeacon.org' },
+    { name: 'Tours', url: 'https://boothbeacon.org' },
+    { name: 'London', url: 'https://boothbeacon.org/tours/london' },
+  ]);
+
   return (
     <div className="flex flex-col min-h-screen">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: injectStructuredData(collectionSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: injectStructuredData(breadcrumbSchema) }}
+      />
+
       <Header />
 
       {/* Hero Section */}

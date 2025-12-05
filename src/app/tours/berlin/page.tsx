@@ -11,14 +11,22 @@ import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { createPublicServerClient } from '@/lib/supabase';
 import { Booth } from '@/types';
+import { generateTourMetadata } from '@/lib/seo/metadata';
+import {
+  generateCollectionPageSchema,
+  generateBreadcrumbSchema,
+  injectStructuredData,
+} from '@/lib/seo/structuredData';
 
 // ISR: Revalidate every hour
 export const revalidate = 3600;
 
-export const metadata: Metadata = {
-  title: 'Berlin Photo Booth Tour | Booth Beacon',
-  description: 'Explore Berlin\'s vibrant photo booth scene. From Kreuzberg clubs to Mitte cafes, discover the city\'s best analog photobooths.',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return generateTourMetadata(
+    'Berlin',
+    "Explore Berlin's vibrant photo booth scene. From Kreuzberg clubs to Mitte cafes, discover the city's best analog photobooths."
+  );
+}
 
 // Fetch booths for Berlin
 async function getBerlinBooths(): Promise<Booth[]> {
@@ -55,8 +63,31 @@ export default async function BerlinTourPage() {
       }
     : { lat: 52.5200, lng: 13.4050 }; // Default Berlin center
 
+  // Generate structured data
+  const collectionSchema = generateCollectionPageSchema(
+    'Berlin',
+    booths.map(b => ({ name: b.name, slug: b.slug }))
+  );
+  const breadcrumbSchema = generateBreadcrumbSchema([
+    { name: 'Home', url: 'https://boothbeacon.org' },
+    { name: 'Tours', url: 'https://boothbeacon.org' },
+    { name: 'Berlin', url: 'https://boothbeacon.org/tours/berlin' },
+  ]);
+
   return (
     <div className="flex flex-col min-h-screen">
+      {/* Structured Data - CollectionPage Schema */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: injectStructuredData(collectionSchema) }}
+      />
+
+      {/* Structured Data - Breadcrumb Schema */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: injectStructuredData(breadcrumbSchema) }}
+      />
+
       <Header />
 
       {/* Hero Section */}

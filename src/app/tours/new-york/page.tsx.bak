@@ -11,22 +11,14 @@ import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { createPublicServerClient } from '@/lib/supabase';
 import { Booth } from '@/types';
-import { generateTourMetadata } from '@/lib/seo/metadata';
-import {
-  generateCollectionPageSchema,
-  generateBreadcrumbSchema,
-  injectStructuredData,
-} from '@/lib/seo/structuredData';
 
 // ISR: Revalidate every hour
 export const revalidate = 3600;
 
-export async function generateMetadata(): Promise<Metadata> {
-  return generateTourMetadata(
-    'New York',
-    "Discover New York City's iconic photo booth scene. From Brooklyn dive bars to Manhattan train stations, find the city's best analog photobooths."
-  );
-}
+export const metadata: Metadata = {
+  title: 'New York Photo Booth Tour | Booth Beacon',
+  description: 'Discover New York City\'s iconic photo booth scene. From Brooklyn dive bars to Manhattan train stations, find the city\'s best analog photobooths.',
+};
 
 // Fetch booths for New York
 async function getNewYorkBooths(): Promise<Booth[]> {
@@ -63,28 +55,8 @@ export default async function NewYorkTourPage() {
       }
     : { lat: 40.7128, lng: -74.0060 }; // Default NYC center
 
-  // Generate structured data
-  const collectionSchema = generateCollectionPageSchema(
-    'New York',
-    booths.map(b => ({ name: b.name, slug: b.slug }))
-  );
-  const breadcrumbSchema = generateBreadcrumbSchema([
-    { name: 'Home', url: 'https://boothbeacon.org' },
-    { name: 'Tours', url: 'https://boothbeacon.org' },
-    { name: 'New York', url: 'https://boothbeacon.org/tours/new-york' },
-  ]);
-
   return (
     <div className="flex flex-col min-h-screen">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: injectStructuredData(collectionSchema) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: injectStructuredData(breadcrumbSchema) }}
-      />
-
       <Header />
 
       {/* Hero Section */}
@@ -112,7 +84,7 @@ export default async function NewYorkTourPage() {
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl">
               New York City is the birthplace of the modern photo booth. From vintage machines in Brooklyn
               dive bars to iconic booths in Grand Central Terminal, discover where New Yorkers have been
-              capturing memories for generations. Each booth is a piece of the city&apos;s endless story.
+              capturing memories for generations. Each booth is a piece of the city's endless story.
             </p>
 
             {/* Stats */}
@@ -175,7 +147,7 @@ export default async function NewYorkTourPage() {
               {/* About NYC's Scene */}
               <Card className="p-6 card-vintage">
                 <h2 className="font-display text-2xl font-semibold mb-4 text-foreground">
-                  New York&apos;s Photo Booth Legacy
+                  New York's Photo Booth Legacy
                 </h2>
                 <div className="prose prose-invert max-w-none">
                   <p className="text-muted-foreground leading-relaxed mb-4">
@@ -184,13 +156,13 @@ export default async function NewYorkTourPage() {
                     analog setups, NYC offers an incredible diversity of booth experiences.
                   </p>
                   <p className="text-muted-foreground leading-relaxed mb-4">
-                    Brooklyn&apos;s creative scene has embraced photo booths as an art form, with many bars and
+                    Brooklyn's creative scene has embraced photo booths as an art form, with many bars and
                     venues featuring vintage machines as centerpieces. Manhattan still houses some historic
                     booths in unexpected locations - train stations, delis, and old-school arcades.
                   </p>
                   <p className="text-muted-foreground leading-relaxed">
-                    The city&apos;s 24/7 energy means many booths are accessible at all hours. Whether you&apos;re
-                    catching a late train at Grand Central or closing down a Brooklyn bar at 3am, there&apos;s
+                    The city's 24/7 energy means many booths are accessible at all hours. Whether you're
+                    catching a late train at Grand Central or closing down a Brooklyn bar at 3am, there's
                     always a booth nearby ready to capture the moment.
                   </p>
                 </div>
@@ -243,7 +215,7 @@ export default async function NewYorkTourPage() {
                   </li>
                   <li className="flex gap-2">
                     <span className="text-primary">•</span>
-                    <span>Brooklyn&apos;s best booths are in Williamsburg, Bushwick, and Park Slope</span>
+                    <span>Brooklyn's best booths are in Williamsburg, Bushwick, and Park Slope</span>
                   </li>
                   <li className="flex gap-2">
                     <span className="text-primary">•</span>

@@ -253,7 +253,9 @@ async function main() {
     }
 
     if (i < booths.length - 1) {
-      await new Promise(resolve => setTimeout(resolve, 1200));
+      // OpenAI rate limit: 7 images/minute = ~8.6 seconds between images
+      // Using 10 seconds to be safe and avoid rate limit errors
+      await new Promise(resolve => setTimeout(resolve, 10000));
     }
   }
 

@@ -193,7 +193,10 @@ export interface BoothComment {
   booth_id: string;
   content: string;
   rating: number; // 1-5
+  moderation_status: ModerationStatus;
   created_at: string;
+  moderated_at: string | null;
+  moderated_by: string | null;
 }
 
 export interface BoothUserPhoto {
@@ -204,6 +207,8 @@ export interface BoothUserPhoto {
   caption: string | null;
   moderation_status: ModerationStatus;
   created_at: string;
+  moderated_at: string | null;
+  moderated_by: string | null;
 }
 
 export interface Collection {

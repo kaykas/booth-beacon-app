@@ -11,14 +11,22 @@ import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { createPublicServerClient } from '@/lib/supabase';
 import { Booth } from '@/types';
+import { generateTourMetadata } from '@/lib/seo/metadata';
+import {
+  generateCollectionPageSchema,
+  generateBreadcrumbSchema,
+  injectStructuredData,
+} from '@/lib/seo/structuredData';
 
 // ISR: Revalidate every hour
 export const revalidate = 3600;
 
-export const metadata: Metadata = {
-  title: 'San Francisco Photo Booth Tour | Booth Beacon',
-  description: 'Discover San Francisco\'s eclectic photo booth scene. From Mission murals to Haight-Ashbury vibes, explore the Bay Area\'s most unique analog photobooths.',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return generateTourMetadata(
+    'San Francisco',
+    "Discover San Francisco's eclectic photo booth scene. From Mission murals to Haight-Ashbury vibes, explore the Bay Area's most unique analog photobooths."
+  );
+}
 
 // Fetch booths for San Francisco
 async function getSanFranciscoBooths(): Promise<Booth[]> {
@@ -55,8 +63,28 @@ export default async function SanFranciscoTourPage() {
       }
     : { lat: 37.7749, lng: -122.4194 }; // Default SF center
 
+  // Generate structured data
+  const collectionSchema = generateCollectionPageSchema(
+    'San Francisco',
+    booths.map(b => ({ name: b.name, slug: b.slug }))
+  );
+  const breadcrumbSchema = generateBreadcrumbSchema([
+    { name: 'Home', url: 'https://boothbeacon.org' },
+    { name: 'Tours', url: 'https://boothbeacon.org' },
+    { name: 'San Francisco', url: 'https://boothbeacon.org/tours/san-francisco' },
+  ]);
+
   return (
     <div className="flex flex-col min-h-screen">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: injectStructuredData(collectionSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: injectStructuredData(breadcrumbSchema) }}
+      />
+
       <Header />
 
       {/* Hero Section */}
