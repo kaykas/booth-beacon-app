@@ -31,8 +31,11 @@ import { normalizeBooth, RenderableBooth } from '@/lib/boothViewModel';
 import {
   generateLocalBusinessSchema,
   generateBreadcrumbSchema,
+  generateFAQPageSchema,
   injectStructuredData,
 } from '@/lib/seo/structuredData';
+import { boothDetailFAQs } from '@/lib/seo/faqData';
+import { formatLastUpdated } from '@/lib/dateUtils';
 
 interface BoothDetailPageProps {
   params: Promise<{
@@ -102,16 +105,23 @@ export async function generateMetadata({ params }: BoothDetailPageProps): Promis
 
   if (!booth) {
     return {
-      title: 'Booth Not Found | Booth Beacon',
+      title: 'Booth Not Found',
       description: 'The photo booth you are looking for could not be found.',
     };
   }
 
   const city = booth.city || 'Unknown Location';
   const country = booth.country || '';
-  const title = `${booth.name} - ${booth.locationLabel || city}${country ? `, ${country}` : ''} | Booth Beacon`;
+
+  // Generate SEO-optimized title: location-first with target keyword
+  // Format: "[City] Analog Photo Booth - [Booth Name]"
+  // Keeps titles under 60 chars for optimal Google display
+  const shortLocation = city.length > 15 ? city.substring(0, 15) : city;
+  const shortName = booth.name.length > 20 ? booth.name.substring(0, 17) + '...' : booth.name;
+  const title = `${shortLocation} Analog Photo Booth - ${shortName}`;
+
   const description =
-    booth.description || `Analog photo booth in ${booth.locationLabel || city}${country ? `, ${country}` : ''}.`;
+    booth.description || `Analog photo booth in ${booth.locationLabel || city}${country ? `, ${country}` : ''}. Find authentic photochemical photo booths with real film processing.`;
 
   // Use AI-generated image or exterior photo for OG image if available
   const ogImage = booth.photo_exterior_url || booth.ai_generated_image_url || booth.ai_preview_url;
@@ -167,6 +177,7 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
     { name: 'Booths', url: 'https://boothbeacon.org/map' },
     { name: booth.name, url: `https://boothbeacon.org/booth/${booth.slug}` },
   ]);
+  const faqSchema = generateFAQPageSchema(boothDetailFAQs);
 
   return (
     <div className="min-h-screen bg-neutral-50">
@@ -180,6 +191,12 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: injectStructuredData(breadcrumbSchema) }}
+      />
+
+      {/* Structured Data - FAQPage Schema */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: injectStructuredData(faqSchema) }}
       />
 
       {/* Breadcrumbs */}
@@ -374,6 +391,18 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
                           💳 Card
                         </span>
                       )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Last Updated Timestamp */}
+                {booth.updated_at && (
+                  <div className="mt-4 pt-4 border-t border-neutral-200">
+                    <div className="text-xs text-neutral-500">
+                      <span className="font-medium">Last updated:</span>{' '}
+                      <time dateTime={booth.updated_at}>
+                        {formatLastUpdated(booth.updated_at)}
+                      </time>
                     </div>
                   </div>
                 )}

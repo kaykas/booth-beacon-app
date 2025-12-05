@@ -13,7 +13,8 @@ import { Footer } from '@/components/layout/Footer';
 import { FoundersStory } from '@/components/home/FoundersStory';
 import { createPublicServerClient } from '@/lib/supabase';
 import { Booth } from '@/types';
-import { generateWebsiteSchema, injectStructuredData } from '@/lib/seo/structuredData';
+import { generateWebsiteSchema, generateFAQPageSchema, injectStructuredData } from '@/lib/seo/structuredData';
+import { homepageFAQs } from '@/lib/seo/faqData';
 
 function getPublicSupabaseClient() {
   try {
@@ -77,7 +78,7 @@ async function getMapBooths(): Promise<Booth[]> {
   return (data as Booth[]) || [];
 }
 
-// Fetch booth stats
+// Fetch booth stats - matches map display criteria
 async function getBoothStats(): Promise<{ totalBooths: number; countries: number; operational: number }> {
   const supabase = getPublicSupabaseClient();
 
@@ -85,10 +86,14 @@ async function getBoothStats(): Promise<{ totalBooths: number; countries: number
     return { totalBooths: 0, countries: 0, operational: 0 };
   }
 
+  // Match the same query as getMapBooths - only count booths that can be displayed on map
   const { data: booths, error, count } = await supabase
     .from('booths')
     .select('country, is_operational', { count: 'exact' })
-    .eq('status', 'active');
+    .eq('status', 'active')
+    .eq('is_operational', true)
+    .not('latitude', 'is', null)
+    .not('longitude', 'is', null);
 
   if (error) {
     console.error('Error fetching stats:', error);
@@ -99,12 +104,10 @@ async function getBoothStats(): Promise<{ totalBooths: number; countries: number
 
   const uniqueCountries = new Set(boothSummaries.map((b) => b.country).filter(Boolean));
 
-  const operationalCount = boothSummaries.filter((booth) => booth.is_operational).length;
-
   return {
     totalBooths: count || 0,
     countries: uniqueCountries.size,
-    operational: operationalCount,
+    operational: count || 0, // All fetched booths are operational (filtered above)
   };
 }
 
@@ -119,6 +122,7 @@ export default async function Home() {
   ]);
 
   const websiteSchema = generateWebsiteSchema();
+  const faqSchema = generateFAQPageSchema(homepageFAQs);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -126,6 +130,12 @@ export default async function Home() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: injectStructuredData(websiteSchema) }}
+      />
+
+      {/* Structured Data - FAQPage Schema */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: injectStructuredData(faqSchema) }}
       />
 
       <Header />

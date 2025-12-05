@@ -4,6 +4,7 @@ import "./globals.css";
 import { AuthProvider } from "@/lib/auth/AuthContext";
 import { Toaster } from "@/components/ui/sonner";
 import { generateOrganizationSchema, injectStructuredData } from "@/lib/seo/structuredData";
+import GoogleAnalytics from "@/components/analytics/GoogleAnalytics";
 
 const fraunces = Fraunces({
   variable: "--font-display",
@@ -32,10 +33,10 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL('https://boothbeacon.org'),
   title: {
-    default: "Booth Beacon - Find Analog Photo Booths Worldwide",
+    default: "Find Analog Photo Booths Near You - Directory & Map",
     template: "%s | Booth Beacon",
   },
-  description: "Discover authentic analog photo booths around the world. The ultimate directory of vintage photochemical machines. Find classic photo booths near you, save favorites, and explore city guides.",
+  description: "Discover authentic analog photo booths worldwide. Search 1000+ vintage photochemical machines, explore interactive maps, save favorites, and find classic photo booths near you.",
   keywords: [
     'photo booth',
     'analog photo booth',
@@ -131,6 +132,7 @@ export default function RootLayout({
       <body
         className={`${fraunces.variable} ${inter.variable} ${jetbrainsMono.variable} antialiased`}
       >
+        <GoogleAnalytics />
         <AuthProvider>
           {children}
           <Toaster />

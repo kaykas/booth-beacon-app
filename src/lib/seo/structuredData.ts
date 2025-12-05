@@ -167,6 +167,26 @@ export function generateCollectionPageSchema(
   };
 }
 
+export interface FAQItem {
+  question: string;
+  answer: string;
+}
+
+export function generateFAQPageSchema(faqs: FAQItem[]): StructuredData {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((faq) => ({
+      '@type': 'Question',
+      name: faq.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: faq.answer,
+      },
+    })),
+  };
+}
+
 export function injectStructuredData(data: StructuredData): string {
   return JSON.stringify(data);
 }
