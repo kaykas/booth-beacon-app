@@ -16,12 +16,26 @@ import { createClient } from '@supabase/supabase-js';
 import { calculateQualityScore, determineEnrichmentNeeds, type BoothQualityData } from '@/lib/dataQuality';
 import { getRequiredEnv } from '@/lib/utils';
 
-const supabase = createClient(
-  getRequiredEnv('NEXT_PUBLIC_SUPABASE_URL'),
-  getRequiredEnv('SUPABASE_SERVICE_ROLE_KEY')
-);
+// Lazy initialization to avoid build-time validation
+let supabase: ReturnType<typeof createClient> | null = null;
+let GOOGLE_MAPS_API_KEY: string | null = null;
 
-const GOOGLE_MAPS_API_KEY = getRequiredEnv('GOOGLE_MAPS_API_KEY_BACKEND');
+function getSupabase() {
+  if (!supabase) {
+    supabase = createClient(
+      getRequiredEnv('NEXT_PUBLIC_SUPABASE_URL'),
+      getRequiredEnv('SUPABASE_SERVICE_ROLE_KEY')
+    );
+  }
+  return supabase;
+}
+
+function getGoogleMapsKey() {
+  if (!GOOGLE_MAPS_API_KEY) {
+    GOOGLE_MAPS_API_KEY = getRequiredEnv('GOOGLE_MAPS_API_KEY_BACKEND');
+  }
+  return GOOGLE_MAPS_API_KEY;
+}
 
 interface LogEvent {
   type: 'info' | 'error' | 'success' | 'progress' | 'warning';
@@ -127,7 +141,7 @@ function buildLocationString(booth: BoothQualityData): string {
 async function searchGooglePlaces(query: string): Promise<PlaceSearchResult[]> {
   const url = new URL('https://maps.googleapis.com/maps/api/place/textsearch/json');
   url.searchParams.append('query', query);
-  url.searchParams.append('key', GOOGLE_MAPS_API_KEY);
+  url.searchParams.append('key', getGoogleMapsKey());
 
   const response = await fetch(url.toString());
   if (!response.ok) {
@@ -150,7 +164,7 @@ async function nearbySearch(lat: number, lng: number, keyword: string): Promise<
   url.searchParams.append('location', `${lat},${lng}`);
   url.searchParams.append('radius', '500'); // 500 meters
   url.searchParams.append('keyword', keyword);
-  url.searchParams.append('key', GOOGLE_MAPS_API_KEY);
+  url.searchParams.append('key', getGoogleMapsKey());
 
   const response = await fetch(url.toString());
   if (!response.ok) {
@@ -172,7 +186,7 @@ async function getPlaceDetails(placeId: string): Promise<PlaceDetails | null> {
   const url = new URL('https://maps.googleapis.com/maps/api/place/details/json');
   url.searchParams.append('place_id', placeId);
   url.searchParams.append('fields', 'place_id,name,formatted_address,formatted_phone_number,website,opening_hours,photos,geometry');
-  url.searchParams.append('key', GOOGLE_MAPS_API_KEY);
+  url.searchParams.append('key', getGoogleMapsKey());
 
   const response = await fetch(url.toString());
   if (!response.ok) {
@@ -308,7 +322,7 @@ async function findVenueForBooth(booth: BoothQualityData, log: (event: LogEvent)
 }
 
 function getPhotoUrl(photoReference: string): string {
-  return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&photo_reference=${photoReference}&key=${GOOGLE_MAPS_API_KEY}`;
+  return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&photo_reference=${photoReference}&key=${getGoogleMapsKey()}`;
 }
 
 async function updateBoothWithVenueData(boothId: string, venue: PlaceDetails): Promise<void> {
@@ -344,7 +358,7 @@ async function updateBoothWithVenueData(boothId: string, venue: PlaceDetails): P
   updates.enrichment_attempted_at = new Date().toISOString();
   updates.updated_at = new Date().toISOString();
 
-  const { error } = await supabase
+  const { error } = await getSupabase()
     .from('booths')
     .update(updates)
     .eq('id', boothId);
