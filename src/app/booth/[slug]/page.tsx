@@ -548,6 +548,22 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
               Data from {booth.source_primary || 'community sources'}
               {booth.last_verified && ` · Last verified ${new Date(booth.last_verified).toLocaleDateString()}`}
             </p>
+            {booth.source_urls && booth.source_urls.length > 0 && (
+              <div className="mt-2 flex flex-wrap justify-center gap-2">
+                {booth.source_urls.map((url: string, index: number) => (
+                  <a
+                    key={index}
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+                  >
+                    <ExternalLink className="w-3 h-3" />
+                    Source {booth.source_urls!.length > 1 ? index + 1 : ''}
+                  </a>
+                ))}
+              </div>
+            )}
             <p className="mt-2 text-xs">
               Help us keep this information accurate by reporting any changes or errors
             </p>

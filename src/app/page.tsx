@@ -86,7 +86,8 @@ async function getBoothStats(): Promise<{ totalBooths: number; countries: number
 
   const { data: booths, error, count } = await supabase
     .from('booths')
-    .select('country, is_operational', { count: 'exact' });
+    .select('country, is_operational', { count: 'exact' })
+    .eq('status', 'active');
 
   if (error) {
     console.error('Error fetching stats:', error);
