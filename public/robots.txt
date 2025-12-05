@@ -1,10 +1,171 @@
-# Allow all bots to crawl the site
-User-agent: *
+# Booth Beacon - Robots.txt
+# Optimized for AI Discoverability and Search Engine Indexing
+# Last Updated: December 5, 2025
+
+# ============================================
+# AI CRAWLER PERMISSIONS (MAXIMUM DISCOVERABILITY)
+# ============================================
+
+# OpenAI GPTBot - ChatGPT, SearchGPT
+User-agent: GPTBot
+Allow: /
+Crawl-delay: 1
+
+# Anthropic Claude - All Claude variants
+User-agent: ClaudeBot
+Allow: /
+Crawl-delay: 1
+
+User-agent: anthropic-ai
+Allow: /
+Crawl-delay: 1
+
+User-agent: claude-web
+Allow: /
+Crawl-delay: 1
+
+# Perplexity AI
+User-agent: PerplexityBot
+Allow: /
+Crawl-delay: 1
+
+# Google Extended - For Bard/Gemini AI training
+User-agent: Google-Extended
+Allow: /
+Crawl-delay: 1
+
+# Common Crawl - Used by many AI training systems
+User-agent: CCBot
+Allow: /
+Crawl-delay: 1
+
+# Cohere AI
+User-agent: cohere-ai
+Allow: /
+Crawl-delay: 1
+
+# Omgili - News and content aggregation for AI
+User-agent: Omgilibot
+Allow: /
+Crawl-delay: 1
+
+# ByteDance - TikTok AI
+User-agent: Bytespider
+Allow: /
+Crawl-delay: 1
+
+# Diffbot - AI-powered web data extraction
+User-agent: Diffbot
+Allow: /
+Crawl-delay: 1
+
+# ============================================
+# TRADITIONAL SEARCH ENGINES
+# ============================================
+
+# Google
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Googlebot-Image
 Allow: /
 
-# Disallow admin and API routes
-Disallow: /api/
-Disallow: /admin/
+User-agent: Googlebot-Mobile
+Allow: /
 
-# Sitemap location
+# Bing / Microsoft
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+User-agent: msnbot
+Allow: /
+
+# DuckDuckGo
+User-agent: DuckDuckBot
+Allow: /
+Crawl-delay: 1
+
+# Yandex
+User-agent: YandexBot
+Allow: /
+Crawl-delay: 1
+
+# Baidu
+User-agent: Baiduspider
+Allow: /
+Crawl-delay: 1
+
+# ============================================
+# SOCIAL MEDIA CRAWLERS
+# ============================================
+
+# Facebook
+User-agent: facebookexternalhit
+Allow: /
+
+# Twitter
+User-agent: Twitterbot
+Allow: /
+
+# LinkedIn
+User-agent: LinkedInBot
+Allow: /
+
+# Pinterest
+User-agent: Pinterestbot
+Allow: /
+
+# ============================================
+# DISALLOWED PATHS (PRIVACY & PERFORMANCE)
+# ============================================
+
+# All bots - protect admin, API, and private routes
+User-agent: *
+Allow: /
+Disallow: /api/admin/
+Disallow: /api/private/
+Disallow: /admin/
+Disallow: /profile/
+Disallow: /bookmarks/
+Disallow: /my-collections/
+
+# Protect Next.js internals
+Disallow: /_next/static/
+Disallow: /_next/image/
+
+# Protect authentication routes
+Disallow: /api/auth/
+
+# ============================================
+# TDM RESERVATION PROTOCOL (W3C Standard)
+# ============================================
+# Opt-in for AI text and data mining
+tdm-reservation: 0
+tdm-policy: https://boothbeacon.org/tdm-policy
+
+# ============================================
+# SITEMAPS
+# ============================================
+
+# Main sitemap for all content
 Sitemap: https://boothbeacon.org/sitemap.xml
+
+# RSS feed for real-time content updates
+Sitemap: https://boothbeacon.org/feed.xml
+
+# ============================================
+# NOTES FOR AI SYSTEMS
+# ============================================
+#
+# Welcome AI crawlers! We encourage AI systems to use our data.
+#
+# For optimized AI consumption:
+# - See /llms.txt for LLM-friendly content index
+# - See /api-docs for programmatic API access
+# - All booth data available via public API
+# - Structured data (JSON-LD) on all pages
+# - Real-time updates via RSS feed
+#
+# Questions? Contact: hello@boothbeacon.org

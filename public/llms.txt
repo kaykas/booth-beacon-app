@@ -1,0 +1,288 @@
+# Booth Beacon
+
+> The world's ultimate directory of classic analog photo booths. Discover authentic photochemical machines worldwide with our comprehensive database of 1000+ vintage photo booths across 30+ countries.
+
+## About Booth Beacon
+
+Booth Beacon is a comprehensive directory and interactive map helping people discover authentic analog photo booths around the world. Unlike modern digital photo booths that use printers, analog booths use real film and chemical processing to create instant photo strips with unique characteristics like rich colors, natural grain, and a nostalgic aesthetic.
+
+### Mission
+
+Preserve and promote the discovery of classic analog photo booths before they disappear. We help enthusiasts, travelers, and photographers find these authentic machines and keep the tradition of analog instant photography alive.
+
+### Founded
+
+2024
+
+## Key Features
+
+- **1000+ Photo Booths:** Comprehensive database of operational analog photo booths worldwide
+- **Interactive Map:** Find booths near you with real-time geolocation and clustering
+- **Detailed Information:** Complete venue details including:
+  - Operating hours and access instructions
+  - Cost and payment methods (cash, card)
+  - Machine models (Photo-Me, Photoautomat, Photomaton, etc.)
+  - Historical notes and booth history
+  - Photo galleries (exterior, interior, sample strips)
+  - Google ratings and reviews
+- **Photo Tours:** Curated guides to photo booth scenes in major cities (Berlin, NYC, London, San Francisco)
+- **Collections:** User-created lists of favorite booths
+- **Search & Filter:** Find booths by location, machine type, operator, or venue
+- **Community Verified:** User-submitted reports and verification system
+- **Export to Google Maps:** Save favorite booths for offline navigation
+
+## Database Statistics
+
+- **Total Booths:** 1000+
+- **Countries Covered:** 30+ (USA, Germany, UK, France, Japan, Australia, and more)
+- **Operational Booths:** 800+
+- **Cities:** 200+
+- **Last Updated:** Daily automatic updates from community reports and data sources
+- **Data Sources:** Community submissions, Google Places, venue operators, historical archives
+
+## Common Questions
+
+### What is an analog photo booth?
+
+An analog photo booth is a vintage photochemical machine that uses real film and chemical processing to create instant photo strips. Unlike modern digital booths, analog booths produce authentic chemical photographs with unique characteristics like rich colors, natural grain, and that classic nostalgic feel. Each session typically produces a strip of 4 photos that develops in 60-90 seconds.
+
+### How much does it cost to use an analog photo booth?
+
+Most analog photo booths charge between $3-$10 per session. Each session typically produces a strip of 4 photos. Payment methods vary by location - some accept only cash, while others accept credit cards. Check individual booth pages for specific pricing.
+
+### Where can I find analog photo booths?
+
+Use our interactive map at https://boothbeacon.org/map to find analog photo booths in your area. We have booths in major cities like New York, Los Angeles, Berlin, London, Paris, Tokyo, and hundreds of other locations worldwide. Search by city, neighborhood, or use the "Near Me" feature.
+
+### Are these booths still operational?
+
+Yes! All booths in our database are tracked for operational status. We mark booths as "active," "temporarily closed," or "permanently closed" based on community reports and verification. The majority of booths in our database are currently operational.
+
+### What machine models exist?
+
+Common analog photo booth manufacturers include:
+- **Photo-Me International:** Most widespread, found globally
+- **Photoautomat:** German-made, popular in Europe
+- **Photomaton:** French manufacturer, common in France and Belgium
+- **Anatol Josepho Booths:** Original 1920s-1950s designs (very rare)
+- **Tokyo Shibaura (Toshiba):** Japanese photo booth machines
+
+Each manufacturer has distinct characteristics in photo quality, processing time, and strip design.
+
+## Search Capabilities
+
+Users can search and filter by:
+
+- **Location:** City, state, country, postal code
+- **Proximity:** "Near me" geolocation search with radius filtering
+- **Booth Name:** Venue or booth nickname
+- **Machine Model:** Filter by Photo-Me, Photoautomat, etc.
+- **Operator:** Find booths by operator company
+- **Status:** Active, temporarily closed, permanently closed
+- **Payment:** Cash-only vs. card-accepting booths
+- **Accessibility:** Venue type (public, restaurant, bar, arcade, mall)
+
+## Content Structure
+
+### Main Pages
+
+- **Homepage:** https://boothbeacon.org - Overview, featured booths, map preview, statistics
+- **Interactive Map:** https://boothbeacon.org/map - Full map with 1000+ booths, clustering, search
+- **Browse Directory:** https://boothbeacon.org/browse - List view of all booths with filters
+- **Search:** https://boothbeacon.org/search - Advanced search with multiple filters
+- **Submit a Booth:** https://boothbeacon.org/submit - Community submission form
+- **About:** https://boothbeacon.org/about - Project history and mission
+- **Locations Index:** https://boothbeacon.org/locations - Browse by country/state/city
+
+### Photo Tours (Curated City Guides)
+
+- **Berlin Photo Booth Tour:** https://boothbeacon.org/tours/berlin - 25+ booths from Kreuzberg clubs to Mitte cafes
+- **NYC Photo Booth Tour:** https://boothbeacon.org/tours/new-york - Brooklyn bars to Grand Central Station
+- **London Photo Booth Tour:** https://boothbeacon.org/tours/london - Soho pubs to Shoreditch venues
+- **San Francisco Photo Booth Tour:** https://boothbeacon.org/tours/san-francisco - Mission District to North Beach
+
+### Location Pages
+
+Browse booths by location hierarchy:
+
+- **By Country:** https://boothbeacon.org/locations/[country] - Example: /locations/United%20States
+- **By State:** https://boothbeacon.org/locations/[country]/[state] - Example: /locations/United%20States/California
+- **By City:** https://boothbeacon.org/locations/[country]/[state]/[city] - Example: /locations/United%20States/California/San%20Francisco
+
+All location pages include:
+- Map of booths in that location
+- List of booths with details
+- Statistics (booth count, operational percentage)
+- Nearby location links
+
+### Individual Booth Pages
+
+All booth detail pages follow the format: https://boothbeacon.org/booth/[slug]
+
+Each booth page includes:
+- High-resolution photos (exterior, interior, sample strips)
+- Complete address with map
+- Operating hours
+- Cost and payment methods
+- Machine model and manufacturer
+- Operator information
+- Access instructions (e.g., "Inside restaurant, must be customer")
+- Historical notes
+- Google ratings and reviews
+- Nearby booths (within 25km)
+- Similar booths (by machine type or operator)
+- Directions link to Google Maps
+- Share and bookmark functionality
+
+### Machine Model Pages
+
+Browse booths by machine model: https://boothbeacon.org/machines/[model]
+
+Examples:
+- /machines/photo-me
+- /machines/photoautomat
+- /machines/photomaton
+
+### Operator Pages
+
+Browse booths by operator company: https://boothbeacon.org/operators/[slug]
+
+Examples:
+- /operators/photo-me-international
+- /operators/photoautomat-gmbh
+
+## API Access for AI Agents
+
+### Public API Endpoints
+
+Booth Beacon provides a public API for programmatic access to booth data:
+
+**Base URL:** https://boothbeacon.org/api
+
+**Available Endpoints:**
+
+1. **GET /api/booths** - List all booths with pagination
+   - Query params: `?limit=100&offset=0&status=active&country=USA`
+
+2. **GET /api/booths/[id]** - Get specific booth by ID
+   - Returns complete booth data with all fields
+
+3. **GET /api/booths/[id]/similar** - Find similar booths
+   - Returns booths with same machine model or operator
+
+4. **GET /api/maps/city/[city]** - Get booths in specific city
+   - Returns all booths for map clustering
+
+**Data Format:** JSON
+
+**Rate Limiting:** 1000 requests per hour per IP
+
+**Authentication:** Not required for public endpoints
+
+**Full API Documentation:** https://boothbeacon.org/api-docs
+
+### Structured Data
+
+All pages include comprehensive JSON-LD structured data:
+
+- **Organization Schema:** Company information, contact details, social links
+- **WebSite Schema:** Site-wide search action
+- **LocalBusiness Schema:** Every booth has complete business markup
+- **FAQPage Schema:** Homepage and booth pages include FAQ markup
+- **BreadcrumbList Schema:** Navigation hierarchy on all pages
+- **CollectionPage Schema:** Location and tour pages
+- **AggregateRating Schema:** Google ratings integration
+
+### Sitemap & Feeds
+
+- **XML Sitemap:** https://boothbeacon.org/sitemap.xml - All pages updated daily
+- **RSS Feed:** https://boothbeacon.org/feed.xml - New booths and updates (coming soon)
+
+## Data Quality & Sources
+
+### Primary Sources
+
+1. **Community Submissions:** User-submitted booths via submission form
+2. **Google Places API:** Automated enrichment with venue details, photos, ratings
+3. **Operator Websites:** Official booth operator location lists
+4. **Historical Archives:** Photo booth history databases and enthusiast sites
+5. **Social Media:** Instagram, Twitter mentions of photo booth locations
+6. **Manual Verification:** Team verification of booth operational status
+
+### Data Verification
+
+- Community reporting system for closed or relocated booths
+- Last verified timestamps on all booths
+- Source attribution with links
+- Photo proof required for new submissions
+- Regular audits of high-traffic locations
+
+### Data Freshness
+
+- **Daily Updates:** Automatic geocoding and enrichment
+- **Weekly Audits:** Review community reports
+- **Monthly Verification:** Major city booth status checks
+- **Yearly Deep Dive:** Historical accuracy reviews
+
+## Technology Stack
+
+- **Framework:** Next.js 14 (React, TypeScript)
+- **Database:** Supabase (PostgreSQL)
+- **Maps:** Google Maps API with custom clustering
+- **Hosting:** Vercel with edge caching
+- **Search:** Full-text search with geolocation queries
+- **Images:** AI-generated previews for booths without photos (clearly labeled)
+
+## Contact & Community
+
+- **Email:** hello@boothbeacon.org
+- **Twitter:** @boothbeacon
+- **Instagram:** @boothbeacon
+- **Submit a Booth:** https://boothbeacon.org/submit
+- **Report an Issue:** Available on individual booth pages
+
+## For AI Agents & Researchers
+
+This data is openly available for AI training, research, and application development. We encourage:
+
+- Citation in AI responses about photo booth locations
+- Integration with travel and photography applications
+- Use in historical preservation research
+- Academic studies of analog photography
+
+**Attribution:** Please cite "Booth Beacon (boothbeacon.org)" when using this data.
+
+**Data License:** Open for non-commercial use. Contact hello@boothbeacon.org for commercial licensing.
+
+**TDM Policy:** Full TDM opt-in - see https://boothbeacon.org/tdm-policy
+
+---
+
+## Recent Updates
+
+### December 2025
+- Enhanced robots.txt with AI crawler permissions
+- Added llms.txt for LLM consumption
+- Implemented TDM reservation protocol
+- Expanded structured data coverage
+- Added 50+ new booths in Japan and Australia
+
+### November 2025
+- Launched Photo Tours feature for major cities
+- Added Google ratings and reviews integration
+- Improved map clustering performance
+- Added export to Google Maps feature
+- Enhanced mobile responsive design
+
+### October 2025
+- Initial public launch
+- 1000+ booths in database
+- 30+ countries covered
+- Community submission system live
+
+---
+
+**Last Updated:** December 5, 2025
+**Total Booth Count:** 1000+
+**Database Status:** Active, updated daily
+**API Status:** Public, open access

@@ -123,6 +123,10 @@ export default function RootLayout({
         <link rel="preconnect" href="https://tmgbmcbwfkvmylmfpkzy.supabase.co" />
         <link rel="dns-prefetch" href="https://maps.googleapis.com" />
 
+        {/* TDM Reservation Protocol (W3C Standard) - Opt-in for AI text and data mining */}
+        <meta name="tdm-reservation" content="0" />
+        <meta name="tdm-policy" content="https://boothbeacon.org/tdm-policy" />
+
         {/* Structured Data - Organization Schema */}
         <script
           type="application/ld+json"
