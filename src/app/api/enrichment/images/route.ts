@@ -15,10 +15,11 @@ import { NextRequest } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import OpenAI from 'openai';
 import { calculateQualityScore, determineEnrichmentNeeds, type BoothQualityData } from '@/lib/dataQuality';
+import { getRequiredEnv } from '@/lib/utils';
 
 const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
+  getRequiredEnv('NEXT_PUBLIC_SUPABASE_URL'),
+  getRequiredEnv('SUPABASE_SERVICE_ROLE_KEY')
 );
 
 // OpenAI client will be initialized lazily in the handler
@@ -201,7 +202,7 @@ export async function GET(request: NextRequest) {
       try {
         // Initialize OpenAI client inside the handler
         const openai = new OpenAI({
-          apiKey: process.env.OPENAI_API_KEY!,
+          apiKey: getRequiredEnv('OPENAI_API_KEY'),
         });
 
         log({ type: 'info', message: 'Starting AI image generation...' });

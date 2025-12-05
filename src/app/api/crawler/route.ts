@@ -7,9 +7,10 @@
  */
 
 import { NextRequest } from 'next/server';
+import { getRequiredEnv } from '@/lib/utils';
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+const SUPABASE_URL = getRequiredEnv('NEXT_PUBLIC_SUPABASE_URL');
+const SERVICE_ROLE_KEY = getRequiredEnv('SUPABASE_SERVICE_ROLE_KEY');
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
