@@ -15,7 +15,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import {
-  Image,
+  Image as ImageIcon,
   MessageSquare,
   Filter,
   Calendar,
@@ -190,7 +190,7 @@ export function ModerationDashboard({
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card className="p-6 bg-neutral-800 border-neutral-700">
           <div className="flex items-center justify-between mb-2">
-            <Image className="w-8 h-8 text-purple-400" />
+            <ImageIcon className="w-8 h-8 text-purple-400" />
             {stats.photos.pending > 0 && (
               <Badge variant="secondary" className="bg-yellow-900 text-yellow-100">
                 {stats.photos.pending} pending
@@ -272,7 +272,7 @@ export function ModerationDashboard({
             value="photos"
             className="data-[state=active]:bg-neutral-700 data-[state=active]:text-white"
           >
-            <Image className="w-4 h-4 mr-2" />
+            <ImageIcon className="w-4 h-4 mr-2" />
             User Photos ({filteredPhotos.length})
           </TabsTrigger>
           <TabsTrigger
@@ -299,7 +299,7 @@ export function ModerationDashboard({
             {filteredPhotos.length === 0 ? (
               <Card className="p-12 bg-neutral-800 border-neutral-700">
                 <div className="text-center">
-                  <Image className="w-16 h-16 text-neutral-600 mx-auto mb-4" />
+                  <ImageIcon className="w-16 h-16 text-neutral-600 mx-auto mb-4" />
                   <p className="text-neutral-400">No photos found</p>
                 </div>
               </Card>

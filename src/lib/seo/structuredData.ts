@@ -3,7 +3,7 @@ import { RenderableBooth } from '@/lib/boothViewModel';
 export interface StructuredData {
   '@context': string;
   '@type': string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export function generateOrganizationSchema(): StructuredData {
@@ -67,16 +67,6 @@ export function generateLocalBusinessSchema(
     google_user_ratings_total?: number;
   }
 ): StructuredData {
-  const address = [
-    booth.street_address,
-    booth.city,
-    booth.state,
-    booth.postal_code,
-    booth.country,
-  ]
-    .filter(Boolean)
-    .join(', ');
-
   const image =
     booth.photo_exterior_url ||
     booth.ai_generated_image_url ||

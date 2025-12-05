@@ -77,8 +77,8 @@ export async function getSimilarBooths(
  * Higher score = more similar
  */
 function calculateSimilarityScore(
-  source: any,
-  candidate: any
+  source: BoothForRecommendation,
+  candidate: BoothForRecommendation
 ): number {
   let score = 0;
 

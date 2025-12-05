@@ -24,8 +24,7 @@ import {
   XCircle,
   AlertCircle,
   Clock,
-  Image,
-  Eye,
+  Image as ImageIcon,
   CalendarDays,
   BarChart3,
   Activity,
@@ -78,18 +77,6 @@ interface AnalyticsStats {
   usersByMonth: Array<{ month: string; count: number }>;
 }
 
-interface DateRange {
-  label: string;
-  days: number;
-}
-
-const DATE_RANGES: DateRange[] = [
-  { label: 'Last 7 Days', days: 7 },
-  { label: 'Last 30 Days', days: 30 },
-  { label: 'Last 90 Days', days: 90 },
-  { label: 'All Time', days: 9999 },
-];
-
 export default function AnalyticsPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
@@ -98,7 +85,6 @@ export default function AnalyticsPage() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [stats, setStats] = useState<AnalyticsStats | null>(null);
-  const [selectedRange, setSelectedRange] = useState<DateRange>(DATE_RANGES[3]); // All Time default
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
 
   // Check admin status
@@ -560,7 +546,7 @@ export default function AnalyticsPage() {
                     <div className="flex gap-6">
                       {(stats?.photosPendingModeration || 0) > 0 && (
                         <div className="flex items-center gap-3">
-                          <Image className="w-8 h-8 text-yellow-400" />
+                          <ImageIcon className="w-8 h-8 text-yellow-400" />
                           <div>
                             <div className="text-2xl font-bold text-white">
                               {stats?.photosPendingModeration}

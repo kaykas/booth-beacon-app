@@ -133,7 +133,7 @@ Return only the description text, no preamble or metadata.
  * Determine rarity or special context for a booth
  */
 function getRarityContext(booth: Booth): string | null {
-  const { machine_year, booth_type, photo_type, city } = booth;
+  const { machine_year, booth_type, photo_type } = booth;
 
   // Very old machines
   if (machine_year && machine_year < 1960) {

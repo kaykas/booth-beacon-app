@@ -53,7 +53,6 @@ export default function CollectionDetailPage() {
   const [booths, setBooths] = useState<Booth[]>([]);
   const [loading, setLoading] = useState(true);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [isAddBoothDialogOpen, setIsAddBoothDialogOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     description: '',

@@ -84,7 +84,7 @@ export function BoothStats({ boothId }: BoothStatsProps) {
         },
         (payload) => {
           // Refetch stats when photos change
-          if (payload.new && (payload.new as any).moderation_status === 'approved') {
+          if (payload.new && typeof payload.new === 'object' && 'moderation_status' in payload.new && payload.new.moderation_status === 'approved') {
             fetchStats();
           } else if (payload.eventType === 'DELETE') {
             fetchStats();
