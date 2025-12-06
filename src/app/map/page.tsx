@@ -51,22 +51,42 @@ function MapContent() {
   const fetchBooths = useCallback(async () => {
     setLoading(true);
 
-    let query = supabase.from('booths').select('*').range(0, 10000);
+    // Fetch all booths using pagination to bypass the 1000-row limit
+    let allBooths: Booth[] = [];
+    let page = 0;
+    const pageSize = 1000;
+    let hasMore = true;
 
-    // Apply status filter to the query if not "all"
-    if (filters.status && filters.status !== 'all') {
-      query = query.eq('status', filters.status);
+    while (hasMore) {
+      const start = page * pageSize;
+      const end = start + pageSize - 1;
+
+      let query = supabase
+        .from('booths')
+        .select('*')
+        .range(start, end);
+
+      // Apply status filter to the query if not "all"
+      if (filters.status && filters.status !== 'all') {
+        query = query.eq('status', filters.status);
+      }
+
+      const { data, error } = await query;
+
+      if (error) {
+        console.error('Error fetching booths:', error);
+        hasMore = false;
+      } else if (data) {
+        allBooths = [...allBooths, ...(data as Booth[])];
+        // If we got less than pageSize, we've reached the end
+        hasMore = data.length === pageSize;
+        page++;
+      } else {
+        hasMore = false;
+      }
     }
 
-    const { data, error} = await query;
-
-    if (error) {
-      console.error('Error fetching booths:', error);
-      setBooths([]);
-    } else {
-      setBooths((data as Booth[]) || []);
-    }
-
+    setBooths(allBooths);
     setLoading(false);
   }, [filters.status]);
 
