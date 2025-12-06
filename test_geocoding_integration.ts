@@ -58,7 +58,7 @@ async function testGeocodingIntegration() {
   console.log(`   Testing with: ${testBooth.name}`);
 
   // Test update with all geocoding-related columns
-  const updateData: Record<string, any> = {
+  const updateData: Record<string, unknown> = {
     enrichment_attempted_at: testTimestamp,
     geocoded_at: testTimestamp,
     google_place_id: 'test_place_' + Date.now(),
@@ -104,7 +104,7 @@ async function testGeocodingIntegration() {
   // Step 4: Clean up test data
   console.log('\n4️⃣  Cleaning up test data...\n');
 
-  const cleanupData: Record<string, any> = {
+  const cleanupData: Record<string, unknown> = {
     enrichment_attempted_at: null,
     geocoded_at: null,
     google_place_id: null,

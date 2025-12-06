@@ -24,13 +24,13 @@ async function checkIndexes() {
     ORDER BY indexname;
   `;
 
-  const { data, error } = await supabase.rpc('exec_sql_query', { query_text: query });
+  const { data: _data, error } = await supabase.rpc('exec_sql_query', { query_text: query });
 
   if (error) {
     // Try alternative approach using a custom query
     console.log('Using alternative method to check indexes...\n');
-    
-    const response = await fetch(
+
+    const _response = await fetch(
       `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/rpc/pg_indexes`,
       {
         method: 'POST',
