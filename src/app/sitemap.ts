@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next';
 import { createPublicServerClient } from '@/lib/supabase';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https://boothbeacon.com';
+  const baseUrl = 'https://boothbeacon.org';
   const supabase = createPublicServerClient();
 
   const staticPages: MetadataRoute.Sitemap = [

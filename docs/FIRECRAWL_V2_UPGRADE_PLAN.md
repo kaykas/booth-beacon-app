@@ -1480,7 +1480,7 @@ curl -X POST \
   -d '{"source_name": "photobooth.net"}'
 
 # Step 4: Notify team
-echo "Rolled back to Firecrawl V1 due to production issues" | mail -s "Crawler Rollback" admin@boothbeacon.com
+echo "Rolled back to Firecrawl V1 due to production issues" | mail -s "Crawler Rollback" admin@boothbeacon.org
 ```
 
 ### 8.2 Selective Rollback (Source-Specific)

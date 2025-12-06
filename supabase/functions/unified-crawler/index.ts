@@ -328,7 +328,7 @@ serve(async (req) => {
       specificSource = url.searchParams.get('source_name');
       force_crawl = url.searchParams.get('force_crawl') === 'true';
       stream = url.searchParams.get('stream') === 'true';
-      admin_email = url.searchParams.get('admin_email') || "admin@boothbeacon.com";
+      admin_email = url.searchParams.get('admin_email') || "admin@boothbeacon.org";
       addLog("info", "Parsed GET parameters", { specificSource, force_crawl, stream });
     } else {
       addLog("info", "Parsing request body");
@@ -336,7 +336,7 @@ serve(async (req) => {
       specificSource = body.source_name;
       force_crawl = body.force_crawl || false;
       stream = body.stream || false;
-      admin_email = body.admin_email || "admin@boothbeacon.com";
+      admin_email = body.admin_email || "admin@boothbeacon.org";
     }
 
     addLog("info", "Starting unified crawler", { specificSource, force_crawl, stream });
@@ -600,7 +600,7 @@ async function sendCrawlCompletionEmail(
   `;
 
   await resend.emails.send({
-    from: 'Booth Beacon <notifications@boothbeacon.com>',
+    from: 'Booth Beacon <notifications@boothbeacon.org>',
     to: [adminEmail],
     subject: `🎯 Crawl Complete: ${summary.total_booths_found} booths found${errors.length > 0 ? ` (${errors.length} errors)` : ''}`,
     html: htmlContent,
