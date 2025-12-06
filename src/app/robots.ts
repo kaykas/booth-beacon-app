@@ -14,6 +14,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ['/admin/', '/api/', '/profile/', '/bookmarks/', '/my-collections/'],
       },
     ],
-    sitemap: 'https://boothbeacon.org/sitemap.xml',
+    sitemap: 'https://boothbeacon.com/sitemap.xml',
   };
 }
