@@ -59,23 +59,41 @@ async function getMapBooths(): Promise<Booth[]> {
     return [];
   }
 
-  const { data, error } = await supabase
-    .from('booths')
-    .select(
-      `id, name, slug, city, country, latitude, longitude, photo_exterior_url, ai_preview_url, ai_generated_image_url, status, is_operational`
-    )
-    .eq('status', 'active')
-    .eq('is_operational', true)
-    .not('latitude', 'is', null)
-    .not('longitude', 'is', null)
-    .limit(5000);
+  // Use pagination to fetch all booths beyond the 1000-row limit
+  let allBooths: Booth[] = [];
+  let page = 0;
+  const pageSize = 1000;
+  let hasMore = true;
 
-  if (error) {
-    console.error('Error fetching map booths:', error);
-    return [];
+  while (hasMore) {
+    const start = page * pageSize;
+    const end = start + pageSize - 1;
+
+    const { data, error } = await supabase
+      .from('booths')
+      .select(
+        `id, name, slug, city, country, latitude, longitude, photo_exterior_url, ai_preview_url, ai_generated_image_url, status, is_operational`
+      )
+      .eq('status', 'active')
+      .eq('is_operational', true)
+      .not('latitude', 'is', null)
+      .not('longitude', 'is', null)
+      .range(start, end);
+
+    if (error) {
+      console.error('Error fetching map booths:', error);
+      hasMore = false;
+    } else if (data) {
+      allBooths = [...allBooths, ...(data as Booth[])];
+      // If we got less than pageSize, we've reached the end
+      hasMore = data.length === pageSize;
+      page++;
+    } else {
+      hasMore = false;
+    }
   }
 
-  return (data as Booth[]) || [];
+  return allBooths;
 }
 
 // Fetch booth stats - matches map display criteria
