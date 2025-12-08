@@ -14,6 +14,7 @@ import {
   Globe,
   Instagram,
   Camera,
+  Map,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -26,6 +27,12 @@ import { ShareButton } from '@/components/ShareButton';
 import { BoothStats } from '@/components/BoothStats';
 import { NearbyBooths } from '@/components/booth/NearbyBooths';
 import { SimilarBooths } from '@/components/booth/SimilarBooths';
+import { HoursStatus } from '@/components/booth/HoursStatus';
+import { DistanceDisplay } from '@/components/booth/DistanceDisplay';
+import { StickyActionBar } from '@/components/booth/StickyActionBar';
+import { PhotoGallery } from '@/components/booth/PhotoGallery';
+import { VisitChecklist } from '@/components/booth/VisitChecklist';
+import { SocialProof } from '@/components/booth/SocialProof';
 import { createPublicServerClient } from '@/lib/supabase';
 import { normalizeBooth, RenderableBooth } from '@/lib/boothViewModel';
 import { generateCombinedStructuredData } from '@/lib/seo/structuredDataOptimized';
@@ -218,6 +225,17 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
 
   return (
     <div className="min-h-screen bg-neutral-50">
+      {/* Sticky Action Bar */}
+      {hasValidLocation && booth.latitude && booth.longitude && (
+        <StickyActionBar
+          boothName={booth.name}
+          latitude={booth.latitude}
+          longitude={booth.longitude}
+          hasValidLocation={hasValidLocation}
+          locationString={locationString}
+        />
+      )}
+
       {/* Combined Structured Data - All schemas in one script tag for optimal FCP */}
       <script
         type="application/ld+json"
@@ -265,6 +283,14 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
                   <div className="flex items-center gap-2 text-neutral-600 mb-3">
                     <MapPin className="w-4 h-4 flex-shrink-0" />
                     <span>{locationString}</span>
+                  </div>
+
+                  {/* Hours Status & Distance */}
+                  <div className="flex flex-wrap items-center gap-3 mb-3">
+                    <HoursStatus hours={booth.hours} />
+                    {hasValidLocation && booth.latitude && booth.longitude && (
+                      <DistanceDisplay boothLatitude={booth.latitude} boothLongitude={booth.longitude} />
+                    )}
                   </div>
 
                   {/* Quick Stats Pills */}
@@ -316,30 +342,47 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
                 <StatusBadge status={booth.status || 'active'} />
               </div>
 
-              {/* Actions */}
+              {/* Primary CTA - Hero Button */}
+              {hasValidLocation && (
+                <div className="mb-6">
+                  <Button size="lg" className="w-full sm:w-auto text-base px-8 py-6 shadow-lg hover:shadow-xl transition-all" asChild>
+                    <a
+                      href={`https://www.google.com/maps/dir/?api=1&destination=${booth.latitude},${booth.longitude}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Navigation className="w-5 h-5 mr-2" />
+                      Get Directions
+                    </a>
+                  </Button>
+                </div>
+              )}
+
+              {/* Secondary Actions */}
               <div className="flex flex-wrap gap-2 mb-8">
                 <BookmarkButton boothId={booth.id} variant="default" />
                 {hasValidLocation && (
                   <>
                     <Button variant="outline" asChild>
                       <a
-                        href={`https://www.google.com/maps/dir/?api=1&destination=${booth.latitude},${booth.longitude}`}
+                        href={`https://www.google.com/maps/search/?api=1&query=${booth.latitude},${booth.longitude}&query_place_id=${booth.google_place_id || ''}`}
                         target="_blank"
                         rel="noopener noreferrer"
+                        title="Open in Google Maps"
                       >
-                        <Navigation className="w-4 h-4 mr-2" />
-                        Directions
+                        <Map className="w-4 h-4 mr-2" />
+                        Google Maps
                       </a>
                     </Button>
                     <Button variant="outline" asChild>
                       <a
-                        href={`https://www.google.com/maps/search/?api=1&query=${booth.latitude},${booth.longitude}&query_place_id=${booth.google_place_id || ''}`}
+                        href={`http://maps.apple.com/?q=${encodeURIComponent(booth.name)}&ll=${booth.latitude},${booth.longitude}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        title="Save this location to your Google Maps"
+                        title="Open in Apple Maps"
                       >
-                        <MapPin className="w-4 h-4 mr-2" />
-                        Add to My Maps
+                        <Map className="w-4 h-4 mr-2" />
+                        Apple Maps
                       </a>
                     </Button>
                   </>
@@ -488,53 +531,15 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
               <Card className="p-6">
                 <h2 className="text-xl font-semibold mb-4">Photos</h2>
 
-                {/* Primary Photos */}
-                {(booth.photo_exterior_url || booth.photo_interior_url) && (
-                  <div className="grid grid-cols-2 gap-4 mb-6">
-                    {booth.photo_exterior_url && (
-                      <div className="relative aspect-square bg-neutral-200 rounded-lg overflow-hidden">
-                        <Image
-                          src={booth.photo_exterior_url}
-                          alt={`${booth.name} exterior`}
-                          fill
-                          className="object-cover"
-                          sizes="(max-width: 768px) 50vw, 33vw"
-                        />
-                      </div>
-                    )}
-                    {booth.photo_interior_url && (
-                      <div className="relative aspect-square bg-neutral-200 rounded-lg overflow-hidden">
-                        <Image
-                          src={booth.photo_interior_url}
-                          alt={`${booth.name} interior`}
-                          fill
-                          className="object-cover"
-                          sizes="(max-width: 768px) 50vw, 33vw"
-                        />
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Google Photos Gallery */}
-                {booth.google_photos && booth.google_photos.length > 0 && (
-                  <div>
-                    <h3 className="font-semibold mb-3 text-sm text-neutral-500">Photos from Google</h3>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                      {booth.google_photos.slice(0, 6).map((url, i) => (
-                        <div key={i} className="relative aspect-square bg-neutral-200 rounded-lg overflow-hidden">
-                          <Image
-                            src={url}
-                            alt={`${booth.name} photo ${i + 1}`}
-                            fill
-                            className="object-cover"
-                            sizes="(max-width: 768px) 50vw, 33vw"
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                {/* Enhanced Photo Gallery with Lightbox */}
+                <PhotoGallery
+                  photos={[
+                    ...(booth.photo_exterior_url ? [booth.photo_exterior_url] : []),
+                    ...(booth.photo_interior_url ? [booth.photo_interior_url] : []),
+                    ...(booth.google_photos || []),
+                  ]}
+                  boothName={booth.name}
+                />
               </Card>
             ) : (
               <Card className="p-8 bg-gradient-to-br from-neutral-100 to-neutral-200 text-center">
@@ -562,10 +567,15 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
                   {booth.phone && (
                     <a
                       href={`tel:${booth.phone}`}
-                      className="flex items-center gap-3 text-neutral-700 hover:text-primary transition"
+                      className="flex items-center gap-3 p-3 -m-3 rounded-lg hover:bg-primary/5 text-neutral-700 hover:text-primary transition group"
                     >
-                      <Phone className="w-4 h-4 flex-shrink-0" />
-                      <span className="text-sm">{booth.phone}</span>
+                      <div className="p-2 bg-primary/10 rounded-full group-hover:bg-primary/20 transition">
+                        <Phone className="w-4 h-4 flex-shrink-0 text-primary" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="text-xs text-neutral-500 uppercase font-medium tracking-wide">Call Now</div>
+                        <div className="text-sm font-semibold">{booth.phone}</div>
+                      </div>
                     </a>
                   )}
                   {booth.website && (
@@ -652,6 +662,17 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
                         {booth.google_place_id ? 'View on Google Maps' : 'Open in Google Maps'}
                       </a>
                     </Button>
+
+                    <Button variant="outline" size="sm" className="w-full" asChild>
+                      <a
+                        href={`https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${booth.latitude},${booth.longitude}&heading=0&pitch=0&fov=80`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <Camera className="w-4 h-4 mr-2" />
+                        Street View
+                      </a>
+                    </Button>
                   </>
                 )}
 
@@ -663,8 +684,25 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
               </div>
             </Card>
 
+            {/* Social Proof */}
+            <SocialProof
+              favoriteCount={booth.favorite_count || 0}
+              visitCount={booth.visit_count || 0}
+              boothName={booth.name}
+            />
+
             {/* Community Stats */}
             <BoothStats boothId={booth.id} />
+
+            {/* Visit Checklist */}
+            <VisitChecklist
+              boothName={booth.name}
+              hasHours={!!booth.hours}
+              hasCost={!!booth.cost}
+              hasLocation={hasValidLocation}
+              acceptsCash={booth.accepts_cash || false}
+              acceptsCard={booth.accepts_card || false}
+            />
 
             {/* Report Issue */}
             <Card className="p-6 bg-neutral-50">
