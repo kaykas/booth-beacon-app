@@ -2,9 +2,6 @@
 
 import { useEffect } from 'react';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { AlertCircle, Home, MapPin, RefreshCw } from 'lucide-react';
 
 export default function Error({
   error,
@@ -14,78 +11,60 @@ export default function Error({
   reset: () => void;
 }) {
   useEffect(() => {
-    // Log error to console for debugging
     console.error('Booth page error:', error);
-
-    // In production, you could send this to an error tracking service
-    if (process.env.NODE_ENV === 'production' && error.digest) {
-      console.error('Error digest:', error.digest);
-    }
   }, [error]);
 
   return (
-    <div className="min-h-screen bg-neutral-50 flex items-center justify-center p-4">
-      <Card className="max-w-lg w-full p-8">
-        <div className="flex flex-col items-center text-center">
-          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
-            <AlertCircle className="w-8 h-8 text-red-600" />
-          </div>
-
-          <h1 className="font-display text-2xl font-semibold text-neutral-900 mb-2">
-            Something Went Wrong
-          </h1>
-
-          <p className="text-neutral-600 mb-6">
-            We encountered an error while loading this booth page. This might be a temporary issue.
-          </p>
-
-          {process.env.NODE_ENV === 'development' && error.message && (
-            <div className="w-full mb-6 p-4 bg-neutral-100 rounded-lg text-left">
-              <p className="text-xs text-neutral-600 font-mono break-words">
-                {error.message}
-              </p>
-              {error.digest && (
-                <p className="text-xs text-neutral-500 mt-2">
-                  Error ID: {error.digest}
-                </p>
-              )}
-            </div>
-          )}
-
-          <div className="flex flex-col sm:flex-row gap-3 w-full">
-            <Button
-              onClick={reset}
-              className="flex-1"
-              variant="default"
+    <div className="min-h-screen bg-neutral-50 flex items-center justify-center px-4">
+      <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8 text-center">
+        <div className="mb-6">
+          <div className="mx-auto h-16 w-16 rounded-full bg-red-100 flex items-center justify-center">
+            <svg
+              className="h-8 w-8 text-red-600"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
             >
-              <RefreshCw className="w-4 h-4 mr-2" />
-              Try Again
-            </Button>
-
-            <Button
-              asChild
-              variant="outline"
-              className="flex-1"
-            >
-              <Link href="/map">
-                <MapPin className="w-4 h-4 mr-2" />
-                Browse Map
-              </Link>
-            </Button>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+              />
+            </svg>
           </div>
-
-          <Button
-            asChild
-            variant="ghost"
-            className="mt-4"
-          >
-            <Link href="/">
-              <Home className="w-4 h-4 mr-2" />
-              Go Home
-            </Link>
-          </Button>
         </div>
-      </Card>
+
+        <h2 className="text-2xl font-bold text-neutral-900 mb-2">
+          Something went wrong
+        </h2>
+
+        <p className="text-neutral-600 mb-6">
+          We encountered an error while loading this booth. This booth may have been removed or there may be a temporary issue.
+        </p>
+
+        <div className="space-y-3">
+          <button
+            onClick={reset}
+            className="w-full bg-black text-white py-3 px-4 rounded-lg hover:bg-neutral-800 transition-colors"
+          >
+            Try again
+          </button>
+
+          <Link
+            href="/map"
+            className="block w-full bg-neutral-100 text-neutral-900 py-3 px-4 rounded-lg hover:bg-neutral-200 transition-colors"
+          >
+            Browse all booths
+          </Link>
+        </div>
+
+        {error.digest && (
+          <p className="mt-6 text-xs text-neutral-400">
+            Error ID: {error.digest}
+          </p>
+        )}
+      </div>
     </div>
   );
 }

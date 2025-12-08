@@ -28,12 +28,7 @@ import { NearbyBooths } from '@/components/booth/NearbyBooths';
 import { SimilarBooths } from '@/components/booth/SimilarBooths';
 import { createPublicServerClient } from '@/lib/supabase';
 import { normalizeBooth, RenderableBooth } from '@/lib/boothViewModel';
-import {
-  generateLocalBusinessSchema,
-  generateBreadcrumbSchema,
-  generateFAQPageSchema,
-  injectStructuredData,
-} from '@/lib/seo/structuredData';
+import { generateCombinedStructuredData } from '@/lib/seo/structuredDataOptimized';
 import { boothDetailFAQs } from '@/lib/seo/faqData';
 import { formatLastUpdated } from '@/lib/dateUtils';
 
@@ -170,46 +165,83 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
   const city = booth.city || 'Location Unknown';
   const country = booth.country || '';
 
-  // Generate structured data
-  const localBusinessSchema = generateLocalBusinessSchema(booth);
-  const breadcrumbSchema = generateBreadcrumbSchema([
+  // Build location-based breadcrumb structure
+  const breadcrumbItems = [
     { name: 'Home', url: 'https://boothbeacon.org' },
-    { name: 'Booths', url: 'https://boothbeacon.org/map' },
-    { name: booth.name, url: `https://boothbeacon.org/booth/${booth.slug}` },
-  ]);
-  const faqSchema = generateFAQPageSchema(boothDetailFAQs);
+  ];
+
+  // Add country
+  if (country) {
+    const countrySlug = country.toLowerCase().replace(/\s+/g, '-');
+    breadcrumbItems.push({
+      name: country,
+      url: `https://boothbeacon.org/locations/${countrySlug}`,
+    });
+  }
+
+  // Add state if present (US, Canada, Australia, etc.)
+  if (booth.state) {
+    const countrySlug = country.toLowerCase().replace(/\s+/g, '-');
+    const stateSlug = booth.state.toLowerCase().replace(/\s+/g, '-');
+    breadcrumbItems.push({
+      name: booth.state,
+      url: `https://boothbeacon.org/locations/${countrySlug}/${stateSlug}`,
+    });
+  }
+
+  // Add city
+  if (city && city !== 'Location Unknown') {
+    const countrySlug = country.toLowerCase().replace(/\s+/g, '-');
+    const stateSlug = booth.state ? booth.state.toLowerCase().replace(/\s+/g, '-') : null;
+    const citySlug = city.toLowerCase().replace(/\s+/g, '-');
+    const cityUrl = stateSlug
+      ? `https://boothbeacon.org/locations/${countrySlug}/${stateSlug}/${citySlug}`
+      : `https://boothbeacon.org/locations/${countrySlug}/${citySlug}`;
+    breadcrumbItems.push({
+      name: city,
+      url: cityUrl,
+    });
+  }
+
+  // Add booth name as final breadcrumb
+  breadcrumbItems.push({
+    name: booth.name,
+    url: `https://boothbeacon.org/booth/${booth.slug}`,
+  });
+
+  // Generate combined structured data (single script tag for better performance)
+  const combinedStructuredData = generateCombinedStructuredData(
+    booth,
+    breadcrumbItems,
+    boothDetailFAQs
+  );
 
   return (
     <div className="min-h-screen bg-neutral-50">
-      {/* Structured Data - LocalBusiness Schema */}
+      {/* Combined Structured Data - All schemas in one script tag for optimal FCP */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: injectStructuredData(localBusinessSchema) }}
-      />
-
-      {/* Structured Data - Breadcrumb Schema */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: injectStructuredData(breadcrumbSchema) }}
-      />
-
-      {/* Structured Data - FAQPage Schema */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: injectStructuredData(faqSchema) }}
+        dangerouslySetInnerHTML={{ __html: combinedStructuredData }}
       />
 
       {/* Breadcrumbs */}
       <div className="bg-white border-b border-neutral-200">
         <div className="max-w-7xl mx-auto px-4 py-3">
-          <nav className="flex items-center gap-2 text-sm text-neutral-600">
-            <Link href="/" className="hover:text-primary transition">Home</Link>
-            <span>/</span>
-            <Link href="/map" className="hover:text-primary transition">Booths</Link>
-            <span>/</span>
-            <span className="text-neutral-900 font-medium truncate max-w-[200px]">
-              {booth.name}
-            </span>
+          <nav className="flex items-center gap-2 text-sm text-neutral-600 overflow-x-auto">
+            {breadcrumbItems.map((crumb, index) => (
+              <div key={crumb.url} className="flex items-center gap-2 flex-shrink-0">
+                {index > 0 && <span>/</span>}
+                {index === breadcrumbItems.length - 1 ? (
+                  <span className="text-neutral-900 font-medium truncate max-w-[200px]">
+                    {crumb.name}
+                  </span>
+                ) : (
+                  <Link href={crumb.url} className="hover:text-primary transition whitespace-nowrap">
+                    {crumb.name}
+                  </Link>
+                )}
+              </div>
+            ))}
           </nav>
         </div>
       </div>
@@ -288,16 +320,29 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
               <div className="flex flex-wrap gap-2 mb-8">
                 <BookmarkButton boothId={booth.id} variant="default" />
                 {hasValidLocation && (
-                  <Button variant="outline" asChild>
-                    <a
-                      href={`https://www.google.com/maps/dir/?api=1&destination=${booth.latitude},${booth.longitude}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <Navigation className="w-4 h-4 mr-2" />
-                      Directions
-                    </a>
-                  </Button>
+                  <>
+                    <Button variant="outline" asChild>
+                      <a
+                        href={`https://www.google.com/maps/dir/?api=1&destination=${booth.latitude},${booth.longitude}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <Navigation className="w-4 h-4 mr-2" />
+                        Directions
+                      </a>
+                    </Button>
+                    <Button variant="outline" asChild>
+                      <a
+                        href={`https://www.google.com/maps/search/?api=1&query=${booth.latitude},${booth.longitude}&query_place_id=${booth.google_place_id || ''}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title="Save this location to your Google Maps"
+                      >
+                        <MapPin className="w-4 h-4 mr-2" />
+                        Add to My Maps
+                      </a>
+                    </Button>
+                  </>
                 )}
                 <ShareButton
                   title={`${booth.name} - ${locationString}`}
