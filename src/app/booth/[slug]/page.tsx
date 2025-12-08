@@ -1,7 +1,6 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
 import {
   MapPin,
   Navigation,
@@ -688,7 +687,6 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
             <SocialProof
               favoriteCount={booth.favorite_count || 0}
               visitCount={booth.visit_count || 0}
-              boothName={booth.name}
             />
 
             {/* Community Stats */}
@@ -698,8 +696,6 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
             <VisitChecklist
               boothName={booth.name}
               hasHours={!!booth.hours}
-              hasCost={!!booth.cost}
-              hasLocation={hasValidLocation}
               acceptsCash={booth.accepts_cash || false}
               acceptsCard={booth.accepts_card || false}
             />

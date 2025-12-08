@@ -7,8 +7,6 @@ import { useState, useEffect } from 'react';
 interface VisitChecklistProps {
   boothName: string;
   hasHours: boolean;
-  hasCost: boolean;
-  hasLocation: boolean;
   acceptsCash: boolean;
   acceptsCard: boolean;
 }
@@ -16,8 +14,6 @@ interface VisitChecklistProps {
 export function VisitChecklist({
   boothName,
   hasHours,
-  hasCost,
-  hasLocation,
   acceptsCash,
   acceptsCard,
 }: VisitChecklistProps) {
@@ -112,7 +108,7 @@ export function VisitChecklist({
 
       {completedCount === checklistItems.length && (
         <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg text-center">
-          <p className="text-sm font-medium text-green-800">You're all set to visit!</p>
+          <p className="text-sm font-medium text-green-800">You&apos;re all set to visit!</p>
         </div>
       )}
     </Card>

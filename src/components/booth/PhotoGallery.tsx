@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { X, ChevronLeft, ChevronRight, ZoomIn } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 
 interface PhotoGalleryProps {
   photos: string[];

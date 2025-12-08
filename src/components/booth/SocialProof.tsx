@@ -6,10 +6,9 @@ import { Users, Eye, Bookmark, TrendingUp } from 'lucide-react';
 interface SocialProofProps {
   favoriteCount: number;
   visitCount: number;
-  boothName: string;
 }
 
-export function SocialProof({ favoriteCount, visitCount, boothName }: SocialProofProps) {
+export function SocialProof({ favoriteCount, visitCount }: SocialProofProps) {
   const totalEngagement = favoriteCount + visitCount;
 
   if (totalEngagement === 0) {

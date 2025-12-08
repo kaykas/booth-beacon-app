@@ -1,6 +1,6 @@
 'use client';
 
-import { Navigation, MapPin, Share2 } from 'lucide-react';
+import { Navigation, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useEffect, useState } from 'react';
 
@@ -39,7 +39,7 @@ export function StickyActionBar({
           text: `Check out this photo booth: ${boothName}`,
           url: window.location.href,
         });
-      } catch (err) {
+      } catch (_err) {
         // User cancelled or share failed
       }
     }
