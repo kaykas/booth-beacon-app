@@ -32,6 +32,8 @@ import { StickyActionBar } from '@/components/booth/StickyActionBar';
 import { PhotoGallery } from '@/components/booth/PhotoGallery';
 import { VisitChecklist } from '@/components/booth/VisitChecklist';
 import { SocialProof } from '@/components/booth/SocialProof';
+import { StreetViewEmbed } from '@/components/booth/StreetViewEmbed';
+import { CommunityPhotoUpload } from '@/components/booth/CommunityPhotoUpload';
 import { createPublicServerClient } from '@/lib/supabase';
 import { normalizeBooth, RenderableBooth } from '@/lib/boothViewModel';
 import { generateCombinedStructuredData } from '@/lib/seo/structuredDataOptimized';
@@ -525,6 +527,18 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
               </Card>
             )}
 
+            {/* Street View */}
+            {hasValidLocation && booth.latitude && booth.longitude && (
+              <div>
+                <h2 className="text-xl font-semibold mb-4">Street View</h2>
+                <StreetViewEmbed
+                  latitude={booth.latitude}
+                  longitude={booth.longitude}
+                  boothName={booth.name}
+                />
+              </div>
+            )}
+
             {/* Photos Section */}
             {(booth.photo_exterior_url || booth.photo_interior_url || booth.google_photos) ? (
               <Card className="p-6">
@@ -540,20 +554,10 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
                   boothName={booth.name}
                 />
               </Card>
-            ) : (
-              <Card className="p-8 bg-gradient-to-br from-neutral-100 to-neutral-200 text-center">
-                <Camera className="w-12 h-12 mx-auto text-neutral-400 mb-3" />
-                <h3 className="font-semibold text-neutral-700 mb-2 text-lg">
-                  This booth needs photos!
-                </h3>
-                <p className="text-neutral-600 text-sm mb-4">
-                  Help others discover this booth by sharing photos of its exterior or interior
-                </p>
-                <Button variant="outline" size="sm" disabled className="cursor-not-allowed">
-                  Upload Photos (Coming Soon)
-                </Button>
-              </Card>
-            )}
+            ) : null}
+
+            {/* Community Photo Upload */}
+            <CommunityPhotoUpload boothId={booth.id} boothName={booth.name} />
           </div>
 
           {/* Right Column - Sidebar */}
@@ -659,17 +663,6 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
                       >
                         <ExternalLink className="w-4 h-4 mr-2" />
                         {booth.google_place_id ? 'View on Google Maps' : 'Open in Google Maps'}
-                      </a>
-                    </Button>
-
-                    <Button variant="outline" size="sm" className="w-full" asChild>
-                      <a
-                        href={`https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${booth.latitude},${booth.longitude}&heading=0&pitch=0&fov=80`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <Camera className="w-4 h-4 mr-2" />
-                        Street View
                       </a>
                     </Button>
                   </>
