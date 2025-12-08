@@ -21,10 +21,14 @@ export function VisitChecklist({
 
   // Load checked items from localStorage
   useEffect(() => {
-    const saved = localStorage.getItem(`checklist-${boothName}`);
-    if (saved) {
-      setCheckedItems(new Set(JSON.parse(saved)));
-    }
+    const loadCheckedItems = () => {
+      const saved = localStorage.getItem(`checklist-${boothName}`);
+      if (saved) {
+        setCheckedItems(new Set(JSON.parse(saved)));
+      }
+    };
+
+    loadCheckedItems();
   }, [boothName]);
 
   const toggleItem = (item: string) => {

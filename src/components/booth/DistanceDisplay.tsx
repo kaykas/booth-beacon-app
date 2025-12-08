@@ -28,25 +28,26 @@ export function DistanceDisplay({ boothLatitude, boothLongitude, className = '' 
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if ('geolocation' in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const dist = calculateDistance(
-            position.coords.latitude,
-            position.coords.longitude,
-            boothLatitude,
-            boothLongitude
-          );
-          setDistance(dist);
-          setLoading(false);
-        },
-        () => {
-          setLoading(false);
-        }
-      );
-    } else {
+    if (!('geolocation' in navigator)) {
       setLoading(false);
+      return;
     }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const dist = calculateDistance(
+          position.coords.latitude,
+          position.coords.longitude,
+          boothLatitude,
+          boothLongitude
+        );
+        setDistance(dist);
+        setLoading(false);
+      },
+      () => {
+        setLoading(false);
+      }
+    );
   }, [boothLatitude, boothLongitude]);
 
   if (loading || distance === null) {
