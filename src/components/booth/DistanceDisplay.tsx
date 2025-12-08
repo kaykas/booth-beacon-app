@@ -25,11 +25,10 @@ function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
 
 export function DistanceDisplay({ boothLatitude, boothLongitude, className = '' }: DistanceDisplayProps) {
   const [distance, setDistance] = useState<number | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState('geolocation' in navigator);
 
   useEffect(() => {
     if (!('geolocation' in navigator)) {
-      setLoading(false);
       return;
     }
 
