@@ -12,7 +12,6 @@ import {
   Phone,
   Globe,
   Instagram,
-  Camera,
   Map,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';

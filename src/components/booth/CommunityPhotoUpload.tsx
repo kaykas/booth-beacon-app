@@ -10,7 +10,7 @@ interface CommunityPhotoUploadProps {
   boothName: string;
 }
 
-export function CommunityPhotoUpload({ boothId, boothName }: CommunityPhotoUploadProps) {
+export function CommunityPhotoUpload({ boothId: _boothId, boothName: _boothName }: CommunityPhotoUploadProps) {
   const [showUploadForm, setShowUploadForm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
