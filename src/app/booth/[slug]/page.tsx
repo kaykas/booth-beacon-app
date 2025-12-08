@@ -526,17 +526,39 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
               </Card>
             )}
 
-            {/* Street View */}
+            {/* Street View - Temporarily disabled due to quota limits */}
             {hasValidLocation && booth.latitude && booth.longitude && (
-              <div>
+              <Card className="p-6">
                 <h2 className="text-xl font-semibold mb-4">Street View</h2>
-                <StreetViewEmbed
-                  latitude={booth.latitude}
-                  longitude={booth.longitude}
-                  boothName={booth.name}
-                />
-              </div>
+                <div className="text-center py-8">
+                  <MapPin className="w-12 h-12 mx-auto text-neutral-400 mb-4" />
+                  <p className="text-neutral-600 mb-4">
+                    View this location in Street View
+                  </p>
+                  <Button asChild>
+                    <a
+                      href={`https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${booth.latitude},${booth.longitude}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <ExternalLink className="w-4 h-4 mr-2" />
+                      Open Street View in Google Maps
+                    </a>
+                  </Button>
+                </div>
+              </Card>
             )}
+            {/*
+            Commented out embedded Street View - re-enable when quota issues are resolved:
+            <div>
+              <h2 className="text-xl font-semibold mb-4">Street View</h2>
+              <StreetViewEmbed
+                latitude={booth.latitude}
+                longitude={booth.longitude}
+                boothName={booth.name}
+              />
+            </div>
+            */}
 
             {/* Photos Section */}
             {(booth.photo_exterior_url || booth.photo_interior_url || booth.google_photos) ? (
