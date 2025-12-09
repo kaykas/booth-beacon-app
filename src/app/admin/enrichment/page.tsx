@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/auth/AuthContext';
 import { useRouter } from 'next/navigation';
 import { isUserAdmin } from '@/lib/adminAuth';
@@ -36,7 +36,7 @@ export default function EnrichmentPage() {
   const [imageBatchSize, setImageBatchSize] = useState(50);
 
   // Check admin status
-  useState(() => {
+  useEffect(() => {
     async function checkAdmin() {
       if (user) {
         const adminStatus = await isUserAdmin(user.id);
@@ -48,7 +48,7 @@ export default function EnrichmentPage() {
       setLoading(false);
     }
     checkAdmin();
-  });
+  }, [user, router]);
 
   if (authLoading || loading) {
     return (
