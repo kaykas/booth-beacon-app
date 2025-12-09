@@ -341,13 +341,16 @@ async function readBoothIdsFromCsv(csvPath: string): Promise<string[]> {
   const content = await fs.readFile(csvPath, 'utf-8');
   const lines = content.split('\n').filter(line => line.trim());
 
-  // Handle both single column and comma-separated values
+  // Skip header row and extract only first column (booth_id)
   const ids: string[] = [];
-  for (const line of lines) {
-    const parts = line.split(',').map(p => p.trim());
-    for (const part of parts) {
-      if (part && part !== 'id' && part !== 'booth_id' && part !== 'booth_slug') {
-        ids.push(part);
+  for (let i = 1; i < lines.length; i++) {
+    const line = lines[i];
+    // Extract first column (booth_id), handling quoted values
+    const match = line.match(/^"([^"]+)"|^([^,]+)/);
+    if (match) {
+      const boothId = (match[1] || match[2]).trim();
+      if (boothId) {
+        ids.push(boothId);
       }
     }
   }
@@ -389,7 +392,7 @@ async function run() {
 
   let boothsQuery = supabase
     .from('booths')
-    .select('id, slug, name, address, city: _city, state, country, postal_code, latitude, longitude');
+    .select('id, slug, name, address, city, state, country, postal_code, latitude, longitude');
 
   if (boothIds) {
     boothsQuery = boothsQuery.in('id', boothIds);
