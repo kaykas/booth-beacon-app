@@ -1,0 +1,205 @@
+================================================================================
+BOOTH BEACON GEOCODING AUDIT - RUN NOW
+================================================================================
+
+QUICK START (Copy & Paste)
+================================================================================
+
+Step 1: Change to project directory
+  cd /Users/jkw/Projects/booth-beacon-app
+
+Step 2: Load environment credentials
+  export $(cat .env.local | grep SUPABASE_SERVICE_ROLE_KEY | xargs)
+
+Step 3: Run the audit
+  node scripts/geocoding-audit.js
+
+Step 4: Check the results
+  jq '.stats' geocoding-audit-report.json
+
+================================================================================
+ALL 4 STEPS IN ONE COMMAND
+================================================================================
+
+cd /Users/jkw/Projects/booth-beacon-app && \
+export $(cat .env.local | grep SUPABASE_SERVICE_ROLE_KEY | xargs) && \
+node scripts/geocoding-audit.js && \
+echo "✓ Complete! Files generated:" && \
+ls -lh geocoding-audit-report.json affected-booths.csv && \
+echo "" && \
+echo "Summary statistics:" && \
+jq '.stats | {total: .total_booths, problems: .booths_with_problems, critical: .critical_count, high: .high_count}' geocoding-audit-report.json
+
+================================================================================
+WHAT HAPPENS
+================================================================================
+
+1. Script fetches all 912 booths from Supabase
+2. Analyzes each booth for 7 types of geocoding problems
+3. Generates TWO output files:
+   - geocoding-audit-report.json (detailed JSON report)
+   - affected-booths.csv (CSV for re-geocoding)
+4. Prints summary to console
+5. Done in ~3-5 seconds
+
+================================================================================
+FILES CREATED
+================================================================================
+
+SCRIPT FILES:
+  /Users/jkw/Projects/booth-beacon-app/scripts/geocoding-audit.js     ← MAIN
+  /Users/jkw/Projects/booth-beacon-app/scripts/geocoding-audit.ts     (TypeScript)
+  /Users/jkw/Projects/booth-beacon-app/scripts/geocoding-audit.sh     (Shell)
+
+DOCUMENTATION FILES:
+  /Users/jkw/Projects/booth-beacon-app/GEOCODING-AUDIT-GUIDE.md       ← READ THIS
+  /Users/jkw/Projects/booth-beacon-app/scripts/RUN-AUDIT-INSTRUCTIONS.md
+  /Users/jkw/Projects/booth-beacon-app/scripts/GEOCODING-AUDIT-README.md
+  /Users/jkw/Projects/booth-beacon-app/scripts/AUDIT-EXAMPLE-OUTPUT.md
+  /Users/jkw/Projects/booth-beacon-app/AUDIT-IMPLEMENTATION-SUMMARY.md
+
+OUTPUT FILES (GENERATED WHEN YOU RUN):
+  /Users/jkw/Projects/booth-beacon-app/geocoding-audit-report.json   ← READ THIS
+  /Users/jkw/Projects/booth-beacon-app/affected-booths.csv            ← USE FOR RE-GEOCODING
+
+================================================================================
+WHAT THE AUDIT FINDS
+================================================================================
+
+7 Categories of Problems:
+
+CRITICAL Severity:
+  1. Missing Address (address is NULL or empty)
+  2. Missing Coordinates (latitude or longitude is NULL)
+
+HIGH Severity:
+  3. No Street Number (address has no digits)
+  4. Business Name Only (address equals booth name)
+
+MEDIUM Severity:
+  5. Incomplete Address (less than 10 characters)
+  6. Low Confidence Geocoding (confidence = 'low')
+  7. Duplicate Coordinates (multiple booths at same lat/lng)
+
+Expected Results:
+  - Total booths: ~912
+  - Problematic booths: ~156 (17%)
+  - Critical issues: ~34
+  - High priority: ~67
+  - Medium priority: ~55
+
+================================================================================
+AFTER RUNNING - QUICK ANALYSIS
+================================================================================
+
+View summary statistics:
+  jq '.stats' geocoding-audit-report.json
+
+View how many critical cases:
+  jq '.critical_cases | length' geocoding-audit-report.json
+
+View first critical case:
+  jq '.critical_cases[0]' geocoding-audit-report.json
+
+View problems by category:
+  jq '.stats.by_category' geocoding-audit-report.json
+
+View duplicate coordinates:
+  jq '.duplicate_coordinates' geocoding-audit-report.json
+
+Export booth IDs for processing:
+  jq '.affected_booth_ids[]' geocoding-audit-report.json > booth-ids.txt
+
+Check CSV file:
+  head -5 affected-booths.csv
+
+Count lines in CSV (number of affected booths):
+  wc -l affected-booths.csv
+
+================================================================================
+TROUBLESHOOTING
+================================================================================
+
+If you get: "SUPABASE_SERVICE_ROLE_KEY not set"
+  → Run: export $(cat .env.local | grep SUPABASE_SERVICE_ROLE_KEY | xargs)
+  → Then: echo $SUPABASE_SERVICE_ROLE_KEY
+  → Should show: eyJhbGci... (long JWT token)
+
+If you get: "HTTP 401 Unauthorized"
+  → Your key might be wrong
+  → Check: grep SUPABASE_SERVICE_ROLE_KEY .env.local
+  → Make sure key starts with "eyJhbGci"
+
+If script doesn't create output files
+  → Check console for errors
+  → Run again and look for error messages
+  → Verify .env.local exists: ls -l .env.local
+
+If you need more details
+  → Read: GEOCODING-AUDIT-GUIDE.md (comprehensive reference)
+  → Read: RUN-AUDIT-INSTRUCTIONS.md (step-by-step)
+  → Read: AUDIT-EXAMPLE-OUTPUT.md (example output)
+
+================================================================================
+NEXT STEPS (AFTER RUNNING AUDIT)
+================================================================================
+
+1. Review Results
+   - Read the JSON report
+   - Identify critical issues
+   - Plan fixes
+
+2. Fix Issues
+   - Update missing addresses
+   - Re-geocode missing coordinates
+   - Consolidate duplicates
+
+3. Run Re-geocoding
+   - Use affected-booths.csv
+   - Run: node scripts/run-geocoding.js affected-booths.csv
+   - This geocodes all problematic booths
+
+4. Re-run Audit
+   - Run audit again after fixes
+   - Compare results
+   - Verify improvements
+
+5. Schedule Regular Audits
+   - Run weekly or monthly
+   - Track improvements
+   - See: RUN-AUDIT-INSTRUCTIONS.md for automation
+
+================================================================================
+DOCUMENTATION FILES TO READ
+================================================================================
+
+QUICK REFERENCE (5 min read):
+  1. This file (RUN-AUDIT-NOW.txt)
+  2. GEOCODING-AUDIT-GUIDE.md - Overview & context
+  3. scripts/AUDIT-EXAMPLE-OUTPUT.md - What output looks like
+
+DETAILED GUIDES (15-30 min read):
+  1. scripts/RUN-AUDIT-INSTRUCTIONS.md - Step-by-step with all options
+  2. GEOCODING-AUDIT-GUIDE.md - Comprehensive reference
+
+DEEP DIVE (for troubleshooting):
+  1. scripts/GEOCODING-AUDIT-README.md - Feature details
+  2. AUDIT-IMPLEMENTATION-SUMMARY.md - Technical overview
+
+================================================================================
+THAT'S IT!
+================================================================================
+
+Ready? Just copy and paste this into your terminal:
+
+cd /Users/jkw/Projects/booth-beacon-app && \
+export $(cat .env.local | grep SUPABASE_SERVICE_ROLE_KEY | xargs) && \
+node scripts/geocoding-audit.js
+
+Then read the output files:
+  geocoding-audit-report.json
+  affected-booths.csv
+
+Questions? See: GEOCODING-AUDIT-GUIDE.md
+
+================================================================================

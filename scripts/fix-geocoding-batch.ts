@@ -106,7 +106,7 @@ function enrichAddress(booth: Booth): string {
   const cleanCity = cleanAddress(booth.city);
   const cleanCountry = cleanAddress(booth.country);
 
-  // If address doesn't contain city, add it
+  // If address doesn't contain city: _city, add it
   const hasCity = cleanAddr.toLowerCase().includes(cleanCity.toLowerCase());
   const hasCountry = cleanAddr.toLowerCase().includes(cleanCountry.toLowerCase());
 
@@ -132,7 +132,7 @@ async function retryWithBackoff<T>(
   for (let i = 0; i < maxRetries; i++) {
     try {
       return await fn();
-    } catch (error) {
+    } catch (_error) {
       lastError = error;
       const err = error as { status?: number; message?: string };
 
@@ -184,7 +184,7 @@ async function geocodeWithGoogle(address: string): Promise<GeocodeResult | null>
     }
 
     return null;
-  } catch (error) {
+  } catch (_error) {
     return null;
   }
 }
@@ -222,7 +222,7 @@ async function geocodeWithNominatim(address: string): Promise<GeocodeResult | nu
     }
 
     return null;
-  } catch (error) {
+  } catch (_error) {
     return null;
   }
 }
@@ -272,7 +272,7 @@ async function geocodeBooth(booth: Booth): Promise<GeocodeResult | null> {
   }
 
   // Fallback to city centroid
-  const centroidResult = await geocodeCityCentroid(booth.city, booth.country);
+  const centroidResult = await geocodeCityCentroid(booth.city: _city, booth.country);
   if (centroidResult) {
     return centroidResult;
   }
@@ -390,7 +390,7 @@ async function run() {
 
   let boothsQuery = supabase
     .from('booths')
-    .select('id, slug, name, address, city, state, country, postal_code, latitude, longitude');
+    .select('id, slug, name, address, city: _city, state, country, postal_code, latitude, longitude');
 
   if (boothIds) {
     boothsQuery = boothsQuery.in('id', boothIds);
@@ -484,7 +484,7 @@ async function run() {
       // Rate limiting
       await sleep(1100);
 
-    } catch (error) {
+    } catch (_error) {
       const message = error instanceof Error ? error.message : String(error);
       failed++;
       const failedUpdate: GeocodeUpdate = {

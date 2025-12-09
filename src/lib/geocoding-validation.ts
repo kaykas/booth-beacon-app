@@ -102,7 +102,6 @@ export function validateAddressCompleteness(
   const issues: string[] = [];
 
   // Parse address to check for components
-  const addressLower = booth.address.toLowerCase().trim();
   const hasDigits = /\d/.test(booth.address);
 
   // Check for street number (digits at start or after common prefixes)
