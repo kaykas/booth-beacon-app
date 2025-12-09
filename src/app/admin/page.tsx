@@ -12,7 +12,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { BarChart3, Users, Image, MessageSquare, MapPin, CheckCircle, XCircle, Clock, Database, PlayCircle, PauseCircle, RefreshCw, Shield, Wifi, WifiOff, Activity, AlertCircle, Zap, Loader2, FileText, Heart, Recycle, Eye, ChevronDown, ChevronRight } from 'lucide-react';
+import { BarChart3, Users, Image, MessageSquare, MapPin, CheckCircle, XCircle, Clock, Database, PlayCircle, PauseCircle, RefreshCw, Shield, Wifi, Activity, AlertCircle, Zap, Loader2, FileText, Heart, Recycle, Eye, ChevronDown, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { MetricsDashboard } from '@/components/admin/MetricsDashboard';
 import { CrawlPerformanceBreakdown } from '@/components/admin/CrawlPerformanceBreakdown';
@@ -67,26 +67,25 @@ export default function AdminPage() {
   const [currentEventSource, setCurrentEventSource] = useState<EventSource | null>(null);
   const [logFilter, setLogFilter] = useState<'all' | 'info' | 'warning' | 'error'>('all');
   const [crawlerState, setCrawlerState] = useState<'idle' | 'connecting' | 'running' | 'error' | 'complete'>('idle');
-  const [connectionStatus, setConnectionStatus] = useState<'disconnected' | 'connecting' | 'connected' | 'error' | 'reconnecting'>('disconnected');
+  const [_connectionStatus, setConnectionStatus] = useState<'disconnected' | 'connecting' | 'connected' | 'error' | 'reconnecting'>('disconnected');
   const [currentSource, setCurrentSource] = useState<string>('');
-  const [currentStage, setCurrentStage] = useState<'crawling' | 'extracting' | 'validating' | 'saving' | ''>('');
+  const [_currentStage, setCurrentStage] = useState<'crawling' | 'extracting' | 'validating' | 'saving' | ''>('');
   const [activityFeed, setActivityFeed] = useState<Array<{type: string, message: string, timestamp: Date, status: 'info' | 'success' | 'warning' | 'error'}>>([]);
-  const [crawlStartTime, setCrawlStartTime] = useState<Date | null>(null);
-  const [lastError, setLastError] = useState<string>('');
+  const [_crawlStartTime, setCrawlStartTime] = useState<Date | null>(null);
+  const [_lastError, setLastError] = useState<string>('');
   const [errorCount, setErrorCount] = useState(0);
   const [_reconnectAttempt, _setReconnectAttempt] = useState(0);
-  const [maxReconnectAttempts] = useState(5);
   const [_reconnectTimeoutId, _setReconnectTimeoutId] = useState<NodeJS.Timeout | null>(null);
   const [_selectedSource, setSelectedSource] = useState<string>('');
   const stopRef = useRef(false);
 
   // UI state
   const [showSourcesList, setShowSourcesList] = useState(false);
-  const [showActivityFeed, setShowActivityFeed] = useState(false);
+  const [_showActivityFeed, setShowActivityFeed] = useState(false);
   const [showCrawlerDetails, setShowCrawlerDetails] = useState(false);
 
   // Discovery Engine environment variables state
-  const [envVarsStatus, setEnvVarsStatus] = useState<Record<string, boolean> | null>(null);
+  const [_envVarsStatus, setEnvVarsStatus] = useState<Record<string, boolean> | null>(null);
   const [envVarsLoading, setEnvVarsLoading] = useState(false);
 
   // Check admin status
@@ -471,7 +470,7 @@ export default function AdminPage() {
             }`}>
               <Link href="/admin#moderation">
                 <div className="flex items-center justify-between mb-3">
-                  <Image className="w-10 h-10 text-amber-400" aria-hidden="true" />
+                  <Image className="w-10 h-10 text-amber-400" alt="" />
                   <div className="text-right">
                     <div className="text-3xl font-bold text-white">{stats.pendingPhotos}</div>
                     <div className="text-xs text-neutral-400">Photos to Review</div>
