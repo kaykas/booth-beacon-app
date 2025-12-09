@@ -171,8 +171,8 @@ async function geocodeBooth(booth: Booth): Promise<GeocodeResult | null> {
 async function updateBoothCoordinates(
   boothId: string,
   result: GeocodeResult,
-  oldLatitude?: number,
-  oldLongitude?: number
+  _oldLatitude?: number,
+  _oldLongitude?: number
 ): Promise<void> {
   // Update coordinates and validation metadata
   const { error } = await supabase

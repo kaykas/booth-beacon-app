@@ -52,7 +52,7 @@ export async function GET() {
         .eq('enabled', true)
     ]);
 
-    const crawledToday = todayMetrics.data?.reduce((sum: number, m: any) => sum + (m.booths_extracted || 0), 0) || 0;
+    const crawledToday = todayMetrics.data?.reduce((sum: number, m: { booths_extracted?: number }) => sum + (m.booths_extracted || 0), 0) || 0;
 
     const stats = {
       booths: {

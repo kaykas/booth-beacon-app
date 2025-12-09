@@ -38,12 +38,6 @@ interface CrawlSource {
   [key: string]: unknown;
 }
 
-interface CrawlerMetric {
-  id: string;
-  booths_extracted?: number;
-  completed_at?: string;
-  [key: string]: unknown;
-}
 
 // Unused interface ExtendedEventSource - commented for future implementation
 // interface ExtendedEventSource extends EventSource {
