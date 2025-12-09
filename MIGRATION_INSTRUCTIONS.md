@@ -1,91 +1,47 @@
-# Migration Instructions: Add AI-Generated Images Support
+# Database Migration: Add Geocoding Validation Columns
 
-## Migration File
-Location: `/Users/jkw/Projects/booth-beacon-app/supabase/migrations/20250130_add_ai_generated_images.sql`
+## Summary
+This migration adds geocoding validation metadata fields to the `booths` table.
 
-## Status
-**NOT YET APPLIED** - The migration needs to be applied to the database.
+## Migration Status
+**STATUS: NOT YET APPLIED**
 
-## What This Migration Does
-1. Adds three new columns to the `booths` table:
-   - `ai_generated_image_url` (TEXT) - Stores the URL of AI-generated images
-   - `ai_image_prompt` (TEXT) - Stores the prompt used to generate the image
-   - `ai_image_generated_at` (TIMESTAMPTZ) - Stores when the image was generated
+## Execution Instructions
 
-2. Creates an index on `ai_generated_image_url` for efficient queries
+### Quick Start
+1. Open: https://supabase.com/dashboard/project/tmgbmcbwfkvmylmfpkzy/sql/new
+2. Paste the SQL below (it's in your clipboard)
+3. Click "Run"
+4. Run: `node scripts/verify-migration.js` to verify
 
-3. Creates a `booth-images` storage bucket (if it doesn't exist) for storing images
+### SQL to Execute (Function-Based Approach)
+```sql
+CREATE OR REPLACE FUNCTION execute_geocode_validation_migration()
+RETURNS TEXT LANGUAGE plpgsql SECURITY DEFINER AS $$
+BEGIN
+  ALTER TABLE booths ADD COLUMN IF NOT EXISTS geocode_match_score INTEGER;
+  ALTER TABLE booths ADD COLUMN IF NOT EXISTS geocode_validation_issues TEXT[];
+  ALTER TABLE booths ADD COLUMN IF NOT EXISTS geocode_validated_at TIMESTAMPTZ;
+  ALTER TABLE booths ADD COLUMN IF NOT EXISTS needs_geocode_review BOOLEAN DEFAULT FALSE;
 
-4. Sets up Row Level Security (RLS) policies for the storage bucket:
-   - Public read access for all booth images
-   - Service role can upload, update, and delete images
+  CREATE INDEX IF NOT EXISTS idx_booths_needs_geocode_review
+  ON booths(needs_geocode_review) WHERE needs_geocode_review = TRUE;
 
-## Option 1: Apply via Supabase Dashboard (Recommended)
+  CREATE INDEX IF NOT EXISTS idx_booths_low_confidence_geocode
+  ON booths(geocode_confidence) WHERE geocode_confidence IN ('low', 'reject');
 
-1. Go to the SQL Editor in your Supabase Dashboard:
-   https://supabase.com/dashboard/project/tmgbmcbwfkvmylmfpkzy/sql/new
+  RETURN 'Migration executed successfully';
+END; $$;
 
-2. Copy the SQL from the migration file:
-   ```bash
-   cat /Users/jkw/Projects/booth-beacon-app/supabase/migrations/20250130_add_ai_generated_images.sql
-   ```
-
-3. Paste it into the SQL Editor
-
-4. Click "Run" to execute the migration
-
-5. Verify success by running:
-   ```sql
-   SELECT column_name, data_type
-   FROM information_schema.columns
-   WHERE table_name = 'booths'
-   AND column_name LIKE 'ai_%';
-   ```
-
-## Option 2: Apply via Supabase CLI (Requires Database Password)
-
-If you have the database password, you can use:
-
-```bash
-cd /Users/jkw/Projects/booth-beacon-app
-npx supabase db push --db-url "postgres://postgres:[YOUR_DB_PASSWORD]@db.tmgbmcbwfkvmylmfpkzy.supabase.co:5432/postgres"
+SELECT execute_geocode_validation_migration();
+DROP FUNCTION IF EXISTS execute_geocode_validation_migration();
 ```
 
-To get your database password:
-1. Go to: https://supabase.com/dashboard/project/tmgbmcbwfkvmylmfpkzy/settings/database
-2. Look for "Database Password" or "Reset Database Password"
-
-## Option 3: Apply via psql (Requires Database Password)
-
-```bash
-PGPASSWORD="[YOUR_DB_PASSWORD]" psql \\
-  -h db.tmgbmcbwfkvmylmfpkzy.supabase.co \\
-  -p 5432 \\
-  -U postgres \\
-  -d postgres \\
-  -f /Users/jkw/Projects/booth-beacon-app/supabase/migrations/20250130_add_ai_generated_images.sql
-```
+## What Gets Added
+- geocode_match_score (INTEGER): Match score 0-100
+- geocode_validation_issues (TEXT[]): Array of issues
+- geocode_validated_at (TIMESTAMPTZ): Validation timestamp
+- needs_geocode_review (BOOLEAN): Manual review flag
 
 ## Verification
-
-After applying the migration, you can verify it was successful by running:
-
-```bash
-node /Users/jkw/Projects/booth-beacon-app/apply-migration.mjs
-```
-
-This script will check if the columns exist and confirm the migration status.
-
-## Why Automated Application Failed
-
-- The Supabase service role key (JWT token) is used for API authentication, not database authentication
-- Direct database access requires the actual database password
-- The Supabase REST API (PostgREST) doesn't support arbitrary SQL execution for security reasons
-- SQL execution is only available through:
-  - The Supabase Dashboard SQL Editor (web interface)
-  - Direct PostgreSQL connection with database password
-  - Supabase Management API with a personal access token (not service role key)
-
-## Next Steps
-
-Please use **Option 1** (Supabase Dashboard) as it's the quickest and most straightforward method.
+Run: `node scripts/verify-migration.js`

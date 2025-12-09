@@ -294,11 +294,14 @@ export async function geocodeWithCascade(
  * Helper to get default config from environment variables
  */
 export function getDefaultCascadeConfig(): CascadeConfig {
+  // Support both GOOGLE_MAPS_API_KEY and GOOGLE_MAPS_API_KEY_BACKEND
+  const googleApiKey = process.env.GOOGLE_MAPS_API_KEY || process.env.GOOGLE_MAPS_API_KEY_BACKEND;
+
   return {
     enableNominatim: true, // Always enabled (free)
     enableMapbox: !!process.env.MAPBOX_API_TOKEN,
-    enableGoogle: !!process.env.GOOGLE_MAPS_API_KEY,
+    enableGoogle: !!googleApiKey,
     mapboxToken: process.env.MAPBOX_API_TOKEN,
-    googleApiKey: process.env.GOOGLE_MAPS_API_KEY,
+    googleApiKey,
   };
 }
