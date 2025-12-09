@@ -73,7 +73,7 @@ interface BoothWithProblems {
 /**
  * Make HTTP request to Supabase REST API
  */
-function makeRequest(pathname: string, params: Record<string, string> = {}): Promise<any[]> {
+function makeRequest(pathname: string, params: Record<string, string> = {}): Promise<Booth[]> {
   return new Promise((resolve, reject) => {
     const url = new URL(pathname, SUPABASE_URL);
 
@@ -296,7 +296,7 @@ async function generateAuditReport() {
     // Find duplicate coordinates
     const duplicateCoordinates = findDuplicateCoordinates(allBooths);
     let duplicateBoothCount = 0;
-    const duplicateIssues: any[] = [];
+    const duplicateIssues: Array<{ id: number; name: string; severity: string; issue: string; coordinates?: string }> = [];
 
     Object.entries(duplicateCoordinates).forEach(([coords, boothList]) => {
       duplicateBoothCount += boothList.length;

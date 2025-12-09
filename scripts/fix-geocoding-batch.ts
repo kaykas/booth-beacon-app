@@ -90,7 +90,6 @@ function cleanAddress(text: string): string {
 // Check if address is complete
 function isAddressComplete(booth: Booth): boolean {
   const addr = cleanAddress(booth.address).toLowerCase();
-  const city = cleanAddress(booth.city).toLowerCase();
 
   // Address must have street number/name and not be just the business name
   const hasNumber = /\d+/.test(addr);
@@ -272,7 +271,7 @@ async function geocodeBooth(booth: Booth): Promise<GeocodeResult | null> {
   }
 
   // Fallback to city centroid
-  const centroidResult = await geocodeCityCentroid(booth.city: _city, booth.country);
+  const centroidResult = await geocodeCityCentroid(booth.city, booth.country);
   if (centroidResult) {
     return centroidResult;
   }
