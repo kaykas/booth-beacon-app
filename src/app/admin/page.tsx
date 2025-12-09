@@ -463,13 +463,30 @@ export default function AdminPage() {
       <Header />
       <main className="min-h-screen bg-neutral-900 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="mb-8">
+          <div className="mb-6">
             <h1 className="font-display text-4xl font-semibold mb-2 text-white">Admin Dashboard</h1>
             <p className="text-neutral-400">Manage content and moderate submissions</p>
           </div>
 
-          {/* Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {/* Navigation Tabs - Moved up for better visibility */}
+          <Tabs defaultValue="crawler" className="w-full">
+            <TabsList className="bg-neutral-800 border-neutral-700 mb-8">
+              <TabsTrigger value="crawler" className="data-[state=active]:bg-neutral-700 data-[state=active]:text-white">
+                <Database className="w-4 h-4 mr-2" />
+                Crawler & Data
+              </TabsTrigger>
+              <TabsTrigger value="moderation" className="data-[state=active]:bg-neutral-700 data-[state=active]:text-white">
+                <Eye className="w-4 h-4 mr-2" />
+                Moderation {stats.pendingPhotos > 0 && `(${stats.pendingPhotos})`}
+              </TabsTrigger>
+              <TabsTrigger value="advanced" className="data-[state=active]:bg-neutral-700 data-[state=active]:text-white">
+                <Activity className="w-4 h-4 mr-2" />
+                Advanced
+              </TabsTrigger>
+            </TabsList>
+
+            {/* Stats Grid - Always visible across all tabs */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <Card className="p-6 bg-neutral-800 border-neutral-700">
               <div className="flex items-center justify-between mb-2">
                 <MapPin className="w-8 h-8 text-primary" />
@@ -494,7 +511,7 @@ export default function AdminPage() {
 
             <Card className="p-6 bg-neutral-800 border-neutral-700">
               <div className="flex items-center justify-between mb-2">
-                <Image className="w-8 h-8 text-purple-400" alt="Image icon" />
+                <Image className="w-8 h-8 text-purple-400" aria-hidden="true" />
                 {stats.pendingPhotos > 0 && (
                   <Badge variant="secondary" className="bg-yellow-900 text-yellow-100">
                     {stats.pendingPhotos} pending
@@ -513,23 +530,6 @@ export default function AdminPage() {
               <div className="text-sm text-neutral-400">Total Reviews</div>
             </Card>
           </div>
-
-          {/* Tabs */}
-          <Tabs defaultValue="crawler" className="w-full">
-            <TabsList className="bg-neutral-800 border-neutral-700">
-              <TabsTrigger value="crawler" className="data-[state=active]:bg-neutral-700 data-[state=active]:text-white">
-                <Database className="w-4 h-4 mr-2" />
-                Crawler & Data
-              </TabsTrigger>
-              <TabsTrigger value="moderation" className="data-[state=active]:bg-neutral-700 data-[state=active]:text-white">
-                <Eye className="w-4 h-4 mr-2" />
-                Moderation {stats.pendingPhotos > 0 && `(${stats.pendingPhotos})`}
-              </TabsTrigger>
-              <TabsTrigger value="advanced" className="data-[state=active]:bg-neutral-700 data-[state=active]:text-white">
-                <Activity className="w-4 h-4 mr-2" />
-                Advanced
-              </TabsTrigger>
-            </TabsList>
 
             <TabsContent value="crawler" className="mt-6">
               <div className="space-y-6">
@@ -619,8 +619,8 @@ export default function AdminPage() {
                           {connectionStatus === 'error' && <WifiOff className="w-5 h-5 text-red-400" />}
                           <span className="text-sm font-semibold text-white">
                             {connectionStatus.toUpperCase()}
-                            {connectionStatus === 'reconnecting' && reconnectAttempt > 0 && (
-                              <span className="text-xs ml-1">({reconnectAttempt}/{maxReconnectAttempts})</span>
+                            {connectionStatus === 'reconnecting' && _reconnectAttempt > 0 && (
+                              <span className="text-xs ml-1">({_reconnectAttempt}/{maxReconnectAttempts})</span>
                             )}
                           </span>
                         </div>
