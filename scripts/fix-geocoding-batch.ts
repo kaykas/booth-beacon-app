@@ -274,25 +274,51 @@ async function run() {
   // Fetch booths to process
   console.log('📚 Fetching booth data from database...\n');
 
-  let boothsQuery = supabase
-    .from('booths')
-    .select('id, slug, name, address, city, state, country, postal_code, latitude, longitude');
+  let booths: Booth[] = [];
 
   if (boothIds) {
-    boothsQuery = boothsQuery.in('id', boothIds);
+    // Fetch in batches of 100 to avoid headers overflow
+    const batchSize = 100;
+    const totalBatches = Math.ceil(boothIds.length / batchSize);
+
+    console.log(`   Fetching ${boothIds.length} booths in ${totalBatches} batches...`);
+
+    for (let i = 0; i < totalBatches; i++) {
+      const start = i * batchSize;
+      const end = Math.min(start + batchSize, boothIds.length);
+      const batchIds = boothIds.slice(start, end);
+
+      const { data, error } = await supabase
+        .from('booths')
+        .select('id, slug, name, address, city, state, country, postal_code, latitude, longitude')
+        .in('id', batchIds);
+
+      if (error) {
+        console.error(`Error fetching batch ${i + 1}:`, error);
+        process.exit(1);
+      }
+
+      if (data) {
+        booths.push(...data);
+      }
+
+      console.log(`   Batch ${i + 1}/${totalBatches}: Fetched ${data?.length || 0} booths`);
+    }
   } else {
-    // All booths - this will still geocode all, but we might want to filter
-    // to only those needing updates
+    // All booths
+    const { data, error } = await supabase
+      .from('booths')
+      .select('id, slug, name, address, city, state, country, postal_code, latitude, longitude');
+
+    if (error) {
+      console.error('Error fetching booths:', error);
+      process.exit(1);
+    }
+
+    booths = data || [];
   }
 
-  const { data: booths, error } = await boothsQuery;
-
-  if (error) {
-    console.error('Error fetching booths:', error);
-    process.exit(1);
-  }
-
-  if (!booths || booths.length === 0) {
+  if (booths.length === 0) {
     console.log('No booths found to process');
     process.exit(0);
   }
