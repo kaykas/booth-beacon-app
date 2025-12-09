@@ -82,11 +82,12 @@ async function generateImage(booth: BoothData): Promise<string | null> {
       response_format: 'url',
     });
 
-    const imageUrl = response.data[0]?.url;
-    if (!imageUrl) {
+    if (!response.data || !response.data[0]?.url) {
       console.error('   ❌ DALL-E returned no image URL');
       return null;
     }
+
+    const imageUrl = response.data[0].url;
 
     console.log('   ✅ Image generated');
     return imageUrl;

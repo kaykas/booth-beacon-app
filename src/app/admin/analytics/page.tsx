@@ -29,7 +29,7 @@ import {
   BarChart3,
   Activity,
   Award,
-  Map,
+  Map as MapIcon,
   Loader2,
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -127,7 +127,24 @@ export default function AnalyticsPage() {
       // Booth Statistics
       const { data: allBooths, count: totalBooths } = await supabase
         .from('booths')
-        .select('*', { count: 'exact' });
+        .select('*', { count: 'exact' }) as {
+          data: Array<{
+            id: string;
+            name: string;
+            city: string;
+            country: string;
+            status: string;
+            created_at: string;
+            completeness_score: number;
+            photo_sample_strips?: string[] | null;
+            photo_exterior_url?: string | null;
+            photo_interior_url?: string | null;
+            phone?: string | null;
+            website?: string | null;
+            description?: string | null;
+          }> | null;
+          count: number | null;
+        };
 
       const { count: activeBooths } = await supabase
         .from('booths')
@@ -175,7 +192,8 @@ export default function AnalyticsPage() {
         : 0;
 
       // Top Cities
-      const cityCount = new Map<string, { country: string; count: number }>();
+      type CityCountData = { country: string; count: number };
+      const cityCount = new Map() as Map<string, CityCountData>;
       allBooths?.forEach(booth => {
         if (booth.city && booth.country) {
           const key = `${booth.city}, ${booth.country}`;
@@ -188,7 +206,7 @@ export default function AnalyticsPage() {
         }
       });
 
-      const topCities = Array.from(cityCount.entries())
+      const topCities: Array<{ city: string; country: string; count: number }> = (Array.from(cityCount.entries()) as Array<[string, { country: string; count: number }]>)
         .map(([cityCountry, data]) => ({
           city: cityCountry.split(', ')[0],
           country: data.country,
@@ -228,7 +246,7 @@ export default function AnalyticsPage() {
       // Average rating
       const { data: ratingsData } = await supabase
         .from('booth_comments')
-        .select('rating');
+        .select('rating') as { data: Array<{ rating: number | null }> | null };
 
       const averageRating = ratingsData && ratingsData.length > 0
         ? Math.round((ratingsData.reduce((sum, r) => sum + (r.rating || 0), 0) / ratingsData.length) * 10) / 10
@@ -245,9 +263,15 @@ export default function AnalyticsPage() {
       // Top Photo Contributors
       const { data: photoContributorsData } = await supabase
         .from('booth_user_photos')
-        .select('user_id, profiles!inner(username)');
+        .select('user_id, profiles!inner(username)') as {
+          data: Array<{
+            user_id: string;
+            profiles: { username?: string } | { username?: string }[];
+          }> | null;
+        };
 
-      const contributorMap = new Map<string, { count: number; username?: string }>();
+      type ContributorData = { count: number; username?: string };
+      const contributorMap = new Map() as Map<string, ContributorData>;
       photoContributorsData?.forEach(photo => {
         const userId = photo.user_id;
         const username = (photo.profiles as unknown as { username?: string })?.username;
@@ -259,7 +283,7 @@ export default function AnalyticsPage() {
         }
       });
 
-      const topPhotoContributors = Array.from(contributorMap.entries())
+      const topPhotoContributors: Array<{ user_id: string; photo_count: number; profile?: { username?: string } }> = (Array.from(contributorMap.entries()) as Array<[string, { count: number; username?: string }]>)
         .map(([user_id, data]) => ({
           user_id,
           photo_count: data.count,
@@ -271,9 +295,15 @@ export default function AnalyticsPage() {
       // Most Bookmarked Booths
       const { data: bookmarksData } = await supabase
         .from('booth_bookmarks')
-        .select('booth_id, booths!inner(name, city)');
+        .select('booth_id, booths!inner(name, city)') as {
+          data: Array<{
+            booth_id: string;
+            booths: { name?: string; city?: string } | { name?: string; city?: string }[];
+          }> | null;
+        };
 
-      const bookmarkMap = new Map<string, { count: number; name?: string; city?: string }>();
+      type BookmarkData = { count: number; name?: string; city?: string };
+      const bookmarkMap = new Map() as Map<string, BookmarkData>;
       bookmarksData?.forEach(bookmark => {
         const boothId = bookmark.booth_id;
         const booth = bookmark.booths as unknown as { name?: string; city?: string };
@@ -289,7 +319,7 @@ export default function AnalyticsPage() {
         }
       });
 
-      const mostBookmarkedBooths = Array.from(bookmarkMap.entries())
+      const mostBookmarkedBooths: Array<{ booth_id: string; bookmark_count: number; booth?: { name: string; city: string } }> = (Array.from(bookmarkMap.entries()) as Array<[string, { count: number; name?: string; city?: string }]>)
         .map(([booth_id, data]) => ({
           booth_id,
           bookmark_count: data.count,
@@ -299,7 +329,7 @@ export default function AnalyticsPage() {
         .slice(0, 5);
 
       // Growth Metrics - Booths by Month (last 6 months)
-      const boothsByMonthMap = new Map<string, number>();
+      const boothsByMonthMap = new Map() as Map<string, number>;
       allBooths?.forEach(booth => {
         const created = new Date(booth.created_at);
         if (created >= threeMonthsAgo) {
@@ -308,7 +338,7 @@ export default function AnalyticsPage() {
         }
       });
 
-      const boothsByMonth = Array.from(boothsByMonthMap.entries())
+      const boothsByMonth: Array<{ month: string; count: number }> = (Array.from(boothsByMonthMap.entries()) as Array<[string, number]>)
         .map(([month, count]) => ({ month, count }))
         .sort((a, b) => a.month.localeCompare(b.month));
 
@@ -316,16 +346,18 @@ export default function AnalyticsPage() {
       const { data: allUsersData } = await supabase
         .from('profiles')
         .select('created_at')
-        .gte('created_at', threeMonthsAgo.toISOString());
+        .gte('created_at', threeMonthsAgo.toISOString()) as {
+          data: Array<{ created_at: string }> | null;
+        };
 
-      const usersByMonthMap = new Map<string, number>();
+      const usersByMonthMap = new Map() as Map<string, number>;
       allUsersData?.forEach(user => {
         const created = new Date(user.created_at);
         const monthKey = `${created.getFullYear()}-${String(created.getMonth() + 1).padStart(2, '0')}`;
         usersByMonthMap.set(monthKey, (usersByMonthMap.get(monthKey) || 0) + 1);
       });
 
-      const usersByMonth = Array.from(usersByMonthMap.entries())
+      const usersByMonth: Array<{ month: string; count: number }> = (Array.from(usersByMonthMap.entries()) as Array<[string, number]>)
         .map(([month, count]) => ({ month, count }))
         .sort((a, b) => a.month.localeCompare(b.month));
 
@@ -733,7 +765,7 @@ export default function AnalyticsPage() {
               <Card className="bg-neutral-800 border-neutral-700">
                 <CardHeader>
                   <CardTitle className="text-white flex items-center gap-2">
-                    <Map className="w-5 h-5 text-primary" />
+                    <MapIcon className="w-5 h-5 text-primary" />
                     Top Cities by Booth Count
                   </CardTitle>
                   <CardDescription className="text-neutral-400">

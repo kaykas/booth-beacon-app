@@ -52,7 +52,11 @@ async function generateImage(booth: any): Promise<string | null> {
       response_format: 'url',
     });
 
-    return response.data[0]?.url || null;
+    if (!response.data || !response.data[0]?.url) {
+      return null;
+    }
+
+    return response.data[0].url;
   } catch (error) {
     console.error(`  Error generating image:`, error);
     return null;

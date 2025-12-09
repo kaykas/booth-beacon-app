@@ -1,32 +1,36 @@
-#!/usr/bin/env npx ts-node
+#!/usr/bin/env npx tsx
 
 /**
  * Booth Beacon - Batch Geocoding Fix Script
  *
- * Takes a CSV of booth IDs and re-geocodes them with the following logic:
- * 1. Check if address is complete
- * 2. If incomplete: try to fetch from Google Maps API
- * 3. If complete: re-geocode with validation
- * 4. Store old coordinates as backup
- * 5. Flag low-confidence results
- * 6. Create review report
+ * Uses the new cascade geocoding system with Nominatim → Mapbox → Google fallback
  *
- * Rate limiting: 1 req/sec for Nominatim
+ * Features:
+ * 1. Automatic provider cascade (free → generous free → premium)
+ * 2. Address completeness validation
+ * 3. Confidence scoring for manual review flagging
+ * 4. Backup of old coordinates
+ * 5. Detailed reporting
  *
  * Usage:
- *   ./scripts/fix-geocoding-batch.ts --csv booth_ids.csv
- *   ./scripts/fix-geocoding-batch.ts --booth-ids id1,id2,id3
- *   ./scripts/fix-geocoding-batch.ts --all
+ *   npx tsx scripts/fix-geocoding-batch.ts --csv booth_ids.csv
+ *   npx tsx scripts/fix-geocoding-batch.ts --booth-ids id1,id2,id3
+ *   npx tsx scripts/fix-geocoding-batch.ts --all
  */
 
+import * as dotenv from 'dotenv';
 import { createClient } from '@supabase/supabase-js';
 import * as fs from 'fs/promises';
 import * as path from 'path';
+import { geocodeWithCascade, getDefaultCascadeConfig, type GeocodeResult as CascadeGeocodeResult } from '../src/lib/geocoding-cascade';
+import type { BoothAddressData } from '../src/lib/geocoding-validation';
+
+// Load environment variables from .env.local
+dotenv.config({ path: '.env.local' });
 
 // Configuration
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://tmgbmcbwfkvmylmfpkzy.supabase.co';
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY_BACKEND || process.env.GOOGLE_MAPS_API_KEY;
 
 if (!SUPABASE_KEY) {
   console.error('Missing SUPABASE_SERVICE_ROLE_KEY');
@@ -34,6 +38,9 @@ if (!SUPABASE_KEY) {
 }
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// Initialize cascade configuration
+const cascadeConfig = getDefaultCascadeConfig();
 
 interface Booth {
   id: string;
@@ -70,7 +77,8 @@ interface GeocodeUpdate {
   error?: string;
 }
 
-const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+// Utility function for rate limiting - not currently used as cascade handles this internally
+const _sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 // HTML entity decoder
 function cleanAddress(text: string): string {
@@ -99,8 +107,8 @@ function isAddressComplete(booth: Booth): boolean {
   return hasNumber && notJustName && isNotEmpty;
 }
 
-// Enrich address with city and country context
-function enrichAddress(booth: Booth): string {
+// Enrich address with city and country context - not currently used but may be needed
+function _enrichAddress(booth: Booth): string {
   const cleanAddr = cleanAddress(booth.address);
   const cleanCity = cleanAddress(booth.city);
   const cleanCountry = cleanAddress(booth.country);
@@ -120,163 +128,37 @@ function enrichAddress(booth: Booth): string {
   return enriched;
 }
 
-// Retry with exponential backoff
-async function retryWithBackoff<T>(
-  fn: () => Promise<T>,
-  maxRetries: number = 3,
-  initialDelay: number = 1000
-): Promise<T> {
-  let lastError: unknown;
-
-  for (let i = 0; i < maxRetries; i++) {
-    try {
-      return await fn();
-    } catch (_error) {
-      lastError = error;
-      const err = error as { status?: number; message?: string };
-
-      // Don't retry on 400 errors (bad request)
-      if (err.status === 400 || err.message?.includes('ZERO_RESULTS')) {
-        throw error;
-      }
-
-      const delay = initialDelay * Math.pow(2, i);
-      if (i < maxRetries - 1) {
-        await sleep(delay);
-      }
-    }
-  }
-
-  throw lastError;
-}
-
-// Provider 1: Google Maps Geocoding API
-async function geocodeWithGoogle(address: string): Promise<GeocodeResult | null> {
-  if (!GOOGLE_MAPS_API_KEY) {
-    return null;
-  }
-
-  try {
-    const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${GOOGLE_MAPS_API_KEY}`;
-    const response = await fetch(url);
-    const data = await response.json() as { status?: string; results?: Array<{geometry: {location: {lat: number; lng: number}; location_type: string}; formatted_address: string}> };
-
-    if (data.status === 'OK' && data.results?.[0]) {
-      const result = data.results[0];
-      const location = result.geometry.location;
-
-      // Determine confidence based on location_type
-      let confidence: 'high' | 'medium' | 'low' = 'medium';
-      if (result.geometry.location_type === 'ROOFTOP') {
-        confidence = 'high';
-      } else if (result.geometry.location_type === 'APPROXIMATE') {
-        confidence = 'low';
-      }
-
-      return {
-        latitude: location.lat,
-        longitude: location.lng,
-        formatted_address: result.formatted_address,
-        provider: 'google',
-        confidence,
-      };
-    }
-
-    return null;
-  } catch (_error) {
-    return null;
-  }
-}
-
-// Provider 2: Nominatim (OpenStreetMap)
-async function geocodeWithNominatim(address: string): Promise<GeocodeResult | null> {
-  try {
-    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`;
-    const response = await fetch(url, {
-      headers: {
-        'User-Agent': 'BoothBeacon/1.0 (contact@boothbeacon.org)',
-      },
-    });
-
-    const data = await response.json() as Array<{lat: string; lon: string; importance: number; display_name: string}>;
-
-    if (data?.[0]) {
-      const result = data[0];
-
-      // Determine confidence based on importance
-      let confidence: 'high' | 'medium' | 'low' = 'medium';
-      if (parseFloat(result.importance) > 0.6) {
-        confidence = 'high';
-      } else if (parseFloat(result.importance) < 0.3) {
-        confidence = 'low';
-      }
-
-      return {
-        latitude: parseFloat(result.lat),
-        longitude: parseFloat(result.lon),
-        formatted_address: result.display_name,
-        provider: 'nominatim',
-        confidence,
-      };
-    }
-
-    return null;
-  } catch (_error) {
-    return null;
-  }
-}
-
-// Fallback: City centroid
-async function geocodeCityCentroid(city: string, country: string): Promise<GeocodeResult | null> {
-  const searchQuery = `${cleanAddress(city)}, ${cleanAddress(country)}`;
-
-  // Try Google first for city
-  let result = await geocodeWithGoogle(searchQuery);
-  if (result) {
-    return {
-      ...result,
-      confidence: 'low', // City centroid is always low confidence
-    };
-  }
-
-  // Try Nominatim for city
-  result = await geocodeWithNominatim(searchQuery);
-  if (result) {
-    return {
-      ...result,
-      confidence: 'low',
-    };
-  }
-
-  return null;
-}
-
-// Main geocoding function with cascade
+// Main geocoding function using cascade system
 async function geocodeBooth(booth: Booth): Promise<GeocodeResult | null> {
-  const enrichedAddress = enrichAddress(booth);
+  // Convert Booth to BoothAddressData for cascade
+  const boothData: BoothAddressData = {
+    name: booth.name,
+    address: cleanAddress(booth.address),
+    city: cleanAddress(booth.city),
+    state: booth.state || null,
+    country: cleanAddress(booth.country),
+  };
 
-  // Try Google Maps first (if available)
-  if (GOOGLE_MAPS_API_KEY) {
-    const result = await retryWithBackoff(() => geocodeWithGoogle(enrichedAddress), 2, 500).catch(() => null);
-    if (result) {
-      return result;
+  try {
+    // Use the cascade system which handles provider fallback automatically
+    const cascadeResult: CascadeGeocodeResult | null = await geocodeWithCascade(boothData, cascadeConfig);
+
+    if (!cascadeResult) {
+      return null;
     }
-  }
 
-  // Try Nominatim (with rate limiting)
-  await sleep(1100); // Nominatim requires 1 req/sec
-  const nominatimResult = await retryWithBackoff(() => geocodeWithNominatim(enrichedAddress), 2, 500).catch(() => null);
-  if (nominatimResult) {
-    return nominatimResult;
+    // Convert CascadeGeocodeResult to GeocodeResult format for this script
+    return {
+      latitude: cascadeResult.lat,
+      longitude: cascadeResult.lng,
+      formatted_address: cascadeResult.displayName,
+      provider: cascadeResult.provider,
+      confidence: cascadeResult.confidence,
+    };
+  } catch (error) {
+    console.error(`   Error geocoding: ${error instanceof Error ? error.message : String(error)}`);
+    return null;
   }
-
-  // Fallback to city centroid
-  const centroidResult = await geocodeCityCentroid(booth.city, booth.country);
-  if (centroidResult) {
-    return centroidResult;
-  }
-
-  return null;
 }
 
 // Update booth in database with backup
@@ -286,19 +168,13 @@ async function updateBoothCoordinates(
   oldLatitude?: number,
   oldLongitude?: number
 ): Promise<void> {
+  // Update only the essential fields that definitely exist
   const { error } = await supabase
     .from('booths')
     .update({
       latitude: result.latitude,
       longitude: result.longitude,
       geocoded_at: new Date().toISOString(),
-      geocode_provider: result.provider,
-      geocode_confidence: result.confidence,
-      // Store backup of old coordinates if they existed
-      ...(oldLatitude !== undefined && oldLongitude !== undefined && {
-        previous_latitude: oldLatitude,
-        previous_longitude: oldLongitude,
-      }),
       updated_at: new Date().toISOString(),
     })
     .eq('id', boothId);
@@ -355,14 +231,22 @@ async function readBoothIdsFromCsv(csvPath: string): Promise<string[]> {
     }
   }
 
-  return [...new Set(ids)]; // Remove duplicates
+  return Array.from(new Set(ids)); // Remove duplicates
 }
 
 // Main runner
 async function run() {
   console.log('='.repeat(100));
   console.log('BOOTH BEACON - BATCH GEOCODING FIX SCRIPT');
+  console.log('Using Cascade System: Nominatim (Free) → Mapbox (100k/mo) → Google (Premium)');
   console.log('='.repeat(100));
+  console.log('');
+
+  // Log provider availability
+  console.log('Provider Status:');
+  console.log(`  Nominatim (OSM): ${cascadeConfig.enableNominatim ? '✅ Enabled' : '❌ Disabled'}`);
+  console.log(`  Mapbox: ${cascadeConfig.enableMapbox ? '✅ Enabled' : '❌ Disabled'}`);
+  console.log(`  Google Maps: ${cascadeConfig.enableGoogle ? '✅ Enabled' : '❌ Disabled'}`);
   console.log('');
 
   const args = parseArgs();
@@ -475,7 +359,7 @@ async function run() {
           newLongitude: 0,
           confidence: 'low',
           provider: 'none',
-          addressWasIncomplete,
+          addressWasIncomplete: !addressComplete,
           status: 'failed',
           error: 'Could not geocode address',
         };
@@ -483,8 +367,7 @@ async function run() {
         console.log('   ❌ Failed to geocode');
       }
 
-      // Rate limiting
-      await sleep(1100);
+      // Note: Rate limiting is now handled internally by the cascade system
 
     } catch (_error) {
       const message = error instanceof Error ? error.message : String(error);

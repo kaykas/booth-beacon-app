@@ -97,10 +97,11 @@ async function generateImageWithRetry(booth: BoothData, attempt: number = 1): Pr
       response_format: 'url',
     });
 
-    const imageUrl = response.data[0]?.url;
-    if (!imageUrl) {
+    if (!response.data || !response.data[0]?.url) {
       throw new Error('No image URL returned');
     }
+
+    const imageUrl = response.data[0].url;
 
     return imageUrl;
   } catch (error: any) {
