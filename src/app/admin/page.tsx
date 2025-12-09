@@ -12,7 +12,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { BarChart3, Users, Image, MessageSquare, MapPin, CheckCircle, XCircle, Clock, Database, PlayCircle, PauseCircle, RefreshCw, Shield, Wifi, WifiOff, Activity, AlertCircle, Zap, Loader2, FileText, Heart, Recycle, Eye } from 'lucide-react';
+import { BarChart3, Users, Image, MessageSquare, MapPin, CheckCircle, XCircle, Clock, Database, PlayCircle, PauseCircle, RefreshCw, Shield, Wifi, WifiOff, Activity, AlertCircle, Zap, Loader2, FileText, Heart, Recycle, Eye, ChevronDown, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { MetricsDashboard } from '@/components/admin/MetricsDashboard';
 import { CrawlPerformanceBreakdown } from '@/components/admin/CrawlPerformanceBreakdown';
@@ -37,12 +37,6 @@ interface CrawlSource {
   source_name: string;
   [key: string]: unknown;
 }
-
-
-// Unused interface ExtendedEventSource - commented for future implementation
-// interface ExtendedEventSource extends EventSource {
-//   timeoutId?: NodeJS.Timeout;
-// }
 
 export default function AdminPage() {
   const { user, loading: authLoading } = useAuth();
@@ -86,20 +80,14 @@ export default function AdminPage() {
   const [_selectedSource, setSelectedSource] = useState<string>('');
   const stopRef = useRef(false);
 
+  // UI state
+  const [showSourcesList, setShowSourcesList] = useState(false);
+  const [showActivityFeed, setShowActivityFeed] = useState(false);
+  const [showCrawlerDetails, setShowCrawlerDetails] = useState(false);
+
   // Discovery Engine environment variables state
   const [envVarsStatus, setEnvVarsStatus] = useState<Record<string, boolean> | null>(null);
   const [envVarsLoading, setEnvVarsLoading] = useState(false);
-
-  // Geocoding state (for future feature)
-  // Commented out to fix lint errors until feature is implemented
-  // const [geocodingRunning, setGeocodingRunning] = useState(false);
-  // Unused geocoding state - commented for future implementation
-  // const [geocodingStatus, setGeocodingStatus] = useState('Ready');
-  // const [geocodingProgress, setGeocodingProgress] = useState({ current: 0, total: 0, percentage: 0 });
-  // const [geocodingResults, setGeocodingResults] = useState<unknown[]>([]);
-  // const [geocodingStats, setGeocodingStats] = useState({ success: 0, errors: 0, skipped: 0 });
-  // const [missingCoordsCount, setMissingCoordsCount] = useState(0);
-  // const [currentEventSourceGeocode, setCurrentEventSourceGeocode] = useState<EventSource | null>(null);
 
   // Check admin status
   useEffect(() => {
@@ -117,7 +105,7 @@ export default function AdminPage() {
         setAdminCheckComplete(true);
 
         if (adminStatus) {
-          loadAdminData(); // Now loads both admin stats and crawler metrics from API
+          loadAdminData();
           loadCrawlerLogs();
           loadCrawlSources();
         }
@@ -132,7 +120,6 @@ export default function AdminPage() {
 
   const loadAdminData = async () => {
     try {
-      // Fetch stats from optimized API endpoint
       const response = await fetch('/api/admin/stats');
       if (!response.ok) {
         throw new Error('Failed to fetch admin stats');
@@ -140,7 +127,6 @@ export default function AdminPage() {
 
       const data = await response.json();
 
-      // Update stats state
       setStats({
         totalBooths: data.booths.total,
         activeBooths: data.booths.active,
@@ -150,14 +136,12 @@ export default function AdminPage() {
         totalReviews: data.reviews.total,
       });
 
-      // Update crawler metrics state
       setCrawlerMetrics({
         crawledToday: data.crawler.crawledToday,
         lastRun: data.crawler.lastRun,
         errorCount: data.crawler.errorCount,
       });
 
-      // Load pending photos separately (needs full data, not just count)
       const pendingPhotosData = await supabase
         .from('booth_user_photos')
         .select(`
@@ -178,12 +162,9 @@ export default function AdminPage() {
   };
 
   const moderatePhoto = async (photoId: string, status: 'approved' | 'rejected') => {
-    // TODO: Fix Supabase type inference issue
     toast.info('Photo moderation coming soon');
     console.log(`Would moderate photo ${photoId} with status ${status}`);
   };
-
-  // loadCrawlerMetrics() removed - now handled by loadAdminData() via /api/admin/stats
 
   const loadCrawlerLogs = async () => {
     try {
@@ -232,7 +213,6 @@ export default function AdminPage() {
     }
   };
 
-  // Helper to add activity to feed
   const addActivity = (type: string, message: string, status: 'info' | 'success' | 'warning' | 'error' = 'info') => {
     setActivityFeed(prev => [{type, message, timestamp: new Date(), status}, ...prev].slice(0, 50));
   };
@@ -245,7 +225,7 @@ export default function AdminPage() {
     setConnectionStatus('disconnected');
     addActivity('stop', 'Crawler stop requested', 'warning');
     toast.info('Stopping crawler after current source finishes...');
-    
+
     if (currentEventSource) {
       currentEventSource.close();
       setCurrentEventSource(null);
@@ -258,7 +238,6 @@ export default function AdminPage() {
       return;
     }
 
-    // Reset all states
     setCrawlerRunning(true);
     stopRef.current = false;
     setCrawlerStatus('Initializing crawler...');
@@ -271,14 +250,12 @@ export default function AdminPage() {
     setLastError('');
     setErrorCount(0);
     setCurrentBoothCount(0);
+    setShowActivityFeed(true);
 
-    // Get list of sources to run
-    // If specific source requested, use that. Otherwise use all enabled sources.
     let sourcesToRun = crawlSources.filter(s => s.enabled);
     if (sourceName) {
       sourcesToRun = sourcesToRun.filter(s => s.source_name === sourceName);
     } else {
-      // Refresh sources list to be sure
       try {
         const { data: refreshedSources } = await supabase
           .from('crawl_sources')
@@ -306,9 +283,7 @@ export default function AdminPage() {
 
     let completedSources = 0;
 
-    // --- CLIENT SIDE ORCHESTRATION LOOP ---
     for (let i = 0; i < sourcesToRun.length; i++) {
-      // Check for stop signal
       if (stopRef.current) {
         addActivity('stop', 'Crawler stopped by user', 'warning');
         break;
@@ -320,15 +295,14 @@ export default function AdminPage() {
       addActivity('source', `Starting ${source.source_name}`, 'info');
 
       try {
-        // Process single source via SSE
         await new Promise<void>((resolve, reject) => {
           const es = new EventSource(`/api/crawler/run-source?sourceId=${source.id}`);
           setCurrentEventSource(es);
-          
+
           es.onmessage = (event) => {
             try {
               const data = JSON.parse(event.data);
-              
+
               if (data.type === 'progress') {
                 setCurrentStage(data.message);
               } else if (data.type === 'info') {
@@ -353,7 +327,6 @@ export default function AdminPage() {
             console.error('EventSource failed', err);
             es.close();
             setCurrentEventSource(null);
-            // Treat network error as failure but don't crash whole crawler
             reject(new Error('Connection lost'));
           };
         });
@@ -367,13 +340,12 @@ export default function AdminPage() {
       }
 
       completedSources++;
-      setCrawlerProgress({ 
-        current: completedSources, 
-        total: sourcesToRun.length, 
-        percentage: Math.round((completedSources / sourcesToRun.length) * 100) 
+      setCrawlerProgress({
+        current: completedSources,
+        total: sourcesToRun.length,
+        percentage: Math.round((completedSources / sourcesToRun.length) * 100)
       });
 
-      // Refresh logs/metrics occasionally (now combined in loadAdminData)
       loadAdminData();
       loadCrawlerLogs();
     }
@@ -387,7 +359,6 @@ export default function AdminPage() {
     loadAdminData();
   };
 
-  // Loading state
   if (authLoading || !adminCheckComplete) {
     return (
       <>
@@ -409,7 +380,6 @@ export default function AdminPage() {
     );
   }
 
-  // Not authenticated
   if (!user) {
     return (
       <>
@@ -433,7 +403,6 @@ export default function AdminPage() {
     );
   }
 
-  // Not admin - show access denied
   if (!isAdmin) {
     return (
       <>
@@ -461,859 +430,626 @@ export default function AdminPage() {
   return (
     <>
       <Header />
-      <main className="min-h-screen bg-neutral-900 py-12">
+      <main className="min-h-screen bg-neutral-900 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="mb-6">
-            <h1 className="font-display text-4xl font-semibold mb-2 text-white">Admin Dashboard</h1>
-            <p className="text-neutral-400">Manage content and moderate submissions</p>
+          {/* Hero Header */}
+          <div className="mb-8">
+            <h1 className="font-display text-3xl font-semibold text-white mb-1">Admin Dashboard</h1>
+            <p className="text-neutral-400 text-sm">System overview and quick actions</p>
           </div>
 
-          {/* Navigation Tabs - Moved up for better visibility */}
-          <Tabs defaultValue="crawler" className="w-full">
-            <TabsList className="bg-neutral-800 border-neutral-700 mb-8">
-              <TabsTrigger value="crawler" className="data-[state=active]:bg-neutral-700 data-[state=active]:text-white">
+          {/* Hero Stats - Large, Actionable Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            {/* Booth Stats */}
+            <Card className="p-6 bg-gradient-to-br from-neutral-800 to-neutral-900 border-neutral-700 hover:border-primary/50 transition-all cursor-pointer">
+              <Link href="/admin/booths" className="block">
+                <div className="flex items-center justify-between mb-3">
+                  <MapPin className="w-10 h-10 text-primary" />
+                  <div className="text-right">
+                    <div className="text-3xl font-bold text-white">{stats.totalBooths}</div>
+                    <div className="text-xs text-neutral-400">Total Booths</div>
+                  </div>
+                </div>
+                <div className="flex gap-2 mt-3">
+                  <Badge variant="secondary" className="bg-green-900/50 text-green-300 text-xs">
+                    {stats.activeBooths} active
+                  </Badge>
+                  {stats.pendingBooths > 0 && (
+                    <Badge variant="secondary" className="bg-yellow-900/50 text-yellow-300 text-xs">
+                      {stats.pendingBooths} pending
+                    </Badge>
+                  )}
+                </div>
+              </Link>
+            </Card>
+
+            {/* Photos to Review - Alert State */}
+            <Card className={`p-6 border-2 transition-all cursor-pointer ${
+              stats.pendingPhotos > 0
+                ? 'bg-gradient-to-br from-amber-900/30 to-red-900/30 border-amber-500/50 hover:border-amber-400'
+                : 'bg-gradient-to-br from-neutral-800 to-neutral-900 border-neutral-700'
+            }`}>
+              <Link href="/admin#moderation">
+                <div className="flex items-center justify-between mb-3">
+                  <Image className="w-10 h-10 text-amber-400" aria-hidden="true" />
+                  <div className="text-right">
+                    <div className="text-3xl font-bold text-white">{stats.pendingPhotos}</div>
+                    <div className="text-xs text-neutral-400">Photos to Review</div>
+                  </div>
+                </div>
+                {stats.pendingPhotos > 0 ? (
+                  <Badge className="bg-amber-500 text-white w-full justify-center mt-3">
+                    <AlertCircle className="w-3 h-3 mr-1" />
+                    Action Required
+                  </Badge>
+                ) : (
+                  <Badge variant="secondary" className="bg-green-900/50 text-green-300 w-full justify-center mt-3">
+                    <CheckCircle className="w-3 h-3 mr-1" />
+                    All Clear
+                  </Badge>
+                )}
+              </Link>
+            </Card>
+
+            {/* Crawler Status */}
+            <Card className={`p-6 border-2 transition-all ${
+              crawlerRunning
+                ? 'bg-gradient-to-br from-blue-900/30 to-purple-900/30 border-blue-500/50 animate-pulse'
+                : crawlerState === 'error'
+                ? 'bg-gradient-to-br from-red-900/30 to-neutral-900 border-red-500/50'
+                : 'bg-gradient-to-br from-neutral-800 to-neutral-900 border-neutral-700'
+            }`}>
+              <div className="flex items-center justify-between mb-3">
+                {crawlerRunning ? (
+                  <Activity className="w-10 h-10 text-blue-400 animate-pulse" />
+                ) : (
+                  <Database className="w-10 h-10 text-neutral-400" />
+                )}
+                <div className="text-right">
+                  <div className="text-2xl font-bold text-white">
+                    {crawlerRunning ? 'RUNNING' : 'IDLE'}
+                  </div>
+                  <div className="text-xs text-neutral-400">Crawler Status</div>
+                </div>
+              </div>
+              <div className="text-xs text-neutral-400 mt-3">
+                {crawlerRunning ? (
+                  <span className="flex items-center gap-1">
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                    {currentSource || 'Processing...'}
+                  </span>
+                ) : (
+                  `Last run: ${crawlerMetrics.lastRun}`
+                )}
+              </div>
+            </Card>
+
+            {/* Users */}
+            <Card className="p-6 bg-gradient-to-br from-neutral-800 to-neutral-900 border-neutral-700 hover:border-accent/50 transition-all cursor-pointer">
+              <Link href="/admin#moderation">
+                <div className="flex items-center justify-between mb-3">
+                  <Users className="w-10 h-10 text-accent" />
+                  <div className="text-right">
+                    <div className="text-3xl font-bold text-white">{stats.totalUsers}</div>
+                    <div className="text-xs text-neutral-400">Users</div>
+                  </div>
+                </div>
+                <div className="text-xs text-neutral-400 mt-3">
+                  {stats.totalReviews} reviews total
+                </div>
+              </Link>
+            </Card>
+          </div>
+
+          {/* Tabs Navigation */}
+          <Tabs defaultValue="overview" className="w-full">
+            <TabsList className="bg-neutral-800 border-neutral-700 mb-6">
+              <TabsTrigger value="overview" className="data-[state=active]:bg-neutral-700 data-[state=active]:text-white">
+                <Activity className="w-4 h-4 mr-2" />
+                Overview
+              </TabsTrigger>
+              <TabsTrigger value="data" className="data-[state=active]:bg-neutral-700 data-[state=active]:text-white">
                 <Database className="w-4 h-4 mr-2" />
-                Crawler & Data
+                Data Collection
               </TabsTrigger>
               <TabsTrigger value="moderation" className="data-[state=active]:bg-neutral-700 data-[state=active]:text-white">
                 <Eye className="w-4 h-4 mr-2" />
-                Moderation {stats.pendingPhotos > 0 && `(${stats.pendingPhotos})`}
+                Content Review
+                {stats.pendingPhotos > 0 && (
+                  <Badge className="ml-2 bg-amber-500 text-white">{stats.pendingPhotos}</Badge>
+                )}
               </TabsTrigger>
-              <TabsTrigger value="advanced" className="data-[state=active]:bg-neutral-700 data-[state=active]:text-white">
-                <Activity className="w-4 h-4 mr-2" />
-                Advanced
+              <TabsTrigger value="system" className="data-[state=active]:bg-neutral-700 data-[state=active]:text-white">
+                <Heart className="w-4 h-4 mr-2" />
+                System
               </TabsTrigger>
             </TabsList>
 
-            {/* Stats Grid - Always visible across all tabs */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <Card className="p-6 bg-neutral-800 border-neutral-700">
-              <div className="flex items-center justify-between mb-2">
-                <MapPin className="w-8 h-8 text-primary" />
-                <Badge variant="secondary" className="bg-green-900 text-green-100">{stats.activeBooths} active</Badge>
-              </div>
-              <div className="text-3xl font-bold text-white">{stats.totalBooths}</div>
-              <div className="text-sm text-neutral-400">Total Booths</div>
-              {stats.pendingBooths > 0 && (
-                <div className="mt-2 text-xs text-yellow-400">
-                  {stats.pendingBooths} pending approval
-                </div>
-              )}
-            </Card>
-
-            <Card className="p-6 bg-neutral-800 border-neutral-700">
-              <div className="flex items-center justify-between mb-2">
-                <Users className="w-8 h-8 text-accent" />
-              </div>
-              <div className="text-3xl font-bold text-white">{stats.totalUsers}</div>
-              <div className="text-sm text-neutral-400">Registered Users</div>
-            </Card>
-
-            <Card className="p-6 bg-neutral-800 border-neutral-700">
-              <div className="flex items-center justify-between mb-2">
-                <Image className="w-8 h-8 text-purple-400" aria-hidden="true" />
-                {stats.pendingPhotos > 0 && (
-                  <Badge variant="secondary" className="bg-yellow-900 text-yellow-100">
-                    {stats.pendingPhotos} pending
-                  </Badge>
-                )}
-              </div>
-              <div className="text-3xl font-bold text-white">{stats.pendingPhotos}</div>
-              <div className="text-sm text-neutral-400">Photos to Review</div>
-            </Card>
-
-            <Card className="p-6 bg-neutral-800 border-neutral-700">
-              <div className="flex items-center justify-between mb-2">
-                <MessageSquare className="w-8 h-8 text-blue-400" />
-              </div>
-              <div className="text-3xl font-bold text-white">{stats.totalReviews}</div>
-              <div className="text-sm text-neutral-400">Total Reviews</div>
-            </Card>
-          </div>
-
-            <TabsContent value="crawler" className="mt-6">
-              <div className="space-y-6">
-                {/* Database Status Overview - TOP PRIORITY */}
-                <DatabaseStatusOverview />
-
-                {/* Data Enrichment Card */}
-                <Card className="p-6 bg-gradient-to-br from-purple-900/20 to-blue-900/20 border-purple-500/30">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="p-3 bg-purple-500/20 rounded-lg">
-                          <Zap className="w-8 h-8 text-purple-400" />
-                        </div>
-                        <div>
-                          <h2 className="font-display text-2xl font-semibold text-white">Data Enrichment</h2>
-                          <p className="text-purple-300 text-sm">Enhance booth data quality with Google Places & AI</p>
-                        </div>
-                      </div>
-                      <p className="text-neutral-300 mb-4">
-                        Automatically enrich booth data with venue information from Google Places API and generate AI images with DALL-E 3.
-                        Target: 80% data quality across all booths.
-                      </p>
-                      <div className="flex gap-2">
-                        <Link href="/admin/enrichment">
-                          <Button className="bg-purple-600 hover:bg-purple-700">
-                            <Zap className="w-4 h-4 mr-2" />
-                            Open Enrichment Dashboard
-                          </Button>
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                </Card>
-
-                {/* Crawler Controls */}
+            {/* OVERVIEW TAB */}
+            <TabsContent value="overview" className="mt-6 space-y-6">
+              {/* Quick Actions */}
               <Card className="p-6 bg-neutral-800 border-neutral-700">
-                <h2 className="font-display text-2xl font-semibold mb-6 text-white">Data Crawler Controls</h2>
+                <h2 className="font-display text-xl font-semibold mb-4 text-white">Quick Actions</h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* Run Crawler */}
+                  <Button
+                    size="lg"
+                    className="h-24 flex flex-col items-center justify-center gap-2"
+                    onClick={() => startCrawler()}
+                    disabled={crawlerRunning}
+                  >
+                    {crawlerRunning ? (
+                      <>
+                        <Loader2 className="w-6 h-6 animate-spin" />
+                        <span>Crawler Running...</span>
+                      </>
+                    ) : (
+                      <>
+                        <PlayCircle className="w-6 h-6" />
+                        <span>Run Crawler</span>
+                      </>
+                    )}
+                  </Button>
 
-                <div className="space-y-6">
-                  {/* BIG STATUS BANNER */}
-                  <div className={`border-4 rounded-xl p-8 transition-all duration-500 ${
-                    crawlerState === 'idle' ? 'bg-neutral-900 border-neutral-700' :
-                    crawlerState === 'connecting' ? 'bg-blue-950/30 border-blue-500 animate-pulse' :
-                    crawlerState === 'running' ? 'bg-green-950/30 border-green-500' :
-                    crawlerState === 'error' ? 'bg-red-950/30 border-red-500' :
-                    crawlerState === 'complete' ? 'bg-purple-950/30 border-purple-500' :
-                    'bg-neutral-900 border-neutral-700'
-                  }`}>
-                    <div className="flex items-center justify-between mb-6">
-                      <div className="flex items-center gap-6">
-                        {/* State Icon */}
-                        <div className={`p-4 rounded-full ${
-                          crawlerState === 'idle' ? 'bg-neutral-800' :
-                          crawlerState === 'connecting' ? 'bg-blue-500/20' :
-                          crawlerState === 'running' ? 'bg-green-500/20' :
-                          crawlerState === 'error' ? 'bg-red-500/20' :
-                          'bg-purple-500/20'
-                        }`}>
-                          {crawlerState === 'idle' && <Database className="w-12 h-12 text-neutral-400" />}
-                          {crawlerState === 'connecting' && <Loader2 className="w-12 h-12 text-blue-400 animate-spin" />}
-                          {crawlerState === 'running' && <Activity className="w-12 h-12 text-green-400 animate-pulse" />}
-                          {crawlerState === 'error' && <AlertCircle className="w-12 h-12 text-red-400" />}
-                          {crawlerState === 'complete' && <CheckCircle className="w-12 h-12 text-purple-400" />}
-                        </div>
+                  {/* Data Enrichment */}
+                  <Link href="/admin/enrichment" className="block">
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      className="h-24 w-full flex flex-col items-center justify-center gap-2"
+                    >
+                      <Zap className="w-6 h-6" />
+                      <span>Enrich Data</span>
+                    </Button>
+                  </Link>
 
-                        {/* State Text */}
-                        <div>
-                          <div className="text-4xl font-bold text-white mb-2">
-                            {crawlerState === 'idle' && 'IDLE'}
-                            {crawlerState === 'connecting' && 'CONNECTING'}
-                            {crawlerState === 'running' && 'RUNNING'}
-                            {crawlerState === 'error' && 'ERROR'}
-                            {crawlerState === 'complete' && 'COMPLETE'}
-                          </div>
-                          <div className="text-lg text-neutral-300">{crawlerStatus}</div>
-                        </div>
-                      </div>
+                  {/* Review Photos */}
+                  <Button
+                    size="lg"
+                    variant={stats.pendingPhotos > 0 ? "default" : "outline"}
+                    className={`h-24 flex flex-col items-center justify-center gap-2 ${
+                      stats.pendingPhotos > 0 ? 'bg-amber-600 hover:bg-amber-700' : ''
+                    }`}
+                    onClick={() => {
+                      const tabs = document.querySelector('[value="moderation"]') as HTMLElement;
+                      tabs?.click();
+                    }}
+                  >
+                    <Eye className="w-6 h-6" />
+                    <span>Review Photos</span>
+                    {stats.pendingPhotos > 0 && (
+                      <Badge className="bg-white text-amber-900">{stats.pendingPhotos}</Badge>
+                    )}
+                  </Button>
+                </div>
+              </Card>
 
-                      {/* Connection Status */}
-                      <div className="text-right">
-                        <div className="flex items-center gap-2 justify-end mb-2">
-                          {connectionStatus === 'disconnected' && <WifiOff className="w-5 h-5 text-neutral-500" />}
-                          {connectionStatus === 'connecting' && <Loader2 className="w-5 h-5 text-blue-400 animate-spin" />}
-                          {connectionStatus === 'connected' && <Wifi className="w-5 h-5 text-green-400" />}
-                          {connectionStatus === 'reconnecting' && <Loader2 className="w-5 h-5 text-yellow-400 animate-spin" />}
-                          {connectionStatus === 'error' && <WifiOff className="w-5 h-5 text-red-400" />}
-                          <span className="text-sm font-semibold text-white">
-                            {connectionStatus.toUpperCase()}
-                            {connectionStatus === 'reconnecting' && _reconnectAttempt > 0 && (
-                              <span className="text-xs ml-1">({_reconnectAttempt}/{maxReconnectAttempts})</span>
-                            )}
-                          </span>
-                        </div>
-                        {crawlStartTime && crawlerRunning && (
-                          <div className="text-xs text-neutral-400">
-                            Running for {Math.floor((new Date().getTime() - crawlStartTime.getTime()) / 1000)}s
-                          </div>
-                        )}
-                      </div>
+              {/* Database Status */}
+              <DatabaseStatusOverview />
+
+              {/* System Health at a Glance */}
+              <Card className="p-6 bg-neutral-800 border-neutral-700">
+                <h2 className="font-display text-xl font-semibold mb-4 text-white">System Health</h2>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="text-center p-4 bg-neutral-900 rounded-lg">
+                    <div className="flex items-center justify-center mb-2">
+                      <Wifi className="w-6 h-6 text-green-400" />
                     </div>
-
-                    {/* Current Source & Stage */}
-                    {crawlerRunning && currentSource && (
-                      <div className="grid grid-cols-2 gap-4 mb-6">
-                        <div className="bg-neutral-900/50 rounded-lg p-4 border border-neutral-700">
-                          <div className="text-xs text-neutral-400 mb-1">CURRENT SOURCE</div>
-                          <div className="text-lg font-semibold text-white truncate">{currentSource}</div>
-                        </div>
-                        <div className="bg-neutral-900/50 rounded-lg p-4 border border-neutral-700">
-                          <div className="text-xs text-neutral-400 mb-1">STAGE</div>
-                          <div className="flex items-center gap-2">
-                            <Zap className="w-5 h-5 text-yellow-400 animate-pulse" />
-                            <span className="text-lg font-semibold text-white capitalize">
-                              {currentStage || 'Initializing'}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Progress Bar */}
-                    {crawlerRunning && crawlerProgress.total > 0 && (
-                      <div className="mb-6 space-y-3">
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm font-semibold text-white">
-                            Progress: {crawlerProgress.current} / {crawlerProgress.total} sources
-                          </span>
-                          <span className="text-3xl font-bold text-white">{crawlerProgress.percentage}%</span>
-                        </div>
-                        <div className="w-full bg-neutral-800 rounded-full h-6 overflow-hidden shadow-inner">
-                          <div
-                            className="h-full bg-gradient-to-r from-green-500 via-blue-500 to-purple-500 transition-all duration-500 ease-out flex items-center justify-end px-2"
-                            style={{ width: `${crawlerProgress.percentage}%` }}
-                          >
-                            {crawlerProgress.percentage > 10 && (
-                              <span className="text-xs font-bold text-white">{crawlerProgress.percentage}%</span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Stats Grid */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                      <div className="text-center p-4 bg-neutral-900/50 rounded-lg border border-neutral-700">
-                        <div className="text-3xl font-bold text-green-400 mb-1">{currentBoothCount}</div>
-                        <div className="text-xs text-neutral-400">Booths Found</div>
-                      </div>
-                      <div className="text-center p-4 bg-neutral-900/50 rounded-lg border border-neutral-700">
-                        <div className="text-3xl font-bold text-white mb-1">{crawlerMetrics.crawledToday}</div>
-                        <div className="text-xs text-neutral-400">Crawled Today</div>
-                      </div>
-                      <div className="text-center p-4 bg-neutral-900/50 rounded-lg border border-neutral-700">
-                        <div className="text-sm font-bold text-white mb-1">{crawlerMetrics.lastRun}</div>
-                        <div className="text-xs text-neutral-400">Last Run</div>
-                      </div>
-                      <div className="text-center p-4 bg-neutral-900/50 rounded-lg border border-neutral-700">
-                        <div className="text-3xl font-bold text-red-400 mb-1">{errorCount}</div>
-                        <div className="text-xs text-neutral-400">Errors This Run</div>
-                      </div>
+                    <div className="text-sm text-neutral-400">API Status</div>
+                    <div className="text-lg font-bold text-green-400">Online</div>
+                  </div>
+                  <div className="text-center p-4 bg-neutral-900 rounded-lg">
+                    <div className="flex items-center justify-center mb-2">
+                      <Database className="w-6 h-6 text-blue-400" />
                     </div>
-
-                    {/* Error Display */}
-                    {lastError && (
-                      <div className="mb-6 p-4 bg-red-950/30 border-2 border-red-500 rounded-lg">
-                        <div className="flex items-start gap-3">
-                          <AlertCircle className="w-6 h-6 text-red-400 flex-shrink-0 mt-0.5" />
-                          <div className="flex-1">
-                            <div className="font-semibold text-red-300 mb-1">Last Error:</div>
-                            <div className="text-sm text-red-200">{lastError}</div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Controls */}
-                    <div className="flex gap-3">
-                      {!crawlerRunning ? (
-                        <Button
-                          className="flex-1 h-14 text-lg"
-                          onClick={() => startCrawler()}
-                        >
-                          <PlayCircle className="w-6 h-6 mr-3" />
-                          Start Crawler
-                        </Button>
-                      ) : (
-                        <Button
-                          className="flex-1 h-14 text-lg"
-                          variant="destructive"
-                          onClick={stopCrawler}
-                        >
-                          <PauseCircle className="w-6 h-6 mr-3" />
-                          Stop Crawler
-                        </Button>
-                      )}
-                      <Button
-                        variant="outline"
-                        className="h-14"
-                        disabled={crawlerRunning}
-                        onClick={() => {
-                          loadAdminData(); // Now loads both stats and metrics from API
-                          loadCrawlerLogs();
-                          toast.success('Refreshed crawler data');
-                        }}
-                      >
-                        <RefreshCw className="w-6 h-6" />
-                      </Button>
+                    <div className="text-sm text-neutral-400">Database</div>
+                    <div className="text-lg font-bold text-blue-400">Healthy</div>
+                  </div>
+                  <div className="text-center p-4 bg-neutral-900 rounded-lg">
+                    <div className="flex items-center justify-center mb-2">
+                      <Activity className="w-6 h-6 text-purple-400" />
+                    </div>
+                    <div className="text-sm text-neutral-400">Crawled Today</div>
+                    <div className="text-lg font-bold text-purple-400">{crawlerMetrics.crawledToday}</div>
+                  </div>
+                  <div className="text-center p-4 bg-neutral-900 rounded-lg">
+                    <div className="flex items-center justify-center mb-2">
+                      <AlertCircle className={`w-6 h-6 ${crawlerMetrics.errorCount > 0 ? 'text-red-400' : 'text-green-400'}`} />
+                    </div>
+                    <div className="text-sm text-neutral-400">Errors Today</div>
+                    <div className={`text-lg font-bold ${crawlerMetrics.errorCount > 0 ? 'text-red-400' : 'text-green-400'}`}>
+                      {crawlerMetrics.errorCount}
                     </div>
                   </div>
+                </div>
+              </Card>
+            </TabsContent>
 
-                  {/* Real-time Activity Feed */}
-                  {activityFeed.length > 0 && (
-                    <div className="border border-neutral-700 rounded-lg p-4 bg-neutral-900">
-                      <div className="flex items-center gap-2 mb-4">
-                        <Activity className="w-5 h-5 text-green-400" />
-                        <h3 className="font-semibold text-white">Live Activity Feed</h3>
-                        <Badge variant="secondary" className="ml-auto">{activityFeed.length} events</Badge>
-                      </div>
-                      <div className="space-y-2 max-h-80 overflow-y-auto">
-                        {activityFeed.map((activity, index) => (
-                          <div
-                            key={index}
-                            className={`flex items-start gap-3 p-3 rounded border-l-4 ${
-                              activity.status === 'error' ? 'bg-red-950/20 border-red-500' :
-                              activity.status === 'warning' ? 'bg-yellow-950/20 border-yellow-500' :
-                              activity.status === 'success' ? 'bg-green-950/20 border-green-500' :
-                              'bg-blue-950/20 border-blue-500'
-                            }`}
-                          >
-                            <div className={`mt-1 w-2 h-2 rounded-full flex-shrink-0 ${
-                              activity.status === 'error' ? 'bg-red-400' :
-                              activity.status === 'warning' ? 'bg-yellow-400' :
-                              activity.status === 'success' ? 'bg-green-400' :
-                              'bg-blue-400'
-                            }`} />
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center justify-between gap-2 mb-1">
-                                <span className="text-white font-medium text-sm">{activity.type.toUpperCase()}</span>
-                                <span className="text-neutral-500 text-xs flex-shrink-0">
-                                  {activity.timestamp.toLocaleTimeString()}
-                                </span>
-                              </div>
-                              <p className="text-neutral-300 text-sm">{activity.message}</p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
+            {/* DATA COLLECTION TAB */}
+            <TabsContent value="data" className="mt-6 space-y-6">
+              {/* Crawler Control - Simplified */}
+              <Card className="p-6 bg-neutral-800 border-neutral-700">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="font-display text-xl font-semibold text-white">Crawler Control</h2>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      loadAdminData();
+                      loadCrawlerLogs();
+                      toast.success('Refreshed');
+                    }}
+                  >
+                    <RefreshCw className="w-4 h-4" />
+                  </Button>
+                </div>
 
-                  {/* Recent Activity */}
-                  <div className="border border-neutral-700 rounded-lg p-4 bg-neutral-900">
-                    <div className="flex items-center justify-between mb-3">
-                      <h3 className="font-semibold text-white">Recent Crawler Logs</h3>
-                      <select
-                        value={logFilter}
-                        onChange={(e) => setLogFilter(e.target.value as 'all' | 'info' | 'warning' | 'error')}
-                        className="px-3 py-1 bg-neutral-800 border border-neutral-700 rounded text-white text-sm"
-                      >
-                        <option value="all">All Logs</option>
-                        <option value="info">Info Only</option>
-                        <option value="warning">Warnings Only</option>
-                        <option value="error">Errors Only</option>
-                      </select>
-                    </div>
-                    {crawlerLogs.filter(log =>
-                      logFilter === 'all' || log.operation_status === logFilter
-                    ).length === 0 ? (
-                      <div className="text-center py-8">
-                        <Clock className="w-12 h-12 text-neutral-600 mx-auto mb-3" />
-                        <p className="text-neutral-400 text-sm">No crawler logs yet</p>
-                        <p className="text-neutral-500 text-xs mt-1">Start the crawler to see activity</p>
-                      </div>
+                {/* Compact Status Bar */}
+                <div className={`flex items-center justify-between p-4 rounded-lg mb-4 ${
+                  crawlerRunning ? 'bg-blue-900/30 border-2 border-blue-500' :
+                  crawlerState === 'error' ? 'bg-red-900/30 border-2 border-red-500' :
+                  'bg-neutral-900 border-2 border-neutral-700'
+                }`}>
+                  <div className="flex items-center gap-3">
+                    {crawlerRunning ? (
+                      <Loader2 className="w-8 h-8 text-blue-400 animate-spin" />
                     ) : (
-                      <div className="space-y-2 max-h-96 overflow-y-auto">
-                        {crawlerLogs.map((log, index) => (
-                          <div
-                            key={index}
-                            className="flex items-start gap-3 p-3 bg-neutral-800 rounded text-sm"
-                          >
-                            <div className={`mt-0.5 w-2 h-2 rounded-full flex-shrink-0 ${
+                      <Database className="w-8 h-8 text-neutral-400" />
+                    )}
+                    <div>
+                      <div className="font-semibold text-white">
+                        {crawlerRunning ? 'Crawler Running' : 'Crawler Idle'}
+                      </div>
+                      <div className="text-sm text-neutral-400">{crawlerStatus}</div>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    {!crawlerRunning ? (
+                      <Button onClick={() => startCrawler()}>
+                        <PlayCircle className="w-4 h-4 mr-2" />
+                        Start
+                      </Button>
+                    ) : (
+                      <Button variant="destructive" onClick={stopCrawler}>
+                        <PauseCircle className="w-4 h-4 mr-2" />
+                        Stop
+                      </Button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Progress Bar - Only show when running */}
+                {crawlerRunning && crawlerProgress.total > 0 && (
+                  <div className="mb-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm text-neutral-300">
+                        {crawlerProgress.current} / {crawlerProgress.total} sources
+                      </span>
+                      <span className="text-xl font-bold text-white">{crawlerProgress.percentage}%</span>
+                    </div>
+                    <div className="w-full bg-neutral-900 rounded-full h-3">
+                      <div
+                        className="h-full bg-gradient-to-r from-green-500 to-blue-500 rounded-full transition-all duration-500"
+                        style={{ width: `${crawlerProgress.percentage}%` }}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Stats Grid - Compact */}
+                <div className="grid grid-cols-4 gap-3 mb-4">
+                  <div className="text-center p-3 bg-neutral-900 rounded">
+                    <div className="text-2xl font-bold text-green-400">{currentBoothCount}</div>
+                    <div className="text-xs text-neutral-400">Found</div>
+                  </div>
+                  <div className="text-center p-3 bg-neutral-900 rounded">
+                    <div className="text-2xl font-bold text-white">{crawlerMetrics.crawledToday}</div>
+                    <div className="text-xs text-neutral-400">Today</div>
+                  </div>
+                  <div className="text-center p-3 bg-neutral-900 rounded">
+                    <div className="text-sm font-bold text-white">{crawlerMetrics.lastRun}</div>
+                    <div className="text-xs text-neutral-400">Last Run</div>
+                  </div>
+                  <div className="text-center p-3 bg-neutral-900 rounded">
+                    <div className="text-2xl font-bold text-red-400">{errorCount}</div>
+                    <div className="text-xs text-neutral-400">Errors</div>
+                  </div>
+                </div>
+
+                {/* Collapsible Details */}
+                <button
+                  onClick={() => setShowCrawlerDetails(!showCrawlerDetails)}
+                  className="flex items-center gap-2 text-sm text-neutral-400 hover:text-white transition-colors"
+                >
+                  {showCrawlerDetails ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                  <span>Advanced Crawler Details</span>
+                </button>
+
+                {showCrawlerDetails && (
+                  <div className="mt-4 space-y-4 pt-4 border-t border-neutral-700">
+                    {/* Activity Feed */}
+                    {activityFeed.length > 0 && (
+                      <div>
+                        <h3 className="font-semibold text-white mb-3 flex items-center gap-2">
+                          <Activity className="w-4 h-4" />
+                          Live Activity Feed
+                        </h3>
+                        <div className="space-y-2 max-h-60 overflow-y-auto">
+                          {activityFeed.slice(0, 10).map((activity, index) => (
+                            <div
+                              key={index}
+                              className={`flex items-start gap-2 p-2 rounded text-xs ${
+                                activity.status === 'error' ? 'bg-red-950/20 text-red-300' :
+                                activity.status === 'warning' ? 'bg-yellow-950/20 text-yellow-300' :
+                                activity.status === 'success' ? 'bg-green-950/20 text-green-300' :
+                                'bg-blue-950/20 text-blue-300'
+                              }`}
+                            >
+                              <div className={`mt-1 w-1.5 h-1.5 rounded-full flex-shrink-0 ${
+                                activity.status === 'error' ? 'bg-red-400' :
+                                activity.status === 'warning' ? 'bg-yellow-400' :
+                                activity.status === 'success' ? 'bg-green-400' :
+                                'bg-blue-400'
+                              }`} />
+                              <span className="flex-1">{activity.message}</span>
+                              <span className="text-neutral-500">{activity.timestamp.toLocaleTimeString()}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Recent Logs */}
+                    <div>
+                      <div className="flex items-center justify-between mb-3">
+                        <h3 className="font-semibold text-white flex items-center gap-2">
+                          <FileText className="w-4 h-4" />
+                          Recent Logs
+                        </h3>
+                        <select
+                          value={logFilter}
+                          onChange={(e) => setLogFilter(e.target.value as 'all' | 'info' | 'warning' | 'error')}
+                          className="px-2 py-1 bg-neutral-900 border border-neutral-700 rounded text-white text-xs"
+                        >
+                          <option value="all">All</option>
+                          <option value="info">Info</option>
+                          <option value="warning">Warnings</option>
+                          <option value="error">Errors</option>
+                        </select>
+                      </div>
+                      <div className="space-y-2 max-h-60 overflow-y-auto">
+                        {crawlerLogs.filter(log => logFilter === 'all' || log.operation_status === logFilter).slice(0, 5).map((log, index) => (
+                          <div key={index} className="flex items-start gap-2 p-2 bg-neutral-900 rounded text-xs">
+                            <div className={`mt-0.5 w-1.5 h-1.5 rounded-full flex-shrink-0 ${
                               log.operation_status === 'error' ? 'bg-red-400' :
                               log.operation_status === 'warning' ? 'bg-yellow-400' :
                               'bg-green-400'
                             }`} />
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center justify-between gap-2 mb-1">
-                                <span className="text-neutral-300 font-medium truncate">
-                                  {String(log.operation_type)}
-                                </span>
-                                <span className="text-neutral-500 text-xs flex-shrink-0">
-                                  {new Date(log.timestamp as string).toLocaleTimeString()}
-                                </span>
-                              </div>
-                              <p className="text-neutral-400 text-xs break-words">{String(log.message)}</p>
-                              {(log.details as Record<string, unknown> | null) && Object.keys(log.details as Record<string, unknown>).length > 0 && (
-                                <details className="mt-2">
-                                  <summary className="text-neutral-500 text-xs cursor-pointer hover:text-neutral-400">
-                                    View details
-                                  </summary>
-                                  <pre className="mt-1 text-xs text-neutral-500 overflow-x-auto">
-                                    {JSON.stringify(log.details, null, 2)}
-                                  </pre>
-                                </details>
-                              )}
-                            </div>
+                            <span className="flex-1 text-neutral-300">{String(log.message)}</span>
+                            <span className="text-neutral-500">{new Date(log.timestamp as string).toLocaleTimeString()}</span>
                           </div>
                         ))}
                       </div>
-                    )}
-                  </div>
-
-                  {/* Crawl Sources Management */}
-                  <div className="border border-neutral-700 rounded-lg p-4 bg-neutral-900">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="font-semibold text-white">Crawl Sources ({crawlSources.length})</h3>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => loadCrawlSources()}
-                      >
-                        <RefreshCw className="w-4 h-4" />
-                      </Button>
-                    </div>
-                    {crawlSources.length === 0 ? (
-                      <div className="text-center py-8">
-                        <Database className="w-12 h-12 text-neutral-600 mx-auto mb-3" />
-                        <p className="text-neutral-400 text-sm">No crawl sources configured</p>
-                      </div>
-                    ) : (
-                      <div className="space-y-2 max-h-96 overflow-y-auto">
-                        {crawlSources.map((source) => (
-                          <div
-                            key={source.id}
-                            className="flex items-center gap-3 p-3 bg-neutral-800 rounded hover:bg-neutral-750 transition"
-                          >
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2 mb-1">
-                                <span className="font-medium text-white truncate">
-                                  {source.source_name}
-                                </span>
-                                <Badge
-                                  variant="secondary"
-                                  className={
-                                    (source.enabled as boolean)
-                                      ? 'bg-green-900 text-green-100'
-                                      : 'bg-gray-700 text-gray-300'
-                                  }
-                                >
-                                  {(source.enabled as boolean) ? 'Enabled' : 'Disabled'}
-                                </Badge>
-                                {(source.status as string) === 'error' && (
-                                  <Badge variant="destructive">Error</Badge>
-                                )}
-                              </div>
-                              <p className="text-xs text-neutral-400 truncate">
-                                {source.source_url as string}
-                              </p>
-                              <div className="flex items-center gap-4 mt-2 text-xs text-neutral-500">
-                                <span>Priority: {String(source.priority)}</span>
-                                {(source.total_booths_found as number | null) && (source.total_booths_found as number) > 0 && (
-                                  <span>Found: {String(source.total_booths_found)} booths</span>
-                                )}
-                                {(source.last_successful_crawl as string | null) && (
-                                  <span>
-                                    Last: {new Date(source.last_successful_crawl as string).toLocaleDateString()}
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              disabled={crawlerRunning || !(source.enabled as boolean)}
-                              onClick={() => {
-                                setSelectedSource(source.source_name);
-                                startCrawler(source.source_name);
-                              }}
-                            >
-                              <PlayCircle className="w-4 h-4 mr-1" />
-                              Test
-                            </Button>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Configuration */}
-                  <div className="border border-neutral-700 rounded-lg p-4 bg-neutral-900">
-                    <h3 className="font-semibold text-white mb-3">Crawler Configuration</h3>
-                    <div className="space-y-3 text-sm">
-                      <div className="flex justify-between items-center py-2 border-b border-neutral-700">
-                        <span className="text-neutral-300">Total Sources</span>
-                        <span className="text-neutral-400">{crawlSources.length}</span>
-                      </div>
-                      <div className="flex justify-between items-center py-2 border-b border-neutral-700">
-                        <span className="text-neutral-300">Enabled Sources</span>
-                        <span className="text-neutral-400">
-                          {crawlSources.filter(s => s.enabled).length}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center py-2 border-b border-neutral-700">
-                        <span className="text-neutral-300">Sources with Errors</span>
-                        <span className="text-error">
-                          {crawlSources.filter(s => s.status === 'error').length}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center py-2">
-                        <span className="text-neutral-300">Average Crawl Duration</span>
-                        <span className="text-neutral-400">
-                          {crawlSources.length > 0
-                            ? Math.round(
-                                crawlSources.reduce((sum, s) => sum + ((s.average_crawl_duration_seconds as number) || 0), 0) /
-                                  crawlSources.length
-                              ) + 's'
-                            : 'N/A'}
-                        </span>
-                      </div>
                     </div>
                   </div>
-                </div>
+                )}
               </Card>
 
-                {/* Discovery Engine */}
-                <Card className="p-6 bg-neutral-800 border-neutral-700">
-                  <h2 className="font-display text-2xl font-semibold mb-6 text-white">Discovery Engine (Firecrawl + Claude)</h2>
+              {/* Sources List - Collapsible */}
+              <Card className="p-6 bg-neutral-800 border-neutral-700">
+                <button
+                  onClick={() => setShowSourcesList(!showSourcesList)}
+                  className="flex items-center justify-between w-full mb-4"
+                >
+                  <h2 className="font-display text-xl font-semibold text-white flex items-center gap-2">
+                    {showSourcesList ? <ChevronDown className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
+                    Crawl Sources ({crawlSources.length})
+                  </h2>
+                  <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); loadCrawlSources(); }}>
+                    <RefreshCw className="w-4 h-4" />
+                  </Button>
+                </button>
 
-                  <div className="space-y-6">
-                    {/* Info Banner */}
-                    <div className="bg-blue-950/30 border-2 border-blue-500 rounded-lg p-4">
-                      <div className="flex items-start gap-3">
-                        <Database className="w-6 h-6 text-blue-400 flex-shrink-0 mt-0.5" />
-                        <div className="flex-1">
-                          <div className="font-semibold text-blue-300 mb-2">AI-Powered Booth Discovery</div>
-                          <p className="text-sm text-blue-200 mb-3">
-                            The Discovery Engine uses Firecrawl to search the web and Claude Opus to verify analog booths.
-                            It searches Reddit, blogs, and social media for references to analog photo booths.
-                          </p>
-                          <p className="text-xs text-blue-300">
-                            <strong>Note:</strong> These commands must be run from your terminal with the correct environment variables set.
-                          </p>
+                {showSourcesList && (
+                  <div className="space-y-2">
+                    {crawlSources.map((source) => (
+                      <div key={source.id} className="flex items-center gap-3 p-3 bg-neutral-900 rounded hover:bg-neutral-850 transition">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="font-medium text-white truncate">{source.source_name}</span>
+                            <Badge
+                              variant="secondary"
+                              className={(source.enabled as boolean) ? 'bg-green-900 text-green-100' : 'bg-gray-700 text-gray-300'}
+                            >
+                              {(source.enabled as boolean) ? 'Enabled' : 'Disabled'}
+                            </Badge>
+                          </div>
+                          <p className="text-xs text-neutral-400 truncate">{source.source_url as string}</p>
                         </div>
-                      </div>
-                    </div>
-
-                    {/* Required Environment Variables */}
-                    <div className="border border-neutral-700 rounded-lg p-4 bg-neutral-900">
-                      <div className="flex items-center justify-between mb-3">
-                        <h3 className="font-semibold text-white flex items-center gap-2">
-                          <Shield className="w-5 h-5 text-yellow-400" />
-                          Required Environment Variables
-                        </h3>
                         <Button
                           size="sm"
-                          onClick={checkEnvironmentVariables}
-                          disabled={envVarsLoading}
-                          className="flex items-center gap-2"
+                          variant="outline"
+                          disabled={crawlerRunning || !(source.enabled as boolean)}
+                          onClick={() => {
+                            setSelectedSource(source.source_name);
+                            startCrawler(source.source_name);
+                          }}
                         >
-                          {envVarsLoading ? (
-                            <>
-                              <Loader2 className="w-4 h-4 animate-spin" />
-                              Checking...
-                            </>
-                          ) : (
-                            <>
-                              <RefreshCw className="w-4 h-4" />
-                              Check Status
-                            </>
-                          )}
+                          <PlayCircle className="w-4 h-4" />
                         </Button>
                       </div>
-                      <div className="space-y-2 text-sm font-mono">
-                        <div className="flex items-center justify-between p-2 bg-neutral-800 rounded">
-                          <span className="text-neutral-300">NEXT_PUBLIC_SUPABASE_URL</span>
-                          {envVarsStatus ? (
-                            <Badge
-                              variant="secondary"
-                              className={envVarsStatus.NEXT_PUBLIC_SUPABASE_URL ? "bg-green-900 text-green-100" : "bg-red-900 text-red-100"}
-                            >
-                              {envVarsStatus.NEXT_PUBLIC_SUPABASE_URL ? "Set" : "Missing"}
-                            </Badge>
-                          ) : (
-                            <Badge variant="secondary" className="bg-neutral-700 text-neutral-300">Not Checked</Badge>
-                          )}
-                        </div>
-                        <div className="flex items-center justify-between p-2 bg-neutral-800 rounded">
-                          <span className="text-neutral-300">SUPABASE_SERVICE_ROLE_KEY</span>
-                          {envVarsStatus ? (
-                            <Badge
-                              variant="secondary"
-                              className={envVarsStatus.SUPABASE_SERVICE_ROLE_KEY ? "bg-green-900 text-green-100" : "bg-red-900 text-red-100"}
-                            >
-                              {envVarsStatus.SUPABASE_SERVICE_ROLE_KEY ? "Set" : "Missing"}
-                            </Badge>
-                          ) : (
-                            <Badge variant="secondary" className="bg-neutral-700 text-neutral-300">Not Checked</Badge>
-                          )}
-                        </div>
-                        <div className="flex items-center justify-between p-2 bg-neutral-800 rounded">
-                          <span className="text-neutral-300">ANTHROPIC_API_KEY</span>
-                          {envVarsStatus ? (
-                            <Badge
-                              variant="secondary"
-                              className={envVarsStatus.ANTHROPIC_API_KEY ? "bg-green-900 text-green-100" : "bg-red-900 text-red-100"}
-                            >
-                              {envVarsStatus.ANTHROPIC_API_KEY ? "Set" : "Missing"}
-                            </Badge>
-                          ) : (
-                            <Badge variant="secondary" className="bg-neutral-700 text-neutral-300">Not Checked</Badge>
-                          )}
-                        </div>
-                        <div className="flex items-center justify-between p-2 bg-neutral-800 rounded">
-                          <span className="text-neutral-300">FIRECRAWL_API_KEY</span>
-                          {envVarsStatus ? (
-                            <Badge
-                              variant="secondary"
-                              className={envVarsStatus.FIRECRAWL_API_KEY ? "bg-green-900 text-green-100" : "bg-red-900 text-red-100"}
-                            >
-                              {envVarsStatus.FIRECRAWL_API_KEY ? "Set" : "Missing"}
-                            </Badge>
-                          ) : (
-                            <Badge variant="secondary" className="bg-neutral-700 text-neutral-300">Not Checked</Badge>
-                          )}
-                        </div>
-                      </div>
-                      <p className="text-xs text-neutral-500 mt-3">
-                        Click &quot;Check Status&quot; to verify if all environment variables are properly configured on the server.
-                      </p>
-                    </div>
-
-                    {/* Step 1: Seed Sources */}
-                    <div className="border border-neutral-700 rounded-lg p-4 bg-neutral-900">
-                      <div className="flex items-center gap-2 mb-3">
-                        <div className="w-8 h-8 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold">1</div>
-                        <h3 className="font-semibold text-white">Seed Discovery Sources</h3>
-                      </div>
-                      <p className="text-sm text-neutral-400 mb-3">
-                        Populates the <code className="bg-neutral-800 px-1 py-0.5 rounded">crawl_sources</code> table with 20+ master booth operator sources (Photoautomat, Fotoautomat, etc.)
-                      </p>
-                      <div className="bg-neutral-950 rounded p-3 border border-neutral-800">
-                        <code className="text-sm text-green-400">
-                          npx tsx scripts/seed-master-plan.ts
-                        </code>
-                      </div>
-                      <div className="mt-3 text-xs text-neutral-500">
-                        Sources: Europe (Photoautomat Berlin, Fotoautomat Paris), North America (Classic Photo Booth NYC, Photomatica SF), Asia/Oceania
-                      </div>
-                    </div>
-
-                    {/* Step 2: Run Discovery */}
-                    <div className="border border-neutral-700 rounded-lg p-4 bg-neutral-900">
-                      <div className="flex items-center gap-2 mb-3">
-                        <div className="w-8 h-8 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold">2</div>
-                        <h3 className="font-semibold text-white">Run Discovery Engine</h3>
-                      </div>
-                      <p className="text-sm text-neutral-400 mb-3">
-                        Searches the web using Firecrawl and validates analog booths with Claude Opus. Auto-saves discoveries with <code className="bg-neutral-800 px-1 py-0.5 rounded">status: &apos;unverified&apos;</code>
-                      </p>
-                      <div className="bg-neutral-950 rounded p-3 border border-neutral-800">
-                        <code className="text-sm text-green-400">
-                          npx tsx scripts/run-discovery.ts
-                        </code>
-                      </div>
-                      <div className="mt-3 space-y-1 text-xs text-neutral-500">
-                        <div className="flex items-start gap-2">
-                          <CheckCircle className="w-3 h-3 mt-0.5 flex-shrink-0 text-green-500" />
-                          <span>Searches Reddit, Lemon8, TikTok, and specialized forums</span>
-                        </div>
-                        <div className="flex items-start gap-2">
-                          <CheckCircle className="w-3 h-3 mt-0.5 flex-shrink-0 text-green-500" />
-                          <span>Filters out digital booths (Purikura, Life4Cuts, etc.)</span>
-                        </div>
-                        <div className="flex items-start gap-2">
-                          <CheckCircle className="w-3 h-3 mt-0.5 flex-shrink-0 text-green-500" />
-                          <span>Extracts booth details with confidence scoring</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Full Command with Env Vars */}
-                    <div className="border-2 border-purple-500/30 bg-purple-950/20 rounded-lg p-4">
-                      <h3 className="font-semibold text-purple-300 mb-3 flex items-center gap-2">
-                        <FileText className="w-5 h-5" />
-                        Complete Command (with env vars)
-                      </h3>
-                      <div className="bg-neutral-950 rounded p-3 border border-neutral-800 overflow-x-auto">
-                        <pre className="text-xs text-green-400">
-{`export SUPABASE_SERVICE_ROLE_KEY="your_key_here" \\
-export ANTHROPIC_API_KEY="your_key_here" \\
-export FIRECRAWL_API_KEY="your_key_here" && \\
-npx tsx scripts/seed-master-plan.ts && \\
-npx tsx scripts/run-discovery.ts`}
-                        </pre>
-                      </div>
-                    </div>
-
-                    {/* Troubleshooting */}
-                    <details className="border border-neutral-700 rounded-lg bg-neutral-900">
-                      <summary className="p-4 cursor-pointer hover:bg-neutral-850 transition font-semibold text-white">
-                        Troubleshooting & Tips
-                      </summary>
-                      <div className="px-4 pb-4 space-y-3 text-sm text-neutral-400">
-                        <div>
-                          <strong className="text-neutral-300">Issue: &quot;Missing required environment variables&quot;</strong>
-                          <p className="mt-1">Make sure all three API keys are exported in your terminal session before running the scripts.</p>
-                        </div>
-                        <div>
-                          <strong className="text-neutral-300">Issue: &quot;No booths found&quot;</strong>
-                          <p className="mt-1">The discovery queries are Reddit/blog-focused. Results may vary based on current web content. Try running during different times or check Firecrawl credits.</p>
-                        </div>
-                        <div>
-                          <strong className="text-neutral-300">Tip: Start with seed-master-plan first</strong>
-                          <p className="mt-1">The unified crawler above can crawl these seeded sources. Run seed-master-plan, then use the &quot;Start Crawler&quot; button above to crawl them.</p>
-                        </div>
-                      </div>
-                    </details>
+                    ))}
                   </div>
-                </Card>
+                )}
+              </Card>
 
-                {/* Metrics Dashboard */}
-                <MetricsDashboard />
-              </div>
-            </TabsContent>
-
-            <TabsContent value="moderation" className="mt-6">
-              <div className="space-y-6">
-                {/* Photo Moderation */}
-                <Card className="p-6 bg-neutral-800 border-neutral-700">
-                  <h2 className="font-display text-2xl font-semibold mb-6 text-white">Pending Photo Approvals</h2>
-
-                  {pendingPhotos.length === 0 ? (
-                    <div className="text-center py-12">
-                      <CheckCircle className="w-12 h-12 text-green-400 mx-auto mb-3" />
-                      <p className="text-neutral-400">All caught up! No photos pending review.</p>
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {pendingPhotos.map((photo) => (
-                        <div key={photo.id} className="border border-neutral-700 rounded-lg overflow-hidden bg-neutral-900">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            src={photo.photo_url as string}
-                            alt={(photo.caption as string) || 'User photo'}
-                            className="w-full aspect-square object-cover"
-                          />
-                          <div className="p-4">
-                            <p className="font-medium mb-1 text-white">{(photo.booth as { name?: string })?.name}</p>
-                            <p className="text-sm text-neutral-400 mb-2">
-                              {(photo.booth as { city?: string })?.city}, {(photo.booth as { country?: string })?.country}
-                            </p>
-                            {(photo.caption as string | null) && (
-                              <p className="text-sm text-neutral-300 mb-3 italic">&quot;{String(photo.caption)}&quot;</p>
-                            )}
-                            <div className="flex gap-2">
-                              <Button
-                                size="sm"
-                                onClick={() => moderatePhoto(photo.id, 'approved')}
-                                className="flex-1"
-                              >
-                                <CheckCircle className="w-4 h-4 mr-1" />
-                                Approve
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="destructive"
-                                onClick={() => moderatePhoto(photo.id, 'rejected')}
-                                className="flex-1"
-                              >
-                                <XCircle className="w-4 h-4 mr-1" />
-                                Reject
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </Card>
-
-                {/* User Management */}
-              <Card className="p-6 bg-neutral-800 border-neutral-700">
-                <h2 className="font-display text-2xl font-semibold mb-6 text-white">User Management</h2>
-
-                <div className="space-y-6">
-                  {/* User Stats */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="border border-neutral-700 rounded-lg p-4 bg-neutral-900">
-                      <div className="flex items-center justify-between mb-2">
-                        <Users className="w-8 h-8 text-blue-400" />
+              {/* Data Enrichment Card */}
+              <Card className="p-6 bg-gradient-to-br from-purple-900/20 to-blue-900/20 border-purple-500/30">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-3">
+                      <Zap className="w-8 h-8 text-purple-400" />
+                      <div>
+                        <h2 className="font-display text-xl font-semibold text-white">Data Enrichment</h2>
+                        <p className="text-purple-300 text-sm">Enhance booth data with Google Places & AI</p>
                       </div>
-                      <div className="text-2xl font-bold text-white">{stats.totalUsers}</div>
-                      <div className="text-sm text-neutral-400">Total Users</div>
                     </div>
-                    <div className="border border-neutral-700 rounded-lg p-4 bg-neutral-900">
-                      <div className="flex items-center justify-between mb-2">
-                        <Shield className="w-8 h-8 text-purple-400" />
-                      </div>
-                      <div className="text-2xl font-bold text-white">-</div>
-                      <div className="text-sm text-neutral-400">Admin Users</div>
-                    </div>
-                    <div className="border border-neutral-700 rounded-lg p-4 bg-neutral-900">
-                      <div className="flex items-center justify-between mb-2">
-                        <MessageSquare className="w-8 h-8 text-green-400" />
-                      </div>
-                      <div className="text-2xl font-bold text-white">{stats.totalReviews}</div>
-                      <div className="text-sm text-neutral-400">User Reviews</div>
-                    </div>
-                  </div>
-
-                  {/* Admin Management */}
-                  <div className="border border-neutral-700 rounded-lg p-4 bg-neutral-900">
-                    <h3 className="font-semibold text-white mb-3">Admin User Management</h3>
-                    <p className="text-neutral-400 text-sm mb-4">
-                      Grant or revoke admin privileges for users
+                    <p className="text-neutral-300 text-sm mb-4">
+                      Automatically enrich booth data with venue information and generate AI images. Target: 80% data quality.
                     </p>
-                    <div className="text-center py-8">
-                      <Shield className="w-12 h-12 text-neutral-600 mx-auto mb-3" />
-                      <p className="text-neutral-400 text-sm">Admin user list coming soon</p>
-                      <p className="text-neutral-500 text-xs mt-1">Add or remove admin privileges</p>
-                    </div>
-                  </div>
-
-                  {/* Recent User Activity */}
-                  <div className="border border-neutral-700 rounded-lg p-4 bg-neutral-900">
-                    <h3 className="font-semibold text-white mb-3">Recent User Activity</h3>
-                    <div className="text-center py-8">
-                      <Clock className="w-12 h-12 text-neutral-600 mx-auto mb-3" />
-                      <p className="text-neutral-400 text-sm">Activity log coming soon</p>
-                      <p className="text-neutral-500 text-xs mt-1">Track user registrations and actions</p>
-                    </div>
+                    <Link href="/admin/enrichment">
+                      <Button className="bg-purple-600 hover:bg-purple-700">
+                        <Zap className="w-4 h-4 mr-2" />
+                        Open Enrichment Dashboard
+                      </Button>
+                    </Link>
                   </div>
                 </div>
               </Card>
-              </div>
+
+              {/* Discovery Engine */}
+              <Card className="p-6 bg-neutral-800 border-neutral-700">
+                <h2 className="font-display text-xl font-semibold mb-4 text-white">Discovery Engine (Firecrawl + Claude)</h2>
+                <div className="space-y-4">
+                  <div className="bg-blue-950/30 border border-blue-500/50 rounded-lg p-4">
+                    <p className="text-sm text-blue-200 mb-2">
+                      AI-powered booth discovery using Firecrawl and Claude Opus. Searches Reddit, blogs, and social media.
+                    </p>
+                    <p className="text-xs text-blue-300">
+                      <strong>Note:</strong> Run these commands from your terminal with environment variables set.
+                    </p>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      onClick={checkEnvironmentVariables}
+                      disabled={envVarsLoading}
+                      variant="outline"
+                    >
+                      {envVarsLoading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Shield className="w-4 h-4 mr-2" />}
+                      Check Environment Variables
+                    </Button>
+                  </div>
+
+                  <div className="bg-neutral-950 rounded p-3 border border-neutral-800">
+                    <code className="text-sm text-green-400">npx tsx scripts/seed-master-plan.ts</code>
+                  </div>
+                  <div className="bg-neutral-950 rounded p-3 border border-neutral-800">
+                    <code className="text-sm text-green-400">npx tsx scripts/run-discovery.ts</code>
+                  </div>
+                </div>
+              </Card>
+
+              <MetricsDashboard />
             </TabsContent>
 
-            <TabsContent value="advanced" className="mt-6">
-              <Tabs defaultValue="analytics" className="w-full">
+            {/* MODERATION TAB */}
+            <TabsContent value="moderation" className="mt-6 space-y-6">
+              {/* Photo Moderation */}
+              <Card className="p-6 bg-neutral-800 border-neutral-700">
+                <h2 className="font-display text-xl font-semibold mb-4 text-white">Pending Photos ({stats.pendingPhotos})</h2>
+                {pendingPhotos.length === 0 ? (
+                  <div className="text-center py-12">
+                    <CheckCircle className="w-12 h-12 text-green-400 mx-auto mb-3" />
+                    <p className="text-neutral-400">All caught up! No photos pending review.</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {pendingPhotos.map((photo) => (
+                      <div key={photo.id} className="border border-neutral-700 rounded-lg overflow-hidden bg-neutral-900">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={photo.photo_url as string}
+                          alt={(photo.caption as string) || 'User photo'}
+                          className="w-full aspect-square object-cover"
+                        />
+                        <div className="p-4">
+                          <p className="font-medium mb-1 text-white text-sm">{(photo.booth as { name?: string })?.name}</p>
+                          <p className="text-xs text-neutral-400 mb-3">
+                            {(photo.booth as { city?: string })?.city}, {(photo.booth as { country?: string })?.country}
+                          </p>
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              onClick={() => moderatePhoto(photo.id, 'approved')}
+                              className="flex-1"
+                            >
+                              <CheckCircle className="w-3 h-3 mr-1" />
+                              Approve
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => moderatePhoto(photo.id, 'rejected')}
+                              className="flex-1"
+                            >
+                              <XCircle className="w-3 h-3 mr-1" />
+                              Reject
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </Card>
+
+              {/* User Management */}
+              <Card className="p-6 bg-neutral-800 border-neutral-700">
+                <h2 className="font-display text-xl font-semibold mb-4 text-white">User Management</h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                  <div className="p-4 bg-neutral-900 rounded-lg">
+                    <Users className="w-6 h-6 text-blue-400 mb-2" />
+                    <div className="text-2xl font-bold text-white">{stats.totalUsers}</div>
+                    <div className="text-sm text-neutral-400">Total Users</div>
+                  </div>
+                  <div className="p-4 bg-neutral-900 rounded-lg">
+                    <Shield className="w-6 h-6 text-purple-400 mb-2" />
+                    <div className="text-2xl font-bold text-white">-</div>
+                    <div className="text-sm text-neutral-400">Admin Users</div>
+                  </div>
+                  <div className="p-4 bg-neutral-900 rounded-lg">
+                    <MessageSquare className="w-6 h-6 text-green-400 mb-2" />
+                    <div className="text-2xl font-bold text-white">{stats.totalReviews}</div>
+                    <div className="text-sm text-neutral-400">User Reviews</div>
+                  </div>
+                </div>
+                <div className="text-center py-8 bg-neutral-900 rounded-lg">
+                  <Shield className="w-12 h-12 text-neutral-600 mx-auto mb-3" />
+                  <p className="text-neutral-400 text-sm">Admin management coming soon</p>
+                </div>
+              </Card>
+            </TabsContent>
+
+            {/* SYSTEM TAB */}
+            <TabsContent value="system" className="mt-6 space-y-6">
+              <Tabs defaultValue="health" className="w-full">
                 <TabsList className="bg-neutral-800 border-neutral-700">
-                  <TabsTrigger value="analytics" className="data-[state=active]:bg-neutral-700 data-[state=active]:text-white">
-                    <BarChart3 className="w-4 h-4 mr-2" />
-                    Analytics
-                  </TabsTrigger>
-                  <TabsTrigger value="logs" className="data-[state=active]:bg-neutral-700 data-[state=active]:text-white">
-                    <FileText className="w-4 h-4 mr-2" />
-                    Crawler Logs
-                  </TabsTrigger>
-                  <TabsTrigger value="health" className="data-[state=active]:bg-neutral-700 data-[state=active]:text-white">
-                    <Heart className="w-4 h-4 mr-2" />
-                    Crawler Health
-                  </TabsTrigger>
-                  <TabsTrigger value="performance" className="data-[state=active]:bg-neutral-700 data-[state=active]:text-white">
-                    <Zap className="w-4 h-4 mr-2" />
-                    Performance
-                  </TabsTrigger>
-                  <TabsTrigger value="queue" className="data-[state=active]:bg-neutral-700 data-[state=active]:text-white">
-                    <Clock className="w-4 h-4 mr-2" />
-                    Job Queue
-                  </TabsTrigger>
-                  <TabsTrigger value="reextraction" className="data-[state=active]:bg-neutral-700 data-[state=active]:text-white">
-                    <Recycle className="w-4 h-4 mr-2" />
-                    Re-extraction
-                  </TabsTrigger>
+                  <TabsTrigger value="health"><Heart className="w-4 h-4 mr-2" />Health</TabsTrigger>
+                  <TabsTrigger value="logs"><FileText className="w-4 h-4 mr-2" />Logs</TabsTrigger>
+                  <TabsTrigger value="analytics"><BarChart3 className="w-4 h-4 mr-2" />Analytics</TabsTrigger>
+                  <TabsTrigger value="performance"><Zap className="w-4 h-4 mr-2" />Performance</TabsTrigger>
+                  <TabsTrigger value="queue"><Clock className="w-4 h-4 mr-2" />Queue</TabsTrigger>
+                  <TabsTrigger value="reextraction"><Recycle className="w-4 h-4 mr-2" />Re-extraction</TabsTrigger>
                 </TabsList>
 
-                <TabsContent value="analytics" className="mt-6">
-              <Card className="p-6 bg-neutral-800 border-neutral-700">
-                <h2 className="font-display text-2xl font-semibold mb-6 text-white">Platform Analytics</h2>
-                <div className="text-center py-12">
-                  <BarChart3 className="w-12 h-12 text-neutral-600 mx-auto mb-3" />
-                    <p className="text-neutral-400">Analytics dashboard coming soon</p>
-                    <p className="text-neutral-500 text-xs mt-1">Track booth views, searches, and engagement</p>
-                  </div>
-                </Card>
+                <TabsContent value="health" className="mt-6">
+                  <CrawlerHealthDashboard />
                 </TabsContent>
 
                 <TabsContent value="logs" className="mt-6">
                   <LogViewer initialLimit={50} />
                 </TabsContent>
 
-                <TabsContent value="health" className="mt-6">
-                  <CrawlerHealthDashboard />
+                <TabsContent value="analytics" className="mt-6">
+                  <Card className="p-6 bg-neutral-800 border-neutral-700">
+                    <h2 className="font-display text-2xl font-semibold mb-6 text-white">Platform Analytics</h2>
+                    <div className="text-center py-12">
+                      <BarChart3 className="w-12 h-12 text-neutral-600 mx-auto mb-3" />
+                      <p className="text-neutral-400">Analytics dashboard coming soon</p>
+                    </div>
+                  </Card>
                 </TabsContent>
 
                 <TabsContent value="performance" className="mt-6">
