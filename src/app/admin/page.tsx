@@ -123,8 +123,7 @@ export default function AdminPage() {
         setAdminCheckComplete(true);
 
         if (adminStatus) {
-          loadAdminData();
-          loadCrawlerMetrics();
+          loadAdminData(); // Now loads both admin stats and crawler metrics from API
           loadCrawlerLogs();
           loadCrawlSources();
         }
@@ -139,24 +138,32 @@ export default function AdminPage() {
 
   const loadAdminData = async () => {
     try {
-      // Load stats
-      const [boothsRes, usersRes, _photosRes, reviewsRes] = await Promise.all([
-        supabase.from('booths').select('status', { count: 'exact', head: true }),
-        supabase.from('profiles').select('*', { count: 'exact', head: true }),
-        supabase.from('booth_user_photos').select('moderation_status', { count: 'exact', head: true }),
-        supabase.from('booth_comments').select('*', { count: 'exact', head: true }),
-      ]);
+      // Fetch stats from optimized API endpoint
+      const response = await fetch('/api/admin/stats');
+      if (!response.ok) {
+        throw new Error('Failed to fetch admin stats');
+      }
 
-      const activeBooths = await supabase
-        .from('booths')
-        .select('*', { count: 'exact', head: true })
-        .eq('status', 'active');
+      const data = await response.json();
 
-      const pendingBooths = await supabase
-        .from('booths')
-        .select('*', { count: 'exact', head: true })
-        .eq('status', 'pending');
+      // Update stats state
+      setStats({
+        totalBooths: data.booths.total,
+        activeBooths: data.booths.active,
+        pendingBooths: data.booths.pending,
+        totalUsers: data.users.total,
+        pendingPhotos: data.photos.pending,
+        totalReviews: data.reviews.total,
+      });
 
+      // Update crawler metrics state
+      setCrawlerMetrics({
+        crawledToday: data.crawler.crawledToday,
+        lastRun: data.crawler.lastRun,
+        errorCount: data.crawler.errorCount,
+      });
+
+      // Load pending photos separately (needs full data, not just count)
       const pendingPhotosData = await supabase
         .from('booth_user_photos')
         .select(`
@@ -166,15 +173,6 @@ export default function AdminPage() {
         .eq('moderation_status', 'pending')
         .order('created_at', { ascending: false })
         .limit(10);
-
-      setStats({
-        totalBooths: boothsRes.count || 0,
-        activeBooths: activeBooths.count || 0,
-        pendingBooths: pendingBooths.count || 0,
-        totalUsers: usersRes.count || 0,
-        pendingPhotos: pendingPhotosData.data?.length || 0,
-        totalReviews: reviewsRes.count || 0,
-      });
 
       setPendingPhotos(pendingPhotosData.data || []);
     } catch (error) {
@@ -191,45 +189,7 @@ export default function AdminPage() {
     console.log(`Would moderate photo ${photoId} with status ${status}`);
   };
 
-  const loadCrawlerMetrics = async () => {
-    try {
-      // Get today's metrics
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      const { data: todayMetrics } = await supabase
-        .from('crawler_metrics')
-        .select('*')
-        .gte('started_at', today.toISOString());
-
-      const crawledToday = todayMetrics?.reduce((sum: number, m: CrawlerMetric) => sum + (m.booths_extracted || 0), 0) || 0;
-
-      // Get last successful run
-      const { data: lastRun } = await supabase
-        .from('crawler_metrics')
-        .select('*')
-        .eq('status', 'success')
-        .order('completed_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
-      // Get error count
-      const { count: errorCount } = await supabase
-        .from('crawler_metrics')
-        .select('*', { count: 'exact', head: true })
-        .eq('status', 'error')
-        .gte('started_at', today.toISOString());
-
-      const lastRunData = (lastRun?.[0] as CrawlerMetric | undefined);
-      setCrawlerMetrics({
-        crawledToday,
-        lastRun: lastRunData?.completed_at ? new Date(lastRunData.completed_at).toLocaleString() : '-',
-        errorCount: errorCount || 0,
-      });
-    } catch (error) {
-      console.error('Error loading crawler metrics:', error);
-    }
-  };
+  // loadCrawlerMetrics() removed - now handled by loadAdminData() via /api/admin/stats
 
   const loadCrawlerLogs = async () => {
     try {
@@ -418,9 +378,9 @@ export default function AdminPage() {
         total: sourcesToRun.length, 
         percentage: Math.round((completedSources / sourcesToRun.length) * 100) 
       });
-      
-      // Refresh logs/metrics occasionally
-      loadCrawlerMetrics();
+
+      // Refresh logs/metrics occasionally (now combined in loadAdminData)
+      loadAdminData();
       loadCrawlerLogs();
     }
 
@@ -777,7 +737,7 @@ export default function AdminPage() {
                         className="h-14"
                         disabled={crawlerRunning}
                         onClick={() => {
-                          loadCrawlerMetrics();
+                          loadAdminData(); // Now loads both stats and metrics from API
                           loadCrawlerLogs();
                           toast.success('Refreshed crawler data');
                         }}
