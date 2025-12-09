@@ -61,6 +61,9 @@ interface GeocodeResult {
   formatted_address?: string;
   provider: string;
   confidence: 'high' | 'medium' | 'low';
+  matchScore: number;
+  validationIssues: string[];
+  needsReview: boolean;
 }
 
 interface GeocodeUpdate {
@@ -154,6 +157,9 @@ async function geocodeBooth(booth: Booth): Promise<GeocodeResult | null> {
       formatted_address: cascadeResult.displayName,
       provider: cascadeResult.provider,
       confidence: cascadeResult.confidence,
+      matchScore: cascadeResult.matchScore,
+      validationIssues: cascadeResult.validationIssues,
+      needsReview: cascadeResult.needsReview,
     };
   } catch (error) {
     console.error(`   Error geocoding: ${error instanceof Error ? error.message : String(error)}`);
@@ -168,13 +174,18 @@ async function updateBoothCoordinates(
   oldLatitude?: number,
   oldLongitude?: number
 ): Promise<void> {
-  // Update only the essential fields that definitely exist
+  // Update coordinates and validation metadata
   const { error } = await supabase
     .from('booths')
     .update({
       latitude: result.latitude,
       longitude: result.longitude,
       geocoded_at: new Date().toISOString(),
+      geocode_confidence: result.confidence,
+      geocode_match_score: result.matchScore,
+      geocode_validation_issues: result.validationIssues,
+      geocode_validated_at: new Date().toISOString(),
+      needs_geocode_review: result.needsReview,
       updated_at: new Date().toISOString(),
     })
     .eq('id', boothId);

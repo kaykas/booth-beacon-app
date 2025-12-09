@@ -22,6 +22,8 @@ export interface GeocodeResult {
   confidence: 'high' | 'medium' | 'low';
   displayName: string;
   matchScore: number;
+  validationIssues: string[];
+  needsReview: boolean;
 }
 
 export interface CascadeConfig {
@@ -92,6 +94,8 @@ async function geocodeWithNominatim(
     confidence: validation.confidence,
     displayName: result.display_name,
     matchScore: validation.matchScore,
+    validationIssues: validation.issues,
+    needsReview: validation.confidence === 'low',
   };
 }
 
@@ -154,6 +158,8 @@ async function geocodeWithMapbox(
     confidence,
     displayName: feature.place_name,
     matchScore: Math.round(relevance * 100),
+    validationIssues: [],
+    needsReview: confidence === 'low',
   };
 }
 
@@ -215,6 +221,8 @@ async function geocodeWithGoogle(
     confidence,
     displayName: result.formatted_address,
     matchScore: 95, // Google is generally very accurate
+    validationIssues: [],
+    needsReview: confidence === 'low',
   };
 }
 
