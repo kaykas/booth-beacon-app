@@ -58,7 +58,7 @@ interface VerificationIssue {
   boothName: string;
   description: string;
   severity: 'critical' | 'high' | 'medium' | 'low';
-  details: any;
+  details: Record<string, unknown>;
 }
 
 // Calculate distance between two coordinates using Haversine formula
@@ -119,7 +119,7 @@ async function run() {
     console.log('🚨 CRITICAL: Found coordinate clusters (multiple booths at exact same location):');
     console.log('');
     for (const [coords, booths] of suspiciousClusters) {
-      const [lat, lng] = coords.split(',').map(Number);
+      const [_lat, _lng] = coords.split(',').map(Number);
       console.log(`   📍 ${coords} (${booths.length} booths):`);
       for (const booth of booths) {
         console.log(`      • ${booth}`);
@@ -141,7 +141,7 @@ async function run() {
 
   let improved = 0;
   let unchanged = 0;
-  let degraded = 0;
+  const _degraded = 0;
   let newCoordinates = 0;
 
   for (const update of successfulUpdates) {

@@ -75,7 +75,7 @@ async function run() {
   if (countryError) {
     console.error('Error getting country breakdown:', countryError);
   } else if (countryBreakdown) {
-    const countryCounts = countryBreakdown.reduce((acc: Record<string, number>, booth: any) => {
+    const countryCounts = countryBreakdown.reduce((acc: Record<string, number>, booth: { country?: string }) => {
       const country = booth.country || 'Unknown';
       acc[country] = (acc[country] || 0) + 1;
       return acc;
