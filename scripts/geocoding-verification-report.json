@@ -1,0 +1,3893 @@
+{
+  "timestamp": "2025-12-09T04:29:01.457Z",
+  "summary": {
+    "totalIssues": 265,
+    "criticalIssues": 254,
+    "highIssues": 11,
+    "coordinateClusters": 19,
+    "dataQualityIssues": 45
+  },
+  "issues": [
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Weegee's Lounge",
+      "description": "Multiple booths geocoded to exact same location: 42.381094,-83.098354",
+      "severity": "critical",
+      "details": {
+        "coordinates": "42.381094,-83.098354",
+        "clusterSize": 20
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Quimby's",
+      "description": "Multiple booths geocoded to exact same location: 42.381094,-83.098354",
+      "severity": "critical",
+      "details": {
+        "coordinates": "42.381094,-83.098354",
+        "clusterSize": 20
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Skylark",
+      "description": "Multiple booths geocoded to exact same location: 42.381094,-83.098354",
+      "severity": "critical",
+      "details": {
+        "coordinates": "42.381094,-83.098354",
+        "clusterSize": 20
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Holiday Club",
+      "description": "Multiple booths geocoded to exact same location: 42.381094,-83.098354",
+      "severity": "critical",
+      "details": {
+        "coordinates": "42.381094,-83.098354",
+        "clusterSize": 20
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Weegee's Lounge",
+      "description": "Multiple booths geocoded to exact same location: 42.381094,-83.098354",
+      "severity": "critical",
+      "details": {
+        "coordinates": "42.381094,-83.098354",
+        "clusterSize": 20
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Holiday Club",
+      "description": "Multiple booths geocoded to exact same location: 42.381094,-83.098354",
+      "severity": "critical",
+      "details": {
+        "coordinates": "42.381094,-83.098354",
+        "clusterSize": 20
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Bar DeVille",
+      "description": "Multiple booths geocoded to exact same location: 42.381094,-83.098354",
+      "severity": "critical",
+      "details": {
+        "coordinates": "42.381094,-83.098354",
+        "clusterSize": 20
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "The Charleston",
+      "description": "Multiple booths geocoded to exact same location: 42.381094,-83.098354",
+      "severity": "critical",
+      "details": {
+        "coordinates": "42.381094,-83.098354",
+        "clusterSize": 20
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Empty Bottle",
+      "description": "Multiple booths geocoded to exact same location: 42.381094,-83.098354",
+      "severity": "critical",
+      "details": {
+        "coordinates": "42.381094,-83.098354",
+        "clusterSize": 20
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "The Flat Iron",
+      "description": "Multiple booths geocoded to exact same location: 42.381094,-83.098354",
+      "severity": "critical",
+      "details": {
+        "coordinates": "42.381094,-83.098354",
+        "clusterSize": 20
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Holiday Club",
+      "description": "Multiple booths geocoded to exact same location: 42.381094,-83.098354",
+      "severity": "critical",
+      "details": {
+        "coordinates": "42.381094,-83.098354",
+        "clusterSize": 20
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Lincoln Tap Room",
+      "description": "Multiple booths geocoded to exact same location: 42.381094,-83.098354",
+      "severity": "critical",
+      "details": {
+        "coordinates": "42.381094,-83.098354",
+        "clusterSize": 20
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "The Flat Iron",
+      "description": "Multiple booths geocoded to exact same location: 42.381094,-83.098354",
+      "severity": "critical",
+      "details": {
+        "coordinates": "42.381094,-83.098354",
+        "clusterSize": 20
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Holiday Club",
+      "description": "Multiple booths geocoded to exact same location: 42.381094,-83.098354",
+      "severity": "critical",
+      "details": {
+        "coordinates": "42.381094,-83.098354",
+        "clusterSize": 20
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Lincoln Tap Room",
+      "description": "Multiple booths geocoded to exact same location: 42.381094,-83.098354",
+      "severity": "critical",
+      "details": {
+        "coordinates": "42.381094,-83.098354",
+        "clusterSize": 20
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Empty Bottle",
+      "description": "Multiple booths geocoded to exact same location: 42.381094,-83.098354",
+      "severity": "critical",
+      "details": {
+        "coordinates": "42.381094,-83.098354",
+        "clusterSize": 20
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Bar DeVille",
+      "description": "Multiple booths geocoded to exact same location: 42.381094,-83.098354",
+      "severity": "critical",
+      "details": {
+        "coordinates": "42.381094,-83.098354",
+        "clusterSize": 20
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Liar's Club",
+      "description": "Multiple booths geocoded to exact same location: 42.381094,-83.098354",
+      "severity": "critical",
+      "details": {
+        "coordinates": "42.381094,-83.098354",
+        "clusterSize": 20
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Fat Cat",
+      "description": "Multiple booths geocoded to exact same location: 42.381094,-83.098354",
+      "severity": "critical",
+      "details": {
+        "coordinates": "42.381094,-83.098354",
+        "clusterSize": 20
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "The Flat Iron",
+      "description": "Multiple booths geocoded to exact same location: 42.381094,-83.098354",
+      "severity": "critical",
+      "details": {
+        "coordinates": "42.381094,-83.098354",
+        "clusterSize": 20
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Pacific Central Station",
+      "description": "Multiple booths geocoded to exact same location: 38.794595,-106.534838",
+      "severity": "critical",
+      "details": {
+        "coordinates": "38.794595,-106.534838",
+        "clusterSize": 19
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Kastanienallee II",
+      "description": "Multiple booths geocoded to exact same location: 38.794595,-106.534838",
+      "severity": "critical",
+      "details": {
+        "coordinates": "38.794595,-106.534838",
+        "clusterSize": 19
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Calgary Greyhound Station",
+      "description": "Multiple booths geocoded to exact same location: 38.794595,-106.534838",
+      "severity": "critical",
+      "details": {
+        "coordinates": "38.794595,-106.534838",
+        "clusterSize": 19
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Eau Claire Market",
+      "description": "Multiple booths geocoded to exact same location: 38.794595,-106.534838",
+      "severity": "critical",
+      "details": {
+        "coordinates": "38.794595,-106.534838",
+        "clusterSize": 19
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Billings Bridge Centre",
+      "description": "Multiple booths geocoded to exact same location: 38.794595,-106.534838",
+      "severity": "critical",
+      "details": {
+        "coordinates": "38.794595,-106.534838",
+        "clusterSize": 19
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Greyhound Bus Station",
+      "description": "Multiple booths geocoded to exact same location: 38.794595,-106.534838",
+      "severity": "critical",
+      "details": {
+        "coordinates": "38.794595,-106.534838",
+        "clusterSize": 19
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Scotia Square",
+      "description": "Multiple booths geocoded to exact same location: 38.794595,-106.534838",
+      "severity": "critical",
+      "details": {
+        "coordinates": "38.794595,-106.534838",
+        "clusterSize": 19
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Southland Mall",
+      "description": "Multiple booths geocoded to exact same location: 38.794595,-106.534838",
+      "severity": "critical",
+      "details": {
+        "coordinates": "38.794595,-106.534838",
+        "clusterSize": 19
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Corner Brook Plaza",
+      "description": "Multiple booths geocoded to exact same location: 38.794595,-106.534838",
+      "severity": "critical",
+      "details": {
+        "coordinates": "38.794595,-106.534838",
+        "clusterSize": 19
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Gander Mall",
+      "description": "Multiple booths geocoded to exact same location: 38.794595,-106.534838",
+      "severity": "critical",
+      "details": {
+        "coordinates": "38.794595,-106.534838",
+        "clusterSize": 19
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Gerrard Square",
+      "description": "Multiple booths geocoded to exact same location: 38.794595,-106.534838",
+      "severity": "critical",
+      "details": {
+        "coordinates": "38.794595,-106.534838",
+        "clusterSize": 19
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Riga Bus Station",
+      "description": "Multiple booths geocoded to exact same location: 38.794595,-106.534838",
+      "severity": "critical",
+      "details": {
+        "coordinates": "38.794595,-106.534838",
+        "clusterSize": 19
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Kampala",
+      "description": "Multiple booths geocoded to exact same location: 38.794595,-106.534838",
+      "severity": "critical",
+      "details": {
+        "coordinates": "38.794595,-106.534838",
+        "clusterSize": 19
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Petersburger Straße 81",
+      "description": "Multiple booths geocoded to exact same location: 38.794595,-106.534838",
+      "severity": "critical",
+      "details": {
+        "coordinates": "38.794595,-106.534838",
+        "clusterSize": 19
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "R.A.W. C",
+      "description": "Multiple booths geocoded to exact same location: 38.794595,-106.534838",
+      "severity": "critical",
+      "details": {
+        "coordinates": "38.794595,-106.534838",
+        "clusterSize": 19
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Sch&ouml;nhauser Allee 63",
+      "description": "Multiple booths geocoded to exact same location: 38.794595,-106.534838",
+      "severity": "critical",
+      "details": {
+        "coordinates": "38.794595,-106.534838",
+        "clusterSize": 19
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Bernauer Strasse 47",
+      "description": "Multiple booths geocoded to exact same location: 38.794595,-106.534838",
+      "severity": "critical",
+      "details": {
+        "coordinates": "38.794595,-106.534838",
+        "clusterSize": 19
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Mauerpark B",
+      "description": "Multiple booths geocoded to exact same location: 38.794595,-106.534838",
+      "severity": "critical",
+      "details": {
+        "coordinates": "38.794595,-106.534838",
+        "clusterSize": 19
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Mauerpark A",
+      "description": "Multiple booths geocoded to exact same location: 38.794595,-106.534838",
+      "severity": "critical",
+      "details": {
+        "coordinates": "38.794595,-106.534838",
+        "clusterSize": 19
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Stadsgårdsterminalen",
+      "description": "Multiple booths geocoded to exact same location: 59.315253,18.064295",
+      "severity": "critical",
+      "details": {
+        "coordinates": "59.315253,18.064295",
+        "clusterSize": 11
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Fotografiska",
+      "description": "Multiple booths geocoded to exact same location: 59.315253,18.064295",
+      "severity": "critical",
+      "details": {
+        "coordinates": "59.315253,18.064295",
+        "clusterSize": 11
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Grand Central",
+      "description": "Multiple booths geocoded to exact same location: 59.315253,18.064295",
+      "severity": "critical",
+      "details": {
+        "coordinates": "59.315253,18.064295",
+        "clusterSize": 11
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Kulturhuset Stadsteatern",
+      "description": "Multiple booths geocoded to exact same location: 59.315253,18.064295",
+      "severity": "critical",
+      "details": {
+        "coordinates": "59.315253,18.064295",
+        "clusterSize": 11
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Ringen",
+      "description": "Multiple booths geocoded to exact same location: 59.315253,18.064295",
+      "severity": "critical",
+      "details": {
+        "coordinates": "59.315253,18.064295",
+        "clusterSize": 11
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Fryshuset Stockholm",
+      "description": "Multiple booths geocoded to exact same location: 59.315253,18.064295",
+      "severity": "critical",
+      "details": {
+        "coordinates": "59.315253,18.064295",
+        "clusterSize": 11
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Generator",
+      "description": "Multiple booths geocoded to exact same location: 59.315253,18.064295",
+      "severity": "critical",
+      "details": {
+        "coordinates": "59.315253,18.064295",
+        "clusterSize": 11
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Spårvägsmuseet",
+      "description": "Multiple booths geocoded to exact same location: 59.315253,18.064295",
+      "severity": "critical",
+      "details": {
+        "coordinates": "59.315253,18.064295",
+        "clusterSize": 11
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Hobo Hotel",
+      "description": "Multiple booths geocoded to exact same location: 59.315253,18.064295",
+      "severity": "critical",
+      "details": {
+        "coordinates": "59.315253,18.064295",
+        "clusterSize": 11
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Downtown Camper",
+      "description": "Multiple booths geocoded to exact same location: 59.315253,18.064295",
+      "severity": "critical",
+      "details": {
+        "coordinates": "59.315253,18.064295",
+        "clusterSize": 11
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Nordiska Museet",
+      "description": "Multiple booths geocoded to exact same location: 59.315253,18.064295",
+      "severity": "critical",
+      "details": {
+        "coordinates": "59.315253,18.064295",
+        "clusterSize": 11
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Stadsgårdsterminalen",
+      "description": "Multiple booths geocoded to exact same location: 60.564129,14.664427",
+      "severity": "critical",
+      "details": {
+        "coordinates": "60.564129,14.664427",
+        "clusterSize": 9
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Nordiska Museet",
+      "description": "Multiple booths geocoded to exact same location: 60.564129,14.664427",
+      "severity": "critical",
+      "details": {
+        "coordinates": "60.564129,14.664427",
+        "clusterSize": 9
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Kulturhuset Stadsteatern",
+      "description": "Multiple booths geocoded to exact same location: 60.564129,14.664427",
+      "severity": "critical",
+      "details": {
+        "coordinates": "60.564129,14.664427",
+        "clusterSize": 9
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Bar Europa",
+      "description": "Multiple booths geocoded to exact same location: 60.564129,14.664427",
+      "severity": "critical",
+      "details": {
+        "coordinates": "60.564129,14.664427",
+        "clusterSize": 9
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Kulturhuset Stadsteatern",
+      "description": "Multiple booths geocoded to exact same location: 60.564129,14.664427",
+      "severity": "critical",
+      "details": {
+        "coordinates": "60.564129,14.664427",
+        "clusterSize": 9
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Café Klotet",
+      "description": "Multiple booths geocoded to exact same location: 60.564129,14.664427",
+      "severity": "critical",
+      "details": {
+        "coordinates": "60.564129,14.664427",
+        "clusterSize": 9
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Nordiska Museet",
+      "description": "Multiple booths geocoded to exact same location: 60.564129,14.664427",
+      "severity": "critical",
+      "details": {
+        "coordinates": "60.564129,14.664427",
+        "clusterSize": 9
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Hobo Hotel",
+      "description": "Multiple booths geocoded to exact same location: 60.564129,14.664427",
+      "severity": "critical",
+      "details": {
+        "coordinates": "60.564129,14.664427",
+        "clusterSize": 9
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Generator",
+      "description": "Multiple booths geocoded to exact same location: 60.564129,14.664427",
+      "severity": "critical",
+      "details": {
+        "coordinates": "60.564129,14.664427",
+        "clusterSize": 9
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Vidiots",
+      "description": "Multiple booths geocoded to exact same location: 36.197667,-120.104717",
+      "severity": "critical",
+      "details": {
+        "coordinates": "36.197667,-120.104717",
+        "clusterSize": 6
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Union Station I",
+      "description": "Multiple booths geocoded to exact same location: 36.197667,-120.104717",
+      "severity": "critical",
+      "details": {
+        "coordinates": "36.197667,-120.104717",
+        "clusterSize": 6
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Freestyle Photo & Imaging Supplies",
+      "description": "Multiple booths geocoded to exact same location: 36.197667,-120.104717",
+      "severity": "critical",
+      "details": {
+        "coordinates": "36.197667,-120.104717",
+        "clusterSize": 6
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "The Smell",
+      "description": "Multiple booths geocoded to exact same location: 36.197667,-120.104717",
+      "severity": "critical",
+      "details": {
+        "coordinates": "36.197667,-120.104717",
+        "clusterSize": 6
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "The Hunt Vintage",
+      "description": "Multiple booths geocoded to exact same location: 36.197667,-120.104717",
+      "severity": "critical",
+      "details": {
+        "coordinates": "36.197667,-120.104717",
+        "clusterSize": 6
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Town",
+      "description": "Multiple booths geocoded to exact same location: 36.197667,-120.104717",
+      "severity": "critical",
+      "details": {
+        "coordinates": "36.197667,-120.104717",
+        "clusterSize": 6
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Foto Arsenal Wien",
+      "description": "Multiple booths geocoded to exact same location: 38.849036,-77.400855",
+      "severity": "critical",
+      "details": {
+        "coordinates": "38.849036,-77.400855",
+        "clusterSize": 5
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Hildebrandt CAFÉ",
+      "description": "Multiple booths geocoded to exact same location: 38.849036,-77.400855",
+      "severity": "critical",
+      "details": {
+        "coordinates": "38.849036,-77.400855",
+        "clusterSize": 5
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Hildebrandt CAFÉ",
+      "description": "Multiple booths geocoded to exact same location: 38.849036,-77.400855",
+      "severity": "critical",
+      "details": {
+        "coordinates": "38.849036,-77.400855",
+        "clusterSize": 5
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "25hours Hotel Lobby",
+      "description": "Multiple booths geocoded to exact same location: 38.849036,-77.400855",
+      "severity": "critical",
+      "details": {
+        "coordinates": "38.849036,-77.400855",
+        "clusterSize": 5
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Max Brown Hotel 7th District Lobby",
+      "description": "Multiple booths geocoded to exact same location: 38.849036,-77.400855",
+      "severity": "critical",
+      "details": {
+        "coordinates": "38.849036,-77.400855",
+        "clusterSize": 5
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Roommate Collective",
+      "description": "Multiple booths geocoded to exact same location: 30.267446,-97.693455",
+      "severity": "critical",
+      "details": {
+        "coordinates": "30.267446,-97.693455",
+        "clusterSize": 5
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Roommate Collective",
+      "description": "Multiple booths geocoded to exact same location: 30.267446,-97.693455",
+      "severity": "critical",
+      "details": {
+        "coordinates": "30.267446,-97.693455",
+        "clusterSize": 5
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Roommate Collective",
+      "description": "Multiple booths geocoded to exact same location: 30.267446,-97.693455",
+      "severity": "critical",
+      "details": {
+        "coordinates": "30.267446,-97.693455",
+        "clusterSize": 5
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Roommate Collective",
+      "description": "Multiple booths geocoded to exact same location: 30.267446,-97.693455",
+      "severity": "critical",
+      "details": {
+        "coordinates": "30.267446,-97.693455",
+        "clusterSize": 5
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Roommate Collective",
+      "description": "Multiple booths geocoded to exact same location: 30.267446,-97.693455",
+      "severity": "critical",
+      "details": {
+        "coordinates": "30.267446,-97.693455",
+        "clusterSize": 5
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "The Lodge at Bryant Park",
+      "description": "Multiple booths geocoded to exact same location: 40.753537,-73.982953",
+      "severity": "critical",
+      "details": {
+        "coordinates": "40.753537,-73.982953",
+        "clusterSize": 5
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "The Lodge at Bryant Park",
+      "description": "Multiple booths geocoded to exact same location: 40.753537,-73.982953",
+      "severity": "critical",
+      "details": {
+        "coordinates": "40.753537,-73.982953",
+        "clusterSize": 5
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "The Lodge at Bryant Park",
+      "description": "Multiple booths geocoded to exact same location: 40.753537,-73.982953",
+      "severity": "critical",
+      "details": {
+        "coordinates": "40.753537,-73.982953",
+        "clusterSize": 5
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "The Lodge at Bryant Park",
+      "description": "Multiple booths geocoded to exact same location: 40.753537,-73.982953",
+      "severity": "critical",
+      "details": {
+        "coordinates": "40.753537,-73.982953",
+        "clusterSize": 5
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "The Lodge at Bryant Park",
+      "description": "Multiple booths geocoded to exact same location: 40.753537,-73.982953",
+      "severity": "critical",
+      "details": {
+        "coordinates": "40.753537,-73.982953",
+        "clusterSize": 5
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Sid Gold's Request Room",
+      "description": "Multiple booths geocoded to exact same location: 36.208292,-86.735386",
+      "severity": "critical",
+      "details": {
+        "coordinates": "36.208292,-86.735386",
+        "clusterSize": 4
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Sid Gold's Request Room",
+      "description": "Multiple booths geocoded to exact same location: 36.208292,-86.735386",
+      "severity": "critical",
+      "details": {
+        "coordinates": "36.208292,-86.735386",
+        "clusterSize": 4
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Sid Gold's Request Room",
+      "description": "Multiple booths geocoded to exact same location: 36.208292,-86.735386",
+      "severity": "critical",
+      "details": {
+        "coordinates": "36.208292,-86.735386",
+        "clusterSize": 4
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Sid Gold's Request Room",
+      "description": "Multiple booths geocoded to exact same location: 36.208292,-86.735386",
+      "severity": "critical",
+      "details": {
+        "coordinates": "36.208292,-86.735386",
+        "clusterSize": 4
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Carousel I",
+      "description": "Multiple booths geocoded to exact same location: 43.196067,-75.729010",
+      "severity": "critical",
+      "details": {
+        "coordinates": "43.196067,-75.729010",
+        "clusterSize": 4
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Carousel II",
+      "description": "Multiple booths geocoded to exact same location: 43.196067,-75.729010",
+      "severity": "critical",
+      "details": {
+        "coordinates": "43.196067,-75.729010",
+        "clusterSize": 4
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Carousel III",
+      "description": "Multiple booths geocoded to exact same location: 43.196067,-75.729010",
+      "severity": "critical",
+      "details": {
+        "coordinates": "43.196067,-75.729010",
+        "clusterSize": 4
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Carousel III",
+      "description": "Multiple booths geocoded to exact same location: 43.196067,-75.729010",
+      "severity": "critical",
+      "details": {
+        "coordinates": "43.196067,-75.729010",
+        "clusterSize": 4
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Circus Circus #1",
+      "description": "Multiple booths geocoded to exact same location: 36.136817,-115.163391",
+      "severity": "critical",
+      "details": {
+        "coordinates": "36.136817,-115.163391",
+        "clusterSize": 3
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Circus Circus #2",
+      "description": "Multiple booths geocoded to exact same location: 36.136817,-115.163391",
+      "severity": "critical",
+      "details": {
+        "coordinates": "36.136817,-115.163391",
+        "clusterSize": 3
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Circus Circus #4",
+      "description": "Multiple booths geocoded to exact same location: 36.136817,-115.163391",
+      "severity": "critical",
+      "details": {
+        "coordinates": "36.136817,-115.163391",
+        "clusterSize": 3
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Warschauer Stra&szlig;e 47",
+      "description": "Multiple booths geocoded to exact same location: 52.503744,13.446736",
+      "severity": "critical",
+      "details": {
+        "coordinates": "52.503744,13.446736",
+        "clusterSize": 3
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Warschauer Stra&szlig;e 47 B",
+      "description": "Multiple booths geocoded to exact same location: 52.503744,13.446736",
+      "severity": "critical",
+      "details": {
+        "coordinates": "52.503744,13.446736",
+        "clusterSize": 3
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Warschauer Straße 47",
+      "description": "Multiple booths geocoded to exact same location: 52.503744,13.446736",
+      "severity": "critical",
+      "details": {
+        "coordinates": "52.503744,13.446736",
+        "clusterSize": 3
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Classic Photo Booth Co.",
+      "description": "Multiple booths geocoded to exact same location: 43.874506,-85.799206",
+      "severity": "critical",
+      "details": {
+        "coordinates": "43.874506,-85.799206",
+        "clusterSize": 3
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "The Photo Booth Museum",
+      "description": "Multiple booths geocoded to exact same location: 43.874506,-85.799206",
+      "severity": "critical",
+      "details": {
+        "coordinates": "43.874506,-85.799206",
+        "clusterSize": 3
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "The Photo Booth Museum",
+      "description": "Multiple booths geocoded to exact same location: 43.874506,-85.799206",
+      "severity": "critical",
+      "details": {
+        "coordinates": "43.874506,-85.799206",
+        "clusterSize": 3
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "kasarna Karlin",
+      "description": "Multiple booths geocoded to exact same location: 50.088429,14.428579",
+      "severity": "critical",
+      "details": {
+        "coordinates": "50.088429,14.428579",
+        "clusterSize": 3
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "@camppraha",
+      "description": "Multiple booths geocoded to exact same location: 50.088429,14.428579",
+      "severity": "critical",
+      "details": {
+        "coordinates": "50.088429,14.428579",
+        "clusterSize": 3
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "National Gallery",
+      "description": "Multiple booths geocoded to exact same location: 50.088429,14.428579",
+      "severity": "critical",
+      "details": {
+        "coordinates": "50.088429,14.428579",
+        "clusterSize": 3
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Alex's Bar",
+      "description": "Multiple booths geocoded to exact same location: 41.610886,-83.110117",
+      "severity": "critical",
+      "details": {
+        "coordinates": "41.610886,-83.110117",
+        "clusterSize": 3
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "The Blind Donkey",
+      "description": "Multiple booths geocoded to exact same location: 41.610886,-83.110117",
+      "severity": "critical",
+      "details": {
+        "coordinates": "41.610886,-83.110117",
+        "clusterSize": 3
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Alex's Bar",
+      "description": "Multiple booths geocoded to exact same location: 41.610886,-83.110117",
+      "severity": "critical",
+      "details": {
+        "coordinates": "41.610886,-83.110117",
+        "clusterSize": 3
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Rutger Fuchsgatan 2",
+      "description": "Multiple booths geocoded to exact same location: 59.307637,18.078652",
+      "severity": "critical",
+      "details": {
+        "coordinates": "59.307637,18.078652",
+        "clusterSize": 3
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Rutger Fuchsgatan 2",
+      "description": "Multiple booths geocoded to exact same location: 59.307637,18.078652",
+      "severity": "critical",
+      "details": {
+        "coordinates": "59.307637,18.078652",
+        "clusterSize": 3
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Rutger Fuchsgatan 2",
+      "description": "Multiple booths geocoded to exact same location: 59.307637,18.078652",
+      "severity": "critical",
+      "details": {
+        "coordinates": "59.307637,18.078652",
+        "clusterSize": 3
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Birdy's",
+      "description": "Multiple booths geocoded to exact same location: 42.910069,-82.481072",
+      "severity": "critical",
+      "details": {
+        "coordinates": "42.910069,-82.481072",
+        "clusterSize": 3
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Hank's Bar",
+      "description": "Multiple booths geocoded to exact same location: 42.910069,-82.481072",
+      "severity": "critical",
+      "details": {
+        "coordinates": "42.910069,-82.481072",
+        "clusterSize": 3
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Bootleg Bar",
+      "description": "Multiple booths geocoded to exact same location: 42.910069,-82.481072",
+      "severity": "critical",
+      "details": {
+        "coordinates": "42.910069,-82.481072",
+        "clusterSize": 3
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Club Photomatica",
+      "description": "Multiple booths geocoded to exact same location: 32.563036,-117.013586",
+      "severity": "critical",
+      "details": {
+        "coordinates": "32.563036,-117.013586",
+        "clusterSize": 3
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Kilowatt",
+      "description": "Multiple booths geocoded to exact same location: 32.563036,-117.013586",
+      "severity": "critical",
+      "details": {
+        "coordinates": "32.563036,-117.013586",
+        "clusterSize": 3
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Photoworks",
+      "description": "Multiple booths geocoded to exact same location: 32.563036,-117.013586",
+      "severity": "critical",
+      "details": {
+        "coordinates": "32.563036,-117.013586",
+        "clusterSize": 3
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "The Hoxton Holborn",
+      "description": "Multiple booths geocoded to exact same location: 51.529432,0.018795",
+      "severity": "critical",
+      "details": {
+        "coordinates": "51.529432,0.018795",
+        "clusterSize": 3
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "Tate Modern",
+      "description": "Multiple booths geocoded to exact same location: 51.529432,0.018795",
+      "severity": "critical",
+      "details": {
+        "coordinates": "51.529432,0.018795",
+        "clusterSize": 3
+      }
+    },
+    {
+      "type": "duplicate_coordinates",
+      "boothId": "unknown",
+      "boothName": "The Standard",
+      "description": "Multiple booths geocoded to exact same location: 51.529432,0.018795",
+      "severity": "critical",
+      "details": {
+        "coordinates": "51.529432,0.018795",
+        "clusterSize": 3
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "b97a1ddc-f994-4225-aefb-802048bf3c31",
+      "boothName": "Weegee's Lounge",
+      "description": "Coordinates moved 384.4 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          41.9170145,
+          -87.7190122
+        ],
+        "newCoords": [
+          42.381094,
+          -83.098354
+        ],
+        "distanceKm": 384.35724177873925
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "b15bc10b-ea22-4b1a-a3fc-1bfde623caca",
+      "boothName": "Quimby's",
+      "description": "Coordinates moved 380.9 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          41.910718,
+          -87.674763
+        ],
+        "newCoords": [
+          42.381094,
+          -83.098354
+        ],
+        "distanceKm": 380.8580368997515
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "92d3ef53-485b-447f-8048-868776c8ab84",
+      "boothName": "Skylark",
+      "description": "Coordinates moved 379.7 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          41.8527778,
+          -87.6463889
+        ],
+        "newCoords": [
+          42.381094,
+          -83.098354
+        ],
+        "distanceKm": 379.654303166296
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "c073c10d-4086-40e6-9214-150f8662936a",
+      "boothName": "Holiday Club",
+      "description": "Coordinates moved 378.5 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          41.954588,
+          -87.654726
+        ],
+        "newCoords": [
+          42.381094,
+          -83.098354
+        ],
+        "distanceKm": 378.4519146210458
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "115bb1fd-2aab-403e-a72f-ba382225fae3",
+      "boothName": "Foto Arsenal Wien",
+      "description": "Coordinates moved 7153.4 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          48.1841083,
+          16.3917738
+        ],
+        "newCoords": [
+          38.849036,
+          -77.400855
+        ],
+        "distanceKm": 7153.414260735401
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "f3dbfa3e-961b-4af3-9a00-e972cb630c41",
+      "boothName": "Weegee's Lounge",
+      "description": "Coordinates moved 384.4 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          41.9170145,
+          -87.7190122
+        ],
+        "newCoords": [
+          42.381094,
+          -83.098354
+        ],
+        "distanceKm": 384.35724177873925
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "fd4846c3-2d40-4585-b49b-72f2b88b057d",
+      "boothName": "Holiday Club",
+      "description": "Coordinates moved 378.5 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          41.954588,
+          -87.654726
+        ],
+        "newCoords": [
+          42.381094,
+          -83.098354
+        ],
+        "distanceKm": 378.4519146210458
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "e5a5c21c-a027-4a0b-b453-29facb2971df",
+      "boothName": "Mutiny Information Cafe",
+      "description": "Coordinates moved 1870.5 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          39.6534477,
+          -104.987856
+        ],
+        "newCoords": [
+          42.396955,
+          -82.922441
+        ],
+        "distanceKm": 1870.5165998781063
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "6796a3f8-bbc0-4276-b06e-9d3d8e549c1f",
+      "boothName": "La Grande Halle",
+      "description": "Coordinates moved 3253.9 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          32.1182188,
+          -84.1974091
+        ],
+        "newCoords": [
+          45.3245771,
+          -118.0877188
+        ],
+        "distanceKm": 3253.901648042246
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "cd303e42-0547-44cb-ae2b-1692e51618c6",
+      "boothName": "Sch&ouml;nhauser Allee 63",
+      "description": "Coordinates moved 8326.9 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          52.5459084,
+          13.413577
+        ],
+        "newCoords": [
+          38.7945952,
+          -106.5348379
+        ],
+        "distanceKm": 8326.884207305768
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "34d90cf3-f73e-4364-bcf1-c8f168c23be5",
+      "boothName": "Bernauer Strasse 47",
+      "description": "Coordinates moved 8328.5 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          52.5200066,
+          13.404954
+        ],
+        "newCoords": [
+          38.7945952,
+          -106.5348379
+        ],
+        "distanceKm": 8328.534349821652
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "00eae082-3ed6-4de4-b1a5-babbe788dea5",
+      "boothName": "Kingly Court",
+      "description": "Coordinates moved 7706.6 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          38.7945952,
+          -106.5348379
+        ],
+        "newCoords": [
+          51.5072178,
+          -0.1275862
+        ],
+        "distanceKm": 7706.648464980637
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "dfa2bf6f-fcf7-4b87-8516-8d16e49cb1be",
+      "boothName": "Adelaide Arcade",
+      "description": "Coordinates moved 2005.4 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          38.7945952,
+          -106.5348379
+        ],
+        "newCoords": [
+          42.197289,
+          -83.164685
+        ],
+        "distanceKm": 2005.4024641952265
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "6c301465-10e2-4786-8a0a-832c4c64a2e2",
+      "boothName": "Vidiots",
+      "description": "Coordinates moved 2616.1 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          34.1349023,
+          -118.2151265
+        ],
+        "newCoords": [
+          46.26164,
+          -91.56074
+        ],
+        "distanceKm": 2616.101641862849
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "1da0dfbc-ad73-4d99-a853-77c6a56c365c",
+      "boothName": "Classic Photo Booth Co.",
+      "description": "Coordinates moved 2987.0 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          34.0780419,
+          -118.2666947
+        ],
+        "newCoords": [
+          43.874506,
+          -85.799206
+        ],
+        "distanceKm": 2986.9649884026267
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "bfa54bd9-c8a3-4554-9836-c00234c7570a",
+      "boothName": "Palais de Tokyo",
+      "description": "Coordinates moved 671.8 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          48.8645866,
+          2.2966748
+        ],
+        "newCoords": [
+          43.415211,
+          6.069561
+        ],
+        "distanceKm": 671.8485596132294
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "bc15d7ee-32e6-4f2b-af47-4a106f6b4fc0",
+      "boothName": "Buttes Chaumont",
+      "description": "Coordinates moved 670.8 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          48.8823241,
+          2.381923
+        ],
+        "newCoords": [
+          43.415211,
+          6.069561
+        ],
+        "distanceKm": 670.8091639955376
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "80a2ea77-3514-4127-8189-df0f123c89b4",
+      "boothName": "Photoautomat",
+      "description": "Coordinates moved 336.7 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          52.5200066,
+          13.404954
+        ],
+        "newCoords": [
+          54.404249,
+          9.422626
+        ],
+        "distanceKm": 336.6613792094258
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "62fd91f2-5944-4ef4-9a17-4d1b62404bc1",
+      "boothName": "",
+      "description": "Coordinates moved 11781.3 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          33.7174708,
+          -117.8311428
+        ],
+        "newCoords": [
+          14.694018,
+          121.065068
+        ],
+        "distanceKm": 11781.337366903352
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "8bdcb12f-7d00-4626-93d4-e3bedee09fe1",
+      "boothName": "Bar DeVille",
+      "description": "Coordinates moved 377.9 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          41.88325,
+          -87.6323879
+        ],
+        "newCoords": [
+          42.381094,
+          -83.098354
+        ],
+        "distanceKm": 377.91431876912844
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "e7d1532e-14c0-4395-9496-503c94912b79",
+      "boothName": "The Photo Booth Museum",
+      "description": "Coordinates moved 2987.2 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          34.0916745,
+          -118.2793143
+        ],
+        "newCoords": [
+          43.874506,
+          -85.799206
+        ],
+        "distanceKm": 2987.178115494881
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "0145d015-8026-436c-9b25-ae9f5486f6c9",
+      "boothName": "The Charleston",
+      "description": "Coordinates moved 381.1 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          41.9198996,
+          -87.6803052
+        ],
+        "newCoords": [
+          42.381094,
+          -83.098354
+        ],
+        "distanceKm": 381.1447588526293
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "bacacddc-2779-468f-92d7-2e5fd89db14c",
+      "boothName": "Empty Bottle",
+      "description": "Coordinates moved 382.0 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          41.9004139,
+          -87.6867377
+        ],
+        "newCoords": [
+          42.381094,
+          -83.098354
+        ],
+        "distanceKm": 382.0245468413334
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "378792e8-d66e-4213-8fcf-6f0dab1c4c6b",
+      "boothName": "The Flat Iron",
+      "description": "Coordinates moved 381.0 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          41.9100396,
+          -87.6766859
+        ],
+        "newCoords": [
+          42.381094,
+          -83.098354
+        ],
+        "distanceKm": 381.0273650641585
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "5ef56161-d77c-43fb-9bcc-c11322de3a6e",
+      "boothName": "Holiday Club",
+      "description": "Coordinates moved 378.5 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          41.954588,
+          -87.654726
+        ],
+        "newCoords": [
+          42.381094,
+          -83.098354
+        ],
+        "distanceKm": 378.4519146210458
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "6abc2a13-3ae5-4f59-9e9c-08beb5d90b1a",
+      "boothName": "Lincoln Tap Room",
+      "description": "Coordinates moved 379.6 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          41.9363965,
+          -87.664398
+        ],
+        "newCoords": [
+          42.381094,
+          -83.098354
+        ],
+        "distanceKm": 379.55413528220754
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "27b109f3-262b-4dd2-9d2c-1876dc932cfd",
+      "boothName": "Alex's Bar",
+      "description": "Coordinates moved 3179.9 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          33.7827792,
+          -118.1573886
+        ],
+        "newCoords": [
+          41.610886,
+          -83.110117
+        ],
+        "distanceKm": 3179.9113511979062
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "c87765bb-5267-416f-9f78-80691f2e372f",
+      "boothName": "The Short Stop",
+      "description": "Coordinates moved 3978.9 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          34.0753365,
+          -118.2535448
+        ],
+        "newCoords": [
+          42.693175,
+          -73.365282
+        ],
+        "distanceKm": 3978.9057045432833
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "cd9d2f3e-8020-4d0b-8e71-48db93ad39da",
+      "boothName": "The Blind Donkey",
+      "description": "Coordinates moved 3183.0 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          33.7690476,
+          -118.1865789
+        ],
+        "newCoords": [
+          41.610886,
+          -83.110117
+        ],
+        "distanceKm": 3183.0063991090988
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "dcf9f5d9-3882-4292-b9b0-204b0d10932a",
+      "boothName": "4100 Bar",
+      "description": "Coordinates moved 3933.1 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          34.0930087,
+          -118.2815088
+        ],
+        "newCoords": [
+          40.609698,
+          -74.062895
+        ],
+        "distanceKm": 3933.053744269644
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "c0d8acc5-5c62-48cd-bd41-76b1d700639b",
+      "boothName": "Holiday Club",
+      "description": "Coordinates moved 342.2 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          41.954588,
+          -87.654726
+        ],
+        "newCoords": [
+          42.307526,
+          -83.53258
+        ],
+        "distanceKm": 342.1500133169787
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "dc465bdd-5c67-43fa-a885-a477583b576f",
+      "boothName": "The Flat Iron",
+      "description": "Coordinates moved 381.0 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          41.9100396,
+          -87.6766859
+        ],
+        "newCoords": [
+          42.381094,
+          -83.098354
+        ],
+        "distanceKm": 381.0273650641585
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "d675e00b-c899-4325-a7c7-540846fb4ad2",
+      "boothName": "Holiday Club",
+      "description": "Coordinates moved 378.5 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          41.954588,
+          -87.654726
+        ],
+        "newCoords": [
+          42.381094,
+          -83.098354
+        ],
+        "distanceKm": 378.4519146210458
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "959ad5d6-66eb-4707-9265-46c692306b18",
+      "boothName": "Lincoln Tap Room",
+      "description": "Coordinates moved 379.6 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          41.9363965,
+          -87.664398
+        ],
+        "newCoords": [
+          42.381094,
+          -83.098354
+        ],
+        "distanceKm": 379.55413528220754
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "8821bd20-c1e2-4730-b922-a616fcac2df9",
+      "boothName": "Alex's Bar",
+      "description": "Coordinates moved 3179.9 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          33.7827792,
+          -118.1573886
+        ],
+        "newCoords": [
+          41.610886,
+          -83.110117
+        ],
+        "distanceKm": 3179.9113511979062
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "57efe9b8-bd30-401a-89d5-580bd8639de7",
+      "boothName": "Cha Cha Lounge",
+      "description": "Coordinates moved 3052.1 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          34.0993602,
+          -118.2595171
+        ],
+        "newCoords": [
+          43.920795,
+          -84.96256
+        ],
+        "distanceKm": 3052.1012553976675
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "828db2f0-50a7-4ff2-9104-5d5ddf5f5d7f",
+      "boothName": "Backstage",
+      "description": "Coordinates moved 198.7 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          34.0162722,
+          -118.4001389
+        ],
+        "newCoords": [
+          35.269919,
+          -119.947438
+        ],
+        "distanceKm": 198.6599827499293
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "4155da85-6f96-42f2-9121-0b6b2008fed7",
+      "boothName": "4100 Bar",
+      "description": "Coordinates moved 3933.1 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          34.0930087,
+          -118.2815088
+        ],
+        "newCoords": [
+          40.609698,
+          -74.062895
+        ],
+        "distanceKm": 3933.053744269644
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "288e77d2-82ab-4140-8f15-7c55ce758d74",
+      "boothName": "Stadsgårdsterminalen",
+      "description": "Coordinates moved 235.1 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          59.319416,
+          18.0775996
+        ],
+        "newCoords": [
+          60.564129,
+          14.664427
+        ],
+        "distanceKm": 235.0981145027493
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "e006db85-9ed4-4792-9ce5-0d1a8662fd51",
+      "boothName": "Nordiska Museet",
+      "description": "Coordinates moved 235.2 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          59.329008,
+          18.094268
+        ],
+        "newCoords": [
+          60.564129,
+          14.664427
+        ],
+        "distanceKm": 235.20247426343238
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "8f9dfd3f-ce72-4d32-b036-8d4124193dbe",
+      "boothName": "Kulturhuset Stadsteatern",
+      "description": "Coordinates moved 233.7 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          59.332272,
+          18.0658682
+        ],
+        "newCoords": [
+          60.564129,
+          14.664427
+        ],
+        "distanceKm": 233.70077950062716
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "176c8912-10ba-452c-8f0b-14d844222469",
+      "boothName": "Far i hatten",
+      "description": "Coordinates moved 478.0 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          55.5927843,
+          13.0142194
+        ],
+        "newCoords": [
+          59.418238,
+          16.670377
+        ],
+        "distanceKm": 477.99642839598636
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "0a1e87fb-68fc-4e10-8715-8c74311274bb",
+      "boothName": "Empty Bottle",
+      "description": "Coordinates moved 382.0 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          41.9004139,
+          -87.6867377
+        ],
+        "newCoords": [
+          42.381094,
+          -83.098354
+        ],
+        "distanceKm": 382.0245468413334
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "6df7b3c4-a15f-458e-aae3-d8f7576cfef4",
+      "boothName": "Linnelabbet",
+      "description": "Coordinates moved 836.1 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          57.6971538,
+          11.9499649
+        ],
+        "newCoords": [
+          64.06202,
+          20.226591
+        ],
+        "distanceKm": 836.0729603245298
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "062517aa-6c13-4b78-a89d-c660d8cce955",
+      "boothName": "Bar Europa",
+      "description": "Coordinates moved 234.2 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          59.318388,
+          18.0557436
+        ],
+        "newCoords": [
+          60.564129,
+          14.664427
+        ],
+        "distanceKm": 234.18566132413767
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "78819984-5a8d-45c5-ba3b-914381d4ca7b",
+      "boothName": "Mutiny Information Cafe",
+      "description": "Coordinates moved 1870.5 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          39.6534477,
+          -104.987856
+        ],
+        "newCoords": [
+          42.396955,
+          -82.922441
+        ],
+        "distanceKm": 1870.5165998781063
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "45c46185-332b-4f6d-bfeb-02ca33b876e6",
+      "boothName": "Kulturhuset Stadsteatern",
+      "description": "Coordinates moved 233.7 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          59.332272,
+          18.0658682
+        ],
+        "newCoords": [
+          60.564129,
+          14.664427
+        ],
+        "distanceKm": 233.70077950062716
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "4e40f0cd-2a81-4eb7-bcc6-807d0fe2e18d",
+      "boothName": "Bryan Center, Duke University",
+      "description": "Coordinates moved 804.8 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          36.0001557,
+          -78.9442297
+        ],
+        "newCoords": [
+          42.330547,
+          -83.477828
+        ],
+        "distanceKm": 804.8318059062768
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "e44c7299-eca6-41cc-9126-50e29460c283",
+      "boothName": "The Photo Booth Museum",
+      "description": "Coordinates moved 2987.2 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          34.0916745,
+          -118.2793143
+        ],
+        "newCoords": [
+          43.874506,
+          -85.799206
+        ],
+        "distanceKm": 2987.178115494881
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "71d2e6fb-0ce8-47a1-9843-a0301c1e1a1e",
+      "boothName": "Art Gallery of South Australia",
+      "description": "Coordinates moved 14328.5 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          38.7945952,
+          -106.5348379
+        ],
+        "newCoords": [
+          -34.9284989,
+          138.6007456
+        ],
+        "distanceKm": 14328.459008360629
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "23462c10-428e-45fa-8f95-056a4498ae38",
+      "boothName": "Fotoautomat",
+      "description": "Coordinates moved 7539.4 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          43.7699685,
+          11.2576706
+        ],
+        "newCoords": [
+          33.8689,
+          -79.481801
+        ],
+        "distanceKm": 7539.44472228213
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "2664c2d1-3089-4769-9e30-5a9d232aff82",
+      "boothName": "Café Klotet",
+      "description": "Coordinates moved 234.9 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          59.3194585,
+          18.0734116
+        ],
+        "newCoords": [
+          60.564129,
+          14.664427
+        ],
+        "distanceKm": 234.90682645264707
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "d427fc2e-3cfa-4be5-ad03-a4dc12147fbb",
+      "boothName": "Nordiska Museet",
+      "description": "Coordinates moved 235.2 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          59.329008,
+          18.094268
+        ],
+        "newCoords": [
+          60.564129,
+          14.664427
+        ],
+        "distanceKm": 235.20247426343238
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "3ce6e08e-0921-4397-a954-557851f92737",
+      "boothName": "The Short Stop",
+      "description": "Coordinates moved 3978.9 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          34.0753365,
+          -118.2535448
+        ],
+        "newCoords": [
+          42.693175,
+          -73.365282
+        ],
+        "distanceKm": 3978.9057045432833
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "f66a812a-b229-4f43-af88-f29c7d9eca63",
+      "boothName": "Liar's Club",
+      "description": "Coordinates moved 380.3 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          41.9249754,
+          -87.6706292
+        ],
+        "newCoords": [
+          42.381094,
+          -83.098354
+        ],
+        "distanceKm": 380.26405574275594
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "0489c126-5a4d-422e-a596-2336516feee5",
+      "boothName": "Fat Cat",
+      "description": "Coordinates moved 378.6 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          41.970098,
+          -87.6599373
+        ],
+        "newCoords": [
+          42.381094,
+          -83.098354
+        ],
+        "distanceKm": 378.62030897487284
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "eb1939c9-2333-450d-b663-2b3c19fb11a4",
+      "boothName": "The Flat Iron",
+      "description": "Coordinates moved 381.0 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          41.9100396,
+          -87.6766859
+        ],
+        "newCoords": [
+          42.381094,
+          -83.098354
+        ],
+        "distanceKm": 381.0273650641585
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "f059cd9f-01d2-422a-b492-309e5142958a",
+      "boothName": "Hobo Hotel",
+      "description": "Coordinates moved 233.8 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          59.3308302,
+          18.0668655
+        ],
+        "newCoords": [
+          60.564129,
+          14.664427
+        ],
+        "distanceKm": 233.8430075969496
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "55fa1a0a-3078-4539-bfad-6ed288cf77c6",
+      "boothName": "S-Bahn Treptower Park",
+      "description": "Coordinates moved 993.3 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          44.4686696,
+          -71.1850768
+        ],
+        "newCoords": [
+          41.296302,
+          -82.594932
+        ],
+        "distanceKm": 993.2642415739624
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "75e2fc85-1713-4f91-baa7-be88457d0266",
+      "boothName": "Union Pool",
+      "description": "Coordinates moved 758.0 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          40.7149712,
+          -73.9514538
+        ],
+        "newCoords": [
+          41.515976,
+          -82.9416
+        ],
+        "distanceKm": 758.0249017867727
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "e6fd4c43-3683-49e3-abdd-e32c6dbf09d2",
+      "boothName": "Generator",
+      "description": "Coordinates moved 232.8 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          59.3358554,
+          18.0507304
+        ],
+        "newCoords": [
+          60.564129,
+          14.664427
+        ],
+        "distanceKm": 232.77659824165406
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "82d97193-6fbc-424f-9b6c-ac79bf05688f",
+      "boothName": "",
+      "description": "Coordinates moved 33.2 km",
+      "severity": "high",
+      "details": {
+        "oldCoords": [
+          41.88325,
+          -87.6323879
+        ],
+        "newCoords": [
+          41.589176,
+          -87.562486
+        ],
+        "distanceKm": 33.209956800512714
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "79675248-66f5-4ca8-adf2-b4bac7fe6de1",
+      "boothName": "Far i Hatten",
+      "description": "Coordinates moved 7379.3 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          41.2661152,
+          -96.7222503
+        ],
+        "newCoords": [
+          55.604981,
+          13.003822
+        ],
+        "distanceKm": 7379.321256561529
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "52961168-ee81-44bb-937e-5ec6d21867c2",
+      "boothName": "Fotoautomat Studio",
+      "description": "Coordinates moved 9450.4 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          48.8867148,
+          2.3388895
+        ],
+        "newCoords": [
+          -1.315623,
+          -78.502532
+        ],
+        "distanceKm": 9450.42407891269
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "a810030d-dc72-44fb-b0cc-1be522781e68",
+      "boothName": "Holiday Club",
+      "description": "Coordinates moved 382.9 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          41.88325,
+          -87.6323879
+        ],
+        "newCoords": [
+          42.358627,
+          -83.033411
+        ],
+        "distanceKm": 382.924814334163
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "a6a119ce-3619-4b74-92f5-262886b9af07",
+      "boothName": "Vidiots",
+      "description": "Coordinates moved 286.5 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          34.1349023,
+          -118.2151265
+        ],
+        "newCoords": [
+          36.197667,
+          -120.104717
+        ],
+        "distanceKm": 286.5382062771377
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "f53020ca-5070-4c50-917d-1f17e938e752",
+      "boothName": "Playland Arcade I",
+      "description": "Coordinates moved 249.9 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          34.0089972,
+          -118.4974488
+        ],
+        "newCoords": [
+          33.294019,
+          -115.938057
+        ],
+        "distanceKm": 249.87568668604536
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "9696b24a-da60-4ff2-a82c-922e4376249f",
+      "boothName": "Union Station I",
+      "description": "Coordinates moved 292.5 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          34.056219,
+          -118.2365021
+        ],
+        "newCoords": [
+          36.197667,
+          -120.104717
+        ],
+        "distanceKm": 292.50312595953704
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "ce10bfcb-e415-43f8-8efa-15d58b8518b8",
+      "boothName": "Freestyle Photo & Imaging Supplies",
+      "description": "Coordinates moved 284.9 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          34.0985292,
+          -118.3072663
+        ],
+        "newCoords": [
+          36.197667,
+          -120.104717
+        ],
+        "distanceKm": 284.9234954478132
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "9c45067a-2846-480f-b9df-e9e3c3b55c69",
+      "boothName": "Birdy's",
+      "description": "Coordinates moved 749.6 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          40.6781784,
+          -73.9441579
+        ],
+        "newCoords": [
+          42.910069,
+          -82.481072
+        ],
+        "distanceKm": 749.550821142756
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "f52bd071-a651-4649-b785-4b3cc8530dc4",
+      "boothName": "Otto's Shrunken Head",
+      "description": "Coordinates moved 3590.5 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          40.7127753,
+          -74.0059728
+        ],
+        "newCoords": [
+          36.103919,
+          -115.176275
+        ],
+        "distanceKm": 3590.5421720742415
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "d71f8409-9730-4270-894c-8161ae0d10b1",
+      "boothName": "Dubblefilm",
+      "description": "Coordinates moved 12.7 km",
+      "severity": "high",
+      "details": {
+        "oldCoords": [
+          41.3873974,
+          2.168568
+        ],
+        "newCoords": [
+          41.473896,
+          2.267983
+        ],
+        "distanceKm": 12.696583838570945
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "f29ab12f-72bc-406e-821d-a5f6be4b542e",
+      "boothName": "El Vez",
+      "description": "Coordinates moved 288.5 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          43.2994285,
+          -74.2179326
+        ],
+        "newCoords": [
+          40.729509,
+          -73.740178
+        ],
+        "distanceKm": 288.47337416596156
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "39a07367-2ca7-429f-a5b3-a2a6b88a75e9",
+      "boothName": "Tiny's Hi-Dive",
+      "description": "Coordinates moved 19.3 km",
+      "severity": "high",
+      "details": {
+        "oldCoords": [
+          34.0549076,
+          -118.242643
+        ],
+        "newCoords": [
+          34.0295316,
+          -118.4494128
+        ],
+        "distanceKm": 19.259367364819084
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "c52f0a7b-2f24-48c4-9332-3bcd236e085f",
+      "boothName": "The Smell",
+      "description": "Coordinates moved 292.6 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          34.0503471,
+          -118.2456434
+        ],
+        "newCoords": [
+          36.197667,
+          -120.104717
+        ],
+        "distanceKm": 292.5572772679794
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "d4f47fd1-bc22-4692-86e1-91e1d14fe369",
+      "boothName": "AppleDoll Pop-Up",
+      "description": "Coordinates moved 3243.5 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          33.9890399,
+          -118.462447
+        ],
+        "newCoords": [
+          42.559207,
+          -82.620122
+        ],
+        "distanceKm": 3243.508727682279
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "0555e81e-5bd3-44a6-b7a1-b41de2cc3023",
+      "boothName": "Marin Country Mart",
+      "description": "Coordinates moved 703.2 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          37.9476684,
+          -122.5093248
+        ],
+        "newCoords": [
+          34.103467,
+          -116.29627
+        ],
+        "distanceKm": 703.2039331841268
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "fb2e537f-2dbf-4afb-8dc1-8e2087c490fb",
+      "boothName": "The Hunt Vintage",
+      "description": "Coordinates moved 289.6 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          34.0764219,
+          -118.2569513
+        ],
+        "newCoords": [
+          36.197667,
+          -120.104717
+        ],
+        "distanceKm": 289.58272461445944
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "57443fc5-0f27-479b-8c78-7d0fba757ee7",
+      "boothName": "4100 Bar",
+      "description": "Coordinates moved 575.5 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          34.0549076,
+          -118.242643
+        ],
+        "newCoords": [
+          38.689949,
+          -121.103662
+        ],
+        "distanceKm": 575.4521692164549
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "ef5d0cf1-2182-49e9-95a0-13ae2e69253a",
+      "boothName": "25hours Hotel Lobby",
+      "description": "Coordinates moved 7149.8 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          48.2064947,
+          16.3546991
+        ],
+        "newCoords": [
+          38.849036,
+          -77.400855
+        ],
+        "distanceKm": 7149.7840861274235
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "60413c03-1585-4603-821e-2b2cd8aca222",
+      "boothName": "Playland Arcade II",
+      "description": "Coordinates moved 249.9 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          34.0089972,
+          -118.4974488
+        ],
+        "newCoords": [
+          33.294019,
+          -115.938057
+        ],
+        "distanceKm": 249.87568668604536
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "c00ff1b8-de55-4dcf-b565-485efa2c4187",
+      "boothName": "Club Photomatica",
+      "description": "Coordinates moved 760.8 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          37.7699204,
+          -122.4494355
+        ],
+        "newCoords": [
+          32.563036,
+          -117.013586
+        ],
+        "distanceKm": 760.8482603959555
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "fe31bc33-2e54-4fb1-8bc6-737532f3d53c",
+      "boothName": "Saturn",
+      "description": "Coordinates moved 20.4 km",
+      "severity": "high",
+      "details": {
+        "oldCoords": [
+          33.5185892,
+          -86.8103567
+        ],
+        "newCoords": [
+          33.670771,
+          -86.686874
+        ],
+        "distanceKm": 20.42448094816654
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "ba0eaf01-4777-48ec-8791-2fc7cb84bda9",
+      "boothName": "Kilowatt",
+      "description": "Coordinates moved 758.9 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          37.7650579,
+          -122.4232555
+        ],
+        "newCoords": [
+          32.563036,
+          -117.013586
+        ],
+        "distanceKm": 758.9061982213975
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "eb770e1e-be8f-4938-b571-7a5398c34599",
+      "boothName": "Town",
+      "description": "Coordinates moved 292.3 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          34.0549076,
+          -118.242643
+        ],
+        "newCoords": [
+          36.197667,
+          -120.104717
+        ],
+        "distanceKm": 292.2988206328917
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "1e4283ef-bcdd-46f4-9b15-6f422fc0efaa",
+      "boothName": "L.A. County Fair B5",
+      "description": "Coordinates moved 135.0 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          34.0851053,
+          -117.7736524
+        ],
+        "newCoords": [
+          34.822545,
+          -118.943456
+        ],
+        "distanceKm": 135.01042727557117
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "648cf8c3-91db-4817-a051-d24c95ddf6e0",
+      "boothName": "Diesel Cafe",
+      "description": "Coordinates moved 45.9 km",
+      "severity": "high",
+      "details": {
+        "oldCoords": [
+          42.3875968,
+          -71.0994968
+        ],
+        "newCoords": [
+          42.108602,
+          -70.688641
+        ],
+        "distanceKm": 45.89180493359844
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "727e3607-4493-44d6-b716-55a2fc509039",
+      "boothName": "Hank's Bar",
+      "description": "Coordinates moved 749.6 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          40.6781784,
+          -73.9441579
+        ],
+        "newCoords": [
+          42.910069,
+          -82.481072
+        ],
+        "distanceKm": 749.550821142756
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "36573757-737e-4dd0-a588-0f0a5c720642",
+      "boothName": "Bubby's Pie Company",
+      "description": "Coordinates moved 3590.5 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          40.7127753,
+          -74.0059728
+        ],
+        "newCoords": [
+          36.103919,
+          -115.176275
+        ],
+        "distanceKm": 3590.5421720742415
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "128c7044-c889-4c9b-ba47-0a6ce4aca991",
+      "boothName": "Bootleg Bar",
+      "description": "Coordinates moved 749.6 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          40.6781784,
+          -73.9441579
+        ],
+        "newCoords": [
+          42.910069,
+          -82.481072
+        ],
+        "distanceKm": 749.550821142756
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "f2c0370c-fe75-40cc-8efb-a8f1bcdff1ef",
+      "boothName": "F & M Patio Bar",
+      "description": "Coordinates moved 1520.2 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          29.9508941,
+          -90.0758356
+        ],
+        "newCoords": [
+          42.422502,
+          -83.098136
+        ],
+        "distanceKm": 1520.2261190094182
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "82a465aa-be09-42d3-ace5-eecb2b12875c",
+      "boothName": "Jubilee Lounge",
+      "description": "Coordinates moved 1402.9 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          44.1387738,
+          -70.4707314
+        ],
+        "newCoords": [
+          41.462036,
+          -87.308106
+        ],
+        "distanceKm": 1402.901274417611
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "fcaf486a-58ef-45a5-884b-b32434876603",
+      "boothName": "Warschauer Straße 54",
+      "description": "Coordinates moved 18.3 km",
+      "severity": "high",
+      "details": {
+        "oldCoords": [
+          52.4696449,
+          13.7132077
+        ],
+        "newCoords": [
+          52.5083856,
+          13.4511726
+        ],
+        "distanceKm": 18.25736495109919
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "40b49482-26dd-47dc-8735-38b26f7fe522",
+      "boothName": "The Hoxton Vienna Basement",
+      "description": "Coordinates moved 753.5 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          48.20117,
+          16.3811789
+        ],
+        "newCoords": [
+          41.814931,
+          19.591898
+        ],
+        "distanceKm": 753.4629189000304
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "0ca93f14-6b47-4e91-a1e8-74e00552f428",
+      "boothName": "L.A. County Fair B4",
+      "description": "Coordinates moved 135.0 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          34.0851053,
+          -117.7736524
+        ],
+        "newCoords": [
+          34.822545,
+          -118.943456
+        ],
+        "distanceKm": 135.01042727557117
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "7e3ef1f4-24e8-4644-ac21-cc79f44f1905",
+      "boothName": "Sputnik",
+      "description": "Coordinates moved 11.6 km",
+      "severity": "high",
+      "details": {
+        "oldCoords": [
+          39.7392358,
+          -104.990251
+        ],
+        "newCoords": [
+          39.645497,
+          -105.048918
+        ],
+        "distanceKm": 11.569020573176449
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "96555b8a-7151-41aa-acc0-866a1862b815",
+      "boothName": "The Hoxton Holborn",
+      "description": "Coordinates moved 10.4 km",
+      "severity": "high",
+      "details": {
+        "oldCoords": [
+          51.5072178,
+          -0.1275862
+        ],
+        "newCoords": [
+          51.529432,
+          0.018795
+        ],
+        "distanceKm": 10.425349434780495
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "6e7ef63f-5890-40b1-a3f9-bc466f7f8950",
+      "boothName": "Photoworks",
+      "description": "Coordinates moved 759.4 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          37.7645648,
+          -122.4322508
+        ],
+        "newCoords": [
+          32.563036,
+          -117.013586
+        ],
+        "distanceKm": 759.394392675872
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "38314f76-31de-41c6-9a0b-e763a52a4afd",
+      "boothName": "Tate Modern",
+      "description": "Coordinates moved 10.4 km",
+      "severity": "high",
+      "details": {
+        "oldCoords": [
+          51.5072178,
+          -0.1275862
+        ],
+        "newCoords": [
+          51.529432,
+          0.018795
+        ],
+        "distanceKm": 10.425349434780495
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "ee2e5e48-9246-475e-a0a4-c54c542eccb0",
+      "boothName": "Max Brown Hotel 7th District Lobby",
+      "description": "Coordinates moved 7149.1 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          48.2048487,
+          16.3432467
+        ],
+        "newCoords": [
+          38.849036,
+          -77.400855
+        ],
+        "distanceKm": 7149.144733390287
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "bb04ece1-4c84-4fbc-a6aa-b10fdbb75caa",
+      "boothName": "Smart Bar",
+      "description": "Coordinates moved 382.9 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          41.88325,
+          -87.6323879
+        ],
+        "newCoords": [
+          42.358627,
+          -83.033411
+        ],
+        "distanceKm": 382.924814334163
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "236c82e7-edff-4a23-aa58-b19470aee1ee",
+      "boothName": "Charleston Antique Mall",
+      "description": "Coordinates moved 2831.9 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          36.1489543,
+          -115.1539927
+        ],
+        "newCoords": [
+          40.137626,
+          -82.987971
+        ],
+        "distanceKm": 2831.9283732920894
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "b60c9ce8-ded9-4a2f-a6ef-a885a21591bb",
+      "boothName": "Time Out Market",
+      "description": "Coordinates moved 12.7 km",
+      "severity": "high",
+      "details": {
+        "oldCoords": [
+          41.3873974,
+          2.168568
+        ],
+        "newCoords": [
+          41.473896,
+          2.267983
+        ],
+        "distanceKm": 12.696583838570945
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "f9515dd9-7803-42e0-841e-76138f251aa9",
+      "boothName": "The Standard",
+      "description": "Coordinates moved 10.4 km",
+      "severity": "high",
+      "details": {
+        "oldCoords": [
+          51.5072178,
+          -0.1275862
+        ],
+        "newCoords": [
+          51.529432,
+          0.018795
+        ],
+        "distanceKm": 10.425349434780495
+      }
+    },
+    {
+      "type": "suspicious_location",
+      "boothId": "5bfca024-32cf-441b-95ef-75c6836fc1fb",
+      "boothName": "N/A",
+      "description": "Coordinates moved 250.0 km",
+      "severity": "critical",
+      "details": {
+        "oldCoords": [
+          21.2004138,
+          72.8798896
+        ],
+        "newCoords": [
+          18.952486,
+          72.840368
+        ],
+        "distanceKm": 249.99223767115765
+      }
+    },
+    {
+      "type": "data_quality",
+      "boothId": "4efefac8-b71d-47de-94a1-b94eaeb4308a",
+      "boothName": "Battersea Power Station",
+      "description": "International city \"London\" has country=\"United States\"",
+      "severity": "critical",
+      "details": {
+        "city": "London",
+        "country": "United States"
+      }
+    },
+    {
+      "type": "data_quality",
+      "boothId": "2e35142f-9dfc-403e-a5ef-d6658697d086",
+      "boothName": "Bloor-Yonge Station",
+      "description": "International city \"Toronto\" has country=\"United States\"",
+      "severity": "critical",
+      "details": {
+        "city": "Toronto",
+        "country": "United States"
+      }
+    },
+    {
+      "type": "data_quality",
+      "boothId": "528ba5db-af9e-455f-88c5-f6b93dfdec5a",
+      "boothName": "Toronto Eaton Centre II",
+      "description": "International city \"Toronto\" has country=\"United States\"",
+      "severity": "critical",
+      "details": {
+        "city": "Toronto",
+        "country": "United States"
+      }
+    },
+    {
+      "type": "data_quality",
+      "boothId": "5394a019-8274-4ee7-81da-d0676c96efe3",
+      "boothName": "Pacific Central Station",
+      "description": "International city \"Vancouver\" has country=\"United States\"",
+      "severity": "critical",
+      "details": {
+        "city": "Vancouver",
+        "country": "United States"
+      }
+    },
+    {
+      "type": "data_quality",
+      "boothId": "ec7351ea-e4d5-4cae-a123-c974c35dae5f",
+      "boothName": "Pacific Centre",
+      "description": "International city \"Vancouver\" has country=\"United States\"",
+      "severity": "critical",
+      "details": {
+        "city": "Vancouver",
+        "country": "United States"
+      }
+    },
+    {
+      "type": "data_quality",
+      "boothId": "2ac682db-c9ba-4bc7-8685-92a9ad34ee21",
+      "boothName": "Riga International Airport",
+      "description": "International city \"Riga\" has country=\"United States\"",
+      "severity": "critical",
+      "details": {
+        "city": "Riga",
+        "country": "United States"
+      }
+    },
+    {
+      "type": "data_quality",
+      "boothId": "85d06028-9be8-4d19-b325-388a55a1555f",
+      "boothName": "Kastanienallee II",
+      "description": "International city \"Berlin\" has country=\"United States\"",
+      "severity": "critical",
+      "details": {
+        "city": "Berlin",
+        "country": "United States"
+      }
+    },
+    {
+      "type": "data_quality",
+      "boothId": "7a6bb6df-3b41-42ee-92c6-9fc59f6bc276",
+      "boothName": "Rosemont Metro",
+      "description": "International city \"Montreal\" has country=\"United States\"",
+      "severity": "critical",
+      "details": {
+        "city": "Montreal",
+        "country": "United States"
+      }
+    },
+    {
+      "type": "data_quality",
+      "boothId": "b3f76496-730a-4fc8-a4b6-67fc22a4ee83",
+      "boothName": "Deerfoot Mall",
+      "description": "International city \"Calgary\" has country=\"United States\"",
+      "severity": "critical",
+      "details": {
+        "city": "Calgary",
+        "country": "United States"
+      }
+    },
+    {
+      "type": "data_quality",
+      "boothId": "c6837627-cba5-45ae-a9f3-36ff14893fb0",
+      "boothName": "Chinook Centre",
+      "description": "International city \"Calgary\" has country=\"United States\"",
+      "severity": "critical",
+      "details": {
+        "city": "Calgary",
+        "country": "United States"
+      }
+    },
+    {
+      "type": "data_quality",
+      "boothId": "a7fb1f97-2159-4a1c-98c3-f2aa89d6df35",
+      "boothName": "Calgary Greyhound Station",
+      "description": "International city \"Calgary\" has country=\"United States\"",
+      "severity": "critical",
+      "details": {
+        "city": "Calgary",
+        "country": "United States"
+      }
+    },
+    {
+      "type": "data_quality",
+      "boothId": "26cee270-6d8b-440e-83bb-664841a3ef78",
+      "boothName": "Eau Claire Market",
+      "description": "International city \"Calgary\" has country=\"United States\"",
+      "severity": "critical",
+      "details": {
+        "city": "Calgary",
+        "country": "United States"
+      }
+    },
+    {
+      "type": "data_quality",
+      "boothId": "53ec3e9a-1413-4393-bd19-861fa611ac80",
+      "boothName": "North Hill Centre",
+      "description": "International city \"Calgary\" has country=\"United States\"",
+      "severity": "critical",
+      "details": {
+        "city": "Calgary",
+        "country": "United States"
+      }
+    },
+    {
+      "type": "data_quality",
+      "boothId": "f287be1d-a2cb-4186-87b8-01c451c871d6",
+      "boothName": "Northland Village Mall I",
+      "description": "International city \"Calgary\" has country=\"United States\"",
+      "severity": "critical",
+      "details": {
+        "city": "Calgary",
+        "country": "United States"
+      }
+    },
+    {
+      "type": "data_quality",
+      "boothId": "9a7d5a85-b09b-4853-b1e4-f6780bdec09a",
+      "boothName": "Northland Village Mall II",
+      "description": "International city \"Calgary\" has country=\"United States\"",
+      "severity": "critical",
+      "details": {
+        "city": "Calgary",
+        "country": "United States"
+      }
+    },
+    {
+      "type": "data_quality",
+      "boothId": "b43d2af7-9d84-4bbc-9240-3a12f1bfb0f0",
+      "boothName": "Dufferin Mall",
+      "description": "International city \"Toronto\" has country=\"United States\"",
+      "severity": "critical",
+      "details": {
+        "city": "Toronto",
+        "country": "United States"
+      }
+    },
+    {
+      "type": "data_quality",
+      "boothId": "aa64f1d6-869e-4ae9-93dc-9151fa50f5c0",
+      "boothName": "Berri-Uqam Metro",
+      "description": "International city \"Montreal\" has country=\"United States\"",
+      "severity": "critical",
+      "details": {
+        "city": "Montreal",
+        "country": "United States"
+      }
+    },
+    {
+      "type": "data_quality",
+      "boothId": "57335a86-277f-4b25-89a5-a82183f58d91",
+      "boothName": "Eaton Centre",
+      "description": "International city \"Montreal\" has country=\"United States\"",
+      "severity": "critical",
+      "details": {
+        "city": "Montreal",
+        "country": "United States"
+      }
+    },
+    {
+      "type": "data_quality",
+      "boothId": "c7487893-b9d2-47fe-837d-b61222a3aef9",
+      "boothName": "Station Centrale",
+      "description": "International city \"Montreal\" has country=\"United States\"",
+      "severity": "critical",
+      "details": {
+        "city": "Montreal",
+        "country": "United States"
+      }
+    },
+    {
+      "type": "data_quality",
+      "boothId": "fb97b913-d706-4a0e-a574-7fa5b837c6a0",
+      "boothName": "Laurier Metro",
+      "description": "International city \"Montreal\" has country=\"United States\"",
+      "severity": "critical",
+      "details": {
+        "city": "Montreal",
+        "country": "United States"
+      }
+    },
+    {
+      "type": "data_quality",
+      "boothId": "afcb14bb-773b-43b9-8589-174e4e2e19ad",
+      "boothName": "McGill Metro",
+      "description": "International city \"Montreal\" has country=\"United States\"",
+      "severity": "critical",
+      "details": {
+        "city": "Montreal",
+        "country": "United States"
+      }
+    },
+    {
+      "type": "data_quality",
+      "boothId": "990fd864-4a88-423f-bd7f-eb021d0f8844",
+      "boothName": "Peel Metro",
+      "description": "International city \"Montreal\" has country=\"United States\"",
+      "severity": "critical",
+      "details": {
+        "city": "Montreal",
+        "country": "United States"
+      }
+    },
+    {
+      "type": "data_quality",
+      "boothId": "58f22a74-b007-4a95-8abb-7b8a465efa24",
+      "boothName": "Place-des-Artes Metro",
+      "description": "International city \"Montreal\" has country=\"United States\"",
+      "severity": "critical",
+      "details": {
+        "city": "Montreal",
+        "country": "United States"
+      }
+    },
+    {
+      "type": "data_quality",
+      "boothId": "7eb3e5fb-2898-49ad-ac0d-c576a3a8b696",
+      "boothName": "Galleria Shopping Centre",
+      "description": "International city \"Toronto\" has country=\"United States\"",
+      "severity": "critical",
+      "details": {
+        "city": "Toronto",
+        "country": "United States"
+      }
+    },
+    {
+      "type": "data_quality",
+      "boothId": "836d49b1-0a80-472a-bf91-563b349d9aeb",
+      "boothName": "Bathurst Station",
+      "description": "International city \"Toronto\" has country=\"United States\"",
+      "severity": "critical",
+      "details": {
+        "city": "Toronto",
+        "country": "United States"
+      }
+    },
+    {
+      "type": "data_quality",
+      "boothId": "62bb85e2-f55e-4586-aefe-e927340d6f21",
+      "boothName": "Jarry Metro Station",
+      "description": "International city \"Montreal\" has country=\"United States\"",
+      "severity": "critical",
+      "details": {
+        "city": "Montreal",
+        "country": "United States"
+      }
+    },
+    {
+      "type": "data_quality",
+      "boothId": "0ef86c1d-a807-476f-b8ef-ff6fa6763747",
+      "boothName": "Complexe Desjardins",
+      "description": "International city \"Montreal\" has country=\"United States\"",
+      "severity": "critical",
+      "details": {
+        "city": "Montreal",
+        "country": "United States"
+      }
+    },
+    {
+      "type": "data_quality",
+      "boothId": "9f1af3e1-2776-4d3c-bbc3-ce360138e997",
+      "boothName": "Highland Square Shopping Centre",
+      "description": "International city \"New Glasgow\" has country=\"United States\"",
+      "severity": "critical",
+      "details": {
+        "city": "New Glasgow",
+        "country": "United States"
+      }
+    },
+    {
+      "type": "data_quality",
+      "boothId": "4db71020-3609-4efd-a647-65e7870970fe",
+      "boothName": "Warschauer Stra&szlig;e 47",
+      "description": "International city \"Berlin\" has country=\"United States\"",
+      "severity": "critical",
+      "details": {
+        "city": "Berlin",
+        "country": "United States"
+      }
+    },
+    {
+      "type": "data_quality",
+      "boothId": "61d60291-384d-4fc2-b74d-b855cae8b5af",
+      "boothName": "Gerrard Square",
+      "description": "International city \"Toronto\" has country=\"United States\"",
+      "severity": "critical",
+      "details": {
+        "city": "Toronto",
+        "country": "United States"
+      }
+    },
+    {
+      "type": "data_quality",
+      "boothId": "998dc5c8-c796-4f8e-99b7-315f3e72b4d3",
+      "boothName": "Riga Bus Station",
+      "description": "International city \"Riga\" has country=\"United States\"",
+      "severity": "critical",
+      "details": {
+        "city": "Riga",
+        "country": "United States"
+      }
+    },
+    {
+      "type": "data_quality",
+      "boothId": "85ea61dd-e519-435d-9939-7baf6c861d13",
+      "boothName": "Fred Aldous II",
+      "description": "International city \"Manchester\" has country=\"United States\"",
+      "severity": "critical",
+      "details": {
+        "city": "Manchester",
+        "country": "United States"
+      }
+    },
+    {
+      "type": "data_quality",
+      "boothId": "4bfb086b-226d-4236-a140-4451fea4cb8d",
+      "boothName": "Korova Bar",
+      "description": "International city \"Montreal\" has country=\"United States\"",
+      "severity": "critical",
+      "details": {
+        "city": "Montreal",
+        "country": "United States"
+      }
+    },
+    {
+      "type": "data_quality",
+      "boothId": "36a997d8-bd0b-4e4f-945d-2b37cc7f87cf",
+      "boothName": "Sherbrooke Metro",
+      "description": "International city \"Montreal\" has country=\"United States\"",
+      "severity": "critical",
+      "details": {
+        "city": "Montreal",
+        "country": "United States"
+      }
+    },
+    {
+      "type": "data_quality",
+      "boothId": "bc5499e5-6770-4cd1-8d49-157f1a68b647",
+      "boothName": "Eaton Centre II",
+      "description": "International city \"Montreal\" has country=\"United States\"",
+      "severity": "critical",
+      "details": {
+        "city": "Montreal",
+        "country": "United States"
+      }
+    },
+    {
+      "type": "data_quality",
+      "boothId": "5fedeeb0-3d0a-4c55-aee2-13b274a16e83",
+      "boothName": "North Star Pinball",
+      "description": "International city \"Montreal\" has country=\"United States\"",
+      "severity": "critical",
+      "details": {
+        "city": "Montreal",
+        "country": "United States"
+      }
+    },
+    {
+      "type": "data_quality",
+      "boothId": "a169ee53-0eca-4bc8-aee2-0e715d72fa60",
+      "boothName": "Warschauer Stra&szlig;e 47 B",
+      "description": "International city \"Berlin\" has country=\"United States\"",
+      "severity": "critical",
+      "details": {
+        "city": "Berlin",
+        "country": "United States"
+      }
+    },
+    {
+      "type": "data_quality",
+      "boothId": "1ff28188-fb07-4a7b-b706-41cdc3686edf",
+      "boothName": "Petersburger Straße 81",
+      "description": "International city \"Berlin\" has country=\"United States\"",
+      "severity": "critical",
+      "details": {
+        "city": "Berlin",
+        "country": "United States"
+      }
+    },
+    {
+      "type": "data_quality",
+      "boothId": "cd303e42-0547-44cb-ae2b-1692e51618c6",
+      "boothName": "Sch&ouml;nhauser Allee 63",
+      "description": "International city \"Berlin\" has country=\"United States\"",
+      "severity": "critical",
+      "details": {
+        "city": "Berlin",
+        "country": "United States"
+      }
+    },
+    {
+      "type": "data_quality",
+      "boothId": "34d90cf3-f73e-4364-bcf1-c8f168c23be5",
+      "boothName": "Bernauer Strasse 47",
+      "description": "International city \"Berlin\" has country=\"United States\"",
+      "severity": "critical",
+      "details": {
+        "city": "Berlin",
+        "country": "United States"
+      }
+    },
+    {
+      "type": "data_quality",
+      "boothId": "eb0e88b6-75a4-4196-a6d0-1f54c1edff56",
+      "boothName": "Mauerpark B",
+      "description": "International city \"Berlin\" has country=\"United States\"",
+      "severity": "critical",
+      "details": {
+        "city": "Berlin",
+        "country": "United States"
+      }
+    },
+    {
+      "type": "data_quality",
+      "boothId": "00eae082-3ed6-4de4-b1a5-babbe788dea5",
+      "boothName": "Kingly Court",
+      "description": "International city \"London\" has country=\"United States\"",
+      "severity": "critical",
+      "details": {
+        "city": "London",
+        "country": "United States"
+      }
+    },
+    {
+      "type": "data_quality",
+      "boothId": "2b5ddcd0-195b-4213-b5fb-ca4ef38d093c",
+      "boothName": "R.A.W. C",
+      "description": "International city \"Berlin\" has country=\"United States\"",
+      "severity": "critical",
+      "details": {
+        "city": "Berlin",
+        "country": "United States"
+      }
+    },
+    {
+      "type": "data_quality",
+      "boothId": "fdaf3e00-e4ef-4dd7-a63d-b64de1bbd14b",
+      "boothName": "Mauerpark A",
+      "description": "International city \"Berlin\" has country=\"United States\"",
+      "severity": "critical",
+      "details": {
+        "city": "Berlin",
+        "country": "United States"
+      }
+    },
+    {
+      "type": "data_quality",
+      "boothId": "55fa1a0a-3078-4539-bfad-6ed288cf77c6",
+      "boothName": "S-Bahn Treptower Park",
+      "description": "International city \"Berlin\" has country=\"United States\"",
+      "severity": "critical",
+      "details": {
+        "city": "Berlin",
+        "country": "United States"
+      }
+    }
+  ],
+  "suspiciousClusters": [
+    {
+      "coordinates": "42.381094,-83.098354",
+      "boothCount": 20,
+      "booths": [
+        "Weegee's Lounge",
+        "Quimby's",
+        "Skylark",
+        "Holiday Club",
+        "Weegee's Lounge",
+        "Holiday Club",
+        "Bar DeVille",
+        "The Charleston",
+        "Empty Bottle",
+        "The Flat Iron",
+        "Holiday Club",
+        "Lincoln Tap Room",
+        "The Flat Iron",
+        "Holiday Club",
+        "Lincoln Tap Room",
+        "Empty Bottle",
+        "Bar DeVille",
+        "Liar's Club",
+        "Fat Cat",
+        "The Flat Iron"
+      ]
+    },
+    {
+      "coordinates": "38.794595,-106.534838",
+      "boothCount": 19,
+      "booths": [
+        "Pacific Central Station",
+        "Kastanienallee II",
+        "Calgary Greyhound Station",
+        "Eau Claire Market",
+        "Billings Bridge Centre",
+        "Greyhound Bus Station",
+        "Scotia Square",
+        "Southland Mall",
+        "Corner Brook Plaza",
+        "Gander Mall",
+        "Gerrard Square",
+        "Riga Bus Station",
+        "Kampala",
+        "Petersburger Straße 81",
+        "R.A.W. C",
+        "Sch&ouml;nhauser Allee 63",
+        "Bernauer Strasse 47",
+        "Mauerpark B",
+        "Mauerpark A"
+      ]
+    },
+    {
+      "coordinates": "59.315253,18.064295",
+      "boothCount": 11,
+      "booths": [
+        "Stadsgårdsterminalen",
+        "Fotografiska",
+        "Grand Central",
+        "Kulturhuset Stadsteatern",
+        "Ringen",
+        "Fryshuset Stockholm",
+        "Generator",
+        "Spårvägsmuseet",
+        "Hobo Hotel",
+        "Downtown Camper",
+        "Nordiska Museet"
+      ]
+    },
+    {
+      "coordinates": "60.564129,14.664427",
+      "boothCount": 9,
+      "booths": [
+        "Stadsgårdsterminalen",
+        "Nordiska Museet",
+        "Kulturhuset Stadsteatern",
+        "Bar Europa",
+        "Kulturhuset Stadsteatern",
+        "Café Klotet",
+        "Nordiska Museet",
+        "Hobo Hotel",
+        "Generator"
+      ]
+    },
+    {
+      "coordinates": "36.197667,-120.104717",
+      "boothCount": 6,
+      "booths": [
+        "Vidiots",
+        "Union Station I",
+        "Freestyle Photo & Imaging Supplies",
+        "The Smell",
+        "The Hunt Vintage",
+        "Town"
+      ]
+    },
+    {
+      "coordinates": "38.849036,-77.400855",
+      "boothCount": 5,
+      "booths": [
+        "Foto Arsenal Wien",
+        "Hildebrandt CAFÉ",
+        "Hildebrandt CAFÉ",
+        "25hours Hotel Lobby",
+        "Max Brown Hotel 7th District Lobby"
+      ]
+    },
+    {
+      "coordinates": "30.267446,-97.693455",
+      "boothCount": 5,
+      "booths": [
+        "Roommate Collective",
+        "Roommate Collective",
+        "Roommate Collective",
+        "Roommate Collective",
+        "Roommate Collective"
+      ]
+    },
+    {
+      "coordinates": "40.753537,-73.982953",
+      "boothCount": 5,
+      "booths": [
+        "The Lodge at Bryant Park",
+        "The Lodge at Bryant Park",
+        "The Lodge at Bryant Park",
+        "The Lodge at Bryant Park",
+        "The Lodge at Bryant Park"
+      ]
+    },
+    {
+      "coordinates": "36.208292,-86.735386",
+      "boothCount": 4,
+      "booths": [
+        "Sid Gold's Request Room",
+        "Sid Gold's Request Room",
+        "Sid Gold's Request Room",
+        "Sid Gold's Request Room"
+      ]
+    },
+    {
+      "coordinates": "43.196067,-75.729010",
+      "boothCount": 4,
+      "booths": [
+        "Carousel I",
+        "Carousel II",
+        "Carousel III",
+        "Carousel III"
+      ]
+    },
+    {
+      "coordinates": "36.136817,-115.163391",
+      "boothCount": 3,
+      "booths": [
+        "Circus Circus #1",
+        "Circus Circus #2",
+        "Circus Circus #4"
+      ]
+    },
+    {
+      "coordinates": "52.503744,13.446736",
+      "boothCount": 3,
+      "booths": [
+        "Warschauer Stra&szlig;e 47",
+        "Warschauer Stra&szlig;e 47 B",
+        "Warschauer Straße 47"
+      ]
+    },
+    {
+      "coordinates": "43.874506,-85.799206",
+      "boothCount": 3,
+      "booths": [
+        "Classic Photo Booth Co.",
+        "The Photo Booth Museum",
+        "The Photo Booth Museum"
+      ]
+    },
+    {
+      "coordinates": "50.088429,14.428579",
+      "boothCount": 3,
+      "booths": [
+        "kasarna Karlin",
+        "@camppraha",
+        "National Gallery"
+      ]
+    },
+    {
+      "coordinates": "41.610886,-83.110117",
+      "boothCount": 3,
+      "booths": [
+        "Alex's Bar",
+        "The Blind Donkey",
+        "Alex's Bar"
+      ]
+    },
+    {
+      "coordinates": "59.307637,18.078652",
+      "boothCount": 3,
+      "booths": [
+        "Rutger Fuchsgatan 2",
+        "Rutger Fuchsgatan 2",
+        "Rutger Fuchsgatan 2"
+      ]
+    },
+    {
+      "coordinates": "42.910069,-82.481072",
+      "boothCount": 3,
+      "booths": [
+        "Birdy's",
+        "Hank's Bar",
+        "Bootleg Bar"
+      ]
+    },
+    {
+      "coordinates": "32.563036,-117.013586",
+      "boothCount": 3,
+      "booths": [
+        "Club Photomatica",
+        "Kilowatt",
+        "Photoworks"
+      ]
+    },
+    {
+      "coordinates": "51.529432,0.018795",
+      "boothCount": 3,
+      "booths": [
+        "The Hoxton Holborn",
+        "Tate Modern",
+        "The Standard"
+      ]
+    }
+  ]
+}

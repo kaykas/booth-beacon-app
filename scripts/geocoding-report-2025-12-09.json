@@ -1,0 +1,25 @@
+{
+  "timestamp": "2025-12-09T04:41:06.793Z",
+  "summary": {
+    "total": 1,
+    "successful": 0,
+    "lowConfidence": 0,
+    "failed": 1,
+    "successRate": "0.0%"
+  },
+  "updates": [
+    {
+      "boothId": "cfcf12b4-85c3-4a56-95e6-0423bc825672",
+      "boothName": "N/A",
+      "oldLatitude": null,
+      "oldLongitude": null,
+      "newLatitude": 0,
+      "newLongitude": 0,
+      "confidence": "low",
+      "provider": "none",
+      "addressWasIncomplete": true,
+      "status": "failed",
+      "error": "Could not geocode address"
+    }
+  ]
+}

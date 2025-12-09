@@ -39,7 +39,7 @@ export default function EnrichmentPage() {
   useEffect(() => {
     async function checkAdmin() {
       if (user) {
-        const adminStatus = await isUserAdmin(user.id);
+        const adminStatus = await isUserAdmin(user);
         setIsAdmin(adminStatus);
         if (!adminStatus) {
           router.push('/');

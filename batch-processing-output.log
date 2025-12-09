@@ -1,0 +1,1775 @@
+[dotenv@17.2.3] injecting env (11) from .env.local -- tip: ⚙️  write to custom object with { processEnv: myObject }
+====================================================================================================
+BOOTH BEACON - BATCH GEOCODING FIX SCRIPT
+Using Cascade System: Nominatim (Free) → Mapbox (100k/mo) → Google (Premium)
+====================================================================================================
+
+Provider Status:
+  Nominatim (OSM): ✅ Enabled
+  Mapbox: ✅ Enabled
+  Google Maps: ✅ Enabled
+
+📂 Reading booth IDs from CSV: affected-booths.csv
+   Found 557 booth IDs
+
+📚 Fetching booth data from database...
+
+   Fetching 557 booths in 6 batches...
+   Batch 1/6: Fetched 100 booths
+   Batch 2/6: Fetched 100 booths
+   Batch 3/6: Fetched 100 booths
+   Batch 4/6: Fetched 100 booths
+   Batch 5/6: Fetched 100 booths
+   Batch 6/6: Fetched 57 booths
+Found 557 booths to process
+
+[1/557] Manhattan Mall
+   City: New York, United States
+   ⊘ Already has valid coordinates and complete address
+[2/557] Sainsbury's
+   City: Fulham, London, United States
+   ⊘ Already has valid coordinates and complete address
+[3/557] Bonanza Bus Station
+   City: Providence, United States
+   ⊘ Already has valid coordinates and complete address
+[4/557] Eastview Mall
+   City: Victor, United States
+   ⊘ Already has valid coordinates and complete address
+[5/557] Lucky Strike
+   City: Hazelwood, United States
+   ⊘ Already has valid coordinates and complete address
+[6/557] Union Station
+   City: Toronto, United States
+   ⊘ Already has valid coordinates and complete address
+[7/557] Toronto Eaton Centre I
+   City: Toronto, United States
+   ⊘ Already has valid coordinates and complete address
+[8/557] Bloor-Yonge Station
+   City: Toronto, United States
+   ✅ HIGH (google): 43.670622, -79.386530
+[9/557] Toronto Eaton Centre II
+   City: Toronto, United States
+   ✅ HIGH (google): 43.654302, -79.380108
+[10/557] Bay Centre I
+   City: Victoria, United States
+   ✅ MEDIUM (mapbox): 28.321142, -97.279328
+[11/557] Bay Centre II
+   City: Victoria, United States
+   ✅ MEDIUM (mapbox): 28.321142, -97.279328
+[12/557] Pacific Central Station
+   City: Vancouver, United States
+   ⚠️  LOW CONFIDENCE (google): 38.794595, -106.534838
+[13/557] Pacific Centre
+   City: Vancouver, United States
+   ✅ HIGH (google): 49.283403, -123.116641
+[14/557] Riga International Airport
+   City: Riga, United States
+   ✅ HIGH (mapbox): 42.386253, -83.322247
+[15/557] Coquitlam Centre
+   City: Coquitlam, United States
+   ✅ HIGH (google): 49.279292, -122.798573
+[16/557] Kastanienallee II
+   City: Berlin, United States
+   ⚠️  LOW CONFIDENCE (google): 38.794595, -106.534838
+[17/557] Lougheed Town Centre
+   City: Burnaby, United States
+   ✅ HIGH (google): 49.250257, -122.895887
+[18/557] Lenin's Quay
+   City: Alushta, United States
+   ⚠️  LOW CONFIDENCE (google): 44.676383, 34.410050
+[19/557] Hidropark Metro Station
+   City: Kiev, United States
+   ✅ HIGH (mapbox): 33.959279, -98.567223
+[20/557] Globus
+   City: Kiev, United States
+   ✅ HIGH (mapbox): 33.959279, -98.567223
+[21/557] Primorsky Park
+   City: Odessa, United States
+   ✅ HIGH (mapbox): 44.474098, -84.330044
+[22/557] Rosemont Metro
+   City: Montreal, United States
+   ✅ HIGH (google): 45.531244, -73.597695
+[23/557] Edmonton City Centre
+   City: Edmonton, United States
+   ✅ HIGH (google): 53.543925, -113.492276
+[24/557] Bonnie Doon Shopping Centre
+   City: Edmonton, United States
+   ✅ HIGH (mapbox): 43.162356, -77.544079
+[25/557] Deerfoot Mall
+   City: Calgary, United States
+   ✅ HIGH (google): 51.108426, -114.041636
+[26/557] Chinook Centre
+   City: Calgary, United States
+   ✅ HIGH (google): 51.000379, -114.072444
+[27/557] Calgary Greyhound Station
+   City: Calgary, United States
+   ⚠️  LOW CONFIDENCE (google): 38.794595, -106.534838
+[28/557] Eau Claire Market
+   City: Calgary, United States
+   ⚠️  LOW CONFIDENCE (google): 38.794595, -106.534838
+[29/557] North Hill Centre
+   City: Calgary, United States
+   ✅ HIGH (google): 51.066148, -114.099700
+[30/557] Northland Village Mall I
+   City: Calgary, United States
+   ✅ HIGH (google): 51.098825, -114.143698
+[31/557] Northland Village Mall II
+   City: Calgary, United States
+   ✅ HIGH (google): 51.098825, -114.143698
+[32/557] Broadway Shopping Centre II
+   City: Glebe, United States
+   ✅ HIGH (google): -33.883742, 151.194767
+[33/557] Mill Woods Town Centre
+   City: Edmonton, United States
+   ✅ MEDIUM (google): 53.436103, -113.441299
+[34/557] Dufferin Mall
+   City: Toronto, United States
+   ✅ HIGH (google): 43.655824, -79.435698
+[35/557] Little Anthony's Diner
+   City: Tucson, United States
+   ✅ HIGH (mapbox): 32.220247, -110.843336
+[36/557] Enchanted Island
+   City: Phoenix, United States
+   ✅ HIGH (mapbox): 33.473507, -112.088813
+[37/557] The Centre
+   City: Saskatoon, United States
+   ✅ HIGH (google): 52.113152, -106.600314
+[38/557] Berri-Uqam Metro
+   City: Montreal, United States
+   ✅ HIGH (google): 45.514166, -73.561813
+[39/557] Eaton Centre
+   City: Montreal, United States
+   ✅ HIGH (google): 45.502739, -73.570948
+[40/557] Station Centrale
+   City: Montreal, United States
+   ✅ HIGH (google): 45.515780, -73.561002
+[41/557] Laurier Metro
+   City: Montreal, United States
+   ✅ HIGH (google): 45.527770, -73.589240
+[42/557] McGill Metro
+   City: Montreal, United States
+   ✅ HIGH (google): 45.504362, -73.571851
+[43/557] Peel Metro
+   City: Montreal, United States
+   ✅ HIGH (google): 45.500829, -73.575245
+[44/557] St. Laurent Centre
+   City: Ottawa, United States
+   ✅ HIGH (google): 45.421867, -75.638773
+[45/557] Place-des-Artes Metro
+   City: Montreal, United States
+   ✅ HIGH (google): 45.508203, -73.568038
+[46/557] Bayshore Shopping Centre
+   City: Ottawa, United States
+   ✅ HIGH (google): 45.347088, -75.806868
+[47/557] Billings Bridge Centre
+   City: Ottawa, United States
+   ⚠️  LOW CONFIDENCE (google): 38.794595, -106.534838
+[48/557] Ottawa Bus Central Station
+   City: Ottawa, United States
+   ✅ HIGH (mapbox): 41.338782, -88.838534
+[49/557] Galleria Shopping Centre
+   City: Toronto, United States
+   ✅ HIGH (google): 43.667593, -79.441909
+[50/557] West Edmonton Mall II
+   City: Edmonton, United States
+   ✅ HIGH (google): 53.523047, -113.622742
+[51/557] West Edmonton Mall III
+   City: Edmonton, United States
+   ✅ MEDIUM (google): 53.448726, -113.614202
+[52/557] West Edmonton Mall IV
+   City: Edmonton, United States
+   ✅ MEDIUM (google): 53.448726, -113.614202
+[53/557] Greyhound Bus Station
+   City: Edmonton, United States
+   ⚠️  LOW CONFIDENCE (google): 38.794595, -106.534838
+[54/557] Southpaw
+   City: Brooklyn, United States
+   ✅ HIGH (mapbox): 40.678701, -73.978660
+[55/557] Circus Circus #1
+   City: Las Vegas, United States
+   ✅ HIGH (mapbox): 36.136817, -115.163391
+[56/557] Circus Circus #2
+   City: Las Vegas, United States
+   ✅ HIGH (mapbox): 36.136817, -115.163391
+[57/557] Circus Circus #4
+   City: Las Vegas, United States
+   ✅ HIGH (mapbox): 36.136817, -115.163391
+[58/557] Mayfair Shopping Centre
+   City: Victoria, United States
+   ✅ HIGH (google): 48.446226, -123.370524
+[59/557] Bathurst Station
+   City: Toronto, United States
+   ✅ HIGH (google): 43.665021, -79.410954
+[60/557] Myer Centre Adelaide II
+   City: Adelaide, United States
+   ✅ HIGH (google): -34.922278, 138.600595
+[61/557] Champlain Place
+   City: Dieppe, United States
+   ✅ HIGH (google): 46.096309, -64.760768
+[62/557] Scotia Square
+   City: Halifax, United States
+   ⚠️  LOW CONFIDENCE (google): 38.794595, -106.534838
+[63/557] Park Lane Mall
+   City: Halifax, United States
+   ✅ HIGH (google): 44.642837, -63.578681
+[64/557] Halifax Shopping Centre
+   City: Halifax, United States
+   ✅ HIGH (google): 44.649249, -63.618682
+[65/557] Bridgewater Mall
+   City: Bridgewater, United States
+   ⚠️  LOW CONFIDENCE (google): 44.379597, -64.521330
+[66/557] Will's Pub
+   City: Orlando, United States
+   ✅ HIGH (mapbox): 28.559875, -81.364673
+[67/557] Southland Mall
+   City: Regina, United States
+   ⚠️  LOW CONFIDENCE (google): 38.794595, -106.534838
+[68/557] Jarry Metro Station
+   City: Montreal, United States
+   ✅ MEDIUM (google): 45.543318, -73.628316
+[69/557] Complexe Desjardins
+   City: Montreal, United States
+   ✅ HIGH (google): 45.507523, -73.564333
+[70/557] Place Newman
+   City: LaSalle, United States
+   ✅ HIGH (google): 45.432525, -73.634006
+[71/557] Corner Brook Plaza
+   City: Corner Brook, United States
+   ⚠️  LOW CONFIDENCE (google): 38.794595, -106.534838
+[72/557] Gander Mall
+   City: Gander, United States
+   ⚠️  LOW CONFIDENCE (google): 38.794595, -106.534838
+[73/557] Exploits Valley Mall
+   City: Windsor, United States
+   ⚠️  LOW CONFIDENCE (google): 41.852598, -72.643702
+[74/557] Avalon Mall I
+   City: St. John's, United States
+   ✅ HIGH (google): 47.560386, -52.756469
+[75/557] Avalon Mall II
+   City: St. John's, United States
+   ✅ HIGH (google): 47.560386, -52.756469
+[76/557] Highland Square Shopping Centre
+   City: New Glasgow, United States
+   ✅ HIGH (google): 45.579945, -62.666898
+[77/557] Warschauer Stra&szlig;e 47
+   City: Berlin, United States
+   ✅ HIGH (google): 52.503744, 13.446736
+[78/557] Gerrard Square
+   City: Toronto, United States
+   ⚠️  LOW CONFIDENCE (google): 38.794595, -106.534838
+[79/557] Merivale Mall
+   City: Ottawa, United States
+   ✅ HIGH (google): 45.345261, -75.731432
+[80/557] Six Flags Great America
+   City: Gurnee, United States
+   ✅ HIGH (mapbox): 42.369304, -87.937399
+[81/557] Riga Bus Station
+   City: Riga, United States
+   ⚠️  LOW CONFIDENCE (google): 38.794595, -106.534838
+[82/557] Fred Aldous II
+   City: Manchester, United States
+   ✅ MEDIUM (mapbox): 42.899750, -71.492480
+[83/557] Korova Bar
+   City: Montreal, United States
+   ✅ HIGH (google): 45.516252, -73.578189
+[84/557] Sherbrooke Metro
+   City: Montreal, United States
+   ✅ HIGH (google): 45.519004, -73.568131
+[85/557] Kampala
+   City: Kampala, United States
+   ⚠️  LOW CONFIDENCE (google): 38.794595, -106.534838
+[86/557] Eaton Centre II
+   City: Montreal, United States
+   ✅ HIGH (google): 45.502739, -73.570948
+[87/557] North Star Pinball
+   City: Montreal, United States
+   ✅ HIGH (google): 45.516297, -73.578251
+[88/557] Warschauer Stra&szlig;e 47 B
+   City: Berlin, United States
+   ✅ HIGH (google): 52.503744, 13.446736
+[89/557] Petersburger Straße 81
+   City: Berlin, United States
+   ⚠️  LOW CONFIDENCE (google): 38.794595, -106.534838
+[90/557] Barnone II
+   City: Gilbert, United States
+   ✅ HIGH (mapbox): 33.321767, -111.726706
+[91/557] R.A.W. C
+   City: Berlin, United States
+   ⚠️  LOW CONFIDENCE (google): 38.794595, -106.534838
+[92/557] Weegee's Lounge
+   City: Chicago, USA
+   ✅ HIGH (mapbox): 42.381094, -83.098354
+[93/557] Quimby's
+   City: Chicago, USA
+   ✅ HIGH (mapbox): 42.381094, -83.098354
+[94/557] Classic Photo Booth Co.
+   City: Amsterdam, Netherlands
+   ✅ HIGH (google): 52.384550, 4.733385
+[95/557] Skylark
+   City: Chicago, USA
+   ✅ HIGH (mapbox): 42.381094, -83.098354
+[96/557] Holiday Club
+   City: Chicago, USA
+   ✅ HIGH (mapbox): 42.381094, -83.098354
+[97/557] Foto Arsenal Wien
+   City: Vienna, Austria
+   ✅ MEDIUM (mapbox): 38.849036, -77.400855
+[98/557] Weegee's Lounge
+   City: Chicago, USA
+   ✅ HIGH (mapbox): 42.381094, -83.098354
+[99/557] Holiday Club
+   City: Chicago, USA
+   ✅ HIGH (mapbox): 42.381094, -83.098354
+[100/557] Mutiny Information Cafe
+   City: Denver, USA
+   ✅ HIGH (mapbox): 42.396955, -82.922441
+[101/557] Hildebrandt CAFÉ
+   City: Vienna, Austria
+   ✅ MEDIUM (mapbox): 38.849036, -77.400855
+[102/557] Hildebrandt CAFÉ
+   City: Vienna, Austria
+   ✅ MEDIUM (mapbox): 38.849036, -77.400855
+[103/557] East End
+   City: Portland, United States
+   ✅ HIGH (mapbox): 43.655579, -70.250523
+[104/557] Geroldstrasse 35
+   City: Zürich, United States
+   ⚠️  LOW CONFIDENCE (google): 47.376887, 8.541694
+[105/557] La Grande Halle
+   City: Arles, United States
+   ⚠️  LOW CONFIDENCE (google): 45.324577, -118.087719
+[106/557] Sch&ouml;nhauser Allee 63
+   City: Berlin, United States
+   ⚠️  LOW CONFIDENCE (google): 38.794595, -106.534838
+[107/557] Bernauer Strasse 47
+   City: Berlin, United States
+   ⚠️  LOW CONFIDENCE (google): 38.794595, -106.534838
+[108/557] Golf Mill Mall
+   City: Niles, United States
+   ✅ MEDIUM (google): 42.048625, -87.839591
+[109/557] Four Farthings
+   City: Chicago, USA
+   ✅ HIGH (google): 41.919974, -87.641569
+[110/557] Mauerpark B
+   City: Berlin, United States
+   ⚠️  LOW CONFIDENCE (google): 38.794595, -106.534838
+[111/557] Kingly Court
+   City: London, United States
+   ⚠️  LOW CONFIDENCE (google): 51.507218, -0.127586
+[112/557] Adelaide Arcade
+   City: Adelaide, United States
+   ✅ HIGH (mapbox): 42.197289, -83.164685
+[113/557] Battersea Power Station
+   City: London, United States
+   ✅ MEDIUM (google): 51.482020, -0.144491
+[114/557] Vidiots
+   City: Eagle Rock, USA
+   ✅ MEDIUM (mapbox): 46.261640, -91.560740
+[115/557] Classic Photo Booth Co.
+   City: Los Angeles, USA
+   ✅ HIGH (mapbox): 43.874506, -85.799206
+[116/557] Fotoautomat Berlin
+   City: Berlin, Germany
+   ✅ MEDIUM (google): 52.507422, 13.450706
+[117/557] Palais de Tokyo
+   City: Paris, France
+   ✅ HIGH (mapbox): 43.415211, 6.069561
+[118/557] kasarna Karlin
+   City: Prague, Czech Republic
+   ✅ MEDIUM (mapbox): 50.088429, 14.428579
+[119/557] Le Centquatre
+   City: Paris, France
+   ✅ HIGH (google): 48.889982, 2.371434
+[120/557] Buttes Chaumont
+   City: Paris, France
+   ✅ HIGH (mapbox): 43.415211, 6.069561
+[121/557] @camppraha
+   City: Prague, Czech Republic
+   ✅ MEDIUM (mapbox): 50.088429, 14.428579
+[122/557] Photoautomat
+   City: Berlin, Germany
+   ✅ HIGH (mapbox): 54.404249, 9.422626
+[123/557] Roommate Collective
+   City: , 
+   ✅ HIGH (google): 30.267446, -97.693455
+[124/557] The Lodge at Bryant Park
+   City: , 
+   ✅ MEDIUM (google): 40.753537, -73.982953
+[125/557] 
+   City: Orange County, 
+   ✅ HIGH (mapbox): 14.694018, 121.065068
+[126/557] Bar DeVille
+   City: Chicago, USA
+   ✅ HIGH (mapbox): 42.381094, -83.098354
+[127/557] The Photo Booth Museum
+   City: Los Angeles, United States
+   ✅ HIGH (mapbox): 43.874506, -85.799206
+[128/557] The Charleston
+   City: Chicago, USA
+   ✅ HIGH (mapbox): 42.381094, -83.098354
+[129/557] Empty Bottle
+   City: Chicago, USA
+   ✅ HIGH (mapbox): 42.381094, -83.098354
+[130/557] The Flat Iron
+   City: Chicago, USA
+   ✅ HIGH (mapbox): 42.381094, -83.098354
+[131/557] Holiday Club
+   City: Chicago, USA
+   ✅ HIGH (mapbox): 42.381094, -83.098354
+[132/557] Lincoln Tap Room
+   City: Chicago, USA
+   ✅ HIGH (mapbox): 42.381094, -83.098354
+[133/557] Alex's Bar
+   City: Long Beach, USA
+   ✅ HIGH (mapbox): 41.610886, -83.110117
+[134/557] The Short Stop
+   City: Echo Park, USA
+   ✅ HIGH (mapbox): 42.693175, -73.365282
+[135/557] The Blind Donkey
+   City: Long Beach, USA
+   ✅ HIGH (mapbox): 41.610886, -83.110117
+[136/557] 4100 Bar
+   City: Silver Lake, USA
+   ✅ MEDIUM (mapbox): 40.609698, -74.062895
+[137/557] Weegee's Lounge
+   City: Logan Square, USA
+   ✅ HIGH (google): 41.917015, -87.719012
+[138/557] Village Tap
+   City: Roscoe Village, USA
+   ✅ HIGH (google): 41.943072, -87.680596
+[139/557] Holiday Club
+   City: Uptown, USA
+   ✅ HIGH (mapbox): 42.307526, -83.532580
+[140/557] Roommate Collective
+   City: , 
+   ✅ HIGH (google): 30.267446, -97.693455
+[141/557] The Flat Iron
+   City: Chicago, USA
+   ✅ HIGH (mapbox): 42.381094, -83.098354
+[142/557] Holiday Club
+   City: Chicago, USA
+   ✅ HIGH (mapbox): 42.381094, -83.098354
+[143/557] Lincoln Tap Room
+   City: Chicago, USA
+   ✅ HIGH (mapbox): 42.381094, -83.098354
+[144/557] Alex's Bar
+   City: Long Beach, USA
+   ✅ HIGH (mapbox): 41.610886, -83.110117
+[145/557] Cha Cha Lounge
+   City: Silver Lake, USA
+   ✅ HIGH (mapbox): 43.920795, -84.962560
+[146/557] Backstage
+   City: Culver City, USA
+   ✅ MEDIUM (mapbox): 35.269919, -119.947438
+[147/557] 4100 Bar
+   City: Silver Lake, USA
+   ✅ MEDIUM (mapbox): 40.609698, -74.062895
+[148/557] Sid Gold's Request Room
+   City: , 
+   ✅ HIGH (google): 36.208292, -86.735386
+[149/557] Stadsgårdsterminalen
+   City: Stockholm, Sweden
+   ✅ HIGH (mapbox): 60.564129, 14.664427
+[150/557] AppleDoll Pop-Up
+   City: Venice, California, USA
+   ✅ HIGH (mapbox): 33.988250, -118.453230
+[151/557] Fotografiska
+   City: Stockholm, Sweden
+   ✅ HIGH (google): 59.317962, 18.084827
+[152/557] Nordiska Museet
+   City: Stockholm, Sweden
+   ✅ HIGH (mapbox): 60.564129, 14.664427
+[153/557] Hildebrandt CAFÉ
+   City: Vienna, Austria
+   ✅ HIGH (google): 48.213205, 16.350647
+[154/557] 25hours Hotel Lobby
+   City: Vienna, Austria
+   ✅ HIGH (google): 48.206495, 16.354699
+[155/557] Kulturhuset Stadsteatern
+   City: Stockholm, Sweden
+   ✅ HIGH (mapbox): 60.564129, 14.664427
+[156/557] Hafenstadt Klagenfurt
+   City: Klagenfurt, Austria
+   ✅ HIGH (google): 46.623387, 14.301763
+[157/557] Far i hatten
+   City: Malmö, Sweden
+   ✅ HIGH (mapbox): 59.418238, 16.670377
+[158/557] Roommate Collective
+   City: , 
+   ✅ HIGH (google): 30.267446, -97.693455
+[159/557] Empty Bottle
+   City: Chicago, USA
+   ✅ HIGH (mapbox): 42.381094, -83.098354
+[160/557] Linnelabbet
+   City: Göteborg, Sweden
+   ✅ HIGH (mapbox): 64.062020, 20.226591
+[161/557] Sid Gold's Request Room
+   City: , 
+   ✅ HIGH (google): 36.208292, -86.735386
+[162/557] Bar Europa
+   City: Stockholm, Sweden
+   ✅ HIGH (mapbox): 60.564129, 14.664427
+[163/557] Mutiny Information Cafe
+   City: Denver, USA
+   ✅ HIGH (mapbox): 42.396955, -82.922441
+[164/557] Roommate Collective
+   City: , 
+   ✅ HIGH (google): 30.267446, -97.693455
+[165/557] The Lodge at Bryant Park
+   City: , 
+   ✅ MEDIUM (google): 40.753537, -73.982953
+[166/557] House of Yes
+   City: Brooklyn, NY
+   ✅ HIGH (mapbox): 40.706841, -73.923521
+[167/557] Bar DeVille
+   City: Chicago, USA
+   ✅ HIGH (mapbox): 42.381094, -83.098354
+[168/557] Sid Gold's Request Room
+   City: , 
+   ✅ HIGH (google): 36.208292, -86.735386
+[169/557] Roommate Collective
+   City: , 
+   ✅ HIGH (google): 30.267446, -97.693455
+[170/557] The Photo Booth Museum
+   City: San Francisco, United States
+   ✅ HIGH (google): 37.764560, -122.432015
+[171/557] VIEiPEE
+   City: Vienna, Austria
+   ✅ HIGH (google): 48.213278, 16.405193
+[172/557] Kulturhuset Stadsteatern
+   City: Stockholm, Sweden
+   ✅ HIGH (mapbox): 60.564129, 14.664427
+[173/557] The Lodge at Bryant Park
+   City: , 
+   ✅ MEDIUM (google): 40.753537, -73.982953
+[174/557] Ringen
+   City: Stockholm, Sweden
+   ✅ HIGH (mapbox): 59.391281, 18.050160
+[175/557] Sid Gold's Request Room
+   City: , 
+   ✅ HIGH (google): 36.208292, -86.735386
+[176/557] Playland Arcade III
+   City: Hampton Beach, United States
+   ✅ HIGH (mapbox): 42.900423, -70.815614
+[177/557] Playland Arcade I
+   City: Hampton Beach, United States
+   ✅ HIGH (mapbox): 42.900423, -70.815614
+[178/557] Bryan Center, Duke University
+   City: Durham, United States
+   ✅ HIGH (mapbox): 42.330547, -83.477828
+[179/557] The Photo Booth Museum
+   City: Los Angeles, United States
+   ✅ HIGH (mapbox): 43.874506, -85.799206
+[180/557] Carousel I
+   City: Sylvan Beach, United States
+   ✅ HIGH (mapbox): 43.196067, -75.729010
+[181/557] Carousel II
+   City: Sylvan Beach, United States
+   ✅ HIGH (mapbox): 43.196067, -75.729010
+[182/557] Carousel III
+   City: Sylvan Beach, United States
+   ✅ HIGH (mapbox): 43.196067, -75.729010
+[183/557] Art Gallery of South Australia
+   City: Adelaide, United States
+   ⚠️  LOW CONFIDENCE (google): -34.928499, 138.600746
+[184/557] Fotoautomat
+   City: Florence, Italy
+   ✅ MEDIUM (mapbox): 33.868900, -79.481801
+[185/557] The Lodge at Bryant Park
+   City: , 
+   ✅ MEDIUM (google): 40.753537, -73.982953
+[186/557] Café Klotet
+   City: Stockholm, Sweden
+   ✅ HIGH (mapbox): 60.564129, 14.664427
+[187/557] Nordiska Museet
+   City: Stockholm, Sweden
+   ✅ HIGH (mapbox): 60.564129, 14.664427
+[188/557] The Short Stop
+   City: Echo Park, USA
+   ✅ HIGH (mapbox): 42.693175, -73.365282
+[189/557] Mauerpark A
+   City: Berlin, United States
+   ⚠️  LOW CONFIDENCE (google): 38.794595, -106.534838
+[190/557] Liar's Club
+   City: Chicago, USA
+   ✅ HIGH (mapbox): 42.381094, -83.098354
+[191/557] Fat Cat
+   City: Chicago, USA
+   ✅ HIGH (mapbox): 42.381094, -83.098354
+[192/557] The Flat Iron
+   City: Chicago, USA
+   ✅ HIGH (mapbox): 42.381094, -83.098354
+[193/557] The Lodge at Bryant Park
+   City: , 
+   ✅ MEDIUM (google): 40.753537, -73.982953
+[194/557] The Photo Booth Museum
+   City: San Francisco, United States
+   ✅ HIGH (google): 37.764560, -122.432015
+[195/557] Hobo Hotel
+   City: Stockholm, Sweden
+   ✅ HIGH (mapbox): 60.564129, 14.664427
+[196/557] S-Bahn Treptower Park
+   City: Berlin, United States
+   ✅ HIGH (mapbox): 41.296302, -82.594932
+[197/557] Union Pool
+   City: Brooklyn, USA
+   ✅ HIGH (mapbox): 41.515976, -82.941600
+[198/557] Fotografiska
+   City: Stockholm, Sweden
+   ✅ HIGH (google): 59.317962, 18.084827
+[199/557] Generator
+   City: Stockholm, Sweden
+   ✅ HIGH (mapbox): 60.564129, 14.664427
+[200/557] Flinders Street Station I
+   City: Melbourne, United States
+   ✅ MEDIUM (google): -37.818271, 144.967062
+[201/557] 
+   City: Chicago, 
+   ✅ MEDIUM (mapbox): 41.589176, -87.562486
+[202/557] Far i Hatten
+   City: Malmö, United States
+   ⚠️  LOW CONFIDENCE (google): 55.604981, 13.003822
+[203/557] Backstage
+   City: Culver City, California
+   ✅ HIGH (google): 34.016272, -118.400139
+[204/557] The Lodge at Bryant Park
+   City: New York, United States
+   ✅ HIGH (mapbox): 40.754530, -73.984600
+[205/557] Fotoautomat Studio
+   City: Paris, France
+   ✅ HIGH (mapbox): -1.315623, -78.502532
+[206/557] Holiday Club
+   City: Chicago, Illinois
+   ✅ HIGH (mapbox): 42.358627, -83.033411
+[207/557] Flamingo Bar
+   City: Los Angeles, California
+   ✅ HIGH (google): 34.035857, -118.232668
+[208/557] Warschauer Straße 54
+   City: Berlin, Germany
+   ✅ HIGH (google): 52.508386, 13.451173
+[209/557] Markthalle Neun
+   City: Berlin, Berlin
+   ✅ HIGH (google): 52.502135, 13.431599
+[210/557] Vidiots
+   City: Los Angeles, California
+   ✅ MEDIUM (mapbox): 36.197667, -120.104717
+[211/557] Mauerpark A
+   City: Berlin, Berlin
+   ✅ HIGH (google): 52.542718, 13.402652
+[212/557] Mauerpark B
+   City: Berlin, Berlin
+   ✅ HIGH (google): 52.542718, 13.402652
+[213/557] Petersburger Straße 81
+   City: Berlin, Berlin
+   ✅ HIGH (google): 52.518175, 13.453719
+[214/557] R.A.W. B
+   City: Berlin, Berlin
+   ⚠️  LOW CONFIDENCE (google): 52.520007, 13.404954
+[215/557] Rutger Fuchsgatan 2
+   City: Stockholm, Sweden
+   ✅ MEDIUM (mapbox): 59.307637, 18.078652
+[216/557] Playland Arcade I
+   City: Santa Monica, California
+   ✅ HIGH (mapbox): 33.294019, -115.938057
+[217/557] Feuerstein Restaurant
+   City: Hamburg, Hamburg
+   ✅ HIGH (google): 53.556774, 9.964724
+[218/557] Union Station I
+   City: Los Angeles, California
+   ✅ HIGH (mapbox): 36.197667, -120.104717
+[219/557] Freestyle Photo & Imaging Supplies
+   City: Los Angeles, California
+   ✅ HIGH (mapbox): 36.197667, -120.104717
+[220/557] Trabi World
+   City: Berlin, Berlin
+   ✅ HIGH (google): 52.507674, 13.386727
+[221/557] Sputnik II
+   City: Denver, Colorado
+   ✅ HIGH (google): 39.716403, -104.987753
+[222/557] Carousel III
+   City: Sylvan Beach, New York
+   ✅ HIGH (mapbox): 43.196067, -75.729010
+[223/557] Birdy's
+   City: Brooklyn, New York
+   ✅ HIGH (mapbox): 42.910069, -82.481072
+[224/557] The American
+   City: Vancouver, British Columbia
+   ✅ HIGH (google): 49.276279, -123.099604
+[225/557] Kulturbrauerei
+   City: Berlin, Berlin
+   ✅ HIGH (google): 52.538203, 13.412713
+[226/557] Plac Zbawiciela
+   City: Warsaw, Poland
+   ✅ MEDIUM (mapbox): 52.219577, 21.017897
+[227/557] El Vez
+   City: Philadelphia, Pennsylvania
+   ✅ HIGH (google): 39.949702, -75.161770
+[228/557] Otto's Shrunken Head
+   City: New York, New York
+   ✅ HIGH (mapbox): 36.103919, -115.176275
+[229/557] Dubblefilm
+   City: Barcelona, Spain
+   ✅ HIGH (mapbox): 41.473896, 2.267983
+[230/557] Carousel
+   City: Brooklyn, New York
+   ✅ MEDIUM (mapbox): 40.653241, -73.944030
+[231/557] Pop's Bar
+   City: San Francisco, California
+   ✅ HIGH (google): 37.752958, -122.408320
+[232/557] El Vez
+   City: New York, New York
+   ✅ MEDIUM (mapbox): 40.729509, -73.740178
+[233/557] National Gallery
+   City: Prague, Czech Republic
+   ✅ MEDIUM (mapbox): 50.088429, 14.428579
+[234/557] Art Gallery of South Australia
+   City: Adelaide, Australia
+   ✅ HIGH (mapbox): -34.908941, 138.596053
+[235/557] Palais de Tokyo
+   City: Paris, France
+   ✅ HIGH (google): 48.864587, 2.296675
+[236/557] Myer Centre Adelaide I
+   City: Adelaide, Australia
+   ✅ HIGH (mapbox): -34.859022, 138.546027
+[237/557] Gracie's Tax Bar
+   City: Phoenix, Arizona
+   ✅ HIGH (google): 33.456385, -112.082362
+[238/557] Alex's Bar
+   City: Long Beach, California
+   ✅ HIGH (google): 33.782779, -118.157389
+[239/557] Union Pool
+   City: Brooklyn, New York
+   ✅ HIGH (google): 40.714971, -73.951454
+[240/557] Ebertplatz
+   City: Köln, North Rhine-Westphalia
+   ✅ MEDIUM (mapbox): 50.950930, 6.957494
+[241/557] Tiny's Hi-Dive
+   City: Los Angeles, California
+   ✅ HIGH (google): 34.029532, -118.449413
+[242/557] The Smell
+   City: Los Angeles, California
+   ✅ HIGH (mapbox): 36.197667, -120.104717
+[243/557] Moritzplatz
+   City: Berlin, Berlin
+   ✅ MEDIUM (google): 52.503837, 13.410594
+[244/557] AppleDoll Pop-Up
+   City: Venice, USA
+   ✅ HIGH (mapbox): 42.559207, -82.620122
+[245/557] Marin Country Mart
+   City: Larkspur, California
+   ✅ HIGH (mapbox): 34.103467, -116.296270
+[246/557] ACUD
+   City: Berlin, Berlin
+   ✅ HIGH (google): 52.533521, 13.400901
+[247/557] Weserstraße
+   City: Hamburg, Hamburg
+   ✅ MEDIUM (google): 53.557079, 9.972111
+[248/557] Short Stop
+   City: Los Angeles, California
+   ✅ HIGH (google): 34.075336, -118.253545
+[249/557] 2220 Arts + Archives
+   City: Los Angeles, California
+   ✅ HIGH (google): 34.067262, -118.272258
+[250/557] The Hunt Vintage
+   City: Los Angeles, California
+   ✅ HIGH (mapbox): 36.197667, -120.104717
+[251/557] 4100 Bar
+   City: Los Angeles, California
+   ✅ MEDIUM (mapbox): 38.689949, -121.103662
+[252/557] Cha Cha Lounge
+   City: Los Angeles, California
+   ✅ HIGH (google): 34.099360, -118.259517
+[253/557] Westwerk
+   City: Leipzig, Germany
+   ✅ HIGH (google): 51.330451, 12.330829
+[254/557] 25hours Hotel Lobby
+   City: Vienna, Austria
+   ✅ MEDIUM (mapbox): 38.849036, -77.400855
+[255/557] Good Oak Bar
+   City: Tucson, Arizona
+   ✅ HIGH (google): 32.221990, -110.966543
+[256/557] Playland Arcade II
+   City: Santa Monica, California
+   ✅ HIGH (mapbox): 33.294019, -115.938057
+[257/557] Paseo Colorado
+   City: Pasadena, California
+   ✅ HIGH (google): 34.145544, -118.143872
+[258/557] Club Photomatica
+   City: San Francisco, California
+   ✅ HIGH (mapbox): 32.563036, -117.013586
+[259/557] Saturn
+   City: Birmingham, Alabama
+   ✅ HIGH (mapbox): 33.670771, -86.686874
+[260/557] Kilowatt
+   City: San Francisco, California
+   ✅ MEDIUM (mapbox): 32.563036, -117.013586
+[261/557] Musée Mécanique I
+   City: San Francisco, California
+   ✅ HIGH (google): 37.809304, -122.415968
+[262/557] Beer Barn
+   City: Gilbert, Arizona
+   ✅ HIGH (google): 33.322010, -111.723145
+[263/557] Town
+   City: Los Angeles, California
+   ✅ HIGH (mapbox): 36.197667, -120.104717
+[264/557] Markthalle Neun II
+   City: Berlin, Germany
+   ✅ HIGH (google): 52.502135, 13.431599
+[265/557] L.A. County Fair B5
+   City: Pomona, California
+   ✅ HIGH (mapbox): 34.822545, -118.943456
+[266/557] Ocaña
+   City: Barcelona, Spain
+   ✅ HIGH (google): 41.379827, 2.175705
+[267/557] Snug Harbor
+   City: Charlotte, North Carolina
+   ✅ HIGH (google): 35.219999, -80.813301
+[268/557] Diesel Cafe
+   City: Somerville, Massachusetts
+   ✅ HIGH (mapbox): 42.108602, -70.688641
+[269/557] Hank's Bar
+   City: Brooklyn, New York
+   ✅ HIGH (mapbox): 42.910069, -82.481072
+[270/557] Bubby's Pie Company
+   City: New York, New York
+   ✅ HIGH (mapbox): 36.103919, -115.176275
+[271/557] Machimbombo
+   City: Lisboa, Portugal
+   ✅ MEDIUM (mapbox): 38.730763, -9.133468
+[272/557] Concourse Dance Bar
+   City: Philadelphia, Pennsylvania
+   ✅ HIGH (google): 39.953180, -75.167922
+[273/557] Bootleg Bar
+   City: Brooklyn, New York
+   ✅ HIGH (mapbox): 42.910069, -82.481072
+[274/557] F & M Patio Bar
+   City: New Orleans, Louisiana
+   ✅ HIGH (mapbox): 42.422502, -83.098136
+[275/557] Jubilee Lounge
+   City: Oxford, Mississippi
+   ✅ HIGH (mapbox): 41.462036, -87.308106
+[276/557] Zossenerstraße
+   City: Berlin, Berlin
+   ✅ MEDIUM (google): 52.493263, 13.394912
+[277/557] Warschauer Straße 54
+   City: Berlin, Germany
+   ✅ HIGH (google): 52.508386, 13.451173
+[278/557] Photo Elysée
+   City: Lausanne, Switzerland
+   ✅ HIGH (google): 46.518445, 6.623876
+[279/557] The Hoxton Vienna Basement
+   City: Vienna, Austria
+   ✅ HIGH (mapbox): 41.814931, 19.591898
+[280/557] L.A. County Fair B4
+   City: Pomona, California
+   ✅ HIGH (mapbox): 34.822545, -118.943456
+[281/557] Feldstrasse
+   City: Hamburg, Germany
+   ✅ MEDIUM (google): 53.557079, 9.972111
+[282/557] Massillon Museum
+   City: Massillon, Ohio
+   ✅ HIGH (google): 40.796667, -81.521389
+[283/557] Novelty Golf and Games
+   City: Lincolnwood, Illinois
+   ✅ HIGH (google): 41.997607, -87.720629
+[284/557] Sputnik
+   City: Denver, Colorado
+   ✅ MEDIUM (mapbox): 39.645497, -105.048918
+[285/557] La Pavillon Puebla
+   City: Paris, FRA
+   ✅ MEDIUM (google): 48.877240, 2.379299
+[286/557] Verdugo Bar
+   City: Los Angeles, California
+   ✅ MEDIUM (mapbox): 34.117893, -118.232512
+[287/557] The Hoxton Holborn
+   City: London, United Kingdom
+   ✅ HIGH (mapbox): 51.529432, 0.018795
+[288/557] John Curtin Hotel
+   City: Melbourne, Australia
+   ✅ HIGH (google): -37.806164, 144.965711
+[289/557] Rainbo Club
+   City: Chicago, Illinois
+   ✅ HIGH (google): 41.902765, -87.677469
+[290/557] Photoworks
+   City: San Francisco, California
+   ✅ HIGH (mapbox): 32.563036, -117.013586
+[291/557] Tate Modern
+   City: London, United Kingdom
+   ✅ HIGH (mapbox): 51.529432, 0.018795
+[292/557] Rutger Fuchsgatan 2
+   City: Stockholm, Sweden
+   ✅ MEDIUM (mapbox): 59.307637, 18.078652
+[293/557] Barnone II
+   City: Gilbert, Arizona
+   ✅ HIGH (google): 33.321617, -111.726713
+[294/557] Cleveland Print Room
+   City: Cleveland, Ohio
+   ✅ HIGH (google): 41.510722, -81.653637
+[295/557] Strandbar Herrmann
+   City: Vienna, Austria
+   ✅ MEDIUM (google): 48.211877, 16.385717
+[296/557] Cha Cha Lounge
+   City: Seattle, Washington
+   ✅ HIGH (google): 47.613944, -122.318755
+[297/557] ImPulsTanz
+   City: Vienna, Austria
+   ✅ HIGH (google): 48.205344, 16.355866
+[298/557] Max Brown Hotel 7th District Lobby
+   City: Vienna, Austria
+   ✅ MEDIUM (mapbox): 38.849036, -77.400855
+[299/557] Smart Bar
+   City: Chicago, Illinois
+   ✅ HIGH (mapbox): 42.358627, -83.033411
+[300/557] Schönhauser Allee 63
+   City: Berlin, Berlin
+   ✅ HIGH (google): 52.545908, 13.413577
+[301/557] Far i hatten
+   City: Malmö, Sweden
+   ⊘ Already has valid coordinates and complete address
+[302/557] Palais de Tokyo
+   City: Paris, United States
+   ⊘ Already has valid coordinates and complete address
+[303/557] Warschauer Stra&szlig;e 60
+   City: Berlin, United States
+   ⊘ Already has valid coordinates and complete address
+[304/557] AppleDoll Pop-Up
+   City: Venice, USA
+   ⊘ Already has valid coordinates and complete address
+[305/557] Le 104
+   City: Paris, United States
+   ⊘ Already has valid coordinates and complete address
+[306/557] MOPA II
+   City: San Diego, United States
+   ⊘ Already has valid coordinates and complete address
+[307/557] R.A.W. B
+   City: Berlin, United States
+   ⊘ Already has valid coordinates and complete address
+[308/557] Skylon III
+   City: Niagara Falls, United States
+   ⊘ Already has valid coordinates and complete address
+[309/557] The Hoxton Vienna Basement
+   City: Vienna, Austria
+   ✅ HIGH (google): 48.201170, 16.381179
+[310/557] EPD Market
+   City: Vienna, Austria
+   ✅ HIGH (google): 48.212590, 16.369340
+[311/557] Stadsgårdsterminalen
+   City: Stockholm, Sweden
+   ✅ HIGH (mapbox): 59.315253, 18.064295
+[312/557] Fotografiska
+   City: Stockholm, Sweden
+   ✅ MEDIUM (mapbox): 59.315253, 18.064295
+[313/557] Grand Central
+   City: Stockholm, Sweden
+   ✅ HIGH (mapbox): 59.315253, 18.064295
+[314/557] Kulturhuset Stadsteatern
+   City: Stockholm, Sweden
+   ✅ HIGH (mapbox): 59.315253, 18.064295
+[315/557] Ringen
+   City: Stockholm, Sweden
+   ✅ HIGH (mapbox): 59.315253, 18.064295
+[316/557] Fryshuset Stockholm
+   City: Stockholm, Sweden
+   ✅ HIGH (mapbox): 59.315253, 18.064295
+[317/557] Rutger Fuchsgatan 2
+   City: Stockholm, Sweden
+   ✅ MEDIUM (mapbox): 59.307637, 18.078652
+[318/557] L.A. County Fair B4
+   City: Pomona, United States
+   ⊘ Already has valid coordinates and complete address
+[319/557] Charleston Antique Mall
+   City: Las Vegas, NV
+   ✅ HIGH (mapbox): 40.137626, -82.987971
+[320/557] 25hours Hotel Lobby
+   City: Vienna, Austria
+   ✅ HIGH (google): 48.206495, 16.354699
+[321/557] Max Brown Hotel 7th District Lobby
+   City: Vienna, Austria
+   ✅ HIGH (google): 48.204849, 16.343247
+[322/557] Hafenstadt Klagenfurt
+   City: Klagenfurt, Kärnten
+   ✅ HIGH (google): 46.623387, 14.301763
+[323/557] Funland Arcade II
+   City: Seaside, United States
+   ⊘ Already has valid coordinates and complete address
+[324/557] La Grande Halle
+   City: Arles, FRA
+   ⚠️  LOW CONFIDENCE (google): 43.676647, 4.627777
+[325/557] Orange County Fair A7
+   City: Costa Mesa, United States
+   ⊘ Already has valid coordinates and complete address
+[326/557] Musée Mécanique I
+   City: San Francisco, United States
+   ⊘ Already has valid coordinates and complete address
+[327/557] Generator
+   City: Stockholm, Sweden
+   ✅ HIGH (mapbox): 59.315253, 18.064295
+[328/557] Union Station II
+   City: Los Angeles, United States
+   ⊘ Already has valid coordinates and complete address
+[329/557] Children's Museum I
+   City: Boston, United States
+   ⊘ Already has valid coordinates and complete address
+[330/557] Golf 'n Stuff I
+   City: Norwalk, United States
+   ⊘ Already has valid coordinates and complete address
+[331/557] Woolworth Museum
+   City: Oxnard, United States
+   ⊘ Already has valid coordinates and complete address
+[332/557] Funland Arcade I
+   City: Seaside, United States
+   ⊘ Already has valid coordinates and complete address
+[333/557] Deno's Wonder Wheel
+   City: Brooklyn, United States
+   ⊘ Already has valid coordinates and complete address
+[334/557] Belmont Park II
+   City: San Diego, United States
+   ⊘ Already has valid coordinates and complete address
+[335/557] St. Louis Centre II
+   City: St. Louis, United States
+   ⊘ Already has valid coordinates and complete address
+[336/557] Downtown Burbank Newsstand
+   City: Burbank, United States
+   ⊘ Already has valid coordinates and complete address
+[337/557] Playland Arcade II
+   City: Santa Monica, United States
+   ⊘ Already has valid coordinates and complete address
+[338/557] Playland Arcade I
+   City: Santa Monica, United States
+   ⊘ Already has valid coordinates and complete address
+[339/557] Beltway Plaza Mall I
+   City: Greenbelt, United States
+   ⊘ Already has valid coordinates and complete address
+[340/557] Union Station I
+   City: Los Angeles, United States
+   ⊘ Already has valid coordinates and complete address
+[341/557] Salem Willows Arcade I
+   City: Salem, United States
+   ⊘ Already has valid coordinates and complete address
+[342/557] Salem Willows Arcade II
+   City: Salem, United States
+   ⊘ Already has valid coordinates and complete address
+[343/557] Metro Customer Ctr. Wilshire I
+   City: Los Angeles, United States
+   ⊘ Already has valid coordinates and complete address
+[344/557] Metro Customer Ctr. Wilshire II
+   City: Los Angeles, United States
+   ⊘ Already has valid coordinates and complete address
+[345/557] Orange County Fair A3
+   City: Costa Mesa, United States
+   ⊘ Already has valid coordinates and complete address
+[346/557] Orange County Fair C3
+   City: Costa Mesa, United States
+   ⊘ Already has valid coordinates and complete address
+[347/557] Downtown Burbank Newsstand 2
+   City: Burbank, United States
+   ⊘ Already has valid coordinates and complete address
+[348/557] L.A. County Fair B5
+   City: Pomona, United States
+   ⊘ Already has valid coordinates and complete address
+[349/557] Casino Arcade II
+   City: Santa Cruz, United States
+   ⊘ Already has valid coordinates and complete address
+[350/557] Deno's Sweet Shoppe
+   City: Brooklyn, United States
+   ⊘ Already has valid coordinates and complete address
+[351/557] Children's Museum II
+   City: Boston, United States
+   ⊘ Already has valid coordinates and complete address
+[352/557] St. Louis Centre I
+   City: St. Louis, United States
+   ⊘ Already has valid coordinates and complete address
+[353/557] Orange County Fair B6
+   City: Costa Mesa, United States
+   ⊘ Already has valid coordinates and complete address
+[354/557] Casino Arcade I
+   City: Santa Cruz, United States
+   ⊘ Already has valid coordinates and complete address
+[355/557] MOPA I
+   City: San Diego, United States
+   ⊘ Already has valid coordinates and complete address
+[356/557] Golf 'n Stuff II
+   City: Norwalk, United States
+   ⊘ Already has valid coordinates and complete address
+[357/557] Beltway Plaza Mall II
+   City: Greenbelt, United States
+   ⊘ Already has valid coordinates and complete address
+[358/557] L.A. County Fair A3
+   City: Pomona, United States
+   ⊘ Already has valid coordinates and complete address
+[359/557] Belmont Park I
+   City: San Diego, United States
+   ⊘ Already has valid coordinates and complete address
+[360/557] Casino Arcade III
+   City: Santa Cruz, United States
+   ⊘ Already has valid coordinates and complete address
+[361/557] Pratersauna
+   City: Vienna, Austria
+   ✅ HIGH (google): 48.213278, 16.405193
+[362/557] Kulturbrauerei
+   City: Berlin, Germany
+   ⊘ Already has valid coordinates and complete address
+[363/557] Spårvägsmuseet
+   City: Stockholm, Sweden
+   ✅ HIGH (mapbox): 59.315253, 18.064295
+[364/557] Re-bar
+   City: Seattle, Washington
+   ✅ HIGH (google): 47.616670, -122.331078
+[365/557] Time Out Market
+   City: Barcelona, Spain
+   ✅ HIGH (mapbox): 41.473896, 2.267983
+[366/557] The Standard
+   City: London, United Kingdom
+   ✅ HIGH (mapbox): 51.529432, 0.018795
+[367/557] International Bar
+   City: Salt Lake City, Utah
+   ✅ HIGH (google): 40.761711, -111.888486
+[368/557] Hobo Hotel
+   City: Stockholm, Sweden
+   ✅ HIGH (mapbox): 59.315253, 18.064295
+[369/557] Skylon I
+   City: Niagara Falls, United States
+   ⊘ Already has valid coordinates and complete address
+[370/557] Helsinki Railway Station III
+   City: Helsinki, FIN
+   ✅ HIGH (mapbox): 60.170939, 24.939442
+[371/557] Cat Cafe "Ragdoll"
+   City: Osaka, Japan
+   ✅ HIGH (google): 34.667726, 135.503646
+[372/557] Flinders Street Station II
+   City: Melbourne, Victoria
+   ✅ MEDIUM (mapbox): -37.818913, 144.962711
+[373/557] Max Brown Hotel 5th District Lobby
+   City: Vienna, Austria
+   ✅ HIGH (google): 48.190026, 16.356704
+[374/557] Bridge Street
+   City: Sylvan Beach, New York
+   ✅ MEDIUM (google): 43.196554, -75.728416
+[375/557] Strandbar Herrmann
+   City: Vienna, Austria
+   ✅ MEDIUM (google): 48.211877, 16.385717
+[376/557] Warschauer Straße 47
+   City: Berlin, GER
+   ✅ HIGH (google): 52.503744, 13.446736
+[377/557] Lou's Athletic Club
+   City: Brooklyn, New York, USA
+   ⊘ Already has valid coordinates and complete address
+[378/557] The Social Hub Vienna
+   City: Vienna, Austria
+   ✅ HIGH (google): 48.222862, 16.390007
+[379/557] Backstage
+   City: Culver City, USA
+   ⊘ Already has valid coordinates and complete address
+[380/557] N/A
+   City: Surat, N/A
+   ✅ HIGH (mapbox): 18.952486, 72.840368
+[381/557] Le Pavillon Puebla
+   City: Paris, Île-de-France
+   ✅ MEDIUM (google): 48.877240, 2.379299
+[382/557] Le Lieu Unique
+   City: Nantes, Pays de la Loire
+   ✅ MEDIUM (google): 47.215539, -1.545443
+[383/557] CAMP - Center for Architecture and Metropolitan Planning
+   City: Prague, Prague
+   ✅ HIGH (mapbox): 50.099154, 14.444670
+[384/557] Kaivopiha Shopping Center
+   City: Helsinki, United States
+   ⊘ Already has valid coordinates and complete address
+[385/557] Downtown Camper
+   City: Stockholm, Sweden
+   ✅ HIGH (mapbox): 59.315253, 18.064295
+[386/557] Unknown
+   City: Jakarta, Indonesia
+   ✅ HIGH (google): -6.240028, 106.764298
+[387/557] Batofar
+   City: Paris, United States
+   ⊘ Already has valid coordinates and complete address
+[388/557] Bristol Arms Retro Hotel
+   City: Sydney, United States
+   ⊘ Already has valid coordinates and complete address
+[389/557] Nordiska Museet
+   City: Stockholm, Sweden
+   ✅ HIGH (mapbox): 59.315253, 18.064295
+[390/557] Marienburger Stra&szlig;e
+   City: Berlin, United States
+   ⊘ Already has valid coordinates and complete address
+[391/557] Le 104
+   City: Paris, United States
+   ⊘ Already has valid coordinates and complete address
+[392/557] Unknown
+   City: Vienna, Austria
+   ⚠️  LOW CONFIDENCE (google): 48.208070, 16.371309
+[393/557] Citadium
+   City: Paris, United States
+   ⊘ Already has valid coordinates and complete address
+[394/557] Mohawk Bend
+   City: Los Angeles, United States
+   ⊘ Already has valid coordinates and complete address
+[395/557] R.A.W. A
+   City: Berlin, United States
+   ⊘ Already has valid coordinates and complete address
+[396/557] Netil House
+   City: London, United States
+   ⊘ Already has valid coordinates and complete address
+[397/557] Weserstra&szlig;e
+   City: Berlin, United States
+   ⊘ Already has valid coordinates and complete address
+[398/557] Kastanienallee
+   City: Berlin, United States
+   ⊘ Already has valid coordinates and complete address
+[399/557] ACUD
+   City: Berlin, Germany
+   ⊘ Already has valid coordinates and complete address
+[400/557] Kaiser's
+   City: Berlin, United States
+   ⊘ Already has valid coordinates and complete address
+[401/557] Holiday Club
+   City: Chicago, USA
+   ⊘ Already has valid coordinates and complete address
+[402/557] Martas Gästehäuser
+   City: Berlin, Germany
+   ⊘ Already has valid coordinates and complete address
+[403/557] Pratersauna
+   City: Vienna, Austria
+   ⊘ Already has valid coordinates and complete address
+[404/557] Strandbar Herrmann
+   City: Vienna, United States
+   ⊘ Already has valid coordinates and complete address
+[405/557] Warschauer Brücke 1
+   City: Berlin, Germany
+   ⊘ Already has valid coordinates and complete address
+[406/557] Warschauer Straße 54
+   City: Berlin, Germany
+   ⊘ Already has valid coordinates and complete address
+[407/557] 25 Hours Hotel
+   City: Vienna, United States
+   ⊘ Already has valid coordinates and complete address
+[408/557] La Pavillon Puebla
+   City: Paris, United States
+   ⊘ Already has valid coordinates and complete address
+[409/557] Kosmos
+   City: Zürich, United States
+   ⊘ Already has valid coordinates and complete address
+[410/557] Hardenberg-strasse 22
+   City: Berlin, United States
+   ⊘ Already has valid coordinates and complete address
+[411/557] La Pavillon Puebla
+   City: Paris, United States
+   ⊘ Already has valid coordinates and complete address
+[412/557] The Breakfast Club Canary Wharf
+   City: London, United States
+   ⊘ Already has valid coordinates and complete address
+[413/557] The Blind Donkey
+   City: Long Beach, USA
+   ⊘ Already has valid coordinates and complete address
+[414/557] Glad & Young Studio
+   City: Atlanta, United States
+   ⊘ Already has valid coordinates and complete address
+[415/557] Lou's Athletic Club
+   City: Brooklyn, United States
+   ⊘ Already has valid coordinates and complete address
+[416/557] Booth by Bryant II
+   City: Costa Mesa, United States
+   ⊘ Already has valid coordinates and complete address
+[417/557] Modulor
+   City: Berlin, United States
+   ⊘ Already has valid coordinates and complete address
+[418/557] Kilowatt
+   City: San Francisco, United States
+   ⊘ Already has valid coordinates and complete address
+[419/557] Flamingo Bar
+   City: Los Angeles, United States
+   ⊘ Already has valid coordinates and complete address
+[420/557] Machimbombo
+   City: Lisboa, United States
+   ⊘ Already has valid coordinates and complete address
+[421/557] Ocaña
+   City: Barcelona, United States
+   ⊘ Already has valid coordinates and complete address
+[422/557] Barnone II
+   City: Gilbert, United States
+   ⊘ Already has valid coordinates and complete address
+[423/557] RAW 1
+   City: Berlin, Germany
+   ⊘ Already has valid coordinates and complete address
+[424/557] Photomatica Photo Booth Museum I
+   City: Los Angeles, United States
+   ⊘ Already has valid coordinates and complete address
+[425/557] Photomatica Photo Booth Museum III
+   City: Los Angeles, United States
+   ⊘ Already has valid coordinates and complete address
+[426/557] Autophoto Gallery + Museum III
+   City: New York, United States
+   ⊘ Already has valid coordinates and complete address
+[427/557] Autophoto Gallery + Museum IV
+   City: New York, United States
+   ⊘ Already has valid coordinates and complete address
+[428/557] Whitechapel Gallery
+   City: London, United States
+   ⊘ Already has valid coordinates and complete address
+[429/557] Rainbo Club
+   City: Chicago, USA
+   ⊘ Already has valid coordinates and complete address
+[430/557] Smartbar
+   City: Chicago, USA
+   ⊘ Already has valid coordinates and complete address
+[431/557] Rainbo Club
+   City: Chicago, USA
+   ⊘ Already has valid coordinates and complete address
+[432/557] Cole's Bar
+   City: Chicago, USA
+   ⊘ Already has valid coordinates and complete address
+[433/557] Rainbo Club
+   City: Wicker Park, USA
+   ⊘ Already has valid coordinates and complete address
+[434/557] Booth By Bryant - Orange County
+   City: Costa Mesa, California
+   ⊘ Already has valid coordinates and complete address
+[435/557] Tiny's Hi-Dive
+   City: Los Angeles, USA
+   ⊘ Already has valid coordinates and complete address
+[436/557] The Hawk
+   City: Long Beach, USA
+   ⊘ Already has valid coordinates and complete address
+[437/557] Cha Cha Lounge
+   City: Los Angeles, USA
+   ⊘ Already has valid coordinates and complete address
+[438/557] 4100 Bar
+   City: Los Angeles, USA
+   ⊘ Already has valid coordinates and complete address
+[439/557] Walt's Bar
+   City: Los Angeles, USA
+   ⊘ Already has valid coordinates and complete address
+[440/557] FOTOAUTOMATICA
+   City: Firenze, Italy
+   ⊘ Already has valid coordinates and complete address
+[441/557] ACUD
+   City: Berlin, Germany
+   ⊘ Already has valid coordinates and complete address
+[442/557] The Flamingo Bar
+   City: Los Angeles, CA
+   ⊘ Already has valid coordinates and complete address
+[443/557] Markthalle Neun
+   City: Berlin, Germany
+   ⊘ Already has valid coordinates and complete address
+[444/557] Trabi World
+   City: Berlin, Germany
+   ⊘ Already has valid coordinates and complete address
+[445/557] RAW 2
+   City: Berlin, Germany
+   ⊘ Already has valid coordinates and complete address
+[446/557] Hobrecht
+   City: Berlin, Germany
+   ⊘ Already has valid coordinates and complete address
+[447/557] Holzmarkt Straße
+   City: Berlin, Germany
+   ⊘ Already has valid coordinates and complete address
+[448/557] Kater Blau Club
+   City: Berlin, Germany
+   ⊘ Already has valid coordinates and complete address
+[449/557] Martas Gästehäuser
+   City: Berlin, Germany
+   ⊘ Already has valid coordinates and complete address
+[450/557] Warschauer Brücke 2
+   City: Berlin, Germany
+   ⊘ Already has valid coordinates and complete address
+[451/557] Verdugo Bar
+   City: Los Angeles, USA
+   ⊘ Already has valid coordinates and complete address
+[452/557] Boothclub Amsterdam
+   City: Amsterdam, United States
+   ⊘ Already has valid coordinates and complete address
+[453/557] Club Photomatica
+   City: San Francisco, United States
+   ⊘ Already has valid coordinates and complete address
+[454/557] Warschauer Brücke 1
+   City: Berlin, Germany
+   ⊘ Already has valid coordinates and complete address
+[455/557] Thee Parkside
+   City: San Francisco, USA
+   ⊘ Already has valid coordinates and complete address
+[456/557] Ocaña
+   City: Barcelona, United States
+   ⊘ Already has valid coordinates and complete address
+[457/557] Saturn
+   City: Birmingham, USA
+   ⊘ Already has valid coordinates and complete address
+[458/557] Vidiots
+   City: Los Angeles, USA
+   ⊘ Already has valid coordinates and complete address
+[459/557] Classic Photo Booth at San Francisco Exploratorium
+   City: San Francisco, USA
+   ⊘ Already has valid coordinates and complete address
+[460/557] LOVE HOUR
+   City: Los Angeles, CA
+   ⊘ Already has valid coordinates and complete address
+[461/557] The Hawk
+   City: Long Beach, USA
+   ⊘ Already has valid coordinates and complete address
+[462/557] The Blind Donkey
+   City: Long Beach, USA
+   ⊘ Already has valid coordinates and complete address
+[463/557] Walt’s Bar
+   City: Los Angeles, USA
+   ⊘ Already has valid coordinates and complete address
+[464/557] Kulturbrauerei
+   City: Berlin, Germany
+   ⊘ Already has valid coordinates and complete address
+[465/557] Mauerpark 1
+   City: Berlin, Germany
+   ⊘ Already has valid coordinates and complete address
+[466/557] 25hours Hotel Wien Dachboden
+   City: Vienna, Austria
+   ⊘ Already has valid coordinates and complete address
+[467/557] ACUD
+   City: Berlin, Germany
+   ⊘ Already has valid coordinates and complete address
+[468/557] Vidiots
+   City: Los Angeles, USA
+   ⊘ Already has valid coordinates and complete address
+[469/557] Cha Cha Lounge
+   City: Los Angeles, CA 90039, USA
+   ⊘ Already has valid coordinates and complete address
+[470/557] Trabi World
+   City: Berlin, Germany
+   ⊘ Already has valid coordinates and complete address
+[471/557] Mauerpark 2
+   City: Berlin, Germany
+   ⊘ Already has valid coordinates and complete address
+[472/557] Tiny's Hi-Dive
+   City: Los Angeles, CA 90064, USA
+   ⊘ Already has valid coordinates and complete address
+[473/557] The Hawk
+   City: Long Beach, CA 90813, USA
+   ⊘ Already has valid coordinates and complete address
+[474/557] Markthalle Neun
+   City: Berlin, Germany
+   ⊘ Already has valid coordinates and complete address
+[475/557] Schlesisches Tor
+   City: Berlin, Germany
+   ⊘ Already has valid coordinates and complete address
+[476/557] 1212 Santa Monica
+   City: Santa Monica, CA
+   ⊘ Already has valid coordinates and complete address
+[477/557] Cole's Bar
+   City: Chicago, USA
+   ⊘ Already has valid coordinates and complete address
+[478/557] The Phoenix
+   City: Los Angeles, CA
+   ⊘ Already has valid coordinates and complete address
+[479/557] Holzmarkt Marktplatz
+   City: Berlin, Germany
+   ⊘ Already has valid coordinates and complete address
+[480/557] Tel Aviv Beach 2010
+   City: Vienna, United States
+   ⊘ Already has valid coordinates and complete address
+[481/557] Schlesisches Tor
+   City: Berlin, Germany
+   ⊘ Already has valid coordinates and complete address
+[482/557] Rock Caf&eacute;
+   City: Prague, United States
+   ⊘ Already has valid coordinates and complete address
+[483/557] Barnone
+   City: Gilbert, United States
+   ⊘ Already has valid coordinates and complete address
+[484/557] Waterstones
+   City: London, United States
+   ⊘ Already has valid coordinates and complete address
+[485/557] Tiny’s Hi-Dive
+   City: Los Angeles, USA
+   ⊘ Already has valid coordinates and complete address
+[486/557] Day to Day Collective
+   City: San Diego, United States
+   ⊘ Already has valid coordinates and complete address
+[487/557] The Standard
+   City: London, United States
+   ⊘ Already has valid coordinates and complete address
+[488/557] ars-imago
+   City: Zürich, United States
+   ⊘ Already has valid coordinates and complete address
+[489/557] 4100 Bar
+   City: Los Angeles, USA
+   ⊘ Already has valid coordinates and complete address
+[490/557] Schönhauser Allee
+   City: Berlin, Germany
+   ⊘ Already has valid coordinates and complete address
+[491/557] FOTOAUTOMATICA
+   City: Firenze, Italy
+   ⊘ Already has valid coordinates and complete address
+[492/557] Verdugo Bar
+   City: Los Angeles, USA
+   ⊘ Already has valid coordinates and complete address
+[493/557] Mauerpark 1
+   City: Berlin, Germany
+   ⊘ Already has valid coordinates and complete address
+[494/557] Backstage Bar & Grill
+   City: Culver City, CA 90232, USA
+   ⊘ Already has valid coordinates and complete address
+[495/557] FOTOAUTOMATICA
+   City: Firenze, Italy
+   ⊘ Already has valid coordinates and complete address
+[496/557] Mauerpark 2
+   City: Berlin, Germany
+   ⊘ Already has valid coordinates and complete address
+[497/557] Apple Doll (Pop-Up)
+   City: Venice, CA
+   ⊘ Already has valid coordinates and complete address
+[498/557] Kanzlei Club
+   City: Z&uuml;rich, United States
+   ⊘ Already has valid coordinates and complete address
+[499/557] Photo Elys&eacute;e
+   City: Lausanne, United States
+   ⊘ Already has valid coordinates and complete address
+[500/557] The Flamingo Bar
+   City: Los Angeles, CA 90021, USA
+   ⊘ Already has valid coordinates and complete address
+[501/557] Autophoto Gallery + Museum II
+   City: New York, NY
+   ⊘ Already has valid coordinates and complete address
+[502/557] Warschauer Straße 54
+   City: Berlin, Germany
+   ⊘ Already has valid coordinates and complete address
+[503/557] Martas Gästehäuser
+   City: Berlin, Germany
+   ⊘ Already has valid coordinates and complete address
+[504/557] Warschauer Brücke 1
+   City: Berlin, Germany
+   ⊘ Already has valid coordinates and complete address
+[505/557] Martas Gästehäuser
+   City: Berlin, Germany
+   ⊘ Already has valid coordinates and complete address
+[506/557] Riga Bus Station
+   City: Riga, LAT
+   ⊘ Already has valid coordinates and complete address
+[507/557] The Village Tap
+   City: Chicago, Illinois
+   ⊘ Already has valid coordinates and complete address
+[508/557] Union Pool
+   City: Brooklyn, NY
+   ⊘ Already has valid coordinates and complete address
+[509/557] The Blind Donkey
+   City: Long Beach, CA 90802, USA
+   ⊘ Already has valid coordinates and complete address
+[510/557] Trabi World
+   City: Berlin, Germany
+   ⊘ Already has valid coordinates and complete address
+[511/557] Apple Doll (Pop-Up)
+   City: Venice, CA 90291, USA
+   ⊘ Already has valid coordinates and complete address
+[512/557] The Hawk
+   City: Long Beach, CA 90813, USA
+   ⊘ Already has valid coordinates and complete address
+[513/557] Circus Circus #2
+   City: Las Vegas, NV
+   ⊘ Already has valid coordinates and complete address
+[514/557] Booth By Bryant - Camp Out
+   City: Costa Mesa, California, USA
+   ⊘ Already has valid coordinates and complete address
+[515/557] Day to Day Collective
+   City: San Diego, California
+   ⊘ Already has valid coordinates and complete address
+[516/557] Zenner Biergarten
+   City: Berlin, Germany
+   ⊘ Already has valid coordinates and complete address
+[517/557] Mauerpark 1
+   City: Berlin, Germany
+   ⊘ Already has valid coordinates and complete address
+[518/557] Hobrecht
+   City: Berlin, Germany
+   ⊘ Already has valid coordinates and complete address
+[519/557] Casino Arcade IV
+   City: Santa Cruz, California
+   ⊘ Already has valid coordinates and complete address
+[520/557] Club Photomatica
+   City: San Francisco, CA
+   ⊘ Already has valid coordinates and complete address
+[521/557] Kulturbrauerei
+   City: Berlin, Germany
+   ⊘ Already has valid coordinates and complete address
+[522/557] Schönhauser Allee
+   City: Berlin, Germany
+   ⊘ Already has valid coordinates and complete address
+[523/557] Kater Blau Club
+   City: Berlin, Germany
+   ⊘ Already has valid coordinates and complete address
+[524/557] Citizen Supply @ Ponce City Market
+   City: Atlanta, USA
+   ⊘ Already has valid coordinates and complete address
+[525/557] 4100 Bar
+   City: Los Angeles, CA 90029, USA
+   ⊘ Already has valid coordinates and complete address
+[526/557] Rainbo Club
+   City: Chicago, IL
+   ⊘ Already has valid coordinates and complete address
+[527/557] Saturn
+   City: Birmingham, AL
+   ⊘ Already has valid coordinates and complete address
+[528/557] Circus Circus #4
+   City: Las Vegas, Nevada
+   ⊘ Already has valid coordinates and complete address
+[529/557] Orange County Fair B6
+   City: Costa Mesa, California
+   ⊘ Already has valid coordinates and complete address
+[530/557] Casino Arcade II
+   City: Santa Cruz, CA
+   ⊘ Already has valid coordinates and complete address
+[531/557] Orange County Fair C3
+   City: Costa Mesa, California
+   ⊘ Already has valid coordinates and complete address
+[532/557] Orange County Fair A3
+   City: Costa Mesa, California
+   ⊘ Already has valid coordinates and complete address
+[533/557] Casino Arcade I
+   City: Santa Cruz, CA
+   ⊘ Already has valid coordinates and complete address
+[534/557] Linnelabbet
+   City: Göteborg, Sweden
+   ⊘ Already has valid coordinates and complete address
+[535/557] Holzmarkt Straße
+   City: Berlin, Germany
+   ⊘ Already has valid coordinates and complete address
+[536/557] Orange County Fair A7
+   City: Costa Mesa, California
+   ⊘ Already has valid coordinates and complete address
+[537/557] The Knockout
+   City: San Francisco, CA
+   ⊘ Already has valid coordinates and complete address
+[538/557] Zenner Biergarten
+   City: Berlin, Germany
+   ⊘ Already has valid coordinates and complete address
+[539/557] Metro
+   City: Chicago, IL
+   ⊘ Already has valid coordinates and complete address
+[540/557] FOTOAUTOMATICA
+   City: Firenze, Tuscany
+   ⊘ Already has valid coordinates and complete address
+[541/557] Cha Cha Lounge
+   City: Los Angeles, CA
+   ⊘ Already has valid coordinates and complete address
+[542/557] 4100 Bar
+   City: Los Angeles, CA
+   ⊘ Already has valid coordinates and complete address
+[543/557] Club Photomatica
+   City: San Francisco, CA
+   ⊘ Already has valid coordinates and complete address
+[544/557] Walt’s Bar
+   City: Los Angeles, CA
+   ⊘ Already has valid coordinates and complete address
+[545/557] Vidiots
+   City: Los Angeles, CA
+   ⊘ Already has valid coordinates and complete address
+[546/557] The Hawk
+   City: Long Beach, CA
+   ⊘ Already has valid coordinates and complete address
+[547/557] Alex’s Bar
+   City: Long Beach, CA
+   ⊘ Already has valid coordinates and complete address
+[548/557] Musée Mécanique - Analog Booth
+   City: San Francisco, CA
+   ⊘ Already has valid coordinates and complete address
+[549/557] Thee Parkside
+   City: San Francisco, CA
+   ⊘ Already has valid coordinates and complete address
+[550/557] Markthalle Neun
+   City: Berlin, Germany
+   ⊘ Already has valid coordinates and complete address
+[551/557] The Knockout
+   City: San Francisco, CA
+   ⊘ Already has valid coordinates and complete address
+[552/557] Mauerpark 1
+   City: Berlin, Germany
+   ⊘ Already has valid coordinates and complete address
+[553/557] National Theater
+   City: Prague, CZE
+   ⊘ Already has valid coordinates and complete address
+[554/557] The Photo Booth Museum
+   City: San Francisco, CA
+   ⊘ Already has valid coordinates and complete address
+[555/557] ACUD
+   City: Berlin, Germany
+   ⊘ Already has valid coordinates and complete address
+[556/557] Booth By Bryant - Costa Mesa
+   City: Costa Mesa, United States
+   ⊘ Already has valid coordinates and complete address
+[557/557] Cole's Bar
+   City: Chicago, USA
+   ⊘ Already has valid coordinates and complete address
+
+====================================================================================================
+GEOCODING REPORT
+====================================================================================================
+✅ Successful:      301
+⚠️  Low Confidence: 30
+❌ Failed:         0
+📊 Success Rate:   54.0%
+====================================================================================================
+
+📄 Detailed report saved: /Users/jkw/Projects/booth-beacon-app/scripts/geocoding-report-2025-12-09.json
+
+⚠️  LOW CONFIDENCE RESULTS - MANUAL REVIEW RECOMMENDED:
+   (These booths should be manually verified)
+
+   • Pacific Central Station
+     → 38.794595, -106.534838 (google)
+   • Kastanienallee II
+     → 38.794595, -106.534838 (google)
+   • Lenin's Quay
+     → 44.676383, 34.410050 (google)
+   • Calgary Greyhound Station
+     → 38.794595, -106.534838 (google)
+   • Eau Claire Market
+     → 38.794595, -106.534838 (google)
+   • Billings Bridge Centre
+     → 38.794595, -106.534838 (google)
+   • Greyhound Bus Station
+     → 38.794595, -106.534838 (google)
+   • Scotia Square
+     → 38.794595, -106.534838 (google)
+   • Bridgewater Mall
+     → 44.379597, -64.521330 (google)
+   • Southland Mall
+     → 38.794595, -106.534838 (google)
+   • Corner Brook Plaza
+     → 38.794595, -106.534838 (google)
+   • Gander Mall
+     → 38.794595, -106.534838 (google)
+   • Exploits Valley Mall
+     → 41.852598, -72.643702 (google)
+   • Gerrard Square
+     → 38.794595, -106.534838 (google)
+   • Riga Bus Station
+     → 38.794595, -106.534838 (google)
+   • Kampala
+     → 38.794595, -106.534838 (google)
+   • Petersburger Straße 81
+     → 38.794595, -106.534838 (google)
+   • R.A.W. C
+     → 38.794595, -106.534838 (google)
+   • Geroldstrasse 35
+     → 47.376887, 8.541694 (google)
+   • La Grande Halle
+     → 45.324577, -118.087719 (google)
+   • Sch&ouml;nhauser Allee 63
+     → 38.794595, -106.534838 (google)
+   • Bernauer Strasse 47
+     → 38.794595, -106.534838 (google)
+   • Mauerpark B
+     → 38.794595, -106.534838 (google)
+   • Kingly Court
+     → 51.507218, -0.127586 (google)
+   • Art Gallery of South Australia
+     → -34.928499, 138.600746 (google)
+   • Mauerpark A
+     → 38.794595, -106.534838 (google)
+   • Far i Hatten
+     → 55.604981, 13.003822 (google)
+   • R.A.W. B
+     → 52.520007, 13.404954 (google)
+   • La Grande Halle
+     → 43.676647, 4.627777 (google)
+   • Unknown
+     → 48.208070, 16.371309 (google)
+
+====================================================================================================
+BATCH GEOCODING COMPLETE
+====================================================================================================
