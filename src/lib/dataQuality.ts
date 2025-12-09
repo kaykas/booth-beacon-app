@@ -64,15 +64,46 @@ export interface EnrichmentNeeds {
 }
 
 /**
+ * Check if address has a street number (required for valid addresses)
+ */
+function hasStreetNumber(address: string | null): boolean {
+  if (!address) return false;
+  return /\d+\s+[A-Za-z]/.test(address);
+}
+
+/**
  * Calculate data quality score for a booth
+ *
+ * UPDATED: Now penalizes addresses without street numbers or addresses matching business name
  */
 export function calculateQualityScore(booth: BoothQualityData): QualityScore {
   let score = 0;
   const missingFields: string[] = [];
 
-  // Address: 10 points
+  // Address: 10 points (but penalize if missing street number or too short)
   if (booth.address) {
-    score += 10;
+    // Check for bad address indicators
+    const addressLength = booth.address.trim().length;
+    const hasStreetNum = hasStreetNumber(booth.address);
+
+    // PENALTY: Address without street number (reduces by 30%)
+    if (!hasStreetNum) {
+      score += 7; // 70% of 10 points
+      missingFields.push('address (missing street number)');
+    }
+    // PENALTY: Address too short (likely just a name)
+    else if (addressLength < 10) {
+      score += 7; // 70% of 10 points
+      missingFields.push('address (too short - <10 chars)');
+    }
+    // PENALTY: Address might be business name (same as booth name)
+    else if (booth.address.trim().toLowerCase() === booth.name.trim().toLowerCase()) {
+      score += 0; // 0 points - this is bad data
+      missingFields.push('address (appears to be business name, not street address)');
+    } else {
+      // Good address with street number
+      score += 10;
+    }
   } else {
     missingFields.push('address');
   }

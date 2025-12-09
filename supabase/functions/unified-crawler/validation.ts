@@ -770,6 +770,38 @@ function validateAnthropicContentBlock(
 // ============================================
 
 /**
+ * Validate address format - rejects business names masquerading as addresses
+ */
+function validateAddressFormat(address: string, boothName: string): FieldValidationResult {
+  // Check if address is empty or too short
+  if (address.trim().length < 10) {
+    return {
+      isValid: false,
+      error: "Address must be at least 10 characters (too short, possibly just a business name)"
+    };
+  }
+
+  // Check if address is the same as booth name (bad data - address == business name)
+  if (address.trim().toLowerCase() === boothName.trim().toLowerCase()) {
+    return {
+      isValid: false,
+      error: "Address cannot be the same as the business name - must include street address"
+    };
+  }
+
+  // Check for street number (required for valid addresses)
+  const hasStreetNumber = /\d+\s+[A-Za-z]/.test(address);
+  if (!hasStreetNumber) {
+    return {
+      isValid: false,
+      error: "Address must include a street number (e.g., '123 Main St')"
+    };
+  }
+
+  return { isValid: true, sanitized: address.trim() };
+}
+
+/**
  * Comprehensive booth data validation
  */
 export function validateBoothData(booth: BoothData): ValidationResult {
@@ -836,6 +868,18 @@ export function validateBoothData(booth: BoothData): ValidationResult {
       booth.address = addressValidation.sanitized;
     }
 
+    // NEW: Validate address format (prevent business names as addresses)
+    const addressFormatResult = validateAddressFormat(booth.address, booth.name);
+    if (!addressFormatResult.isValid) {
+      errors.push(
+        new ValidationError(
+          addressFormatResult.error!,
+          "address",
+          ErrorCode.VALIDATION_INVALID_FORMAT
+        )
+      );
+    }
+
     // Check length
     if (booth.address.length > 300) {
       errors.push(
@@ -845,6 +889,11 @@ export function validateBoothData(booth: BoothData): ValidationResult {
           ErrorCode.VALIDATION_FIELD_TOO_LONG
         )
       );
+    }
+
+    // NEW: Warn if address is suspiciously short
+    if (booth.address.length < 15) {
+      warnings.push("Address is short (<15 chars) - may be incomplete or missing street number");
     }
   }
 

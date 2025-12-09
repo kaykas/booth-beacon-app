@@ -75,12 +75,12 @@ export function VisitChecklist({
     <Card className="p-6">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold">Visit Checklist</h3>
-        <span className="text-sm text-neutral-600">
+        <span className="text-sm font-semibold text-neutral-700">
           {completedCount}/{checklistItems.length}
         </span>
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-2">
         {checklistItems.map((item) => {
           const Icon = item.icon;
           const isChecked = checkedItems.has(item.id);
@@ -89,20 +89,28 @@ export function VisitChecklist({
             <button
               key={item.id}
               onClick={() => toggleItem(item.id)}
-              className="w-full flex items-start gap-3 p-3 rounded-lg hover:bg-neutral-50 transition-colors text-left group"
+              className={`w-full flex items-start gap-3 p-3 rounded-lg transition-all text-left border-2 ${
+                isChecked
+                  ? 'bg-green-50 border-green-200 hover:bg-green-100'
+                  : 'bg-white border-neutral-200 hover:border-primary hover:bg-primary/5'
+              }`}
             >
               {isChecked ? (
-                <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                <CheckCircle2 className="w-6 h-6 text-green-600 flex-shrink-0 mt-0.5" />
               ) : (
-                <Circle className="w-5 h-5 text-neutral-300 group-hover:text-neutral-400 flex-shrink-0 mt-0.5" />
+                <Circle className="w-6 h-6 text-neutral-400 flex-shrink-0 mt-0.5" />
               )}
-              <div className="flex-1">
-                <div className={`flex items-center gap-2 ${isChecked ? 'line-through text-neutral-500' : 'text-neutral-900'}`}>
-                  <Icon className="w-4 h-4" />
-                  <span className="text-sm font-medium">{item.label}</span>
+              <div className="flex-1 min-w-0">
+                <div className={`flex items-center gap-2 flex-wrap ${isChecked ? 'text-neutral-600' : 'text-neutral-900'}`}>
+                  <Icon className="w-4 h-4 flex-shrink-0" />
+                  <span className={`text-sm font-medium ${isChecked ? 'line-through' : ''}`}>
+                    {item.label}
+                  </span>
                 </div>
                 {item.important && !isChecked && (
-                  <span className="text-xs text-amber-600 mt-1 block">Important</span>
+                  <span className="text-xs font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded mt-1 inline-block">
+                    Important
+                  </span>
                 )}
               </div>
             </button>
@@ -111,8 +119,8 @@ export function VisitChecklist({
       </div>
 
       {completedCount === checklistItems.length && (
-        <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg text-center">
-          <p className="text-sm font-medium text-green-800">You&apos;re all set to visit!</p>
+        <div className="mt-4 p-3 bg-green-50 border-2 border-green-300 rounded-lg text-center">
+          <p className="text-sm font-semibold text-green-800">✓ You&apos;re all set to visit!</p>
         </div>
       )}
     </Card>

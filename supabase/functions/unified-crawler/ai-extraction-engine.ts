@@ -403,7 +403,7 @@ ${LAZY_PROTECTION_PROMPT}
 CRITICAL REQUIREMENTS:
 1. Extract ALL photo booths mentioned - don't skip any
 2. Focus on ANALOG/CHEMICAL booths (wet process, traditional)
-3. Extract complete addresses including street numbers
+3. Extract complete addresses including street numbers (REQUIRED - no exceptions)
 4. Include ALL available details (hours, cost, machine model, etc.)
 5. Be thorough - look for booths in tables, lists, paragraphs, maps, embedded data
 6. Extract coordinates if present (latitude/longitude)
@@ -424,24 +424,42 @@ EXTRACTION STRATEGY:
 - Parse map markers and location data
 - Extract from comments or user reports
 
-ADDRESS COMPLETENESS:
-- Always extract full street address with number
-- Include venue/business name if booth is inside
-- Note floor/area within building if mentioned
-- Extract postal codes when present
+ADDRESS COMPLETENESS (CRITICAL):
+- REQUIRED: Always extract full street address with number (e.g., "123 Main Street")
+- REQUIRED: Address must include both street number AND street name
+- REJECT: Do not extract if only venue/business name is available (without street address)
+- REJECT: Do not use business name as address (these cause geocoding failures)
+- Include: Venue/business name if booth is inside (separate from address)
+- Include: Floor/area within building if mentioned
+- Include: Postal codes when present
+- Always verify address includes a number before a street name
+
+GOOD ADDRESS EXAMPLES:
+- "123 Main Street, New York, NY 10001" - GOOD (has street number)
+- "456 Park Avenue, Suite 200, Los Angeles, CA 90001" - GOOD (has street number)
+- "789 Boulevard Saint-Germain, Paris, 75005" - GOOD (has street number)
+- "100 Oxford Street, London, UK" - GOOD (has street number)
+
+BAD ADDRESS EXAMPLES:
+- "The Photo Booth" - BAD (just business name, no street address)
+- "Main Street" - BAD (no street number)
+- "Downtown Brooklyn" - BAD (no specific address)
+- "Somewhere in Manhattan" - BAD (too vague)
+- "The Old Theater" - BAD (venue name, not an address)
 
 QUALITY STANDARDS:
 - Verify each field makes sense
 - Don't hallucinate information not in the content
 - If unsure about operational status, mark as unknown
 - Standardize country names (USA → United States, UK → United Kingdom)
+- If address doesn't have a street number, SKIP that booth entry (don't extract it)
 
 EDGE CASES:
-- If multiple booths at same venue, extract as separate entries
-- If booth has moved, extract only current location
-- If booth is definitively closed/removed, mark status appropriately
+- If multiple booths at same venue, extract as separate entries (each with full street address)
+- If booth has moved, extract only current location (with full street address)
 - If booth is definitively closed/removed, mark status appropriately
 - If content mentions "no longer there", mark inactive
+- If only venue name available without street address, DO NOT EXTRACT
 
 SOURCE-SPECIFIC GUIDANCE:
 - autophoto.org: Often lists simple addresses line-by-line. Treat each line with an address as a booth.

@@ -35,12 +35,36 @@ export function normalizeName(name: string): string {
 }
 
 /**
+ * Check if address contains a street number (required for valid addresses)
+ */
+function hasStreetNumber(address: string | undefined | null): boolean {
+  if (!address) return false;
+  return /\d+\s+[A-Za-z]/.test(address);
+}
+
+/**
  * Finalize booth data with defaults for all required fields
+ *
+ * IMPORTANT: Address handling has been updated to prevent bad data:
+ * - No longer defaults to empty string: `address: booth.address || ''`
+ * - Now defaults to null if missing: `address: booth.address || null`
+ * - Uses venue_name as fallback only if it has a street number
+ * - This prevents business names from entering the system as addresses
  */
 export function finalizeBooth(booth: Partial<BoothData>, sourceName: string): BoothData {
+  // Determine final address - prefer booth.address, fallback to venue_name only if it has a street number
+  let finalAddress: string | null = null;
+
+  if (booth.address && booth.address.trim().length > 0) {
+    finalAddress = booth.address.trim();
+  } else if (booth.venue_name && hasStreetNumber(booth.venue_name)) {
+    // Only use venue_name as fallback if it contains a street number
+    finalAddress = booth.venue_name.trim();
+  }
+
   return {
     name: booth.name || 'Unknown',
-    address: booth.address || '',
+    address: finalAddress, // null if no valid address found
     city: booth.city || '',
     state: booth.state || '',
     country: booth.country || 'Unknown',

@@ -123,6 +123,14 @@ export interface Booth {
   source_urls: string[] | null;
   source_verified_date: string | null;
 
+  // Geocoding metadata
+  geocode_provider: string | null;
+  geocode_confidence: string | null;
+  geocode_match_score: number | null;
+  geocode_validation_issues: string[] | null;
+  geocode_validated_at: string | null;
+  needs_geocode_review: boolean | null;
+
   // Metadata
   created_at: string;
   updated_at: string;
