@@ -434,111 +434,110 @@ export default function AdminPage() {
           {/* Hero Header */}
           <div className="mb-8">
             <h1 className="font-display text-3xl font-semibold text-white mb-1">Admin Dashboard</h1>
-            <p className="text-neutral-400 text-sm">System overview and quick actions</p>
+            <p className="text-neutral-400 text-sm">What would you like to do?</p>
           </div>
 
-          {/* Hero Stats - Large, Actionable Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            {/* Booth Stats */}
-            <Card className="p-6 bg-gradient-to-br from-neutral-800 to-neutral-900 border-neutral-700 hover:border-primary/50 transition-all cursor-pointer">
-              <Link href="/admin/moderation" className="block">
-                <div className="flex items-center justify-between mb-3">
-                  <MapPin className="w-10 h-10 text-primary" />
-                  <div className="text-right">
-                    <div className="text-3xl font-bold text-white">{stats.totalBooths}</div>
-                    <div className="text-xs text-neutral-400">Total Booths</div>
-                  </div>
-                </div>
-                <div className="flex gap-2 mt-3">
-                  <Badge variant="secondary" className="bg-green-900/50 text-green-300 text-xs">
-                    {stats.activeBooths} active
-                  </Badge>
-                  {stats.pendingBooths > 0 && (
-                    <Badge variant="secondary" className="bg-yellow-900/50 text-yellow-300 text-xs">
-                      {stats.pendingBooths} pending
-                    </Badge>
+          {/* Primary Actions - Simple and Clear */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            {/* Run Crawler */}
+            <Card className="p-8 bg-neutral-800 border-neutral-700 hover:border-primary/50 transition-all">
+              <div className="text-center">
+                <Database className="w-16 h-16 text-primary mx-auto mb-4" />
+                <h2 className="font-display text-xl font-semibold text-white mb-2">Run Crawler</h2>
+                <p className="text-neutral-400 text-sm mb-6">
+                  Discover new photo booths from configured sources
+                </p>
+                <Button
+                  size="lg"
+                  className="w-full"
+                  onClick={() => startCrawler()}
+                  disabled={crawlerRunning}
+                >
+                  {crawlerRunning ? (
+                    <>
+                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                      Running...
+                    </>
+                  ) : (
+                    <>
+                      <PlayCircle className="w-5 h-5 mr-2" />
+                      Start Crawler
+                    </>
                   )}
-                </div>
-              </Link>
+                </Button>
+                {crawlerRunning && (
+                  <div className="mt-4 text-xs text-neutral-400">
+                    {currentSource || 'Initializing...'}
+                  </div>
+                )}
+              </div>
             </Card>
 
-            {/* Photos to Review - Alert State */}
-            <Card className={`p-6 border-2 transition-all cursor-pointer ${
+            {/* Enrich Data */}
+            <Card className="p-8 bg-neutral-800 border-neutral-700 hover:border-purple-500/50 transition-all">
+              <div className="text-center">
+                <Zap className="w-16 h-16 text-purple-400 mx-auto mb-4" />
+                <h2 className="font-display text-xl font-semibold text-white mb-2">Enrich Data</h2>
+                <p className="text-neutral-400 text-sm mb-6">
+                  Add venue info, photos, and AI-generated content
+                </p>
+                <Link href="/admin/enrichment">
+                  <Button size="lg" className="w-full bg-purple-600 hover:bg-purple-700">
+                    <Zap className="w-5 h-5 mr-2" />
+                    Open Enrichment
+                  </Button>
+                </Link>
+              </div>
+            </Card>
+
+            {/* Moderate Content */}
+            <Card className={`p-8 border-2 transition-all ${
               stats.pendingPhotos > 0
-                ? 'bg-gradient-to-br from-amber-900/30 to-red-900/30 border-amber-500/50 hover:border-amber-400'
-                : 'bg-gradient-to-br from-neutral-800 to-neutral-900 border-neutral-700'
+                ? 'bg-amber-900/20 border-amber-500/50 hover:border-amber-400'
+                : 'bg-neutral-800 border-neutral-700 hover:border-accent/50'
             }`}>
-              <Link href="/admin/moderation">
-                <div className="flex items-center justify-between mb-3">
-                  <Image className="w-10 h-10 text-amber-400" alt="" />
-                  <div className="text-right">
-                    <div className="text-3xl font-bold text-white">{stats.pendingPhotos}</div>
-                    <div className="text-xs text-neutral-400">Photos to Review</div>
-                  </div>
-                </div>
-                {stats.pendingPhotos > 0 ? (
-                  <Badge className="bg-amber-500 text-white w-full justify-center mt-3">
-                    <AlertCircle className="w-3 h-3 mr-1" />
-                    Action Required
-                  </Badge>
-                ) : (
-                  <Badge variant="secondary" className="bg-green-900/50 text-green-300 w-full justify-center mt-3">
-                    <CheckCircle className="w-3 h-3 mr-1" />
-                    All Clear
-                  </Badge>
-                )}
-              </Link>
-            </Card>
-
-            {/* Crawler Status */}
-            <Card className={`p-6 border-2 transition-all ${
-              crawlerRunning
-                ? 'bg-gradient-to-br from-blue-900/30 to-purple-900/30 border-blue-500/50 animate-pulse'
-                : crawlerState === 'error'
-                ? 'bg-gradient-to-br from-red-900/30 to-neutral-900 border-red-500/50'
-                : 'bg-gradient-to-br from-neutral-800 to-neutral-900 border-neutral-700'
-            }`}>
-              <div className="flex items-center justify-between mb-3">
-                {crawlerRunning ? (
-                  <Activity className="w-10 h-10 text-blue-400 animate-pulse" />
-                ) : (
-                  <Database className="w-10 h-10 text-neutral-400" />
-                )}
-                <div className="text-right">
-                  <div className="text-2xl font-bold text-white">
-                    {crawlerRunning ? 'RUNNING' : 'IDLE'}
-                  </div>
-                  <div className="text-xs text-neutral-400">Crawler Status</div>
-                </div>
+              <div className="text-center">
+                <Eye className="w-16 h-16 text-amber-400 mx-auto mb-4" />
+                <h2 className="font-display text-xl font-semibold text-white mb-2">Moderate Content</h2>
+                <p className="text-neutral-400 text-sm mb-6">
+                  Review photos, manage users, and moderate content
+                </p>
+                <Link href="/admin/moderation">
+                  <Button
+                    size="lg"
+                    className={`w-full ${stats.pendingPhotos > 0 ? 'bg-amber-600 hover:bg-amber-700' : ''}`}
+                  >
+                    <Eye className="w-5 h-5 mr-2" />
+                    {stats.pendingPhotos > 0 ? `Review ${stats.pendingPhotos} Photos` : 'Open Moderation'}
+                  </Button>
+                </Link>
               </div>
-              <div className="text-xs text-neutral-400 mt-3">
-                {crawlerRunning ? (
-                  <span className="flex items-center gap-1">
-                    <Loader2 className="w-3 h-3 animate-spin" />
-                    {currentSource || 'Processing...'}
-                  </span>
-                ) : (
-                  `Last run: ${crawlerMetrics.lastRun}`
-                )}
-              </div>
-            </Card>
-
-            {/* Users */}
-            <Card className="p-6 bg-gradient-to-br from-neutral-800 to-neutral-900 border-neutral-700 hover:border-accent/50 transition-all cursor-pointer">
-              <Link href="/admin/moderation">
-                <div className="flex items-center justify-between mb-3">
-                  <Users className="w-10 h-10 text-accent" />
-                  <div className="text-right">
-                    <div className="text-3xl font-bold text-white">{stats.totalUsers}</div>
-                    <div className="text-xs text-neutral-400">Users</div>
-                  </div>
-                </div>
-                <div className="text-xs text-neutral-400 mt-3">
-                  {stats.totalReviews} reviews total
-                </div>
-              </Link>
             </Card>
           </div>
+
+          {/* Quick Stats Bar */}
+          <Card className="p-4 bg-neutral-800 border-neutral-700 mb-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+              <div>
+                <div className="text-2xl font-bold text-white">{stats.totalBooths}</div>
+                <div className="text-xs text-neutral-400">Total Booths</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-white">{stats.totalUsers}</div>
+                <div className="text-xs text-neutral-400">Users</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-white">{crawlerMetrics.crawledToday}</div>
+                <div className="text-xs text-neutral-400">Crawled Today</div>
+              </div>
+              <div>
+                <div className={`text-2xl font-bold ${stats.pendingPhotos > 0 ? 'text-amber-400' : 'text-white'}`}>
+                  {stats.pendingPhotos}
+                </div>
+                <div className="text-xs text-neutral-400">Pending Review</div>
+              </div>
+            </div>
+          </Card>
 
           {/* Tabs Navigation */}
           <Tabs defaultValue="overview" className="w-full">
