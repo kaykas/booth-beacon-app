@@ -441,7 +441,7 @@ export default function AdminPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             {/* Booth Stats */}
             <Card className="p-6 bg-gradient-to-br from-neutral-800 to-neutral-900 border-neutral-700 hover:border-primary/50 transition-all cursor-pointer">
-              <Link href="/admin/booths" className="block">
+              <Link href="/admin/moderation" className="block">
                 <div className="flex items-center justify-between mb-3">
                   <MapPin className="w-10 h-10 text-primary" />
                   <div className="text-right">
@@ -468,7 +468,7 @@ export default function AdminPage() {
                 ? 'bg-gradient-to-br from-amber-900/30 to-red-900/30 border-amber-500/50 hover:border-amber-400'
                 : 'bg-gradient-to-br from-neutral-800 to-neutral-900 border-neutral-700'
             }`}>
-              <Link href="/admin#moderation">
+              <Link href="/admin/moderation">
                 <div className="flex items-center justify-between mb-3">
                   <Image className="w-10 h-10 text-amber-400" alt="" />
                   <div className="text-right">
@@ -525,7 +525,7 @@ export default function AdminPage() {
 
             {/* Users */}
             <Card className="p-6 bg-gradient-to-br from-neutral-800 to-neutral-900 border-neutral-700 hover:border-accent/50 transition-all cursor-pointer">
-              <Link href="/admin#moderation">
+              <Link href="/admin/moderation">
                 <div className="flex items-center justify-between mb-3">
                   <Users className="w-10 h-10 text-accent" />
                   <div className="text-right">
