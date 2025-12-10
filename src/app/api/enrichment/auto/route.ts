@@ -171,6 +171,18 @@ async function enrichBooth(boothId: string): Promise<EnrichmentResult> {
 }
 
 export async function POST(request: NextRequest) {
+  // DISABLED: Auto-enrichment disabled until data quality issues are resolved
+  // This endpoint should only be manually triggered from admin panel after verification
+  return NextResponse.json(
+    {
+      error: 'Auto-enrichment is currently disabled. Use manual enrichment from /admin/enrichment instead.',
+      disabled: true
+    },
+    { status: 503 }
+  );
+
+  // Original code preserved below for re-enabling after data quality fixes
+  /*
   try {
     const body: EnrichmentRequest = await request.json();
     const { boothIds } = body;
@@ -211,4 +223,5 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+  */
 }
