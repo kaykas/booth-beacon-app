@@ -1,0 +1,418 @@
+[
+  {
+    "id": "dfa2bf6f-fcf7-4b87-8516-8d16e49cb1be",
+    "name": "Adelaide Arcade",
+    "city": "Adelaide",
+    "oldCountry": "United States",
+    "newCountry": "Australia",
+    "coordinatesCleared": true
+  },
+  {
+    "id": "71d2e6fb-0ce8-47a1-9843-a0301c1e1a1e",
+    "name": "Art Gallery of South Australia",
+    "city": "Adelaide",
+    "oldCountry": "United States",
+    "newCountry": "Australia",
+    "coordinatesCleared": true
+  },
+  {
+    "id": "bf6f577c-7f8f-4944-9270-52364cbb9921",
+    "name": "Myer Centre Adelaide II",
+    "city": "Adelaide",
+    "oldCountry": "United States",
+    "newCountry": "Australia",
+    "coordinatesCleared": true
+  },
+  {
+    "id": "0859cb26-0c22-4f01-9017-9daad62d7fe9",
+    "name": "Myer Centre Adelaide I",
+    "city": "Adelaide",
+    "oldCountry": "United States",
+    "newCountry": "Australia",
+    "coordinatesCleared": true
+  },
+  {
+    "id": "a98fc792-40d4-49fb-a040-3215e876a667",
+    "name": "Saturn",
+    "city": "Birmingham",
+    "oldCountry": "USA",
+    "newCountry": "UK",
+    "coordinatesCleared": true
+  },
+  {
+    "id": "fe31bc33-2e54-4fb1-8bc6-737532f3d53c",
+    "name": "Saturn",
+    "city": "Birmingham",
+    "oldCountry": "USA",
+    "newCountry": "UK",
+    "coordinatesCleared": true
+  },
+  {
+    "id": "61eecd01-bf0b-4d74-b145-fb7f512b1547",
+    "name": "Saturn",
+    "city": "Birmingham",
+    "oldCountry": "USA",
+    "newCountry": "UK",
+    "coordinatesCleared": true
+  },
+  {
+    "id": "83fabe2d-bc0c-4313-9c4d-e1cd8ac51534",
+    "name": "Mom's Basement",
+    "city": "Birmingham",
+    "oldCountry": "USA",
+    "newCountry": "UK",
+    "coordinatesCleared": true
+  },
+  {
+    "id": "20854a81-e9fb-4b67-afd0-1c9ca578ddbc",
+    "name": "Beyond Retro",
+    "city": "Brighton",
+    "oldCountry": "United States",
+    "newCountry": "UK",
+    "coordinatesCleared": true
+  },
+  {
+    "id": "ffc7097d-1802-4e6c-b6f0-60ba20b5f879",
+    "name": "Pink-O-Mat",
+    "city": "Dresden",
+    "oldCountry": "United States",
+    "newCountry": "Germany",
+    "coordinatesCleared": true
+  },
+  {
+    "id": "98d55ff7-eaf8-4dcb-91c4-f544fe06245e",
+    "name": "Stills Centre for Photography",
+    "city": "Edinburgh",
+    "oldCountry": "United States",
+    "newCountry": "UK",
+    "coordinatesCleared": true
+  },
+  {
+    "id": "a9f334a0-7212-4d3b-9864-e1c089a510a4",
+    "name": "Stills Centre for Photography",
+    "city": "Edinburgh",
+    "oldCountry": "United Kingdom",
+    "newCountry": "UK",
+    "coordinatesCleared": true
+  },
+  {
+    "id": "b82f6a20-9fa4-43fd-8a49-20431335c00f",
+    "name": "Edmonton City Centre",
+    "city": "Edmonton",
+    "oldCountry": "United States",
+    "newCountry": "Canada",
+    "coordinatesCleared": true
+  },
+  {
+    "id": "3f406edf-9040-42ce-bd27-351962c5664f",
+    "name": "Bonnie Doon Shopping Centre",
+    "city": "Edmonton",
+    "oldCountry": "United States",
+    "newCountry": "Canada",
+    "coordinatesCleared": true
+  },
+  {
+    "id": "0bed9017-f2b3-4a22-bd9d-740835543b00",
+    "name": "Mill Woods Town Centre",
+    "city": "Edmonton",
+    "oldCountry": "United States",
+    "newCountry": "Canada",
+    "coordinatesCleared": true
+  },
+  {
+    "id": "b5ca6c13-a7f6-4742-bdde-0bbfb2a2448d",
+    "name": "West Edmonton Mall II",
+    "city": "Edmonton",
+    "oldCountry": "United States",
+    "newCountry": "Canada",
+    "coordinatesCleared": true
+  },
+  {
+    "id": "4401e431-a825-404a-ba2f-af71deac6340",
+    "name": "West Edmonton Mall III",
+    "city": "Edmonton",
+    "oldCountry": "United States",
+    "newCountry": "Canada",
+    "coordinatesCleared": true
+  },
+  {
+    "id": "00cae525-629f-4ffb-8748-b2356b729c91",
+    "name": "West Edmonton Mall IV",
+    "city": "Edmonton",
+    "oldCountry": "United States",
+    "newCountry": "Canada",
+    "coordinatesCleared": true
+  },
+  {
+    "id": "dd5686b1-88c6-4652-80b0-c2993719d2e0",
+    "name": "Greyhound Bus Station",
+    "city": "Edmonton",
+    "oldCountry": "United States",
+    "newCountry": "Canada",
+    "coordinatesCleared": true
+  },
+  {
+    "id": "5ec38d93-b570-4753-9c06-64878e9dfecd",
+    "name": "West Edmonton Mall V",
+    "city": "Edmonton",
+    "oldCountry": "United States",
+    "newCountry": "Canada",
+    "coordinatesCleared": true
+  },
+  {
+    "id": "d03501fe-31ce-4943-a9c0-0a0401f890b3",
+    "name": "West Edmonton Mall I",
+    "city": "Edmonton",
+    "oldCountry": "United States",
+    "newCountry": "Canada",
+    "coordinatesCleared": true
+  },
+  {
+    "id": "1fe8090d-6ed3-4ea7-bc1f-936b69943a3c",
+    "name": "West Edmonton Mall VI",
+    "city": "Edmonton",
+    "oldCountry": "United States",
+    "newCountry": "Canada",
+    "coordinatesCleared": true
+  },
+  {
+    "id": "1426e721-3c5f-4c40-97c0-964ce5179ac7",
+    "name": "Via dell'Agnolo",
+    "city": "Florence",
+    "oldCountry": "ITA",
+    "newCountry": "Italy",
+    "coordinatesCleared": true
+  },
+  {
+    "id": "11bc0bfd-1c96-48f6-9544-97263eda393c",
+    "name": "Westwerk",
+    "city": "Leipzig",
+    "oldCountry": "United States",
+    "newCountry": "Germany",
+    "coordinatesCleared": true
+  },
+  {
+    "id": "85812c1c-9a11-4a2b-8ce3-95686d1863a8",
+    "name": "The Hoxton Shoreditch",
+    "city": "London",
+    "oldCountry": "United Kingdom",
+    "newCountry": "UK",
+    "coordinatesCleared": true
+  },
+  {
+    "id": "96555b8a-7151-41aa-acc0-866a1862b815",
+    "name": "The Hoxton Holborn",
+    "city": "London",
+    "oldCountry": "United Kingdom",
+    "newCountry": "UK",
+    "coordinatesCleared": true
+  },
+  {
+    "id": "12c09f69-f693-4919-83a2-8353ade588e6",
+    "name": "The Breakfast Club Canary Wharf",
+    "city": "London",
+    "oldCountry": "United Kingdom",
+    "newCountry": "UK",
+    "coordinatesCleared": true
+  },
+  {
+    "id": "7bf99d9f-df27-4e32-b7dd-9d7c4b5e0ed2",
+    "name": "The Hoxton Holborn",
+    "city": "London",
+    "oldCountry": "United Kingdom",
+    "newCountry": "UK",
+    "coordinatesCleared": true
+  },
+  {
+    "id": "199ea93c-b6d8-4a3a-8e2b-26dab8e04310",
+    "name": "Whitechapel Gallery",
+    "city": "London",
+    "oldCountry": "United Kingdom",
+    "newCountry": "UK",
+    "coordinatesCleared": true
+  },
+  {
+    "id": "950bc780-c574-4b24-9cb8-51a5678c3dbd",
+    "name": "Classic Football Shirts",
+    "city": "London",
+    "oldCountry": "United Kingdom",
+    "newCountry": "UK",
+    "coordinatesCleared": true
+  },
+  {
+    "id": "f9515dd9-7803-42e0-841e-76138f251aa9",
+    "name": "The Standard",
+    "city": "London",
+    "oldCountry": "United Kingdom",
+    "newCountry": "UK",
+    "coordinatesCleared": true
+  },
+  {
+    "id": "38314f76-31de-41c6-9a0b-e763a52a4afd",
+    "name": "Tate Modern",
+    "city": "London",
+    "oldCountry": "United Kingdom",
+    "newCountry": "UK",
+    "coordinatesCleared": true
+  },
+  {
+    "id": "7bb9dab1-587b-4ea8-a1a1-809f2272d326",
+    "name": "Waterstones",
+    "city": "London",
+    "oldCountry": "United Kingdom",
+    "newCountry": "UK",
+    "coordinatesCleared": true
+  },
+  {
+    "id": "f2f11bee-7c83-4350-bd34-0b15a98e5740",
+    "name": "The Standard",
+    "city": "London",
+    "oldCountry": "United Kingdom",
+    "newCountry": "UK",
+    "coordinatesCleared": true
+  },
+  {
+    "id": "2d55d216-48a0-402c-95a3-eba13b77189e",
+    "name": "Coal Drops Yard",
+    "city": "London",
+    "oldCountry": "United Kingdom",
+    "newCountry": "UK",
+    "coordinatesCleared": true
+  },
+  {
+    "id": "bd85bb25-da0e-4f60-8655-abb182a43d7f",
+    "name": "Hackney Bridge",
+    "city": "London",
+    "oldCountry": "United Kingdom",
+    "newCountry": "UK",
+    "coordinatesCleared": true
+  },
+  {
+    "id": "b6b7be71-7a1a-43f8-aa9f-0a3d33f3dc61",
+    "name": "Tate Modern",
+    "city": "London",
+    "oldCountry": "United Kingdom",
+    "newCountry": "UK",
+    "coordinatesCleared": true
+  },
+  {
+    "id": "556ef6f0-91df-4275-8500-28fe676f14f7",
+    "name": "R&eacute;alisation Par London",
+    "city": "London",
+    "oldCountry": "United Kingdom",
+    "newCountry": "UK",
+    "coordinatesCleared": true
+  },
+  {
+    "id": "19cb77c8-0356-43f2-888d-8b77f1ba0a7d",
+    "name": "The Cinema at Selfridges",
+    "city": "London",
+    "oldCountry": "United Kingdom",
+    "newCountry": "UK",
+    "coordinatesCleared": true
+  },
+  {
+    "id": "ab0c8b2f-305b-40a5-b216-a029edf5b1a6",
+    "name": "The Hoxton Holborn",
+    "city": "London",
+    "oldCountry": "United Kingdom",
+    "newCountry": "UK",
+    "coordinatesCleared": true
+  },
+  {
+    "id": "4efefac8-b71d-47de-94a1-b94eaeb4308a",
+    "name": "Battersea Power Station",
+    "city": "London",
+    "oldCountry": "United Kingdom",
+    "newCountry": "UK",
+    "coordinatesCleared": true
+  },
+  {
+    "id": "ecc3a15c-232b-4697-9dc7-234bd0e488bf",
+    "name": "Pizza East Shoreditch",
+    "city": "London",
+    "oldCountry": "United Kingdom",
+    "newCountry": "UK",
+    "coordinatesCleared": true
+  },
+  {
+    "id": "9d220dcb-de09-4e4d-a84c-49a89a5fc945",
+    "name": "Cargo",
+    "city": "London",
+    "oldCountry": "United Kingdom",
+    "newCountry": "UK",
+    "coordinatesCleared": true
+  },
+  {
+    "id": "0d377792-78a9-40dc-bca8-2a209440dd22",
+    "name": "Ace Hotel London Shoreditch",
+    "city": "London",
+    "oldCountry": "United Kingdom",
+    "newCountry": "UK",
+    "coordinatesCleared": true
+  },
+  {
+    "id": "9507dacf-de0d-4579-89f8-82af0230b158",
+    "name": "Whitechapel Gallery",
+    "city": "London",
+    "oldCountry": "United Kingdom",
+    "newCountry": "UK",
+    "coordinatesCleared": true
+  },
+  {
+    "id": "5e13bfbe-b502-40d6-9b5d-46e9e94ce3bd",
+    "name": "Mercato Metropolitano",
+    "city": "London",
+    "oldCountry": "United Kingdom",
+    "newCountry": "UK",
+    "coordinatesCleared": true
+  },
+  {
+    "id": "ebb163ef-6462-4477-b1e3-4fc9f0974fd9",
+    "name": "The Cinema at Selfridges",
+    "city": "London",
+    "oldCountry": "United Kingdom",
+    "newCountry": "UK",
+    "coordinatesCleared": true
+  },
+  {
+    "id": "85ea61dd-e519-435d-9939-7baf6c861d13",
+    "name": "Fred Aldous II",
+    "city": "Manchester",
+    "oldCountry": "United Kingdom",
+    "newCountry": "UK",
+    "coordinatesCleared": true
+  },
+  {
+    "id": "b2840036-dbea-4fd6-abd9-a03f725e98c9",
+    "name": "Fred Aldous",
+    "city": "Manchester",
+    "oldCountry": "United Kingdom",
+    "newCountry": "UK",
+    "coordinatesCleared": true
+  },
+  {
+    "id": "5e41327f-1f90-44cd-99f7-1915dd6cb4c8",
+    "name": "Flinders Street Station II",
+    "city": "Melbourne",
+    "oldCountry": "United States",
+    "newCountry": "Australia",
+    "coordinatesCleared": true
+  },
+  {
+    "id": "6bd37e62-a04b-4401-b2f0-bf72874c971e",
+    "name": "Flinders Street Station I",
+    "city": "Melbourne",
+    "oldCountry": "United States",
+    "newCountry": "Australia",
+    "coordinatesCleared": true
+  },
+  {
+    "id": "cf95afeb-bcd4-4861-8c8a-c98d8107df66",
+    "name": "John Curtin Hotel",
+    "city": "Melbourne",
+    "oldCountry": "United States",
+    "newCountry": "Australia",
+    "coordinatesCleared": true
+  }
+]

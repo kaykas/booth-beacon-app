@@ -1,13 +1,8 @@
 #!/usr/bin/env npx tsx
 
-/**
- * Fix country data for international booths
- *
- * Corrects country field for booths that are clearly in other countries
- */
-
 import * as dotenv from 'dotenv';
 import { createClient } from '@supabase/supabase-js';
+import * as fs from 'fs';
 
 dotenv.config({ path: '.env.local' });
 
@@ -21,81 +16,179 @@ if (!SUPABASE_KEY) {
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// Map of cities to correct countries
+// City to country mapping for known cities
 const CITY_COUNTRY_MAP: Record<string, string> = {
-  // Canada
-  'toronto': 'Canada',
-  'montreal': 'Canada',
-  'vancouver': 'Canada',
-  'calgary': 'Canada',
-  'ottawa': 'Canada',
-  'new glasgow': 'Canada',
-
   // UK
-  'london': 'United Kingdom',
-  'manchester': 'United Kingdom',
-  'glasgow': 'United Kingdom',
-  'liverpool': 'United Kingdom',
-  'birmingham': 'United Kingdom',
+  'London': 'UK',
+  'Brighton': 'UK',
+  'Manchester': 'UK',
+  'Edinburgh': 'UK',
+  'Glasgow': 'UK',
+  'Liverpool': 'UK',
+  'Bristol': 'UK',
+  'Leeds': 'UK',
+  'Birmingham': 'UK',
 
   // Germany
-  'berlin': 'Germany',
-  'munich': 'Germany',
-  'hamburg': 'Germany',
-  'cologne': 'Germany',
-  'frankfurt': 'Germany',
-
-  // Austria
-  'vienna': 'Austria',
-  'salzburg': 'Austria',
+  'Berlin': 'Germany',
+  'Munich': 'Germany',
+  'Hamburg': 'Germany',
+  'Cologne': 'Germany',
+  'Köln': 'Germany',
+  'Frankfurt': 'Germany',
+  'Stuttgart': 'Germany',
+  'Düsseldorf': 'Germany',
+  'Dortmund': 'Germany',
+  'Essen': 'Germany',
+  'Leipzig': 'Germany',
+  'Bremen': 'Germany',
+  'Dresden': 'Germany',
+  'Hannover': 'Germany',
+  'Nuremberg': 'Germany',
+  'Nürnberg': 'Germany',
 
   // France
-  'paris': 'France',
-  'lyon': 'France',
-  'marseille': 'France',
+  'Paris': 'France',
+  'Marseille': 'France',
+  'Lyon': 'France',
+  'Toulouse': 'France',
+  'Nice': 'France',
+  'Nantes': 'France',
+  'Strasbourg': 'France',
+  'Montpellier': 'France',
+  'Bordeaux': 'France',
 
-  // Italy
-  'rome': 'Italy',
-  'milan': 'Italy',
-  'florence': 'Italy',
+  // Australia
+  'Sydney': 'Australia',
+  'Melbourne': 'Australia',
+  'Brisbane': 'Australia',
+  'Perth': 'Australia',
+  'Adelaide': 'Australia',
+  'Canberra': 'Australia',
+  'Hobart': 'Australia',
+  'Darwin': 'Australia',
 
-  // Latvia
-  'riga': 'Latvia',
-
-  // Spain
-  'madrid': 'Spain',
-  'barcelona': 'Spain',
-
-  // Sweden
-  'stockholm': 'Sweden',
-  'gothenburg': 'Sweden',
-  'malmö': 'Sweden',
-  'malmo': 'Sweden',
-
-  // Czech Republic
-  'prague': 'Czech Republic',
-  'praha': 'Czech Republic',
+  // Canada
+  'Toronto': 'Canada',
+  'Vancouver': 'Canada',
+  'Montreal': 'Canada',
+  'Calgary': 'Canada',
+  'Ottawa': 'Canada',
+  'Edmonton': 'Canada',
+  'Quebec City': 'Canada',
+  'Winnipeg': 'Canada',
+  'Hamilton': 'Canada',
 
   // Netherlands
-  'amsterdam': 'Netherlands',
-  'rotterdam': 'Netherlands',
+  'Amsterdam': 'Netherlands',
+  'Rotterdam': 'Netherlands',
+  'The Hague': 'Netherlands',
+  'Utrecht': 'Netherlands',
 
   // Belgium
-  'brussels': 'Belgium',
-  'antwerp': 'Belgium',
+  'Brussels': 'Belgium',
+  'Antwerp': 'Belgium',
+  'Ghent': 'Belgium',
+
+  // Italy
+  'Rome': 'Italy',
+  'Milan': 'Italy',
+  'Naples': 'Italy',
+  'Turin': 'Italy',
+  'Florence': 'Italy',
+  'Venice': 'Italy',
+
+  // Spain
+  'Madrid': 'Spain',
+  'Barcelona': 'Spain',
+  'Valencia': 'Spain',
+  'Seville': 'Spain',
+
+  // Austria
+  'Vienna': 'Austria',
+  'Salzburg': 'Austria',
+  'Innsbruck': 'Austria',
+
+  // Switzerland
+  'Zurich': 'Switzerland',
+  'Geneva': 'Switzerland',
+  'Basel': 'Switzerland',
+  'Bern': 'Switzerland',
+
+  // Japan
+  'Tokyo': 'Japan',
+  'Osaka': 'Japan',
+  'Kyoto': 'Japan',
+  'Yokohama': 'Japan',
+
+  // New Zealand
+  'Auckland': 'New Zealand',
+  'Wellington': 'New Zealand',
+  'Christchurch': 'New Zealand',
 };
 
-async function run() {
-  console.log('='.repeat(80));
-  console.log('FIXING COUNTRY DATA');
-  console.log('='.repeat(80));
-  console.log('');
+interface Booth {
+  id: string;
+  name: string;
+  city: string | null;
+  country: string | null;
+  latitude: number | null;
+  longitude: number | null;
+}
 
-  // Fetch all booths with country="United States" or country ILIKE 'united states'
+interface FixLog {
+  id: string;
+  name: string;
+  city: string;
+  oldCountry: string;
+  newCountry: string;
+  coordinatesCleared: boolean;
+}
+
+function detectCountry(city: string | null): string | null {
+  if (!city) return null;
+
+  // Try exact match first
+  if (CITY_COUNTRY_MAP[city]) {
+    return CITY_COUNTRY_MAP[city];
+  }
+
+  // Try case-insensitive match
+  const cityLower = city.toLowerCase();
+  for (const [mapCity, country] of Object.entries(CITY_COUNTRY_MAP)) {
+    if (mapCity.toLowerCase() === cityLower) {
+      return country;
+    }
+  }
+
+  return null;
+}
+
+function needsCountryFix(booth: Booth): boolean {
+  if (!booth.city) return false;
+
+  const detectedCountry = detectCountry(booth.city);
+  if (!detectedCountry) return false;
+
+  // Normalize current country
+  const currentCountry = booth.country?.trim();
+  if (!currentCountry) return true; // Missing country
+
+  // Check if current country is wrong
+  const currentNormalized = currentCountry === 'United States' ? 'USA' : currentCountry;
+  const detectedNormalized = detectedCountry === 'United States' ? 'USA' : detectedCountry;
+
+  return currentNormalized !== detectedNormalized;
+}
+
+async function run() {
+  console.log('🔍 Scanning for booths with incorrect country data...\n');
+
+  // Fetch all booths
   const { data: booths, error } = await supabase
     .from('booths')
-    .select('id, name, city, state, country')
-    .ilike('country', '%united states%');
+    .select('id, name, city, country, latitude, longitude')
+    .order('city');
 
   if (error) {
     console.error('Error fetching booths:', error);
@@ -103,61 +196,105 @@ async function run() {
   }
 
   if (!booths || booths.length === 0) {
-    console.log('No booths found with United States country');
+    console.log('No booths found');
     return;
   }
 
-  console.log(`Checking ${booths.length} booths...\n`);
+  console.log(`Found ${booths.length} total booths\n`);
 
-  let fixed = 0;
-  let skipped = 0;
+  // Find booths needing fixes
+  const boothsToFix: Booth[] = [];
+  const fixes: FixLog[] = [];
 
   for (const booth of booths) {
-    const city = (booth.city || '').toLowerCase().trim();
-
-    // Check if city is in our map
-    const correctCountry = CITY_COUNTRY_MAP[city];
-
-    if (correctCountry) {
-      console.log(`Fixing: ${booth.name}`);
-      console.log(`   City: ${booth.city}`);
-      console.log(`   Old Country: ${booth.country}`);
-      console.log(`   New Country: ${correctCountry}`);
-
-      const { error: updateError } = await supabase
-        .from('booths')
-        .update({
-          country: correctCountry,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', booth.id);
-
-      if (updateError) {
-        console.log(`   ❌ Failed: ${updateError.message}`);
-      } else {
-        console.log(`   ✅ Fixed`);
-        fixed++;
-      }
-      console.log('');
-    } else {
-      // Check if it's actually a US city (has a state)
-      if (booth.state && booth.state.length === 2) {
-        skipped++;
-      } else {
-        console.log(`⚠️  Unknown city: ${booth.city} - Keeping as United States`);
-        skipped++;
-      }
+    if (needsCountryFix(booth)) {
+      boothsToFix.push(booth);
     }
   }
 
+  console.log(`Found ${boothsToFix.length} booths with incorrect country data\n`);
+
+  if (boothsToFix.length === 0) {
+    console.log('✅ No fixes needed!');
+    return;
+  }
+
+  // Apply fixes
+  let successCount = 0;
+  let errorCount = 0;
+
+  for (const booth of boothsToFix) {
+    const detectedCountry = detectCountry(booth.city);
+    if (!detectedCountry) continue;
+
+    const oldCountry = booth.country || '(missing)';
+
+    // Clear coordinates if they exist (they're likely wrong)
+    const coordinatesCleared = booth.latitude !== null || booth.longitude !== null;
+
+    console.log(`Fixing: ${booth.name} (${booth.city})`);
+    console.log(`  ${oldCountry} → ${detectedCountry}`);
+    if (coordinatesCleared) {
+      console.log(`  Clearing coordinates: (${booth.latitude}, ${booth.longitude})`);
+    }
+
+    const { error: updateError } = await supabase
+      .from('booths')
+      .update({
+        country: detectedCountry,
+        latitude: null,
+        longitude: null,
+      })
+      .eq('id', booth.id);
+
+    if (updateError) {
+      console.error(`  ❌ Error: ${updateError.message}`);
+      errorCount++;
+    } else {
+      console.log(`  ✅ Fixed`);
+      successCount++;
+
+      fixes.push({
+        id: booth.id,
+        name: booth.name,
+        city: booth.city || '',
+        oldCountry,
+        newCountry: detectedCountry,
+        coordinatesCleared,
+      });
+    }
+    console.log('');
+  }
+
+  // Save log
+  const logPath = '/Users/jkw/Projects/booth-beacon-app/country-fix-log.json';
+  fs.writeFileSync(logPath, JSON.stringify(fixes, null, 2));
+
+  console.log('═══════════════════════════════════════');
+  console.log(`✅ Successfully fixed: ${successCount} booths`);
+  console.log(`❌ Errors: ${errorCount} booths`);
+  console.log(`📝 Log saved to: ${logPath}`);
+  console.log('═══════════════════════════════════════\n');
+
+  // Summary by country
+  const countryCounts: Record<string, number> = {};
+  for (const fix of fixes) {
+    countryCounts[fix.newCountry] = (countryCounts[fix.newCountry] || 0) + 1;
+  }
+
+  console.log('Booths fixed by country:');
+  for (const [country, count] of Object.entries(countryCounts).sort((a, b) => b[1] - a[1])) {
+    console.log(`  ${country}: ${count}`);
+  }
   console.log('');
-  console.log('='.repeat(80));
-  console.log(`✅ Fixed: ${fixed}`);
-  console.log(`⊘ Skipped: ${skipped}`);
-  console.log('='.repeat(80));
+
+  console.log('⚠️  Next steps:');
+  console.log('1. Review country-fix-log.json to verify changes');
+  console.log('2. Re-geocode affected booths with correct country data');
+  console.log('3. Run audit again to verify fixes');
 }
 
 run().catch(error => {
-  console.error('FATAL ERROR:', error);
+  console.error('Fatal error:', error);
   process.exit(1);
 });
