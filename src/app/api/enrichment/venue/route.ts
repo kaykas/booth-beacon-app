@@ -440,6 +440,20 @@ async function processBooth(booth: BoothQualityData, log: (event: LogEvent) => v
 }
 
 export async function GET(request: NextRequest) {
+  // DISABLED: Venue enrichment disabled until data quality issues are resolved
+  // This endpoint was causing Places API cost explosion
+  return new Response(
+    JSON.stringify({
+      error: 'Venue enrichment is currently disabled due to data quality issues. Manual enrichment only.',
+      disabled: true
+    }),
+    {
+      status: 503,
+      headers: { 'Content-Type': 'application/json' }
+    }
+  );
+
+  /* ORIGINAL CODE - PRESERVED FOR RE-ENABLING AFTER DATA FIX
   const { searchParams } = new URL(request.url);
   const batchSize = parseInt(searchParams.get('batchSize') || '25');
 
