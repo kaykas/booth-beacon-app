@@ -932,6 +932,7 @@ async function processSource(
             source.source_name,
             source.extractor_type,
             anthropicApiKey,
+            firecrawl,
             (event) => sendProgressEvent({
               ...event,
               page_index: pageIndex + 1,
@@ -1070,7 +1071,8 @@ async function processSource(
         source.source_url,
         source.source_name,
         source.extractor_type,
-        anthropicApiKey
+        anthropicApiKey,
+        firecrawl
       );
     }
 
@@ -1097,12 +1099,18 @@ async function processSource(
       const normalizedName = normalizeName(booth.name);
       const normalizedCity = booth.city ? normalizeName(booth.city) : null;
 
-      const { data: existing } = await supabase
+      // Build query without country filter to avoid NULL/empty string mismatches
+      let existingQuery = supabase
         .from("booths")
         .select("id, source_names, source_urls")
-        .eq("country", booth.country)
-        .ilike("name", `%${normalizedName}%`)
-        .maybeSingle();
+        .ilike("name", `%${normalizedName}%`);
+
+      // Only add country filter if booth has a country
+      if (booth.country) {
+        existingQuery = existingQuery.eq("country", booth.country);
+      }
+
+      const { data: existing } = await existingQuery.maybeSingle();
 
       const boothData = {
         name: booth.name,
@@ -1115,7 +1123,7 @@ async function processSource(
         longitude: booth.longitude,
         machine_model: booth.machine_model,
         machine_manufacturer: booth.machine_manufacturer,
-        type: booth.booth_type || 'analog',
+        booth_type: booth.booth_type || 'analog',
         cost: booth.cost,
         hours: booth.hours,
         is_operational: booth.is_operational ?? true,
@@ -1151,16 +1159,29 @@ async function processSource(
         if (!updateError) updated++;
       } else {
         // Insert new booth
+        // Generate slug for new booth
+        const slug = `${booth.name}-${booth.city || 'unknown'}`
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-|-$/g, '')
+          .substring(0, 60);
+
         const { error: insertError } = await supabase
           .from("booths")
           .insert({
             ...boothData,
+            slug,
             source_names: [source.source_name],
             source_urls: [booth.source_url],
             source_id: source.id,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
           });
 
         if (!insertError) added++;
+        else {
+          console.error(`Failed to insert booth ${booth.name}:`, insertError);
+        }
       }
 
       // Small delay to avoid rate limiting
@@ -1273,6 +1294,124 @@ async function processSource(
 
 
 /**
+ * Extract booth data using Firecrawl Agent API
+ * The Agent autonomously navigates the site and extracts structured data
+ * Uses direct API call since SDK doesn't support Agent in Deno environment
+ */
+async function extractWithAgent(
+  firecrawl: any,
+  sourceUrl: string,
+  sourceName: string,
+  onProgress?: (event: any) => void
+): Promise<ExtractorResult> {
+  const startTime = Date.now();
+
+  try {
+    console.log(`🤖 Using Agent extraction for: ${sourceName}`);
+
+    if (onProgress) {
+      onProgress({
+        type: 'agent_start',
+        source_name: sourceName,
+        url: sourceUrl,
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    const agentPrompt = `Find ALL analog photo booth locations from this city guide.
+
+For each booth found, extract:
+- name: The venue/location name where the booth is located
+- address: Full street address (number and street name)
+- city: City name
+- country: Country name (use full name like "United States" not "USA")
+- neighborhood: Neighborhood/district if mentioned
+- cost: Price per photo strip if mentioned
+- details: Any additional context (hours, booth type, special features)
+
+IMPORTANT:
+- Only extract REAL photo booth locations (not event photobooths or mobile services)
+- Focus on analog/chemical booths when possible
+- Each booth should be a separate location
+- Extract ALL booths mentioned in the article
+
+Return as a JSON array of booth objects.`;
+
+    // Get API key from firecrawl instance
+    const apiKey = Deno.env.get("FIRECRAWL_API_KEY");
+    if (!apiKey) {
+      throw new Error("FIRECRAWL_API_KEY not found");
+    }
+
+    // Call Firecrawl Agent API directly
+    const response = await fetch('https://api.firecrawl.dev/v1/agent', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        url: sourceUrl,
+        prompt: agentPrompt
+      })
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Agent API error ${response.status}: ${errorText}`);
+    }
+
+    const result = await response.json();
+
+    if (onProgress) {
+      onProgress({
+        type: 'agent_complete',
+        source_name: sourceName,
+        booths_found: result.data?.length || 0,
+        duration_ms: Date.now() - startTime,
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    const booths = result.data || [];
+
+    console.log(`✅ Agent extracted ${booths.length} booths in ${((Date.now() - startTime) / 1000).toFixed(1)}s`);
+
+    return {
+      booths,
+      errors: [],
+      metadata: {
+        extraction_time_ms: Date.now() - startTime,
+        pages_processed: 1,
+        total_found: booths.length
+      }
+    };
+  } catch (error: any) {
+    console.error(`❌ Agent extraction failed for ${sourceName}:`, error.message);
+
+    if (onProgress) {
+      onProgress({
+        type: 'agent_error',
+        source_name: sourceName,
+        error: error.message,
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    return {
+      booths: [],
+      errors: [error.message],
+      metadata: {
+        extraction_time_ms: Date.now() - startTime,
+        pages_processed: 0,
+        total_found: 0
+      }
+    };
+  }
+}
+
+
+/**
  * Route to appropriate extractor based on source type
  */
 async function extractFromSource(
@@ -1282,6 +1421,7 @@ async function extractFromSource(
   sourceName: string,
   extractorType: string,
   anthropicApiKey: string,
+  firecrawl: any,
   onProgress?: (event: any) => void
 ): Promise<ExtractorResult> {
   // PRIORITY: Use enhanced AI extractors for gold standard sources
@@ -1304,7 +1444,7 @@ async function extractFromSource(
       console.log(`🎯 Using ENHANCED extractor for directory: ${sourceName}`);
       return extractDirectoryEnhanced(html, markdown, sourceUrl, sourceName, anthropicApiKey, onProgress);
 
-    // TIER 3A: City Guide Extractors - ALL USE ENHANCED AI EXTRACTION
+    // TIER 3A: City Guide Extractors - USE FIRECRAWL AGENT
     // Berlin City Guides
     case 'city_guide_berlin_digitalcosmonaut':
     case 'city_guide_berlin_phelt':
@@ -1323,8 +1463,8 @@ async function extractFromSource(
     case 'city_guide_ny_designmynight':
     case 'city_guide_ny_roxy':
     case 'city_guide_ny_airial':
-      console.log(`🏙️ Using ENHANCED extractor for city guide: ${sourceName}`);
-      return extractCityGuideEnhanced(html, markdown, sourceUrl, sourceName, anthropicApiKey, onProgress);
+      console.log(`🤖 Using FIRECRAWL AGENT for city guide: ${sourceName}`);
+      return extractWithAgent(firecrawl, sourceUrl, sourceName, onProgress);
 
     // TIER 2B: European Operators - Use AI extraction
     case 'fotoautomat_berlin':

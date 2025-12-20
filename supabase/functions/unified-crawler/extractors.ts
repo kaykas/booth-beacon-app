@@ -500,9 +500,27 @@ class LomographyExtractor extends BaseExtractor {
   protected async parseContent(
     html: string,
     markdown: string,
-    _sourceUrl: string
+    sourceUrl: string
   ): Promise<Partial<BoothData>[]> {
     const booths: Partial<BoothData>[] = [];
+
+    // CRITICAL: Skip photo gallery pages - they contain EXIF metadata, not booth info
+    // Photo pages have patterns like: "Photographer:", "Camera:", "Film:", "Uploaded:"
+    if (
+      markdown.includes('Photographer:') &&
+      markdown.includes('Camera:') &&
+      markdown.includes('Film:')
+    ) {
+      console.warn(`Skipping Lomography photo gallery page (EXIF data, not booth info): ${sourceUrl}`);
+      return []; // Return empty array - don't extract photo metadata as booth data
+    }
+
+    // Also skip if URL pattern indicates it's a photo page
+    if (sourceUrl.match(/lomography\.com\/(photos|magazine|gallery)/i)) {
+      console.warn(`Skipping Lomography photo/magazine page: ${sourceUrl}`);
+      return [];
+    }
+
     const lines = this.parseLines(markdown);
     let currentStore: Partial<BoothData> | null = null;
 

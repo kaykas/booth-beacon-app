@@ -404,9 +404,16 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
 
                   {/* Quick Info Pills Above the Fold */}
                   <div className="flex flex-wrap gap-2 mb-4">
-                    {booth.status === 'active' && (
+                    {/* Show verification status badges */}
+                    {booth.status === 'active' && !booth.needs_verification && (
                       <span className="bg-green-500 text-white px-3 py-1.5 text-sm font-medium rounded-md">
                         ✓ Currently Operational
+                      </span>
+                    )}
+                    {(booth.status === 'unverified' || booth.needs_verification) && (
+                      <span className="bg-amber-500 text-white px-3 py-1.5 text-sm font-medium rounded-md flex items-center gap-1">
+                        <AlertCircle className="w-4 h-4" />
+                        Needs Verification
                       </span>
                     )}
                     {booth.cost && (
@@ -632,8 +639,13 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
               </Card>
             )}
 
-            {/* Street View */}
-            {hasValidLocation && booth.latitude && booth.longitude && (
+            {/* Street View - Only show if we have a proper address, not just city name */}
+            {hasValidLocation &&
+             booth.latitude &&
+             booth.longitude &&
+             booth.address &&
+             booth.address !== booth.city &&
+             booth.address.length > 10 && (
               <div>
                 <h2 className="text-xl font-semibold mb-4">Street View</h2>
                 <StreetViewEmbed

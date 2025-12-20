@@ -82,13 +82,18 @@
   --color-warning: hsl(var(--warning));
   --color-error: hsl(var(--error));
 
-  /* Vintage Color Palette */
+  /* Vintage Color Palette - WCAG AA Compliant */
   --color-vintage-amber: hsl(35 90% 60%);
   --color-vintage-amber-dark: hsl(35 90% 50%);
   --color-vintage-orange: hsl(25 95% 60%);
   --color-vintage-orange-dark: hsl(25 95% 50%);
   --color-vintage-cream: hsl(40 35% 98%);
   --color-vintage-sepia: hsl(40 20% 75%);
+
+  /* Darker variants for text (WCAG AA: 4.5:1 contrast ratio) */
+  --color-vintage-text: hsl(30 30% 25%); /* Dark brown text */
+  --color-vintage-text-secondary: hsl(30 20% 40%); /* Medium brown text */
+  --color-vintage-text-light: hsl(30 15% 55%); /* Light brown text (use on dark backgrounds) */
 
   /* Fonts */
   --font-sans: "Inter", system-ui, sans-serif;

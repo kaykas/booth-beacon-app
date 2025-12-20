@@ -75,6 +75,8 @@ export async function getSimilarBooths(
 /**
  * Calculate similarity score between two booths
  * Higher score = more similar
+ *
+ * Geography-first approach: Always prioritize same country/region over machine details
  */
 function calculateSimilarityScore(
   source: BoothForRecommendation,
@@ -82,45 +84,54 @@ function calculateSimilarityScore(
 ): number {
   let score = 0;
 
-  // Same machine model = +10 points (highest weight)
+  // GEOGRAPHY (should be dominant for travel context)
+  // Same country = +20 points (INCREASED - geography is critical for travel)
+  if (source.country && candidate.country) {
+    if (source.country === candidate.country) {
+      score += 20;
+
+      // Same state/region = +10 additional points (total 30 for same state)
+      if (source.state && candidate.state && source.state === candidate.state) {
+        score += 10;
+
+        // Same city = +5 additional points (total 35 for same city)
+        if (source.city && candidate.city && source.city === candidate.city) {
+          score += 5;
+        }
+      }
+    } else {
+      // Different country = significant penalty
+      // This prevents showing USA booths when viewing Japan booths
+      score -= 10;
+    }
+  }
+
+  // MACHINE DETAILS (secondary to geography)
+  // Same machine model = +8 points
   if (source.machine_model && candidate.machine_model) {
     if (source.machine_model === candidate.machine_model) {
-      score += 10;
+      score += 8;
     }
   }
 
-  // Same manufacturer = +5 points
+  // Same manufacturer = +4 points
   if (source.machine_manufacturer && candidate.machine_manufacturer) {
     if (source.machine_manufacturer === candidate.machine_manufacturer) {
-      score += 5;
-    }
-  }
-
-  // Same booth type = +4 points
-  if (source.booth_type && candidate.booth_type) {
-    if (source.booth_type === candidate.booth_type) {
       score += 4;
     }
   }
 
-  // Same photo type = +3 points
-  if (source.photo_type && candidate.photo_type) {
-    if (source.photo_type === candidate.photo_type) {
+  // Same booth type = +3 points
+  if (source.booth_type && candidate.booth_type) {
+    if (source.booth_type === candidate.booth_type) {
       score += 3;
     }
   }
 
-  // Same country = +2 points
-  if (source.country && candidate.country) {
-    if (source.country === candidate.country) {
+  // Same photo type = +2 points
+  if (source.photo_type && candidate.photo_type) {
+    if (source.photo_type === candidate.photo_type) {
       score += 2;
-    }
-  }
-
-  // Same state/region = +1 point
-  if (source.state && candidate.state) {
-    if (source.state === candidate.state) {
-      score += 1;
     }
   }
 

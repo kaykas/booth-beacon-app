@@ -37,6 +37,8 @@ export interface Booth {
   // Operational
   status: 'active' | 'unverified' | 'inactive' | 'closed';
   is_operational: boolean;
+  needs_verification?: boolean;
+  data_source_type?: string;
   hours?: string;
   phone?: string;
   cost?: string;
