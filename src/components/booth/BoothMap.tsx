@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useMemo } from 'react';
 import { Booth, Coordinates } from '@/types';
-import { MapPin, Loader2 } from 'lucide-react';
+import { MapPin, Loader2, Camera, Navigation } from 'lucide-react';
 import { MarkerClusterer } from '@googlemaps/markerclusterer';
 import { loadGoogleMaps } from '@/lib/googleMapsLoader';
 
@@ -70,12 +70,12 @@ const mapStyles: google.maps.MapTypeStyle[] = [
   },
 ];
 
-// Marker colors based on booth status - pink theme
+// Marker colors based on booth status - warm vintage amber/orange theme
 const statusColors = {
-  active: '#d14371', // Pink for active booths
-  inactive: '#EF4444',
-  unverified: '#F59E0B',
-  closed: '#6B7280',
+  active: '#F59E0B', // Amber for active booths
+  inactive: '#EF4444', // Red for inactive
+  unverified: '#FB923C', // Light orange for unverified
+  closed: '#6B7280', // Gray for closed
 };
 
 export function BoothMap({
@@ -169,19 +169,43 @@ export function BoothMap({
       const position = { lat: booth.latitude, lng: booth.longitude };
       bounds.extend(position);
 
-      // Create custom marker
+      // Create custom camera icon marker with vintage styling
+      const markerColor = statusColors[booth.status] || statusColors.unverified;
+
+      // Create custom HTML marker using SVG icon
+      const svgIcon = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 44 44">
+          <!-- Drop shadow -->
+          <defs>
+            <filter id="shadow-${booth.id}" x="-50%" y="-50%" width="200%" height="200%">
+              <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.4"/>
+            </filter>
+          </defs>
+          <!-- Teardrop pin shape -->
+          <g transform="translate(22, 18)" filter="url(#shadow-${booth.id})">
+            <path d="M 0,-18 C -10,-18 -18,-10 -18,0 C -18,6 -10,14 0,26 C 10,14 18,6 18,0 C 18,-10 10,-18 0,-18 Z"
+                  fill="${markerColor}"
+                  stroke="white"
+                  stroke-width="3"/>
+            <!-- Camera icon -->
+            <g transform="translate(0, -5)" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M 5,-6 L 3,-3 L -7,-3 C -8,-3 -9,-2 -9,0 L -9,7 C -9,8 -8,9 -7,9 L 7,9 C 8,9 9,8 9,7 L 9,0 C 9,-2 8,-3 7,-3 L -3,-3 L -5,-6 Z"/>
+              <circle cx="0" cy="3" r="3"/>
+            </g>
+          </g>
+        </svg>
+      `;
+
       const marker = new google.maps.Marker({
         position,
-        map: showClustering ? null : map, // Don't add to map if clustering
+        map: showClustering ? null : map,
         title: booth.name,
         icon: {
-          path: google.maps.SymbolPath.CIRCLE,
-          fillColor: statusColors[booth.status] || statusColors.unverified,
-          fillOpacity: 1,
-          strokeColor: '#ffffff',
-          strokeWeight: 2,
-          scale: 8,
+          url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svgIcon),
+          scaledSize: new google.maps.Size(44, 44),
+          anchor: new google.maps.Point(22, 44),
         },
+        optimized: false,
       });
 
       // Create InfoWindow content
@@ -189,9 +213,35 @@ export function BoothMap({
         content: createInfoWindowContent(booth),
       });
 
-      // Add click listener
+      // Add hover scale effect
+      marker.addListener('mouseover', () => {
+        // Create scaled up version for hover
+        const scaledSvgIcon = svgIcon.replace('width="44" height="44"', 'width="50" height="50"');
+        marker.setIcon({
+          url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(scaledSvgIcon),
+          scaledSize: new google.maps.Size(50, 50),
+          anchor: new google.maps.Point(25, 50),
+        });
+      });
+
+      marker.addListener('mouseout', () => {
+        // Reset to normal size
+        marker.setIcon({
+          url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svgIcon),
+          scaledSize: new google.maps.Size(44, 44),
+          anchor: new google.maps.Point(22, 44),
+        });
+      });
+
+      // Add click listener with zoom to booth
       marker.addListener('click', () => {
+        // Zoom to booth location
+        map.panTo(position);
+        map.setZoom(16);
+
+        // Open info window
         infoWindow.open(map, marker);
+
         if (onBoothClick) {
           onBoothClick(booth);
         }
@@ -209,8 +259,8 @@ export function BoothMap({
         markers: newMarkers,
         renderer: {
           render: ({ count, position }) => {
-            // Custom cluster styling with pink theme
-            const color = count > 50 ? '#d14371' : count > 20 ? '#e75480' : '#f06595';
+            // Custom cluster styling with amber/orange vintage theme
+            const color = count > 50 ? '#D97706' : count > 20 ? '#F59E0B' : '#FB923C';
             const size = count > 50 ? 60 : count > 20 ? 50 : 40;
 
             return new google.maps.Marker({
@@ -470,54 +520,74 @@ function createInfoWindowContent(booth: Booth): string {
     ? `<div style="position: absolute; bottom: 6px; right: 6px; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(4px); color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 600; letter-spacing: 0.5px;">AI PREVIEW</div>`
     : '';
 
+  // Generate directions URLs
+  const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${booth.latitude},${booth.longitude}`;
+
   return `
-    <div style="width: 260px; font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; padding-bottom: 2px;">
-      <!-- Image Container -->
-      <div style="position: relative; height: 140px; margin-bottom: 10px; border-radius: 8px; overflow: hidden; background-color: #f3f4f6;">
+    <div style="width: 280px; font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; padding-bottom: 2px; background: linear-gradient(135deg, #FFF9F0 0%, #FFF5E6 100%);">
+      <!-- Image Container with Vintage Border -->
+      <div style="position: relative; height: 150px; margin-bottom: 12px; border-radius: 8px; overflow: hidden; background: linear-gradient(135deg, #F4E4C1 0%, #E8D4B1 100%); border: 3px solid #8B7355; box-shadow: 0 4px 12px rgba(0,0,0,0.15), inset 0 0 0 1px rgba(255,255,255,0.3);">
         <img
           src="${photoUrl}"
           alt="${booth.name}"
-          style="width: 100%; height: 100%; object-fit: cover; transition: opacity 0.3s;"
+          style="width: 100%; height: 100%; object-fit: cover; transition: opacity 0.3s; filter: sepia(0.1) contrast(1.05);"
           onerror="this.onerror=null; this.src='/placeholder-booth.svg';"
         />
-        <!-- Status Badge -->
-        <div style="position: absolute; top: 8px; left: 8px; background: ${statusColor}; color: white; padding: 2px 8px; border-radius: 12px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+        <!-- Status Badge with Vintage Colors -->
+        <div style="position: absolute; top: 8px; left: 8px; background: ${statusColor}; color: white; padding: 3px 10px; border-radius: 16px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 2px 8px rgba(0,0,0,0.25), 0 0 0 2px rgba(255,255,255,0.3);">
           ${statusText}
         </div>
         ${aiBadge}
       </div>
 
-      <!-- Content -->
-      <h3 style="margin: 0 0 4px 0; font-size: 16px; font-weight: 700; color: #111827; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-        ${booth.name}
-      </h3>
+      <!-- Content with Warm Background -->
+      <div style="padding: 0 8px;">
+        <h3 style="margin: 0 0 6px 0; font-size: 17px; font-weight: 700; color: #2C2416; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+          ${booth.name}
+        </h3>
 
-      <div style="display: flex; align-items: center; margin-bottom: 4px; color: #4b5563;">
-        <svg style="width: 14px; height: 14px; margin-right: 4px; flex-shrink: 0;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-        </svg>
-        <span style="font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-          ${booth.city}, ${booth.country}
-        </span>
+        <div style="display: flex; align-items: center; margin-bottom: 4px; color: #8B7355;">
+          <svg style="width: 14px; height: 14px; margin-right: 5px; flex-shrink: 0;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+          </svg>
+          <span style="font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+            ${booth.city}, ${booth.country}
+          </span>
+        </div>
+
+        <div style="font-size: 12px; color: #6b5d4f; margin-left: 19px; margin-bottom: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+          ${displayAddress}
+        </div>
+
+        <!-- Buttons with Vintage Styling -->
+        <div style="display: flex; gap: 6px; margin-bottom: 8px;">
+          <a
+            href="${googleMapsUrl}"
+            target="_blank"
+            rel="noopener noreferrer"
+            style="flex: 1; display: flex; align-items: center; justify-content: center; padding: 9px 0; background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); color: white; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: 600; transition: all 0.2s ease; box-shadow: 0 2px 6px rgba(245, 158, 11, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.2);"
+            onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 10px rgba(245, 158, 11, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.3)';"
+            onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 6px rgba(245, 158, 11, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.2)';"
+          >
+            <svg style="width: 15px; height: 15px; margin-right: 5px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
+            </svg>
+            Directions
+          </a>
+          <a
+            href="/booth/${booth.slug}"
+            style="flex: 1; display: flex; align-items: center; justify-content: center; padding: 9px 0; background: linear-gradient(135deg, #8B7355 0%, #6B5745 100%); color: #FFF9F0; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: 600; transition: all 0.2s ease; box-shadow: 0 2px 6px rgba(139, 115, 85, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.15);"
+            onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 10px rgba(139, 115, 85, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.25)';"
+            onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 6px rgba(139, 115, 85, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.15)';"
+          >
+            Details
+            <svg style="width: 14px; height: 14px; margin-left: 5px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+          </a>
+        </div>
       </div>
-
-      <div style="font-size: 12px; color: #6b7280; margin-left: 18px; margin-bottom: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-        ${displayAddress}
-      </div>
-
-      <!-- Button -->
-      <a
-        href="/booth/${booth.slug}"
-        style="display: flex; align-items: center; justify-content: center; width: 100%; padding: 8px 0; background: linear-gradient(135deg, #d14371 0%, #c73e3a 100%); color: white; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: 600; transition: transform 0.1s ease; box-shadow: 0 2px 4px rgba(209, 67, 113, 0.25);"
-        onmouseover="this.style.transform='scale(1.02)'"
-        onmouseout="this.style.transform='scale(1)'"
-      >
-        View Details
-        <svg style="width: 14px; height: 14px; margin-left: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-        </svg>
-      </a>
     </div>
   `;
 }

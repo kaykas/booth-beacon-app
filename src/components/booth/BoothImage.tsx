@@ -2,8 +2,9 @@
 
 import { Booth } from '@/types';
 import Image from 'next/image';
-import { Camera, Upload } from 'lucide-react';
+import { Upload } from 'lucide-react';
 import { useState } from 'react';
+import { VintageBoothPlaceholder } from './VintageBoothPlaceholder';
 
 interface BoothImageProps {
   booth: Booth;
@@ -47,24 +48,24 @@ export function BoothImage({
 
   return (
     <div
-      className={`relative ${sizeClasses[size]} ${containerClasses[size]} overflow-hidden bg-neutral-100`}
+      className={`relative ${sizeClasses[size]} ${containerClasses[size]} overflow-hidden ${size === 'hero' ? 'photo-strip-border-no-radius' : 'photo-strip-border'}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       {hasNoImage ? (
-        // No image placeholder
-        <div className="w-full h-full flex flex-col items-center justify-center text-neutral-400">
-          <Camera className="w-8 h-8 mb-2" />
-          <p className="text-xs">No photo yet</p>
-        </div>
+        // Vintage booth placeholder
+        <VintageBoothPlaceholder
+          onAddPhoto={onAddPhoto}
+          showUploadButton={!!onAddPhoto}
+        />
       ) : (
-        // Image with optional AI badge
-        <>
+        // Image with optional AI badge - add sepia filter to AI images
+        <div className={`relative w-full h-full ${(hasAiGenerated || hasAiPreview) ? 'ai-image-sepia' : ''}`}>
           <Image
             src={imageUrl}
             alt={booth.name}
             fill
-            className={`object-cover transition-opacity ${hasAiGenerated || hasAiPreview ? 'opacity-95' : 'opacity-100'}`}
+            className="object-cover transition-opacity"
             sizes={
               size === 'hero'
                 ? '100vw'
@@ -74,17 +75,27 @@ export function BoothImage({
             }
             onError={() => setHasImageError(true)}
           />
-          {hasAiGenerated && showAiBadge && (
-            <div className="absolute bottom-2 right-2 px-2 py-1 bg-purple-600/80 text-white text-xs rounded backdrop-blur-sm flex items-center gap-1">
-              <span className="text-[10px]">✨</span> AI Art
-            </div>
+          {/* Photo Source Badge - Priority 3 Implementation */}
+          {showAiBadge && (
+            <>
+              {hasAiGenerated && (
+                <div className="absolute bottom-2 right-2 px-2 py-1 bg-purple-600/90 text-white text-xs rounded backdrop-blur-sm flex items-center gap-1 shadow-sm z-10">
+                  <span className="text-[10px]">🤖</span> AI Generated
+                </div>
+              )}
+              {hasAiPreview && (
+                <div className="absolute bottom-2 right-2 px-2 py-1 bg-black/70 text-white text-xs rounded backdrop-blur-sm shadow-sm z-10">
+                  AI Preview
+                </div>
+              )}
+              {booth.photo_exterior_url && !hasAiGenerated && !hasAiPreview && (
+                <div className="absolute bottom-2 right-2 px-2 py-1 bg-green-600/90 text-white text-xs rounded backdrop-blur-sm flex items-center gap-1 shadow-sm z-10">
+                  <span className="text-[10px]">📸</span> Community Photo
+                </div>
+              )}
+            </>
           )}
-          {hasAiPreview && showAiBadge && (
-            <div className="absolute bottom-2 right-2 px-2 py-1 bg-black/60 text-white text-xs rounded backdrop-blur-sm">
-              AI Preview
-            </div>
-          )}
-        </>
+        </div>
       )}
 
       {/* Add Photo Overlay */}

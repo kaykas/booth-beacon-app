@@ -6,6 +6,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { formatDistance } from '@/lib/distanceUtils';
 import { BookmarkButton } from '@/components/BookmarkButton';
+import { VintageBoothPlaceholder } from './VintageBoothPlaceholder';
 
 interface BoothCardProps {
   booth: Booth;
@@ -33,10 +34,10 @@ export function BoothCard({
   // Priority: photo_exterior_url > ai_generated_image_url > ai_preview_url (if not broken)
   const imageUrl = booth.photo_exterior_url
     || booth.ai_generated_image_url
-    || (!isBrokenUnsplashUrl ? booth.ai_preview_url : null)
-    || '/placeholder-booth.svg';
+    || (!isBrokenUnsplashUrl ? booth.ai_preview_url : null);
   const hasAiGenerated = booth.ai_generated_image_url && !booth.photo_exterior_url;
   const hasAiPreview = booth.ai_preview_url && !booth.photo_exterior_url && !booth.ai_generated_image_url && !isBrokenUnsplashUrl;
+  const hasNoImage = !imageUrl;
 
   return (
     <div className="group relative bg-white rounded-lg shadow-photo overflow-hidden transition-transform hover:scale-[1.02]">
@@ -45,29 +46,35 @@ export function BoothCard({
         <BookmarkButton boothId={booth.id} variant="outline" size="sm" showText={false} />
       </div>
 
-      {/* Image */}
+      {/* Image with photo strip border and sepia filter for AI images */}
       <Link href={`/booth/${booth.slug}`}>
-        <div className="aspect-[4/3] relative bg-neutral-100">
-          <Image
-            src={imageUrl}
-            alt={booth.name}
-            fill
-            className="object-cover"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          />
-          {hasAiGenerated && (
-            <span className="absolute bottom-2 right-2 px-2 py-1 bg-purple-600/80 text-white text-xs rounded flex items-center gap-1">
-              <span className="text-[10px]">✨</span> AI Art
+        <div className="photo-strip-border overflow-hidden">
+          <div className={`aspect-[4/3] relative bg-neutral-100 ${(hasAiGenerated || hasAiPreview) ? 'ai-image-sepia' : ''}`}>
+            {hasNoImage ? (
+              <VintageBoothPlaceholder showUploadButton={false} />
+            ) : (
+              <Image
+                src={imageUrl}
+                alt={booth.name}
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              />
+            )}
+            {hasAiGenerated && (
+              <span className="absolute bottom-2 right-2 px-2 py-1 bg-purple-600/80 text-white text-xs rounded flex items-center gap-1 z-10">
+                <span className="text-[10px]">✨</span> AI Art
+              </span>
+            )}
+            {hasAiPreview && (
+              <span className="absolute bottom-2 right-2 px-2 py-1 bg-black/60 text-white text-xs rounded z-10">
+                AI Preview
+              </span>
+            )}
+            <span className={`absolute top-2 left-2 px-2 py-1 text-xs rounded ${statusColors[booth.status]} z-10`}>
+              {booth.status.charAt(0).toUpperCase() + booth.status.slice(1)}
             </span>
-          )}
-          {hasAiPreview && (
-            <span className="absolute bottom-2 right-2 px-2 py-1 bg-black/60 text-white text-xs rounded">
-              AI Preview
-            </span>
-          )}
-          <span className={`absolute top-2 left-2 px-2 py-1 text-xs rounded ${statusColors[booth.status]}`}>
-            {booth.status.charAt(0).toUpperCase() + booth.status.slice(1)}
-          </span>
+          </div>
         </div>
       </Link>
 

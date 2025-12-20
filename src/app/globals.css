@@ -82,6 +82,14 @@
   --color-warning: hsl(var(--warning));
   --color-error: hsl(var(--error));
 
+  /* Vintage Color Palette */
+  --color-vintage-amber: hsl(35 90% 60%);
+  --color-vintage-amber-dark: hsl(35 90% 50%);
+  --color-vintage-orange: hsl(25 95% 60%);
+  --color-vintage-orange-dark: hsl(25 95% 50%);
+  --color-vintage-cream: hsl(40 35% 98%);
+  --color-vintage-sepia: hsl(40 20% 75%);
+
   /* Fonts */
   --font-sans: "Inter", system-ui, sans-serif;
   --font-display: "Fraunces", serif;
@@ -360,4 +368,109 @@ body::before {
     rgba(0, 0, 0, 0.25) 100%
   );
   pointer-events: none;
+}
+
+/* ========================================
+   VINTAGE AMBER/ORANGE GRADIENT BUTTONS
+   Warm vintage photo booth aesthetic
+   ======================================== */
+
+.btn-vintage-amber {
+  background: linear-gradient(135deg, var(--color-vintage-amber), var(--color-vintage-orange));
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.3);
+  transition: all 0.2s ease;
+}
+
+.btn-vintage-amber:hover {
+  background: linear-gradient(135deg, var(--color-vintage-amber-dark), var(--color-vintage-orange-dark));
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+  transform: translateY(-1px);
+}
+
+/* ========================================
+   SEPIA-TONE FILTER FOR AI IMAGES
+   Subtle 20% opacity sepia tone
+   ======================================== */
+
+.ai-image-sepia {
+  position: relative;
+}
+
+.ai-image-sepia::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: rgba(112, 66, 20, 0.2);
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+
+/* Alternative sepia using filter (more performant) */
+.ai-image-sepia-filter img {
+  filter: sepia(0.2);
+}
+
+/* ========================================
+   PHOTO STRIP BORDER TREATMENT
+   Authentic photo booth strip styling
+   ======================================== */
+
+.photo-strip-border {
+  background: white;
+  padding: 12px;
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.1),
+    0 4px 12px rgba(0, 0, 0, 0.15),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.05);
+  border-radius: 2px;
+}
+
+.photo-strip-border-no-radius {
+  background: white;
+  padding: 12px;
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.1),
+    0 4px 12px rgba(0, 0, 0, 0.15),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.05);
+}
+
+/* Photo strip with sprocket holes */
+.photo-strip-sprockets {
+  position: relative;
+  background: white;
+  padding: 16px 12px;
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.1),
+    0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.photo-strip-sprockets::before,
+.photo-strip-sprockets::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 8px;
+  background-image: repeating-linear-gradient(
+    90deg,
+    transparent 0px,
+    transparent 8px,
+    #1a1a1a 8px,
+    #1a1a1a 12px,
+    transparent 12px,
+    transparent 20px
+  );
+}
+
+.photo-strip-sprockets::before {
+  top: 4px;
+}
+
+.photo-strip-sprockets::after {
+  bottom: 4px;
+}
+
+/* Vintage cream background */
+.bg-vintage-cream {
+  background-color: var(--color-vintage-cream);
 }

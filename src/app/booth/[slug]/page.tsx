@@ -13,7 +13,9 @@ import {
   Globe,
   Instagram,
   Map,
+  CheckCircle,
 } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { StatusBadge } from '@/components/booth/StatusBadge';
@@ -25,6 +27,7 @@ import { ShareButton } from '@/components/ShareButton';
 import { BoothStats } from '@/components/BoothStats';
 import { NearbyBooths } from '@/components/booth/NearbyBooths';
 import { SimilarBooths } from '@/components/booth/SimilarBooths';
+import { CityBooths } from '@/components/booth/CityBooths';
 import { HoursStatus } from '@/components/booth/HoursStatus';
 import { DistanceDisplay } from '@/components/booth/DistanceDisplay';
 import { StickyActionBar } from '@/components/booth/StickyActionBar';
@@ -33,6 +36,8 @@ import { VisitChecklist } from '@/components/booth/VisitChecklist';
 import { SocialProof } from '@/components/booth/SocialProof';
 import { StreetViewEmbed } from '@/components/booth/StreetViewEmbed';
 import { CommunityPhotoUpload } from '@/components/booth/CommunityPhotoUpload';
+import { StructuredHours } from '@/components/booth/StructuredHours';
+import { ReportIssueButton } from '@/components/booth/ReportIssueButton';
 import { createPublicServerClient } from '@/lib/supabase';
 import { normalizeBooth, RenderableBooth } from '@/lib/boothViewModel';
 import { generateCombinedStructuredData } from '@/lib/seo/structuredDataOptimized';
@@ -43,6 +48,80 @@ interface BoothDetailPageProps {
   params: Promise<{
     slug: string;
   }>;
+}
+
+// Helper function to check if booth was recently verified (within last 30 days)
+function isRecentlyVerified(lastVerified: string | null | undefined): boolean {
+  if (!lastVerified) return false;
+
+  try {
+    const verifiedDate = new Date(lastVerified);
+    const now = new Date();
+    const daysSinceVerification = (now.getTime() - verifiedDate.getTime()) / (1000 * 60 * 60 * 24);
+    return daysSinceVerification <= 30;
+  } catch (error) {
+    return false;
+  }
+}
+
+// Helper function to determine if booth is currently open
+function isOpenNow(hours: string | null | undefined): boolean {
+  if (!hours) return false;
+
+  try {
+    const now = new Date();
+    const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const currentDay = dayNames[now.getDay()];
+    const currentTime = now.getHours() * 60 + now.getMinutes(); // Minutes since midnight
+
+    // Parse hours string (expected format: "Monday: 9:00 AM - 5:00 PM" per line)
+    const lines = hours.split('\n');
+
+    for (const line of lines) {
+      // Check if this line is for today
+      if (line.toLowerCase().includes(currentDay.toLowerCase())) {
+        // Check if closed
+        if (line.toLowerCase().includes('closed')) {
+          return false;
+        }
+
+        // Try to extract time range (e.g., "9:00 AM - 5:00 PM" or "09:00 - 17:00")
+        const timeMatch = line.match(/(\d{1,2}):(\d{2})\s*(AM|PM)?\s*-\s*(\d{1,2}):(\d{2})\s*(AM|PM)?/i);
+
+        if (timeMatch) {
+          let openHour = parseInt(timeMatch[1]);
+          const openMin = parseInt(timeMatch[2]);
+          const openPeriod = timeMatch[3]?.toUpperCase();
+
+          let closeHour = parseInt(timeMatch[4]);
+          const closeMin = parseInt(timeMatch[5]);
+          const closePeriod = timeMatch[6]?.toUpperCase();
+
+          // Convert to 24-hour format if AM/PM provided
+          if (openPeriod === 'PM' && openHour !== 12) openHour += 12;
+          if (openPeriod === 'AM' && openHour === 12) openHour = 0;
+          if (closePeriod === 'PM' && closeHour !== 12) closeHour += 12;
+          if (closePeriod === 'AM' && closeHour === 12) closeHour = 0;
+
+          const openTime = openHour * 60 + openMin;
+          const closeTime = closeHour * 60 + closeMin;
+
+          // Handle overnight hours (e.g., 10 PM - 2 AM)
+          if (closeTime < openTime) {
+            return currentTime >= openTime || currentTime <= closeTime;
+          }
+
+          return currentTime >= openTime && currentTime <= closeTime;
+        }
+      }
+    }
+
+    // If we have hours but couldn't parse them, assume open during business hours (9 AM - 6 PM)
+    return currentTime >= 540 && currentTime <= 1080;
+  } catch (error) {
+    console.error('Error parsing hours:', error);
+    return false;
+  }
 }
 
 // Fetch booth with proper error handling
@@ -224,10 +303,11 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
   );
 
   return (
-    <div className="min-h-screen bg-neutral-50">
+    <div className="min-h-screen bg-vintage-cream">
       {/* Sticky Action Bar */}
       {hasValidLocation && booth.latitude && booth.longitude && (
         <StickyActionBar
+          boothId={booth.id}
           boothName={booth.name}
           latitude={booth.latitude}
           longitude={booth.longitude}
@@ -285,6 +365,16 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
                     <span>{locationString}</span>
                   </div>
 
+                  {/* Verification Badge - Trust Signal */}
+                  {booth.last_verified && isRecentlyVerified(booth.last_verified) && (
+                    <div className="flex items-center gap-2 px-4 py-2 bg-green-100 border-2 border-green-600 rounded-lg mb-4">
+                      <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+                      <span className="text-green-900 font-semibold text-sm">
+                        Verified {formatDistanceToNow(new Date(booth.last_verified), { addSuffix: true })}
+                      </span>
+                    </div>
+                  )}
+
                   {/* Hours Status & Distance */}
                   <div className="flex flex-wrap items-center gap-3 mb-3">
                     <HoursStatus hours={booth.hours} />
@@ -308,6 +398,30 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
                     {booth.cost && (
                       <span className="px-2 py-1 bg-amber-100 text-amber-800 text-xs rounded font-medium">
                         {booth.cost}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Quick Info Pills Above the Fold */}
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {booth.status === 'active' && (
+                      <span className="bg-green-500 text-white px-3 py-1.5 text-sm font-medium rounded-md">
+                        ✓ Currently Operational
+                      </span>
+                    )}
+                    {booth.cost && (
+                      <span className="bg-amber-500 text-white px-3 py-1.5 text-sm font-bold rounded-md">
+                        {booth.cost} per strip
+                      </span>
+                    )}
+                    {booth.hours && isOpenNow(booth.hours) && (
+                      <span className="bg-blue-500 text-white px-3 py-1.5 text-sm font-medium rounded-md">
+                        🕐 Open Now
+                      </span>
+                    )}
+                    {booth.accepts_cash && !booth.accepts_card && (
+                      <span className="bg-purple-500 text-white px-3 py-1.5 text-sm font-medium rounded-md">
+                        💵 Cash Only
                       </span>
                     )}
                   </div>
@@ -342,17 +456,21 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
                 <StatusBadge status={booth.status || 'active'} />
               </div>
 
-              {/* Primary CTA - Hero Button */}
+              {/* Primary CTA - Hero Button with Vintage Amber Gradient */}
               {hasValidLocation && (
                 <div className="mb-6">
-                  <Button size="lg" className="w-full sm:w-auto text-base px-8 py-6 shadow-lg hover:shadow-xl transition-all" asChild>
+                  <Button
+                    size="xl"
+                    className="w-full text-lg px-12 py-8 btn-vintage-amber shadow-2xl transform hover:scale-105 transition-all duration-200 font-bold text-white"
+                    asChild
+                  >
                     <a
                       href={`https://www.google.com/maps/dir/?api=1&destination=${booth.latitude},${booth.longitude}`}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      <Navigation className="w-5 h-5 mr-2" />
-                      Get Directions
+                      <Navigation className="w-6 h-6 mr-3" />
+                      Get Directions Now
                     </a>
                   </Button>
                 </div>
@@ -446,25 +564,13 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
                     <span className="font-medium">{booth.cost}</span>
                   </div>
                 )}
-                {booth.hours ? (
-                  <div className="space-y-2">
-                    <div className="text-neutral-700 font-semibold flex items-center">
-                      <Clock className="w-4 h-4 mr-1" />
-                      Hours
-                    </div>
-                    <div className="text-sm text-neutral-900 space-y-0.5 pl-5">
-                      {booth.hours.split('\n').map((line, i) => (
-                        <div key={i} className="leading-relaxed">
-                          {line}
-                        </div>
-                      ))}
-                    </div>
+                <div className="space-y-2">
+                  <div className="text-neutral-700 font-semibold flex items-center mb-2">
+                    <Clock className="w-4 h-4 mr-1" />
+                    Hours
                   </div>
-                ) : (
-                  <div className="text-xs text-neutral-500 italic py-2">
-                    Hours not listed - check venue hours before visiting
-                  </div>
-                )}
+                  <StructuredHours hours={booth.hours} />
+                </div>
                 {(booth.accepts_cash || booth.accepts_card) && (
                   <div className="flex justify-between items-center">
                     <span className="text-neutral-600">Payment</span>
@@ -500,8 +606,8 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto p-4 lg:p-8">
+      {/* Main Content - Add bottom padding on mobile for sticky bar */}
+      <div className="max-w-7xl mx-auto p-4 lg:p-8 pb-24 lg:pb-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column */}
           <div className="lg:col-span-2 space-y-6">
@@ -690,25 +796,28 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
               hasHours={!!booth.hours}
               acceptsCash={booth.accepts_cash || false}
               acceptsCard={booth.accepts_card || false}
+              cost={booth.cost || undefined}
             />
 
-            {/* Report Issue */}
-            <Card className="p-6 bg-neutral-50">
-              <h3 className="font-semibold text-sm mb-2">Report an Issue</h3>
-              <p className="text-sm text-neutral-600 mb-3">
-                Found incorrect information? Let us know.
-              </p>
-              <Button variant="outline" size="sm" className="w-full">
-                Report Issue
-              </Button>
-            </Card>
+            {/* Report Issue - Priority 3 Implementation */}
+            <ReportIssueButton boothId={booth.id} boothName={booth.name} />
           </div>
         </div>
 
-        {/* Discovery Section - Nearby & Similar Booths */}
+        {/* Discovery Section - City, Nearby & Similar Booths */}
         {hasValidLocation && booth.latitude && booth.longitude && (
-          <div className="mt-12">
-            <h2 className="text-2xl font-bold mb-6">Discover More Booths</h2>
+          <div className="mt-12 space-y-8">
+            <h2 className="text-2xl font-bold">Discover More Booths</h2>
+
+            {/* City-Specific Booths */}
+            <CityBooths
+              boothId={booth.id}
+              city={city}
+              state={booth.state}
+              country={country}
+              limit={6}
+            />
+
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Nearby Booths */}
               <NearbyBooths
@@ -725,10 +834,20 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
           </div>
         )}
 
-        {/* If no valid location, still show similar booths */}
+        {/* If no valid location, still show city and similar booths */}
         {!hasValidLocation && (
-          <div className="mt-12">
-            <h2 className="text-2xl font-bold mb-6">You Might Also Like</h2>
+          <div className="mt-12 space-y-8">
+            <h2 className="text-2xl font-bold">You Might Also Like</h2>
+
+            {/* City-Specific Booths */}
+            <CityBooths
+              boothId={booth.id}
+              city={city}
+              state={booth.state}
+              country={country}
+              limit={6}
+            />
+
             <SimilarBooths boothId={booth.id} limit={6} />
           </div>
         )}

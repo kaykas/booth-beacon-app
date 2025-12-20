@@ -11,6 +11,7 @@ import { PhotoStrips } from '@/components/PhotoStrips';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { FoundersStory } from '@/components/home/FoundersStory';
+import { RecentlyAdded } from '@/components/home/RecentlyAdded';
 import { createPublicServerClient } from '@/lib/supabase';
 import { Booth } from '@/types';
 import { generateWebsiteSchema, generateFAQPageSchema, injectStructuredData } from '@/lib/seo/structuredData';
@@ -339,6 +340,9 @@ export default async function Home() {
           </div>
         </div>
       </section>
+
+      {/* Recently Added Booths */}
+      <RecentlyAdded />
 
       {/* How It Works */}
       <section id="how-it-works" className="py-16 px-4 bg-card film-grain">

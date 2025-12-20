@@ -1,14 +1,15 @@
 'use client';
 
-import { CheckCircle2, Circle, Clock, DollarSign, MapPin, Camera } from 'lucide-react';
+import { CheckSquare, Square, Clock, DollarSign, AlertCircle, Smartphone, ChevronDown, ChevronUp } from 'lucide-react';
 import { Card } from '@/components/ui/card';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 interface VisitChecklistProps {
   boothName: string;
   hasHours: boolean;
   acceptsCash: boolean;
   acceptsCard: boolean;
+  cost?: string;
 }
 
 export function VisitChecklist({
@@ -16,112 +17,102 @@ export function VisitChecklist({
   hasHours,
   acceptsCash,
   acceptsCard,
+  cost,
 }: VisitChecklistProps) {
-  const [checkedItems, setCheckedItems] = useState<Set<string>>(new Set());
+  const [isExpanded, setIsExpanded] = useState(true);
 
-  // Load checked items from localStorage
-  useEffect(() => {
-    const loadCheckedItems = () => {
-      const saved = localStorage.getItem(`checklist-${boothName}`);
-      if (saved) {
-        setCheckedItems(new Set(JSON.parse(saved)));
-      }
-    };
-
-    loadCheckedItems();
-  }, [boothName]);
-
-  const toggleItem = (item: string) => {
-    const newChecked = new Set(checkedItems);
-    if (newChecked.has(item)) {
-      newChecked.delete(item);
-    } else {
-      newChecked.add(item);
-    }
-    setCheckedItems(newChecked);
-    localStorage.setItem(`checklist-${boothName}`, JSON.stringify([...newChecked]));
-  };
-
+  // Build dynamic checklist items based on booth data
   const checklistItems = [
     {
       id: 'hours',
-      label: hasHours ? 'Check hours before visiting' : 'Check venue hours before visiting',
+      text: hasHours ? 'Check hours before visiting' : 'Call ahead to confirm venue hours',
       icon: Clock,
-      important: true,
+      color: 'text-blue-700',
+      bgColor: 'bg-blue-50',
     },
     {
       id: 'cash',
-      label: acceptsCash && !acceptsCard ? 'Bring cash (card not accepted)' : 'Bring payment method',
+      text: acceptsCash && !acceptsCard
+        ? `Bring ${cost || '$5-10'} in cash (exact change helps!)`
+        : acceptsCash
+        ? 'Bring cash or card for payment'
+        : 'Check payment options before visiting',
       icon: DollarSign,
-      important: !acceptsCard,
+      color: acceptsCash && !acceptsCard ? 'text-green-700' : 'text-amber-700',
+      bgColor: acceptsCash && !acceptsCard ? 'bg-green-50' : 'bg-amber-50',
     },
     {
-      id: 'location',
-      label: 'Save location to your maps',
-      icon: MapPin,
-      important: true,
+      id: 'patience',
+      text: 'Analog booths take 2-5 minutes to develop - be patient!',
+      icon: Clock,
+      color: 'text-indigo-700',
+      bgColor: 'bg-indigo-50',
     },
     {
-      id: 'camera',
-      label: 'Bring camera to capture the moment',
-      icon: Camera,
-      important: false,
+      id: 'status',
+      text: 'Call ahead if traveling far - booths can break unexpectedly',
+      icon: AlertCircle,
+      color: 'text-amber-700',
+      bgColor: 'bg-amber-50',
+    },
+    {
+      id: 'phone',
+      text: 'Save location to your phone before you go',
+      icon: Smartphone,
+      color: 'text-purple-700',
+      bgColor: 'bg-purple-50',
     },
   ];
 
-  const completedCount = checklistItems.filter((item) => checkedItems.has(item.id)).length;
-
   return (
-    <Card className="p-6">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold">Visit Checklist</h3>
-        <span className="text-sm font-semibold text-neutral-700">
-          {completedCount}/{checklistItems.length}
-        </span>
-      </div>
+    <Card className="p-6 bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 border-2 border-orange-200 shadow-sm">
+      <button
+        onClick={() => setIsExpanded(!isExpanded)}
+        className="w-full flex items-center justify-between mb-3 group"
+      >
+        <h3 className="text-lg font-bold text-orange-900 flex items-center gap-2">
+          <CheckSquare className="w-5 h-5 text-orange-600" />
+          Before You Visit
+        </h3>
+        {isExpanded ? (
+          <ChevronUp className="w-5 h-5 text-orange-600 group-hover:text-orange-800 transition-colors" />
+        ) : (
+          <ChevronDown className="w-5 h-5 text-orange-600 group-hover:text-orange-800 transition-colors" />
+        )}
+      </button>
 
-      <div className="space-y-2">
-        {checklistItems.map((item) => {
-          const Icon = item.icon;
-          const isChecked = checkedItems.has(item.id);
+      {isExpanded && (
+        <>
+          <p className="text-sm text-orange-800 mb-4 font-medium">
+            Maximize your visit with these helpful tips:
+          </p>
 
-          return (
-            <button
-              key={item.id}
-              onClick={() => toggleItem(item.id)}
-              className={`w-full flex items-start gap-3 p-3 rounded-lg transition-all text-left border-2 ${
-                isChecked
-                  ? 'bg-green-50 border-green-200 hover:bg-green-100'
-                  : 'bg-white border-neutral-200 hover:border-primary hover:bg-primary/5'
-              }`}
-            >
-              {isChecked ? (
-                <CheckCircle2 className="w-6 h-6 text-green-600 flex-shrink-0 mt-0.5" />
-              ) : (
-                <Circle className="w-6 h-6 text-neutral-400 flex-shrink-0 mt-0.5" />
-              )}
-              <div className="flex-1 min-w-0">
-                <div className={`flex items-center gap-2 flex-wrap ${isChecked ? 'text-neutral-600' : 'text-neutral-900'}`}>
-                  <Icon className="w-4 h-4 flex-shrink-0" />
-                  <span className={`text-sm font-medium ${isChecked ? 'line-through' : ''}`}>
-                    {item.label}
+          <ul className="space-y-2">
+            {checklistItems.map((item) => {
+              const Icon = item.icon;
+
+              return (
+                <li
+                  key={item.id}
+                  className="flex items-start gap-3 p-3 rounded-lg bg-white/60 border border-orange-100 hover:bg-white/80 transition-colors"
+                >
+                  <div className={`p-1.5 rounded-full ${item.bgColor} flex-shrink-0 mt-0.5`}>
+                    <Icon className={`w-3.5 h-3.5 ${item.color}`} />
+                  </div>
+                  <span className="text-sm text-neutral-800 leading-relaxed">
+                    {item.text}
                   </span>
-                </div>
-                {item.important && !isChecked && (
-                  <span className="text-xs font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded mt-1 inline-block">
-                    Important
-                  </span>
-                )}
-              </div>
-            </button>
-          );
-        })}
-      </div>
+                </li>
+              );
+            })}
+          </ul>
 
-      {completedCount === checklistItems.length && (
-        <div className="mt-4 p-3 bg-green-50 border-2 border-green-300 rounded-lg text-center">
-          <p className="text-sm font-semibold text-green-800">✓ You&apos;re all set to visit!</p>
-        </div>
+          <div className="mt-4 p-3 bg-orange-100 border border-orange-200 rounded-lg">
+            <p className="text-xs text-orange-900 font-medium text-center">
+              Pro tip: Vintage booths have character and quirks - that&apos;s part of the charm!
+            </p>
+          </div>
+        </>
       )}
     </Card>
   );
