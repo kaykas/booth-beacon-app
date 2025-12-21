@@ -358,20 +358,20 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
               <AlertCircle className="w-8 h-8 text-red-600 flex-shrink-0 mt-1" />
               <div className="flex-1">
                 <h2 className="text-xl font-bold text-red-900 mb-2">
-                  This Booth Listing Contains Invalid Data
+                  Unverified Booth Information
                 </h2>
                 <div className="text-red-800 space-y-2">
                   <p>
-                    This booth was automatically extracted from web sources but contains incomplete or incorrect information.
-                    It may not be a real photo booth location.
+                    This booth listing has not been verified and may contain incomplete or incorrect information.
+                    The data shown may not represent an actual photo booth location.
                   </p>
                   <p className="font-semibold">
-                    ⚠️ We recommend not visiting this location based on this listing.
+                    ⚠️ We recommend not visiting this location without additional verification.
                   </p>
                   <div className="mt-4 pt-4 border-t border-red-200">
                     <p className="text-sm">
-                      <strong>Why is this marked as invalid?</strong> Our automated web crawler extracted incomplete data (missing name, address, or description).
-                      This listing will be removed or corrected after manual review.
+                      <strong>Why is this unverified?</strong> This listing has not been confirmed by first-party sources or community verification.
+                      It will be reviewed and either verified or removed.
                     </p>
                   </div>
                 </div>
@@ -445,7 +445,7 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
                     {isClosedOrInvalid && (
                       <span className="bg-red-600 text-white px-3 py-1.5 text-sm font-bold rounded-md flex items-center gap-1">
                         <AlertCircle className="w-4 h-4" />
-                        Invalid Data - Do Not Visit
+                        Unverified - Use Caution
                       </span>
                     )}
                     {!isClosedOrInvalid && booth.status === 'active' && !booth.needs_verification && (
