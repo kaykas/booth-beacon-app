@@ -41,6 +41,7 @@ async function getFeaturedBooths(): Promise<Booth[]> {
     )
     .eq('status', 'active')
     .eq('is_operational', true)
+    .neq('name', 'N/A') // Exclude invalid extraction failures
     .order('updated_at', { ascending: false })
     .limit(8);
 
@@ -77,6 +78,7 @@ async function getMapBooths(): Promise<Booth[]> {
       )
       .eq('status', 'active')
       .eq('is_operational', true)
+      .neq('name', 'N/A') // Exclude invalid extraction failures
       .not('latitude', 'is', null)
       .not('longitude', 'is', null)
       .range(start, end);

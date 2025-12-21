@@ -530,8 +530,21 @@ class LomographyExtractor extends BaseExtractor {
       // Store name pattern
       const storeMatch = line.match(/^#+\s*Lomography\s+(Embassy|Gallery Store|Partner Store)\s+([^#]+)$/i);
       if (storeMatch) {
+        // Save previous store if valid
         if (currentStore?.name && currentStore?.address && currentStore?.country) {
-          booths.push(currentStore);
+          // Validate before adding
+          if (
+            currentStore.name !== 'N/A' &&
+            currentStore.address !== 'N/A' &&
+            currentStore.country !== 'N/A' &&
+            currentStore.city !== 'N/A' &&
+            currentStore.name.length > 2 &&
+            currentStore.address.length > 5
+          ) {
+            booths.push(currentStore);
+          } else {
+            console.warn(`Rejected invalid Lomography booth: name="${currentStore.name}", address="${currentStore.address}"`);
+          }
         }
         currentStore = {
           name: `Lomography ${storeMatch[1]} - ${storeMatch[2].trim()}`,
@@ -562,9 +575,22 @@ class LomographyExtractor extends BaseExtractor {
       }
     }
 
-    // Add final store
+    // Add final store - with validation
     if (currentStore?.name && currentStore?.address && currentStore?.country) {
-      booths.push(currentStore);
+      // Validate data quality before adding
+      // Reject entries with N/A or missing critical data
+      if (
+        currentStore.name !== 'N/A' &&
+        currentStore.address !== 'N/A' &&
+        currentStore.country !== 'N/A' &&
+        currentStore.city !== 'N/A' &&
+        currentStore.name.length > 2 &&
+        currentStore.address.length > 5
+      ) {
+        booths.push(currentStore);
+      } else {
+        console.warn(`Rejected invalid Lomography booth: name="${currentStore.name}", address="${currentStore.address}"`);
+      }
     }
 
     return booths;

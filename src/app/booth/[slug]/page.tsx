@@ -158,13 +158,16 @@ export const revalidate = 3600; // 1 hour
 export const dynamicParams = true; // Allow dynamic params for new booths
 
 // Generate static pages for all booths at build time
+// Exclude closed/invalid booths from pre-rendering
 export async function generateStaticParams() {
   try {
     const supabase = createPublicServerClient();
     const { data: booths, error } = await supabase
       .from('booths')
       .select('slug')
-      .not('slug', 'is', null);
+      .not('slug', 'is', null)
+      .neq('status', 'closed') // Exclude closed/invalid booths
+      .neq('name', 'N/A'); // Exclude invalid extraction failures
 
     if (error) {
       console.error('Error generating static params:', error);
@@ -243,6 +246,9 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
   if (!booth) {
     notFound();
   }
+
+  // Check if booth is closed/invalid
+  const isClosedOrInvalid = booth.status === 'closed' || booth.name === 'N/A' || booth.data_source_type === 'invalid_extraction';
 
   // Safe field access with defaults
   const locationString = booth.locationLabel;
@@ -344,6 +350,37 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
         </div>
       </div>
 
+      {/* Closed/Invalid Booth Warning */}
+      {isClosedOrInvalid && (
+        <div className="bg-red-50 border-b-4 border-red-600">
+          <div className="max-w-7xl mx-auto px-4 py-6">
+            <div className="flex items-start gap-4">
+              <AlertCircle className="w-8 h-8 text-red-600 flex-shrink-0 mt-1" />
+              <div className="flex-1">
+                <h2 className="text-xl font-bold text-red-900 mb-2">
+                  This Booth Listing Contains Invalid Data
+                </h2>
+                <div className="text-red-800 space-y-2">
+                  <p>
+                    This booth was automatically extracted from web sources but contains incomplete or incorrect information.
+                    It may not be a real photo booth location.
+                  </p>
+                  <p className="font-semibold">
+                    ⚠️ We recommend not visiting this location based on this listing.
+                  </p>
+                  <div className="mt-4 pt-4 border-t border-red-200">
+                    <p className="text-sm">
+                      <strong>Why is this marked as invalid?</strong> Our automated web crawler extracted incomplete data (missing name, address, or description).
+                      This listing will be removed or corrected after manual review.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Hero Section */}
       <div className="bg-white border-b border-neutral-200">
         <div className="max-w-7xl mx-auto">
@@ -405,12 +442,18 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
                   {/* Quick Info Pills Above the Fold */}
                   <div className="flex flex-wrap gap-2 mb-4">
                     {/* Show verification status badges */}
-                    {booth.status === 'active' && !booth.needs_verification && (
+                    {isClosedOrInvalid && (
+                      <span className="bg-red-600 text-white px-3 py-1.5 text-sm font-bold rounded-md flex items-center gap-1">
+                        <AlertCircle className="w-4 h-4" />
+                        Invalid Data - Do Not Visit
+                      </span>
+                    )}
+                    {!isClosedOrInvalid && booth.status === 'active' && !booth.needs_verification && (
                       <span className="bg-green-500 text-white px-3 py-1.5 text-sm font-medium rounded-md">
                         ✓ Currently Operational
                       </span>
                     )}
-                    {(booth.status === 'unverified' || booth.needs_verification) && (
+                    {!isClosedOrInvalid && (booth.status === 'unverified' || booth.needs_verification) && (
                       <span className="bg-amber-500 text-white px-3 py-1.5 text-sm font-medium rounded-md flex items-center gap-1">
                         <AlertCircle className="w-4 h-4" />
                         Needs Verification
