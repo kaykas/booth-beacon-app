@@ -25,7 +25,7 @@ const supabase = createClient(
   getRequiredEnv('SUPABASE_SERVICE_ROLE_KEY')
 );
 
-interface EnrichmentRequest {
+interface _EnrichmentRequest {
   boothIds: string[];
 }
 
@@ -38,7 +38,7 @@ interface EnrichmentResult {
   success: boolean;
 }
 
-async function enrichBooth(boothId: string): Promise<EnrichmentResult> {
+async function _enrichBooth(boothId: string): Promise<EnrichmentResult> {
   const enrichmentsApplied: string[] = [];
   const errors: string[] = [];
 

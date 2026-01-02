@@ -12,7 +12,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { BarChart3, Users, Image, MessageSquare, MapPin, CheckCircle, XCircle, Clock, Database, PlayCircle, PauseCircle, RefreshCw, Shield, Wifi, Activity, AlertCircle, Zap, Loader2, FileText, Heart, Recycle, Eye, ChevronDown, ChevronRight } from 'lucide-react';
+import { BarChart3, Users, MessageSquare, CheckCircle, XCircle, Clock, Database, PlayCircle, PauseCircle, RefreshCw, Shield, Wifi, Activity, AlertCircle, Zap, Loader2, FileText, Heart, Recycle, Eye, ChevronDown, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { MetricsDashboard } from '@/components/admin/MetricsDashboard';
 import { CrawlPerformanceBreakdown } from '@/components/admin/CrawlPerformanceBreakdown';

@@ -220,7 +220,7 @@ async function run() {
   const duplicates = Array.from(coordMap.entries()).filter(([_, booths]) => booths.length > 1);
   console.log(`   Found ${duplicates.length} sets of duplicate coordinates\n`);
 
-  for (const [coords, boothList] of duplicates) {
+  for (const [_coords, boothList] of duplicates) {
     for (const booth of boothList) {
       issues.push({
         booth_id: booth.id,

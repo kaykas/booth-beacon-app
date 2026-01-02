@@ -23,7 +23,7 @@ async function run() {
   console.log(`Found ${log.length} booths that need re-geocoding\n`);
 
   // Fetch current data for these booths
-  const boothIds = log.map((entry: any) => entry.id);
+  const boothIds = log.map((entry: { id: string }) => entry.id);
   
   const { data: booths, error } = await supabase
     .from('booths')

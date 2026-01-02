@@ -23,7 +23,7 @@ if (!GOOGLE_MAPS_KEY) {
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // List of 21 failed booths from previous Nominatim run
-const FAILED_BOOTH_IDS = [
+const _FAILED_BOOTH_IDS = [
   'f9e5e7c1-8a4e-4e5f-b8c7-3d2e1f4a5b6c', // Beyond Retro (Brighton, UK)
   '8d7c6b5a-4e3f-2a1b-9c8d-7e6f5a4b3c2d', // West Edmonton Mall I
   '7a6b5c4d-3e2f-1a0b-8c7d-6e5f4a3b2c1d', // Flinders Street Station II

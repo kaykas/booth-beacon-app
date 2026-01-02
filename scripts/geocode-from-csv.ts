@@ -87,7 +87,7 @@ async function run() {
 
   const csvContent = fs.readFileSync(csvPath, 'utf-8');
   const lines = csvContent.split('\n').filter(line => line.trim());
-  const headers = lines[0].split(',');
+  const _headers = lines[0].split(',');
   
   const rows: CSVRow[] = [];
   for (let i = 1; i < lines.length; i++) {
@@ -109,7 +109,7 @@ async function run() {
 
   let successCount = 0;
   let failCount = 0;
-  let skipCount = 0;
+  const skipCount = 0;
 
   for (const [index, row] of rows.entries()) {
     console.log(`[${index + 1}/${rows.length}] ${row.name} (${row.city}, ${row.country})`);

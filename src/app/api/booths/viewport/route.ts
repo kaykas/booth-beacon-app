@@ -4,7 +4,7 @@ import { Booth } from '@/types';
 
 export const runtime = 'edge';
 
-interface ViewportBounds {
+interface _ViewportBounds {
   north: number;
   south: number;
   east: number;
