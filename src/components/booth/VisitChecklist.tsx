@@ -1,6 +1,6 @@
 'use client';
 
-import { CheckSquare, Square, Clock, DollarSign, AlertCircle, Smartphone, ChevronDown, ChevronUp } from 'lucide-react';
+import { CheckSquare, Clock, DollarSign, AlertCircle, Smartphone, ChevronDown, ChevronUp } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { useState } from 'react';
 
@@ -13,7 +13,7 @@ interface VisitChecklistProps {
 }
 
 export function VisitChecklist({
-  boothName,
+  boothName: _boothName,
   hasHours,
   acceptsCash,
   acceptsCard,

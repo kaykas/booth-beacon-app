@@ -111,7 +111,7 @@ class LRUCache<T> {
  * Advanced Cache Service
  */
 export class AdvancedCacheService {
-  private memoryCache: LRUCache<any>;
+  private memoryCache: LRUCache<unknown>;
   private stats = {
     hits: 0,
     misses: 0,

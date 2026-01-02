@@ -1,6 +1,6 @@
 'use client';
 
-import { Navigation, Share2, Bookmark } from 'lucide-react';
+import { Navigation, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useEffect, useState } from 'react';
 import { BookmarkButton } from '@/components/BookmarkButton';

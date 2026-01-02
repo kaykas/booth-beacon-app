@@ -112,33 +112,38 @@ function MapContent() {
     }
   }, [filters.status, filters.photoType, filters.machineModel, filters.payment]);
 
-  // Initial load: fetch a reasonable starting set of booths
+  // Initial load: fetch a reasonable starting set of booths using optimized API
   const fetchInitialBooths = useCallback(async () => {
     setLoading(true);
 
     try {
-      // Fetch initial 200 booths with coordinates for initial map display
-      let query = supabase
-        .from('booths')
-        .select('*')
-        .not('latitude', 'is', null)
-        .not('longitude', 'is', null)
-        .limit(200);
+      // Use viewport API for faster loading with a global viewport
+      const params = new URLSearchParams({
+        north: '85',
+        south: '-85',
+        east: '180',
+        west: '-180',
+        limit: '200',
+      });
 
-      // Apply status filter
       if (filters.status && filters.status !== 'all') {
-        query = query.eq('status', filters.status);
+        params.set('status', filters.status);
       }
 
-      const { data, error } = await query;
+      const response = await fetch(`/api/booths/viewport?${params}`, {
+        cache: 'force-cache',
+        next: { revalidate: 300 } // Cache for 5 minutes
+      });
 
-      if (error) {
-        console.error('Error fetching initial booths:', error);
-      } else if (data) {
-        setBooths(data as Booth[]);
+      if (!response.ok) {
+        throw new Error('Failed to fetch booths');
       }
+
+      const result = await response.json();
+      setBooths(result.booths || []);
     } catch (error) {
       console.error('Error in fetchInitialBooths:', error);
+      setBooths([]);
     } finally {
       setLoading(false);
     }

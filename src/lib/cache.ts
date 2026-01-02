@@ -9,7 +9,7 @@
 
 import { unstable_cache } from 'next/cache';
 import { createPublicServerClient } from '@/lib/supabase';
-import { Booth, SiteStats } from '@/types';
+import { Booth } from '@/types';
 
 /**
  * Cache tag constants for invalidation strategy
@@ -265,7 +265,7 @@ export const getFilterOptions = unstable_cache(
       const operators = Array.from(
         new Set(
           (operatorsData || [])
-            .map((row: any) => row.operator_name)
+            .map((row: Record<string, unknown>) => row.operator_name)
             .filter(Boolean)
         )
       ).sort() as string[];
@@ -273,7 +273,7 @@ export const getFilterOptions = unstable_cache(
       const machineModels = Array.from(
         new Set(
           (modelsData || [])
-            .map((row: any) => row.machine_model)
+            .map((row: Record<string, unknown>) => row.machine_model)
             .filter(Boolean)
         )
       ).sort() as string[];
@@ -281,7 +281,7 @@ export const getFilterOptions = unstable_cache(
       const photoTypes = Array.from(
         new Set(
           (photoTypesData || [])
-            .map((row: any) => row.photo_type)
+            .map((row: Record<string, unknown>) => row.photo_type)
             .filter(Boolean)
         )
       ) as ('black-and-white' | 'color' | 'both')[];
@@ -289,7 +289,7 @@ export const getFilterOptions = unstable_cache(
       const countries = Array.from(
         new Set(
           (countriesData || [])
-            .map((row: any) => row.country)
+            .map((row: Record<string, unknown>) => row.country)
             .filter(Boolean)
         )
       ).sort() as string[];

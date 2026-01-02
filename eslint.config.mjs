@@ -1,62 +1,49 @@
-import { defineConfig, globalIgnores } from "eslint/config";
-import nextVitals from "eslint-config-next/core-web-vitals";
-import nextTs from "eslint-config-next/typescript";
+import { FlatCompat } from '@eslint/eslintrc';
+import js from '@eslint/js';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-const eslintConfig = defineConfig([
-  ...nextVitals,
-  ...nextTs,
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const compat = new FlatCompat({
+  baseDirectory: __dirname,
+  recommendedConfig: js.configs.recommended,
+});
+
+export default [
+  ...compat.extends('next/core-web-vitals', 'next/typescript'),
   {
-    rules: {
-      // Allow unused variables that start with underscore
-      "@typescript-eslint/no-unused-vars": [
-        "error",
-        {
-          "argsIgnorePattern": "^_",
-          "varsIgnorePattern": "^_",
-          "caughtErrorsIgnorePattern": "^_"
-        }
-      ]
-    }
-  },
-  // Override default ignores of eslint-config-next.
-  globalIgnores([
-    // Default ignores of eslint-config-next:
-    ".next/**",
-    "out/**",
-    "build/**",
-    "next-env.d.ts",
-    // Test files and utilities (non-production code):
-    "**/*.test.ts",
-    "**/*.test.tsx",
-    "test-*.ts",
-    "crawl-*.ts",
-    "trigger-*.ts",
-    "run-*.ts",
-    "*-crawler*.ts",
-    "check-*.ts",
-    "count-*.ts",
-    "update-*.ts",
-    "fix-*.ts",
-    "seed-*.ts",
-    "enable-*.ts",
-    "verify-*.ts",
-    "sample-*.ts",
-    "batch-*.ts",
-    "enrich-*.ts",
-    "apply-*.ts",
-    "autonomous-*.ts",
-    "geocode-*.ts",
-    "generate-*.ts",
-    "venue-*.ts",
-    "bulk-*.ts",
-    "improved-extraction.ts",
-    // Maintenance scripts directory:
-    "scripts/maintenance/**",
-    "scripts/master-crawler.ts",
-    "scripts/robust-crawler.ts",
-    // Supabase functions (deployed separately):
-    "supabase/functions/**",
-  ]),
-]);
+    ignores: [
+      // Build outputs
+      '.next/**',
+      'out/**',
+      'build/**',
+      'dist/**',
 
-export default eslintConfig;
+      // Dependencies
+      'node_modules/**',
+
+      // Development and test scripts
+      'scripts/**/*.js',
+      'scripts/**/*.mjs',
+      'scripts/**/*.ts',
+
+      // Root-level utility scripts
+      '*.mjs',
+      'run-*.mjs',
+      'fix-*.mjs',
+      'deploy-*.mjs',
+      'deploy-*.sh',
+      'test-*.sh',
+
+      // Supabase
+      'supabase/.temp/**',
+
+      // Other
+      '.vercel/**',
+      'coverage/**',
+      '.claude/**',
+    ],
+  },
+];
