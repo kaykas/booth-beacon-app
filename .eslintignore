@@ -1,0 +1,4 @@
+scripts/**/*.{js,mjs,ts}
+*.mjs
+run-data-quality-migration.mjs
+fix-schema*.mjs
