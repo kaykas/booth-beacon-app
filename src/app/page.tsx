@@ -53,7 +53,7 @@ async function getFeaturedBooths(): Promise<Booth[]> {
   return (data as Booth[]) || [];
 }
 
-// Fetch booths for the map display (more booths for better USA coverage)
+// Fetch booths for the map display (limited to 100 for homepage preview)
 async function getMapBooths(): Promise<Booth[]> {
   const supabase = getPublicSupabaseClient();
 
@@ -61,42 +61,24 @@ async function getMapBooths(): Promise<Booth[]> {
     return [];
   }
 
-  // Use pagination to fetch all booths beyond the 1000-row limit
-  let allBooths: Booth[] = [];
-  let page = 0;
-  const pageSize = 1000;
-  let hasMore = true;
+  const { data, error } = await supabase
+    .from('booths')
+    .select(
+      `id, name, slug, city, country, latitude, longitude, photo_exterior_url, ai_preview_url, ai_generated_image_url, status, is_operational`
+    )
+    .eq('status', 'active')
+    .eq('is_operational', true)
+    .neq('name', 'N/A') // Exclude invalid extraction failures
+    .not('latitude', 'is', null)
+    .not('longitude', 'is', null)
+    .limit(100);
 
-  while (hasMore) {
-    const start = page * pageSize;
-    const end = start + pageSize - 1;
-
-    const { data, error } = await supabase
-      .from('booths')
-      .select(
-        `id, name, slug, city, country, latitude, longitude, photo_exterior_url, ai_preview_url, ai_generated_image_url, status, is_operational`
-      )
-      .eq('status', 'active')
-      .eq('is_operational', true)
-      .neq('name', 'N/A') // Exclude invalid extraction failures
-      .not('latitude', 'is', null)
-      .not('longitude', 'is', null)
-      .range(start, end);
-
-    if (error) {
-      console.error('Error fetching map booths:', error);
-      hasMore = false;
-    } else if (data) {
-      allBooths = [...allBooths, ...(data as Booth[])];
-      // If we got less than pageSize, we've reached the end
-      hasMore = data.length === pageSize;
-      page++;
-    } else {
-      hasMore = false;
-    }
+  if (error) {
+    console.error('Error fetching map booths:', error);
+    return [];
   }
 
-  return allBooths;
+  return (data as Booth[]) || [];
 }
 
 // Fetch booth stats - matches map display criteria

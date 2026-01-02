@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Search, Filter, X, Loader2 } from 'lucide-react';
+import { Search, Filter, X, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -12,7 +12,6 @@ import { Label } from '@/components/ui/label';
 import { BoothCard } from '@/components/booth/BoothCard';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
-import { supabase } from '@/lib/supabase';
 import { Booth } from '@/types';
 
 interface SearchFilters {
@@ -24,6 +23,23 @@ interface SearchFilters {
   hasPhotos: boolean | null;
   acceptsCash: boolean | null;
   acceptsCard: boolean | null;
+}
+
+interface FilterOptions {
+  cities: string[];
+  countries: string[];
+  machineModels: string[];
+}
+
+interface PaginationInfo {
+  page: number;
+  perPage: number;
+  totalCount: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
+  from: number;
+  to: number;
 }
 
 function SearchPageContent() {
@@ -41,143 +57,89 @@ function SearchPageContent() {
     acceptsCard: searchParams.get('card') === 'true' ? true : null,
   });
 
+  const [currentPage, setCurrentPage] = useState(parseInt(searchParams.get('page') || '1', 10));
   const [booths, setBooths] = useState<Booth[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [totalCount, setTotalCount] = useState(0);
+  const [pagination, setPagination] = useState<PaginationInfo | null>(null);
   const [showFilters, setShowFilters] = useState(false);
 
   // Filter options state
-  const [cities, setCities] = useState<string[]>([]);
-  const [countries, setCountries] = useState<string[]>([]);
-  const [machineModels, setMachineModels] = useState<string[]>([]);
+  const [filterOptions, setFilterOptions] = useState<FilterOptions>({
+    cities: [],
+    countries: [],
+    machineModels: [],
+  });
+  const [isLoadingFilters, setIsLoadingFilters] = useState(true);
 
-  // Load filter options on mount
+  // Load filter options on mount (cached server-side)
   useEffect(() => {
     async function loadFilterOptions() {
       try {
-        // Get unique cities
-        const { data: cityData } = await supabase
-          .from('booths')
-          .select('city')
-          .not('city', 'is', null)
-          .order('city');
-
-        const uniqueCities = Array.from(
-          new Set(
-            (cityData as Array<{ city: string }>)?.map(b => b.city).filter(Boolean) || []
-          )
-        );
-        setCities(uniqueCities);
-
-        // Get unique countries
-        const { data: countryData } = await supabase
-          .from('booths')
-          .select('country')
-          .not('country', 'is', null)
-          .order('country');
-
-        const uniqueCountries = Array.from(
-          new Set(
-            (countryData as Array<{ country: string }>)?.map(b => b.country).filter(Boolean) || []
-          )
-        );
-        setCountries(uniqueCountries);
-
-        // Get unique machine models
-        const { data: modelData } = await supabase
-          .from('booths')
-          .select('machine_model')
-          .not('machine_model', 'is', null)
-          .order('machine_model');
-
-        const uniqueModels = Array.from(
-          new Set(
-            (modelData as Array<{ machine_model: string }>)?.map(b => b.machine_model).filter(Boolean) || []
-          )
-        );
-        setMachineModels(uniqueModels);
+        const response = await fetch('/api/search/filter-options');
+        if (!response.ok) throw new Error('Failed to fetch filter options');
+        const data = await response.json();
+        setFilterOptions(data);
       } catch (error) {
         console.error('Error loading filter options:', error);
+      } finally {
+        setIsLoadingFilters(false);
       }
     }
 
     loadFilterOptions();
   }, []);
 
-  const performSearch = useCallback(async () => {
+  // Perform search with pagination
+  const performSearch = useCallback(async (page: number) => {
     setIsLoading(true);
     try {
-      let query = supabase
-        .from('booths')
-        .select('*', { count: 'exact' });
+      const params = new URLSearchParams();
 
-      // Text search - search across name, city, country, address
-      if (filters.query.trim()) {
-        const searchTerm = filters.query.trim();
-        query = query.or(`name.ilike.%${searchTerm}%,city.ilike.%${searchTerm}%,country.ilike.%${searchTerm}%,address.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`);
-      }
+      if (filters.query.trim()) params.set('q', filters.query.trim());
+      if (filters.city) params.set('city', filters.city);
+      if (filters.country) params.set('country', filters.country);
+      if (filters.machineModel) params.set('model', filters.machineModel);
+      if (filters.status.length > 0) params.set('status', filters.status.join(','));
+      if (filters.hasPhotos !== null) params.set('hasPhotos', String(filters.hasPhotos));
+      if (filters.acceptsCash !== null) params.set('cash', String(filters.acceptsCash));
+      if (filters.acceptsCard !== null) params.set('card', String(filters.acceptsCard));
+      params.set('page', String(page));
 
-      // City filter
-      if (filters.city) {
-        query = query.eq('city', filters.city);
-      }
+      const response = await fetch(`/api/search?${params.toString()}`);
+      if (!response.ok) throw new Error('Search failed');
 
-      // Country filter
-      if (filters.country) {
-        query = query.eq('country', filters.country);
-      }
-
-      // Machine model filter
-      if (filters.machineModel) {
-        query = query.eq('machine_model', filters.machineModel);
-      }
-
-      // Status filter (multiple)
-      if (filters.status.length > 0) {
-        query = query.in('status', filters.status);
-      }
-
-      // Photo availability filter
-      if (filters.hasPhotos === true) {
-        query = query.or('photo_exterior_url.not.is.null,photo_interior_url.not.is.null,ai_preview_url.not.is.null');
-      } else if (filters.hasPhotos === false) {
-        query = query.is('photo_exterior_url', null).is('photo_interior_url', null).is('ai_preview_url', null);
-      }
-
-      // Payment method filters
-      if (filters.acceptsCash === true) {
-        query = query.eq('accepts_cash', true);
-      }
-      if (filters.acceptsCard === true) {
-        query = query.eq('accepts_card', true);
-      }
-
-      // Execute query
-      const { data, error, count } = await query
-        .order('updated_at', { ascending: false })
-        .limit(100);
-
-      if (error) throw error;
-
-      setBooths(data as Booth[] || []);
-      setTotalCount(count || 0);
+      const data = await response.json();
+      setBooths(data.booths || []);
+      setPagination(data.pagination);
     } catch (error) {
       console.error('Search error:', error);
       setBooths([]);
-      setTotalCount(0);
+      setPagination(null);
     } finally {
       setIsLoading(false);
     }
   }, [filters]);
 
-  // Search with debounce
+  // Search with debounce for text queries, immediate for filter changes
   useEffect(() => {
+    // Reset to page 1 when filters change
+    setCurrentPage(1);
+
+    // Debounce text search, immediate for other filters
+    const hasTextQuery = filters.query.trim().length > 0;
+    const delay = hasTextQuery ? 300 : 0;
+
     const searchTimeout = setTimeout(() => {
-      performSearch();
-    }, 300);
+      performSearch(1);
+    }, delay);
 
     return () => clearTimeout(searchTimeout);
   }, [filters, performSearch]);
+
+  // Handle page changes
+  useEffect(() => {
+    performSearch(currentPage);
+  }, [currentPage, performSearch]);
 
   // Update URL with filters
   useEffect(() => {
@@ -191,12 +153,13 @@ function SearchPageContent() {
     if (filters.hasPhotos !== null) params.set('hasPhotos', String(filters.hasPhotos));
     if (filters.acceptsCash !== null) params.set('cash', String(filters.acceptsCash));
     if (filters.acceptsCard !== null) params.set('card', String(filters.acceptsCard));
+    if (currentPage > 1) params.set('page', String(currentPage));
 
     const queryString = params.toString();
     const newUrl = queryString ? `/search?${queryString}` : '/search';
 
     window.history.replaceState({}, '', newUrl);
-  }, [filters]);
+  }, [filters, currentPage]);
 
   // Clear all filters
   const clearFilters = () => {
@@ -210,6 +173,7 @@ function SearchPageContent() {
       acceptsCash: null,
       acceptsCard: null,
     });
+    setCurrentPage(1);
   };
 
   // Count active filters
@@ -233,6 +197,14 @@ function SearchPageContent() {
         ? prev.status.filter(s => s !== status)
         : [...prev.status, status]
     }));
+  };
+
+  // Pagination controls
+  const goToPage = (page: number) => {
+    if (pagination && page >= 1 && page <= pagination.totalPages) {
+      setCurrentPage(page);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   return (
@@ -292,10 +264,12 @@ function SearchPageContent() {
                     <Loader2 className="w-4 h-4 animate-spin" />
                     Searching...
                   </span>
-                ) : (
+                ) : pagination ? (
                   <span>
-                    {totalCount} {totalCount === 1 ? 'booth' : 'booths'} found
+                    Showing {pagination.from}-{pagination.to} of {pagination.totalCount} {pagination.totalCount === 1 ? 'booth' : 'booths'}
                   </span>
+                ) : (
+                  <span>No results</span>
                 )}
               </p>
               {activeFilterCount > 0 && (
@@ -312,144 +286,151 @@ function SearchPageContent() {
         {showFilters && (
           <section className="border-b border-border bg-card">
             <div className="max-w-6xl mx-auto px-4 py-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {/* Location Filters */}
-                <div>
-                  <Label className="mb-2 block font-semibold">Location</Label>
-                  <div className="space-y-2">
-                    <Select
-                      value={filters.country}
-                      onValueChange={(value) => setFilters(prev => ({ ...prev, country: value }))}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Country" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="">All Countries</SelectItem>
-                        {countries.map(country => (
-                          <SelectItem key={country} value={country}>
-                            {country}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+              {isLoadingFilters ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                  <span className="ml-2 text-muted-foreground">Loading filters...</span>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {/* Location Filters */}
+                  <div>
+                    <Label className="mb-2 block font-semibold">Location</Label>
+                    <div className="space-y-2">
+                      <Select
+                        value={filters.country}
+                        onValueChange={(value) => setFilters(prev => ({ ...prev, country: value }))}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Country" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="">All Countries</SelectItem>
+                          {filterOptions.countries.map(country => (
+                            <SelectItem key={country} value={country}>
+                              {country}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
 
+                      <Select
+                        value={filters.city}
+                        onValueChange={(value) => setFilters(prev => ({ ...prev, city: value }))}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="City" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="">All Cities</SelectItem>
+                          {filterOptions.cities.map(city => (
+                            <SelectItem key={city} value={city}>
+                              {city}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  {/* Machine Model Filter */}
+                  <div>
+                    <Label className="mb-2 block font-semibold">Machine Type</Label>
                     <Select
-                      value={filters.city}
-                      onValueChange={(value) => setFilters(prev => ({ ...prev, city: value }))}
+                      value={filters.machineModel}
+                      onValueChange={(value) => setFilters(prev => ({ ...prev, machineModel: value }))}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="City" />
+                        <SelectValue placeholder="All Models" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">All Cities</SelectItem>
-                        {cities.map(city => (
-                          <SelectItem key={city} value={city}>
-                            {city}
+                        <SelectItem value="">All Models</SelectItem>
+                        {filterOptions.machineModels.map(model => (
+                          <SelectItem key={model} value={model}>
+                            {model}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   </div>
-                </div>
 
-                {/* Machine Model Filter */}
-                <div>
-                  <Label className="mb-2 block font-semibold">Machine Type</Label>
-                  <Select
-                    value={filters.machineModel}
-                    onValueChange={(value) => setFilters(prev => ({ ...prev, machineModel: value }))}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="All Models" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="">All Models</SelectItem>
-                      {machineModels.map(model => (
-                        <SelectItem key={model} value={model}>
-                          {model}
-                        </SelectItem>
+                  {/* Status Filter */}
+                  <div>
+                    <Label className="mb-2 block font-semibold">Status</Label>
+                    <div className="space-y-2">
+                      {['active', 'unverified', 'inactive'].map(status => (
+                        <div key={status} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`status-${status}`}
+                            checked={filters.status.includes(status)}
+                            onCheckedChange={() => toggleStatus(status)}
+                          />
+                          <label
+                            htmlFor={`status-${status}`}
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                          >
+                            {status.charAt(0).toUpperCase() + status.slice(1)}
+                          </label>
+                        </div>
                       ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                    </div>
+                  </div>
 
-                {/* Status Filter */}
-                <div>
-                  <Label className="mb-2 block font-semibold">Status</Label>
-                  <div className="space-y-2">
-                    {['active', 'unverified', 'inactive'].map(status => (
-                      <div key={status} className="flex items-center space-x-2">
+                  {/* Payment & Photos */}
+                  <div>
+                    <Label className="mb-2 block font-semibold">Features</Label>
+                    <div className="space-y-2">
+                      <div className="flex items-center space-x-2">
                         <Checkbox
-                          id={`status-${status}`}
-                          checked={filters.status.includes(status)}
-                          onCheckedChange={() => toggleStatus(status)}
+                          id="has-photos"
+                          checked={filters.hasPhotos === true}
+                          onCheckedChange={(checked) =>
+                            setFilters(prev => ({ ...prev, hasPhotos: checked ? true : null }))
+                          }
                         />
                         <label
-                          htmlFor={`status-${status}`}
+                          htmlFor="has-photos"
                           className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
                         >
-                          {status.charAt(0).toUpperCase() + status.slice(1)}
+                          Has Photos
                         </label>
                       </div>
-                    ))}
-                  </div>
-                </div>
 
-                {/* Payment & Photos */}
-                <div>
-                  <Label className="mb-2 block font-semibold">Features</Label>
-                  <div className="space-y-2">
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id="has-photos"
-                        checked={filters.hasPhotos === true}
-                        onCheckedChange={(checked) =>
-                          setFilters(prev => ({ ...prev, hasPhotos: checked ? true : null }))
-                        }
-                      />
-                      <label
-                        htmlFor="has-photos"
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                      >
-                        Has Photos
-                      </label>
-                    </div>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="accepts-cash"
+                          checked={filters.acceptsCash === true}
+                          onCheckedChange={(checked) =>
+                            setFilters(prev => ({ ...prev, acceptsCash: checked ? true : null }))
+                          }
+                        />
+                        <label
+                          htmlFor="accepts-cash"
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                        >
+                          Accepts Cash
+                        </label>
+                      </div>
 
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id="accepts-cash"
-                        checked={filters.acceptsCash === true}
-                        onCheckedChange={(checked) =>
-                          setFilters(prev => ({ ...prev, acceptsCash: checked ? true : null }))
-                        }
-                      />
-                      <label
-                        htmlFor="accepts-cash"
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                      >
-                        Accepts Cash
-                      </label>
-                    </div>
-
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id="accepts-card"
-                        checked={filters.acceptsCard === true}
-                        onCheckedChange={(checked) =>
-                          setFilters(prev => ({ ...prev, acceptsCard: checked ? true : null }))
-                        }
-                      />
-                      <label
-                        htmlFor="accepts-card"
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                      >
-                        Accepts Card
-                      </label>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="accepts-card"
+                          checked={filters.acceptsCard === true}
+                          onCheckedChange={(checked) =>
+                            setFilters(prev => ({ ...prev, acceptsCard: checked ? true : null }))
+                          }
+                        />
+                        <label
+                          htmlFor="accepts-card"
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                        >
+                          Accepts Card
+                        </label>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
           </section>
         )}
@@ -462,11 +443,90 @@ function SearchPageContent() {
                 <Loader2 className="w-8 h-8 animate-spin text-primary" />
               </div>
             ) : booths.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {booths.map(booth => (
-                  <BoothCard key={booth.id} booth={booth} variant="default" />
-                ))}
-              </div>
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {booths.map(booth => (
+                    <BoothCard key={booth.id} booth={booth} variant="default" />
+                  ))}
+                </div>
+
+                {/* Pagination */}
+                {pagination && pagination.totalPages > 1 && (
+                  <div className="mt-8 flex items-center justify-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => goToPage(currentPage - 1)}
+                      disabled={!pagination.hasPrevPage}
+                    >
+                      <ChevronLeft className="w-4 h-4 mr-1" />
+                      Previous
+                    </Button>
+
+                    <div className="flex items-center gap-1">
+                      {/* Show first page */}
+                      {currentPage > 3 && (
+                        <>
+                          <Button
+                            variant={1 === currentPage ? 'default' : 'outline'}
+                            size="sm"
+                            onClick={() => goToPage(1)}
+                          >
+                            1
+                          </Button>
+                          {currentPage > 4 && (
+                            <span className="px-2 text-muted-foreground">...</span>
+                          )}
+                        </>
+                      )}
+
+                      {/* Show pages around current */}
+                      {Array.from({ length: pagination.totalPages }, (_, i) => i + 1)
+                        .filter(page => {
+                          const distance = Math.abs(page - currentPage);
+                          return distance <= 2 || page === 1 || page === pagination.totalPages;
+                        })
+                        .filter(page => page !== 1 && page !== pagination.totalPages)
+                        .map(page => (
+                          <Button
+                            key={page}
+                            variant={page === currentPage ? 'default' : 'outline'}
+                            size="sm"
+                            onClick={() => goToPage(page)}
+                          >
+                            {page}
+                          </Button>
+                        ))}
+
+                      {/* Show last page */}
+                      {currentPage < pagination.totalPages - 2 && (
+                        <>
+                          {currentPage < pagination.totalPages - 3 && (
+                            <span className="px-2 text-muted-foreground">...</span>
+                          )}
+                          <Button
+                            variant={pagination.totalPages === currentPage ? 'default' : 'outline'}
+                            size="sm"
+                            onClick={() => goToPage(pagination.totalPages)}
+                          >
+                            {pagination.totalPages}
+                          </Button>
+                        </>
+                      )}
+                    </div>
+
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => goToPage(currentPage + 1)}
+                      disabled={!pagination.hasNextPage}
+                    >
+                      Next
+                      <ChevronRight className="w-4 h-4 ml-1" />
+                    </Button>
+                  </div>
+                )}
+              </>
             ) : (
               <div className="text-center py-20">
                 <Search className="w-16 h-16 text-muted-foreground mx-auto mb-4" />

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo, useCallback, Suspense } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { MapPin, SlidersHorizontal, List, X, Loader2, Navigation } from 'lucide-react';
@@ -48,25 +48,84 @@ function MapContent() {
     }
   }, [searchParams]);
 
-  const fetchBooths = useCallback(async () => {
+  // Track current viewport for progressive loading
+  const [currentViewport, setCurrentViewport] = useState<{
+    north: number;
+    south: number;
+    east: number;
+    west: number;
+  } | null>(null);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+
+  // Fetch booths within viewport bounds
+  const fetchBoothsInViewport = useCallback(async (viewport: {
+    north: number;
+    south: number;
+    east: number;
+    west: number;
+  }) => {
+    try {
+      setIsLoadingMore(true);
+
+      // Build query parameters
+      const params = new URLSearchParams({
+        north: viewport.north.toString(),
+        south: viewport.south.toString(),
+        east: viewport.east.toString(),
+        west: viewport.west.toString(),
+        limit: '200',
+      });
+
+      // Add filters
+      if (filters.status && filters.status !== 'all') {
+        params.set('status', filters.status);
+      }
+      if (filters.photoType && filters.photoType !== 'both') {
+        params.set('photoType', filters.photoType);
+      }
+      if (filters.machineModel) {
+        params.set('machineModel', filters.machineModel);
+      }
+      if (filters.payment) {
+        params.set('payment', filters.payment);
+      }
+
+      const response = await fetch(`/api/booths/viewport?${params}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch booths');
+      }
+
+      const result = await response.json();
+
+      // Merge new booths with existing, avoiding duplicates
+      setBooths((prevBooths) => {
+        const existingIds = new Set(prevBooths.map(b => b.id));
+        const newBooths = result.booths.filter((b: Booth) => !existingIds.has(b.id));
+        return [...prevBooths, ...newBooths];
+      });
+
+      setCurrentViewport(viewport);
+    } catch (error) {
+      console.error('Error fetching booths in viewport:', error);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  }, [filters.status, filters.photoType, filters.machineModel, filters.payment]);
+
+  // Initial load: fetch a reasonable starting set of booths
+  const fetchInitialBooths = useCallback(async () => {
     setLoading(true);
 
-    // Fetch all booths using pagination to bypass the 1000-row limit
-    let allBooths: Booth[] = [];
-    let page = 0;
-    const pageSize = 1000;
-    let hasMore = true;
-
-    while (hasMore) {
-      const start = page * pageSize;
-      const end = start + pageSize - 1;
-
+    try {
+      // Fetch initial 200 booths with coordinates for initial map display
       let query = supabase
         .from('booths')
         .select('*')
-        .range(start, end);
+        .not('latitude', 'is', null)
+        .not('longitude', 'is', null)
+        .limit(200);
 
-      // Apply status filter to the query if not "all"
+      // Apply status filter
       if (filters.status && filters.status !== 'all') {
         query = query.eq('status', filters.status);
       }
@@ -74,26 +133,50 @@ function MapContent() {
       const { data, error } = await query;
 
       if (error) {
-        console.error('Error fetching booths:', error);
-        hasMore = false;
+        console.error('Error fetching initial booths:', error);
       } else if (data) {
-        allBooths = [...allBooths, ...(data as Booth[])];
-        // If we got less than pageSize, we've reached the end
-        hasMore = data.length === pageSize;
-        page++;
-      } else {
-        hasMore = false;
+        setBooths(data as Booth[]);
       }
+    } catch (error) {
+      console.error('Error in fetchInitialBooths:', error);
+    } finally {
+      setLoading(false);
     }
-
-    setBooths(allBooths);
-    setLoading(false);
   }, [filters.status]);
 
-  // Fetch all booths on mount
+  // Fetch initial booths on mount
   useEffect(() => {
-    fetchBooths();
-  }, [fetchBooths]);
+    fetchInitialBooths();
+  }, [fetchInitialBooths]);
+
+  // Debounced viewport change handler
+  const viewportChangeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleViewportChange = useCallback((viewport: {
+    north: number;
+    south: number;
+    east: number;
+    west: number;
+  }) => {
+    // Clear existing timeout
+    if (viewportChangeTimeoutRef.current) {
+      clearTimeout(viewportChangeTimeoutRef.current);
+    }
+
+    // Set new timeout for debounced fetch (500ms)
+    viewportChangeTimeoutRef.current = setTimeout(() => {
+      fetchBoothsInViewport(viewport);
+    }, 500);
+  }, [fetchBoothsInViewport]);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (viewportChangeTimeoutRef.current) {
+        clearTimeout(viewportChangeTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Get user location on mount
   useEffect(() => {
@@ -493,6 +576,7 @@ function MapContent() {
               zoom={2}
               externalUserLocation={userLocation}
               autoCenterOnUser={autoCenter}
+              onViewportChange={handleViewportChange}
             />
           ) : (
             <div className="h-full overflow-y-auto bg-background p-6">

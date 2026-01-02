@@ -15,6 +15,12 @@ interface BoothMapProps {
   showUserLocation?: boolean;
   externalUserLocation?: Coordinates | null; // Pass user location from parent to avoid duplicate geolocation requests
   autoCenterOnUser?: boolean;
+  onViewportChange?: (viewport: {
+    north: number;
+    south: number;
+    east: number;
+    west: number;
+  }) => void;
 }
 
 // Default center coordinates (NYC)
@@ -87,6 +93,7 @@ export function BoothMap({
   showUserLocation = false,
   externalUserLocation,
   autoCenterOnUser = false,
+  onViewportChange,
 }: BoothMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<google.maps.Map | null>(null);
@@ -137,6 +144,37 @@ export function BoothMap({
         mapInstanceRef.current = mapInstance;
         setMap(mapInstance);
         setIsLoading(false);
+
+        // Add viewport change listener if callback provided
+        if (onViewportChange) {
+          // Trigger initial viewport after map loads
+          const initialBounds = mapInstance.getBounds();
+          if (initialBounds) {
+            const ne = initialBounds.getNorthEast();
+            const sw = initialBounds.getSouthWest();
+            onViewportChange({
+              north: ne.lat(),
+              south: sw.lat(),
+              east: ne.lng(),
+              west: sw.lng(),
+            });
+          }
+
+          // Listen for idle events (after pan, zoom, etc.)
+          mapInstance.addListener('idle', () => {
+            const bounds = mapInstance.getBounds();
+            if (bounds) {
+              const ne = bounds.getNorthEast();
+              const sw = bounds.getSouthWest();
+              onViewportChange({
+                north: ne.lat(),
+                south: sw.lat(),
+                east: ne.lng(),
+                west: sw.lng(),
+              });
+            }
+          });
+        }
       } catch (err) {
         console.error('Error loading Google Maps:', err);
         setError(err instanceof Error ? err.message : 'Failed to load Google Maps');
@@ -146,7 +184,7 @@ export function BoothMap({
     };
 
     initMap();
-  }, [stableCenter, stableZoom]);
+  }, [stableCenter, stableZoom, onViewportChange]);
 
   // Create markers for booths
   // Performance optimized: markers only created when map or booths change
