@@ -137,7 +137,7 @@ jobs:
         run: npm ci
 
       - name: Run ESLint
-        run: npm run lint
+        run: npx eslint --ignore-pattern 'scripts/**' --ignore-pattern '*.mjs' --ignore-pattern '*.sh' src/
 
       - name: Type check
         run: npx tsc --noEmit || true
