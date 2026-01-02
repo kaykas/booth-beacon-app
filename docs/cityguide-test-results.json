@@ -1,0 +1,306 @@
+{
+  "test_date": "2025-12-20T03:13:02.174Z",
+  "total_sources": 13,
+  "successful": 10,
+  "failed": 3,
+  "success_rate": 76.92307692307693,
+  "total_booths": 119,
+  "total_credits": 1658,
+  "avg_extraction_time_ms": 99692.4,
+  "avg_field_completion": 98.0952380952381,
+  "results": [
+    {
+      "name": "Digital Cosmonaut Berlin",
+      "city": "Berlin",
+      "url": "https://digitalcosmonaut.com/berlin-photoautomat-locations/",
+      "success": true,
+      "booths_found": 23,
+      "field_completion_rate": 100,
+      "extraction_time_ms": 160337,
+      "credits_used": 0,
+      "sample_booths": [
+        {
+          "name": "Photoautomat",
+          "address": "Rosenthaler Platz",
+          "neighborhood": "Mitte",
+          "city": "Berlin",
+          "details": "First photo booth placed in Berlin city centre"
+        },
+        {
+          "name": "Kottbusser Tor",
+          "address": "Kottbusser Tor",
+          "neighborhood": "Kreuzberg",
+          "city": "Berlin",
+          "details": "Analog black and white photo booth"
+        }
+      ]
+    },
+    {
+      "name": "Phelt Magazine Berlin",
+      "city": "Berlin",
+      "url": "https://pheltmagazine.co/photo-booths-of-berlin/",
+      "success": true,
+      "booths_found": 26,
+      "field_completion_rate": 100,
+      "extraction_time_ms": 69284,
+      "credits_used": 0,
+      "sample_booths": [
+        {
+          "name": "Weserstraße 8",
+          "address": "Weserstraße 8",
+          "neighborhood": "Neukölln",
+          "city": "Berlin",
+          "details": "Analog, black and white"
+        },
+        {
+          "name": "Sonnenallee 9",
+          "address": "Sonnenallee 9",
+          "neighborhood": "Neukölln",
+          "city": "Berlin",
+          "details": "Analog, black and white; currently not operational"
+        }
+      ]
+    },
+    {
+      "name": "Aperture Tours Berlin",
+      "city": "Berlin",
+      "url": "https://www.aperturetours.com/blog/photoautomat-berlin",
+      "success": false,
+      "booths_found": 0,
+      "field_completion_rate": 0,
+      "extraction_time_ms": 37155,
+      "credits_used": 0,
+      "error": "Agent job not found"
+    },
+    {
+      "name": "Design My Night London",
+      "city": "London",
+      "url": "https://www.designmynight.com/london/whats-on/unusual-things-to-do/best-photo-booths-in-london",
+      "success": false,
+      "booths_found": 0,
+      "field_completion_rate": 0,
+      "extraction_time_ms": 4502,
+      "credits_used": 0,
+      "error": "An unexpected error occurred. Please contact help@firecrawl.com for help. Your exception ID is ee79da2aca954332914c6cc4aaf3dfa2"
+    },
+    {
+      "name": "London World",
+      "city": "London",
+      "url": "https://londonworld.com/lifestyle/things-to-do/where-to-find-photo-booths-in-london",
+      "success": false,
+      "booths_found": 0,
+      "field_completion_rate": 0,
+      "extraction_time_ms": 3073,
+      "credits_used": 0,
+      "error": "An unexpected error occurred. Please contact help@firecrawl.com for help. Your exception ID is 290f8da038d04992a40498cb4dd3a36e"
+    },
+    {
+      "name": "Flash Pack London",
+      "city": "London",
+      "url": "https://www.flashpack.com/blog/photo-booths-london/",
+      "success": true,
+      "booths_found": 2,
+      "field_completion_rate": 100,
+      "extraction_time_ms": 58812,
+      "credits_used": 0,
+      "sample_booths": [
+        {
+          "name": "The Hoxton",
+          "address": "81 Great Eastern Street, EC2A 3HU",
+          "neighborhood": "Shoreditch",
+          "city": "London",
+          "details": "70s-inspired analog booth, provides grainy film strips, features faded metals and warm orange bulbs, £7"
+        },
+        {
+          "name": "Rough Trade East",
+          "address": "Old Truman Brewery, 91 Brick Lane, E1 6QL",
+          "neighborhood": "Brick Lane",
+          "city": "London",
+          "details": "Hand-built in Shoreditch by photographer Seamus Ryan, produces high-quality black and white film strips, analog/chemical booth, £4"
+        }
+      ]
+    },
+    {
+      "name": "Time Out LA",
+      "city": "Los Angeles",
+      "url": "https://www.timeout.com/los-angeles/things-to-do/photo-booths-in-los-angeles",
+      "success": true,
+      "booths_found": 9,
+      "field_completion_rate": 100,
+      "extraction_time_ms": 99570,
+      "credits_used": 0,
+      "sample_booths": [
+        {
+          "name": "4100 Bar",
+          "address": "1087 Manzanita St, Los Angeles, CA 90029",
+          "neighborhood": "Silverlake",
+          "city": "Los Angeles",
+          "details": "Chrome walls, black curtain, grainy black and white photos, $5 per strip"
+        },
+        {
+          "name": "Verdugo Bar",
+          "address": "3408 Verdugo Rd, Los Angeles, CA 90065",
+          "neighborhood": "Glassell Park",
+          "city": "Los Angeles",
+          "details": "Red curtains, gray walls, $5 per strip, black and white photos"
+        }
+      ]
+    },
+    {
+      "name": "Locale Magazine LA",
+      "city": "Los Angeles",
+      "url": "https://localemagazine.com/photo-booth-los-angeles/",
+      "success": true,
+      "booths_found": 9,
+      "field_completion_rate": 100,
+      "extraction_time_ms": 87619,
+      "credits_used": 287,
+      "sample_booths": [
+        {
+          "name": "4100 Bar",
+          "address": "1087 Manzanita St",
+          "neighborhood": "Silverlake",
+          "city": "Los Angeles",
+          "details": "$5 per strip, grainy black and white photos, chrome walls and black curtain, quintessential photo booth"
+        },
+        {
+          "name": "Verdugo Bar",
+          "address": "3408 Verdugo Rd",
+          "neighborhood": "Glassell Park",
+          "city": "Los Angeles",
+          "details": "$5 per strip, prototypical photo booth with red curtains, located in the back of the bar"
+        }
+      ]
+    },
+    {
+      "name": "Time Out Chicago",
+      "city": "Chicago",
+      "url": "https://www.timeout.com/chicago/things-to-do/photo-booths-in-chicago",
+      "success": true,
+      "booths_found": 7,
+      "field_completion_rate": 100,
+      "extraction_time_ms": 74175,
+      "credits_used": 261,
+      "sample_booths": [
+        {
+          "name": "Vintage House Chicago",
+          "address": "1433 N. Milwaukee Ave.",
+          "neighborhood": "Wicker Park",
+          "city": "Chicago",
+          "details": "All-ages booth, 1960s analog booth, $5 cash/$7 credit per session, opened March 2025"
+        },
+        {
+          "name": "Rainbo Club",
+          "address": "1150 N. Damen Ave.",
+          "neighborhood": "West Town/Wicker Park",
+          "city": "Chicago",
+          "details": "Operating for 40 years under current ownership, most popular booth on the Chicago route, annual calendar featuring booth photos, booth featured on Liz Phair's 'Exile in Guyville' album cover (1993), $5 cash/$7 credit per session"
+        }
+      ]
+    },
+    {
+      "name": "Block Club Chicago",
+      "city": "Chicago",
+      "url": "https://blockclubchicago.org/2023/08/14/chicago-photo-booths/",
+      "success": true,
+      "booths_found": 7,
+      "field_completion_rate": 80.95238095238095,
+      "extraction_time_ms": 88719,
+      "credits_used": 321,
+      "sample_booths": [
+        {
+          "name": "Vintage House Chicago",
+          "address": "1433 N. Milwaukee Ave.",
+          "neighborhood": "Wicker Park",
+          "city": "Chicago",
+          "details": "Rare 1960s analog film booth; 850-pound unit; all-ages; $5 cash or $7 credit; black & white, 4 per strip"
+        },
+        {
+          "name": "Rainbo Club",
+          "address": "1150 N. Damen Ave.",
+          "neighborhood": "Wicker Park/West Town",
+          "city": "Chicago",
+          "details": "$5 cash or $7 credit; famous for Liz Phair's 'Exile in Guyville' album cover; features annual photo booth calendar; celebrating 40 years under current ownership"
+        }
+      ]
+    },
+    {
+      "name": "Design My Night NYC",
+      "city": "New York",
+      "url": "https://www.designmynight.com/new-york/whats-on/unusual-things-to-do/best-photo-booths-in-new-york",
+      "success": true,
+      "booths_found": 9,
+      "field_completion_rate": 100,
+      "extraction_time_ms": 198215,
+      "credits_used": 341,
+      "sample_booths": [
+        {
+          "name": "Old Friend Photo Booth",
+          "address": "145 Allen Street, New York, NY 10002",
+          "neighborhood": "Lower East Side",
+          "city": "New York",
+          "details": "Open daily 10am-10pm. $8 for 4 poses. Card only. Vintage analog film-style photo strips."
+        },
+        {
+          "name": "Bubby's",
+          "address": "120 Hudson Street, New York, NY 10013",
+          "neighborhood": "Tribeca",
+          "city": "New York",
+          "details": "Photo booth located downstairs in restaurant. $7 for 4 poses. Card only. 5-7 minutes to print. Vintage 'dip & dunk' analog photobooth."
+        }
+      ]
+    },
+    {
+      "name": "Roxy Hotel NYC",
+      "city": "New York",
+      "url": "https://www.roxyhotelnyc.com/blog/photo-booths-nyc",
+      "success": true,
+      "booths_found": 17,
+      "field_completion_rate": 100,
+      "extraction_time_ms": 56534,
+      "credits_used": 119,
+      "sample_booths": [
+        {
+          "name": "Bubby's",
+          "address": "120 Hudson Street, New York, NY 10013",
+          "neighborhood": "Tribeca",
+          "city": "New York",
+          "details": "Vintage photobooth"
+        },
+        {
+          "name": "Coyote Club",
+          "address": "417 Throop Ave., Brooklyn, NY 11221",
+          "neighborhood": "Bedford-Stuyvesant",
+          "city": "New York",
+          "details": "Vintage photobooth"
+        }
+      ]
+    },
+    {
+      "name": "Airial Travel Brooklyn",
+      "city": "New York",
+      "url": "https://www.airialtravel.com/blog/brooklyn-photo-booths",
+      "success": true,
+      "booths_found": 10,
+      "field_completion_rate": 100,
+      "extraction_time_ms": 103659,
+      "credits_used": 329,
+      "sample_booths": [
+        {
+          "name": "Old Friend Photo Booth",
+          "address": "145 Allen St",
+          "neighborhood": "Lower East Side",
+          "city": "New York",
+          "details": "Open daily 10am-10pm. $8 for one strip with four poses. Card only. High-quality timeless film-style photo strips."
+        },
+        {
+          "name": "Bubby's",
+          "address": "120 Hudson Street",
+          "neighborhood": "Tribeca",
+          "city": "New York",
+          "details": "Photo booth located downstairs in restaurant. $7 for four poses. Card only. Takes 5-7 minutes to print. Classic analog booth."
+        }
+      ]
+    }
+  ]
+}

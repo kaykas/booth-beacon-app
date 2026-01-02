@@ -59,7 +59,7 @@ function isRecentlyVerified(lastVerified: string | null | undefined): boolean {
     const now = new Date();
     const daysSinceVerification = (now.getTime() - verifiedDate.getTime()) / (1000 * 60 * 60 * 24);
     return daysSinceVerification <= 30;
-  } catch (error) {
+  } catch (_error) {
     return false;
   }
 }

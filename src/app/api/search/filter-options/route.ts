@@ -50,7 +50,7 @@ export async function GET() {
  * 2. It can be cached with Next.js cache headers
  * 3. It runs in parallel
  */
-async function getFallbackFilterOptions(supabase: any): Promise<NextResponse> {
+async function getFallbackFilterOptions(supabase: ReturnType<typeof createPublicServerClient>): Promise<NextResponse> {
   try {
     // Run all three queries in parallel
     const [citiesResult, countriesResult, modelsResult] = await Promise.all([

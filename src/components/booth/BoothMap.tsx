@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useMemo } from 'react';
 import { Booth, Coordinates } from '@/types';
-import { MapPin, Loader2, Camera, Navigation } from 'lucide-react';
+import { MapPin, Loader2 } from 'lucide-react';
 import { MarkerClusterer } from '@googlemaps/markerclusterer';
 import { loadGoogleMaps } from '@/lib/googleMapsLoader';
 

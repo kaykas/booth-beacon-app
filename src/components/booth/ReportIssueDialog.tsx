@@ -134,7 +134,7 @@ export function ReportIssueDialog({ open, onOpenChange, boothId, boothName }: Re
             <div className="space-y-4 py-4">
               {/* Issue Type Selection */}
               <div className="space-y-2">
-                <label className="text-sm font-medium text-neutral-700">What's the issue?</label>
+                <label className="text-sm font-medium text-neutral-700">What&apos;s the issue?</label>
                 <div className="grid grid-cols-1 gap-2">
                   {issueOptions.map((option) => (
                     <button
@@ -218,7 +218,7 @@ export function ReportIssueDialog({ open, onOpenChange, boothId, boothName }: Re
             </div>
             <DialogTitle className="text-xl mb-2">Report Submitted!</DialogTitle>
             <DialogDescription className="text-base">
-              Thank you for helping us keep Booth Beacon accurate. We'll review your report soon.
+              Thank you for helping us keep Booth Beacon accurate. We&apos;ll review your report soon.
             </DialogDescription>
           </div>
         )}

@@ -49,13 +49,13 @@ function MapContent() {
   }, [searchParams]);
 
   // Track current viewport for progressive loading
-  const [currentViewport, setCurrentViewport] = useState<{
+  const [_currentViewport, setCurrentViewport] = useState<{
     north: number;
     south: number;
     east: number;
     west: number;
   } | null>(null);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [_isLoadingMore, setIsLoadingMore] = useState(false);
 
   // Fetch booths within viewport bounds
   const fetchBoothsInViewport = useCallback(async (viewport: {

@@ -170,7 +170,7 @@ async function _enrichBooth(boothId: string): Promise<EnrichmentResult> {
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   // DISABLED: Auto-enrichment disabled until data quality issues are resolved
   // This endpoint should only be manually triggered from admin panel after verification
   return NextResponse.json(

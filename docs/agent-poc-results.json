@@ -1,0 +1,38 @@
+[
+  {
+    "source_name": "photobooth_net",
+    "source_url": "https://photobooth.net/locations",
+    "method": "agent",
+    "booths_found": 0,
+    "extraction_time_ms": 292538,
+    "field_completion_rate": 0,
+    "errors": [
+      "Agent SDK call failed: Agent job not found"
+    ],
+    "sample_booths": []
+  },
+  {
+    "source_name": "timeout_chicago",
+    "source_url": "https://www.timeout.com/chicago/things-to-do/photo-booths-in-chicago",
+    "method": "agent",
+    "booths_found": 0,
+    "extraction_time_ms": 12223,
+    "field_completion_rate": 0,
+    "errors": [
+      "Agent SDK call failed: An unexpected error occurred. Please contact help@firecrawl.com for help. Your exception ID is ca479935a5db4213a52bfac35529fb2a"
+    ],
+    "sample_booths": []
+  },
+  {
+    "source_name": "fotoautomat_berlin",
+    "source_url": "https://fotoautomat-berlin.de/standorte",
+    "method": "agent",
+    "booths_found": 0,
+    "extraction_time_ms": 3192,
+    "field_completion_rate": 0,
+    "errors": [
+      "Agent SDK call failed: An unexpected error occurred. Please contact help@firecrawl.com for help. Your exception ID is 77b5d4a32413476094292ee928b2f86a"
+    ],
+    "sample_booths": []
+  }
+]

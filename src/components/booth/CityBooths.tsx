@@ -77,7 +77,7 @@ export function CityBooths({
 
         setBooths(data || []);
         setTotalCount(count || 0);
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Error fetching city booths:', err);
         setError(err instanceof Error ? err.message : 'Failed to load city booths');
       } finally {
