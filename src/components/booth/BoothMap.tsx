@@ -107,6 +107,7 @@ export function BoothMap({
   const [internalUserLocation, setInternalUserLocation] = useState<Coordinates | null>(null);
   const userMarkerRef = useRef<google.maps.Marker | null>(null);
   const isInitializedRef = useRef(false);
+  const hasInitialFitBoundsRef = useRef(false); // Track if we've done initial fitBounds
 
   // Use external location if provided, otherwise use internal state
   const userLocation = externalUserLocation ?? internalUserLocation;
@@ -327,9 +328,11 @@ export function BoothMap({
       markerClustererRef.current = clusterer;
     }
 
-    // Fit map to show all booths if we have multiple
-    if (booths.length > 1) {
+    // Fit map to show all booths ONLY on initial load, not on subsequent updates
+    // This prevents the map from zooming out after user interactions
+    if (booths.length > 1 && !hasInitialFitBoundsRef.current) {
       map.fitBounds(bounds);
+      hasInitialFitBoundsRef.current = true;
     }
 
     // Cleanup function
