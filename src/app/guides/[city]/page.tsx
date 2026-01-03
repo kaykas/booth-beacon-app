@@ -1,5 +1,7 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { Header } from '@/components/layout/Header';
+import { Footer } from '@/components/layout/Footer';
 import Link from 'next/link';
 import { MapPin, Clock, Route, Star, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -83,7 +85,9 @@ export default async function CityGuidePage({ params }: CityGuidePageProps) {
     : undefined;
 
   return (
-    <div className="min-h-screen bg-neutral-50">
+    <>
+      <Header />
+      <div className="min-h-screen bg-neutral-50">
       {/* Hero Section */}
       <div className="bg-gradient-to-br from-primary to-accent text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -192,5 +196,7 @@ export default async function CityGuidePage({ params }: CityGuidePageProps) {
         </div>
       </div>
     </div>
+    <Footer />
+    </>
   );
 }

@@ -2,6 +2,8 @@ import { Metadata } from 'next';
 import { getCountries } from '@/lib/locationHierarchy';
 import { MapPin, Globe } from 'lucide-react';
 import Link from 'next/link';
+import { Header } from '@/components/layout/Header';
+import { Footer } from '@/components/layout/Footer';
 
 export const metadata: Metadata = {
   title: 'Browse by Location | Booth Beacon',
@@ -17,7 +19,9 @@ export default async function LocationsIndexPage() {
   const totalBooths = countries.reduce((sum, country) => sum + country.boothCount, 0);
 
   return (
-    <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <>
+      <Header />
+      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       {/* Hero Section */}
       <div className="mb-8 text-center">
         <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-sm font-semibold text-primary">
@@ -112,5 +116,7 @@ export default async function LocationsIndexPage() {
         </div>
       )}
     </main>
+    <Footer />
+    </>
   );
 }

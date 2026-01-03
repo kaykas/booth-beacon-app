@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apply Security Fixes - Booth Beacon</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #555;
+            margin-top: 30px;
+        }
+        .status-box {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .status-box.error {
+            background: #f8d7da;
+            border-color: #dc3545;
+        }
+        .status-box.success {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+        .step {
+            background: #e9ecef;
+            border-left: 4px solid #007bff;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .step h3 {
+            margin-top: 0;
+            color: #007bff;
+        }
+        .copy-button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 0;
+        }
+        .copy-button:hover {
+            background: #45a049;
+        }
+        .copy-button:active {
+            background: #3d8b40;
+        }
+        .link-button {
+            display: inline-block;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin: 10px 5px;
+        }
+        .link-button:hover {
+            background: #0056b3;
+        }
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        ul {
+            line-height: 1.8;
+        }
+        .file-path {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Database Security Fixes</h1>
+
+        <div class="status-box error">
+            <strong>⚠️ Action Required:</strong> Your database has security issues that need to be fixed.
+        </div>
+
+        <h2>Issues Detected</h2>
+        <ul>
+            <li><strong>4 views with SECURITY DEFINER</strong> - Unnecessary security elevation</li>
+            <li><strong>3 tables without RLS</strong> - Row Level Security not enabled</li>
+            <li><strong>10+ functions</strong> - Missing secure search_path setting</li>
+            <li><strong>Leaked password protection</strong> - Not enabled in Auth</li>
+        </ul>
+
+        <h2>How to Fix</h2>
+
+        <div class="step">
+            <h3>Step 1: Open Supabase SQL Editor</h3>
+            <p>Click the button below to open the SQL Editor in your Supabase project:</p>
+            <a href="https://supabase.com/dashboard/project/tmgbmcbwfkvmylmfpkzy/sql/new"
+               target="_blank"
+               class="link-button">
+                📝 Open SQL Editor
+            </a>
+        </div>
+
+        <div class="step">
+            <h3>Step 2: Copy Migration SQL</h3>
+            <p>The migration SQL file is located at:</p>
+            <div class="file-path">
+                supabase/migrations/20260103_fix_security_issues.sql
+            </div>
+            <p>Open this file in your code editor and copy its entire contents.</p>
+            <p><em>The file contains 700+ lines of SQL that will fix all security issues.</em></p>
+        </div>
+
+        <div class="step">
+            <h3>Step 3: Paste and Run</h3>
+            <p>In the Supabase SQL Editor:</p>
+            <ol>
+                <li>Paste the copied SQL into the editor</li>
+                <li>Click the <strong>"Run"</strong> button (or press <code>Cmd+Enter</code>)</li>
+                <li>Wait for execution to complete (~5-10 seconds)</li>
+                <li>You should see a success message at the end</li>
+            </ol>
+        </div>
+
+        <div class="step">
+            <h3>Step 4: Enable Leaked Password Protection</h3>
+            <p>After running the SQL, enable leaked password protection:</p>
+            <a href="https://supabase.com/dashboard/project/tmgbmcbwfkvmylmfpkzy/auth/settings"
+               target="_blank"
+               class="link-button">
+                🔑 Open Auth Settings
+            </a>
+            <ol>
+                <li>Scroll to the <strong>"Security"</strong> section</li>
+                <li>Enable <strong>"Leaked Password Protection"</strong></li>
+                <li>Click <strong>"Save"</strong></li>
+            </ol>
+        </div>
+
+        <h2>What Gets Fixed</h2>
+        <ul>
+            <li>✅ <strong>Featured Booths View</strong> - Removes SECURITY DEFINER</li>
+            <li>✅ <strong>Booth Data Quality Stats View</strong> - Removes SECURITY DEFINER</li>
+            <li>✅ <strong>Content Needing Reextraction View</strong> - Removes SECURITY DEFINER</li>
+            <li>✅ <strong>Crawler Dashboard Stats View</strong> - Removes SECURITY DEFINER</li>
+            <li>✅ <strong>spatial_ref_sys Table</strong> - Enables RLS with appropriate policies</li>
+            <li>✅ <strong>crawl_jobs Table</strong> - Enables RLS with service_role access</li>
+            <li>✅ <strong>crawl_raw_content Table</strong> - Enables RLS with service_role access</li>
+            <li>✅ <strong>22 Functions</strong> - Adds <code>SET search_path = ''</code> for security</li>
+            <li>✅ <strong>PostGIS Extension</strong> - Documents acceptable placement in public schema</li>
+        </ul>
+
+        <h2>Verification</h2>
+        <p>After applying fixes, you can verify everything worked by running this SQL:</p>
+        <pre style="background: #2d2d2d; color: #f8f8f2; padding: 15px; border-radius: 5px; overflow-x: auto;"><code>-- Check RLS is enabled
+SELECT schemaname, tablename, rowsecurity
+FROM pg_tables
+WHERE schemaname = 'public'
+  AND tablename IN ('spatial_ref_sys', 'crawl_jobs', 'crawl_raw_content');
+
+-- Check views exist
+SELECT schemaname, viewname
+FROM pg_views
+WHERE schemaname = 'public'
+  AND viewname IN ('featured_booths', 'booth_data_quality_stats',
+                   'content_needing_reextraction', 'crawler_dashboard_stats');</code></pre>
+
+        <h2>Alternative Methods</h2>
+
+        <h3>Using psql (Command Line)</h3>
+        <p>If you have <code>psql</code> installed:</p>
+        <pre style="background: #2d2d2d; color: #f8f8f2; padding: 15px; border-radius: 5px; overflow-x: auto;"><code>PGPASSWORD=&lt;your-password&gt; psql \
+  "postgresql://postgres.tmgbmcbwfkvmylmfpkzy@db.tmgbmcbwfkvmylmfpkzy.supabase.co:5432/postgres" \
+  -f supabase/migrations/20260103_fix_security_issues.sql</code></pre>
+        <p>Get your database password from:
+            <a href="https://supabase.com/dashboard/project/tmgbmcbwfkvmylmfpkzy/settings/database" target="_blank">
+                Database Settings
+            </a>
+        </p>
+
+        <div class="status-box success" style="margin-top: 30px;">
+            <strong>✅ Once Complete:</strong> Your database will be fully compliant with Supabase security best practices!
+        </div>
+
+        <h2>Need Help?</h2>
+        <ul>
+            <li>Check Supabase logs in the Dashboard if errors occur</li>
+            <li>The migration is safe and non-destructive (uses <code>CREATE OR REPLACE</code>)</li>
+            <li>You can rollback using Supabase backups if needed</li>
+            <li>See <code>SECURITY_FIXES_README.md</code> for detailed documentation</li>
+        </ul>
+    </div>
+
+    <script>
+        // Add smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>

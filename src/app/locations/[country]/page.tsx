@@ -11,6 +11,8 @@ import { BoothCard } from '@/components/booth/BoothCard';
 import { MapPin, Building2 } from 'lucide-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { Header } from '@/components/layout/Header';
+import { Footer } from '@/components/layout/Footer';
 
 // ISR with 1-hour revalidation
 export const revalidate = 3600;
@@ -66,7 +68,9 @@ export default async function CountryPage({ params, searchParams }: PageProps) {
   const totalPages = Math.ceil(totalCount / limit);
 
   return (
-    <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <>
+      <Header />
+      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       {/* Breadcrumbs */}
       <nav className="mb-6 flex items-center gap-2 text-sm text-muted-foreground">
         {breadcrumbs.map((crumb, index) => (
@@ -246,5 +250,7 @@ export default async function CountryPage({ params, searchParams }: PageProps) {
         )}
       </div>
     </main>
+    <Footer />
+    </>
   );
 }

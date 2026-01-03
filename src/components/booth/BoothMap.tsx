@@ -240,6 +240,22 @@ export function BoothMap({
     initMap();
   }, [stableCenter, stableZoom, onViewportChange]);
 
+  // Update map center when center prop changes (for booth detail pages)
+  useEffect(() => {
+    if (!map || !center) return;
+
+    // Pan to new center if it's different from current
+    const currentCenter = map.getCenter();
+    if (currentCenter &&
+        (Math.abs(currentCenter.lat() - center.lat) > 0.0001 ||
+         Math.abs(currentCenter.lng() - center.lng) > 0.0001)) {
+      map.panTo({ lat: center.lat, lng: center.lng });
+      if (zoom) {
+        map.setZoom(zoom);
+      }
+    }
+  }, [map, center, zoom]);
+
   // Create markers for booths
   // ========================
   // PERFORMANCE OPTIMIZATIONS FOR 900+ MARKERS:

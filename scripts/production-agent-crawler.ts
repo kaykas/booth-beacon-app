@@ -37,7 +37,7 @@ const RETRY_DELAY_MS = 30000; // 30 seconds on retry
 const AGENT_ENABLED_TYPES = [
   'city_guide_berlin_digitalcosmonaut',
   'city_guide_berlin_phelt',
-  'city_guide_berlin_aperture',
+  // 'city_guide_berlin_aperture', // DISABLED: URL returns 404
   'city_guide_london_designmynight',
   'city_guide_london_world',
   'city_guide_london_flashpack',
@@ -86,6 +86,31 @@ interface CrawlMetrics {
 }
 
 /**
+ * Validate URL is accessible before calling Agent API
+ */
+async function validateUrl(url: string): Promise<{ valid: boolean; status?: number; error?: string }> {
+  try {
+    const response = await fetch(url, {
+      method: 'HEAD',
+      redirect: 'follow',
+      signal: AbortSignal.timeout(10000) // 10s timeout
+    });
+
+    if (response.status === 404) {
+      return { valid: false, status: 404, error: 'Page not found (404)' };
+    }
+
+    if (response.status >= 400) {
+      return { valid: false, status: response.status, error: `HTTP ${response.status}` };
+    }
+
+    return { valid: true, status: response.status };
+  } catch (error) {
+    return { valid: false, error: error instanceof Error ? error.message : 'Network error' };
+  }
+}
+
+/**
  * Extract booths using Firecrawl Agent
  */
 async function extractWithAgent(
@@ -94,6 +119,17 @@ async function extractWithAgent(
   city?: string
 ): Promise<{ booths: BoothData[]; credits: number; time: number }> {
   const startTime = Date.now();
+
+  // Validate URL before calling expensive Agent API
+  console.log(`   🔍 Validating URL...`);
+  const validation = await validateUrl(sourceUrl);
+
+  if (!validation.valid) {
+    console.log(`   ⚠️  URL validation failed: ${validation.error}`);
+    throw new Error(`URL not accessible: ${validation.error}`);
+  }
+
+  console.log(`   ✓ URL validated (HTTP ${validation.status})`);
 
   const prompt = `Find ALL analog photo booth locations from this ${city || 'city'} guide or article.
 
