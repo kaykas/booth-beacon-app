@@ -376,7 +376,7 @@ export const CachingStrategies = {
  * Cache warming utility
  */
 export async function warmPopularCaches() {
-  const cache = getAdvancedCache();
+  // const cache = getAdvancedCache();
 
   console.log('🔥 Warming popular caches...');
 

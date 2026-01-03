@@ -99,7 +99,7 @@ export const metadata: Metadata = {
     canonical: 'https://boothbeacon.org',
   },
   verification: {
-    google: 'your-google-verification-code',
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || '',
   },
   other: {
     'mobile-web-app-capable': 'yes',
@@ -118,12 +118,21 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        {/* Preconnect to external domains for faster loading */}
+        {/* Preconnect to critical external domains for faster loading */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://images.unsplash.com" />
         <link rel="preconnect" href="https://tmgbmcbwfkvmylmfpkzy.supabase.co" />
+
+        {/* DNS prefetch for non-critical domains */}
+        <link rel="dns-prefetch" href="https://images.unsplash.com" />
         <link rel="dns-prefetch" href="https://maps.googleapis.com" />
+        <link rel="dns-prefetch" href="https://vercel.live" />
+
+        {/* Favicon and app icons */}
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="manifest" href="/manifest.json" />
 
         {/* TDM Reservation Protocol (W3C Standard) - Opt-in for AI text and data mining */}
         <meta name="tdm-reservation" content="0" />

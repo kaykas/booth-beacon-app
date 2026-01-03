@@ -274,7 +274,7 @@ export default async function Home() {
           </div>
 
           {/* Map */}
-          <div className="mb-6 rounded-lg overflow-hidden shadow-photo vignette">
+          <div className="mb-6 rounded-lg overflow-hidden shadow-photo vignette h-[500px]">
             <Suspense fallback={<div className="h-[500px] bg-neutral-200 animate-pulse"></div>}>
               <BoothMap
                 booths={mapBooths}
@@ -438,6 +438,7 @@ export default async function Home() {
                   className="object-cover transition-transform duration-500 group-hover:scale-105"
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                   loading="lazy"
+                  quality={85}
                 />
                 <div className="absolute bottom-0 left-0 right-0 p-6 z-20 text-white">
                   <Badge className="bg-primary/80 text-white mb-3 backdrop-blur-sm">

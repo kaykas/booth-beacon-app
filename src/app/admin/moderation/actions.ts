@@ -24,8 +24,9 @@ export async function moderatePhoto(
     const supabase = createServerClient();
 
     // Update photo moderation status
-    const { error } = await supabase
-      .from('booth_user_photos')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (supabase
+      .from('booth_user_photos') as any)
       .update({
         moderation_status: status,
         moderated_at: new Date().toISOString(),
@@ -99,8 +100,9 @@ export async function moderateComment(
     const supabase = createServerClient();
 
     // Update comment moderation status
-    const { error } = await supabase
-      .from('booth_comments')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (supabase
+      .from('booth_comments') as any)
       .update({
         moderation_status: status,
         moderated_at: new Date().toISOString(),
@@ -178,8 +180,9 @@ export async function batchModerate(
       contentType === 'photos' ? 'booth_user_photos' : 'booth_comments';
 
     // Update multiple items
-    const { error } = await supabase
-      .from(tableName)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (supabase
+      .from(tableName) as any)
       .update({
         moderation_status: status,
         moderated_at: new Date().toISOString(),

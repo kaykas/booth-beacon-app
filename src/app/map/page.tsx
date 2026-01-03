@@ -303,9 +303,15 @@ function MapContent() {
         <Button
           variant={sortByDistance ? 'default' : 'outline'}
           size="sm"
-          onClick={() => setSortByDistance(!sortByDistance)}
+          onClick={() => {
+            setSortByDistance(!sortByDistance);
+            // Center map on user location when enabling Near Me
+            if (!sortByDistance && userLocation) {
+              setAutoCenter(true);
+            }
+          }}
           disabled={!userLocation}
-          title={!userLocation ? 'Enable location to use this feature' : 'Sort by distance'}
+          title={!userLocation ? 'Enable location to use this feature' : 'Sort by distance and center map'}
         >
           <Navigation className="w-4 h-4 mr-2" />
           Near Me
@@ -581,6 +587,7 @@ function MapContent() {
               zoom={2}
               externalUserLocation={userLocation}
               autoCenterOnUser={autoCenter}
+              onCenterComplete={() => setAutoCenter(false)}
               onViewportChange={handleViewportChange}
             />
           ) : (

@@ -86,8 +86,37 @@ export default async function ModerationPage() {
     console.error('Error fetching comments:', commentsResult.error);
   }
 
-  const photos = photosResult.data || [];
-  const comments = commentsResult.data || [];
+  // Type assertion to fix Supabase type inference issue with joins
+  type PhotoWithRelations = {
+    id: string;
+    user_id: string;
+    booth_id: string;
+    photo_url: string;
+    caption: string | null;
+    moderation_status: 'pending' | 'approved' | 'rejected';
+    created_at: string;
+    moderated_at: string | null;
+    moderated_by: string | null;
+    booth: { id: string; name: string; city: string; country: string; slug: string };
+    profile: { id: string; full_name: string | null; email: string };
+  };
+
+  type CommentWithRelations = {
+    id: string;
+    user_id: string;
+    booth_id: string;
+    content: string;
+    rating: number;
+    moderation_status: 'pending' | 'approved' | 'rejected';
+    created_at: string;
+    moderated_at: string | null;
+    moderated_by: string | null;
+    booth: { id: string; name: string; city: string; country: string; slug: string };
+    profile: { id: string; full_name: string | null; email: string };
+  };
+
+  const photos = (photosResult.data as PhotoWithRelations[]) || [];
+  const comments = (commentsResult.data as CommentWithRelations[]) || [];
 
   // Calculate stats
   const stats = {

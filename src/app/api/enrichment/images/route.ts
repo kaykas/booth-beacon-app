@@ -64,7 +64,7 @@ async function generateImage(booth: BoothQualityData, openai: OpenAI): Promise<s
       response_format: 'url',
     });
 
-    const imageUrl = response.data[0]?.url;
+    const imageUrl = response.data?.[0]?.url;
     if (!imageUrl) {
       return null;
     }

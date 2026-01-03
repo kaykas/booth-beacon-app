@@ -1,0 +1,13 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Classic photo booth icon -->
+  <rect width="64" height="64" rx="12" fill="#e11d48"/>
+  <!-- Camera body -->
+  <rect x="12" y="16" width="40" height="32" rx="2" fill="#fff"/>
+  <!-- Lens -->
+  <circle cx="32" cy="32" r="8" fill="#e11d48"/>
+  <circle cx="32" cy="32" r="5" fill="#fff"/>
+  <!-- Flash -->
+  <circle cx="44" cy="22" r="3" fill="#fbbf24"/>
+  <!-- Photo strip -->
+  <rect x="20" y="50" width="24" height="4" rx="1" fill="#fff" opacity="0.8"/>
+</svg>

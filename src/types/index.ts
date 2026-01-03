@@ -147,6 +147,9 @@ export interface BoothComment {
   booth_id: string;
   content: string;
   rating?: number;
+  moderation_status: 'pending' | 'approved' | 'rejected';
+  moderated_at?: string | null;
+  moderated_by?: string | null;
   created_at: string;
   user?: {
     id: string;
@@ -163,6 +166,8 @@ export interface BoothUserPhoto {
   photo_url: string;
   caption?: string;
   moderation_status: 'pending' | 'approved' | 'rejected';
+  moderated_at?: string | null;
+  moderated_by?: string | null;
   created_at: string;
   booth?: {
     id: string;

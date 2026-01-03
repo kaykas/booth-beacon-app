@@ -15,6 +15,7 @@ interface BoothMapProps {
   showUserLocation?: boolean;
   externalUserLocation?: Coordinates | null; // Pass user location from parent to avoid duplicate geolocation requests
   autoCenterOnUser?: boolean;
+  onCenterComplete?: () => void; // Callback when auto-centering is complete
   onViewportChange?: (viewport: {
     north: number;
     south: number;
@@ -93,6 +94,7 @@ export function BoothMap({
   showUserLocation = false,
   externalUserLocation,
   autoCenterOnUser = false,
+  onCenterComplete,
   onViewportChange,
 }: BoothMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
@@ -439,8 +441,12 @@ export function BoothMap({
     if (autoCenterOnUser && userLocation && map) {
       map.panTo(userLocation);
       map.setZoom(14);
+      // Notify parent that centering is complete
+      if (onCenterComplete) {
+        onCenterComplete();
+      }
     }
-  }, [autoCenterOnUser, userLocation, map]);
+  }, [autoCenterOnUser, userLocation, map, onCenterComplete]);
 
   if (error) {
     return (

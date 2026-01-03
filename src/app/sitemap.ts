@@ -85,24 +85,58 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
 
   let countryPages: MetadataRoute.Sitemap = [];
+  let cityPages: MetadataRoute.Sitemap = [];
   try {
-    const { data: countries, error } = await supabase
+    const { data: locations, error } = await supabase
       .from('booths')
-      .select('country')
+      .select('country, state, city')
       .eq('status', 'active')
-      .not('country', 'is', null);
+      .not('country', 'is', null)
+      .not('city', 'is', null);
 
-    if (!error && countries) {
-      const uniqueCountries = [...new Set(countries.map((c) => c.country))];
+    if (!error && locations) {
+      // Generate country pages
+      const uniqueCountries = [...new Set(locations.map((l) => l.country).filter(Boolean))];
       countryPages = uniqueCountries.map((country) => ({
-        url: baseUrl + '/locations/' + encodeURIComponent(country),
+        url: baseUrl + '/locations/' + country.toLowerCase().replace(/\s+/g, '-'),
         lastModified: new Date(),
         changeFrequency: 'weekly' as const,
-        priority: 0.6,
+        priority: 0.7,
       }));
+
+      // Generate city pages (top 100 cities by booth count for sitemap size)
+      const cityCounts = locations.reduce((acc, loc) => {
+        if (loc.city && loc.country) {
+          const key = `${loc.country}|${loc.state || ''}|${loc.city}`;
+          acc[key] = (acc[key] || 0) + 1;
+        }
+        return acc;
+      }, {} as Record<string, number>);
+
+      const topCities = Object.entries(cityCounts)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 100)
+        .map(([key]) => key.split('|'));
+
+      cityPages = topCities.map(([country, state, city]) => {
+        const countrySlug = country.toLowerCase().replace(/\s+/g, '-');
+        const stateSlug = state ? state.toLowerCase().replace(/\s+/g, '-') : null;
+        const citySlug = city.toLowerCase().replace(/\s+/g, '-');
+
+        const cityUrl = stateSlug
+          ? `${baseUrl}/locations/${countrySlug}/${stateSlug}/${citySlug}`
+          : `${baseUrl}/locations/${countrySlug}/${citySlug}`;
+
+        return {
+          url: cityUrl,
+          lastModified: new Date(),
+          changeFrequency: 'weekly' as const,
+          priority: 0.6,
+        };
+      });
     }
   } catch (error) {
-    console.error('Error fetching countries for sitemap:', error);
+    console.error('Error fetching locations for sitemap:', error);
   }
 
   return [
@@ -110,5 +144,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...tourPages,
     ...boothPages,
     ...countryPages,
+    ...cityPages,
   ];
 }
