@@ -2,14 +2,15 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { X, ChevronLeft, ChevronRight, ZoomIn } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, ZoomIn, Users } from 'lucide-react';
 
 interface PhotoGalleryProps {
   photos: string[];
   boothName: string;
+  communityPhotosCount?: number;
 }
 
-export function PhotoGallery({ photos, boothName }: PhotoGalleryProps) {
+export function PhotoGallery({ photos, boothName, communityPhotosCount = 0 }: PhotoGalleryProps) {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -39,8 +40,24 @@ export function PhotoGallery({ photos, boothName }: PhotoGalleryProps) {
     setCurrentIndex((prev) => (prev === photos.length - 1 ? 0 : prev + 1));
   };
 
+  // Calculate if a photo is from the community (last N photos)
+  const isCommunityPhoto = (index: number) => {
+    if (communityPhotosCount === 0) return false;
+    return index >= photos.length - communityPhotosCount;
+  };
+
   return (
     <>
+      {/* Community Photos Info */}
+      {communityPhotosCount > 0 && (
+        <div className="mb-4 flex items-center gap-2 text-sm text-neutral-600 bg-blue-50 border border-blue-200 rounded-lg p-3">
+          <Users className="w-4 h-4 text-blue-600" />
+          <span>
+            <span className="font-medium text-blue-700">{communityPhotosCount}</span> photo{communityPhotosCount > 1 ? 's' : ''} contributed by the community
+          </span>
+        </div>
+      )}
+
       {/* Gallery Grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
         {photos.map((url, i) => (
@@ -56,6 +73,12 @@ export function PhotoGallery({ photos, boothName }: PhotoGalleryProps) {
               className="object-cover transition-transform group-hover:scale-110"
               sizes="(max-width: 768px) 50vw, 33vw"
             />
+            {isCommunityPhoto(i) && (
+              <div className="absolute top-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1 shadow-lg">
+                <Users className="w-3 h-3" />
+                <span>Community</span>
+              </div>
+            )}
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
               <ZoomIn className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>

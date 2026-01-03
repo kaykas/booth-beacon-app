@@ -54,6 +54,13 @@ export interface Booth {
   google_photos?: string[];
   google_website?: string;
 
+  // Street View validation
+  street_view_available?: boolean | null;
+  street_view_panorama_id?: string | null;
+  street_view_distance_meters?: number | null;
+  street_view_validated_at?: string | null;
+  street_view_heading?: number | null;
+
   // Content
   description?: string;
   historical_notes?: string;
@@ -175,6 +182,22 @@ export interface BoothUserPhoto {
     city: string;
     country: string;
   };
+}
+
+// Community photo type (new table)
+export interface BoothPhoto {
+  id: string;
+  booth_id: string;
+  user_id: string | null;
+  photo_url: string;
+  thumbnail_url?: string | null;
+  photo_type: 'exterior' | 'interior' | 'strips' | 'other';
+  notes?: string | null;
+  status: 'pending' | 'approved' | 'rejected';
+  approved_at?: string | null;
+  approved_by?: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 // Filter state type

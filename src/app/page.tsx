@@ -12,6 +12,7 @@ import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { FoundersStory } from '@/components/home/FoundersStory';
 import { RecentlyAdded } from '@/components/home/RecentlyAdded';
+import { ContentFreshness } from '@/components/seo/ContentFreshness';
 import { createPublicServerClient } from '@/lib/supabase';
 import { Booth } from '@/types';
 import { generateWebsiteSchema, generateFAQPageSchema, injectStructuredData } from '@/lib/seo/structuredData';
@@ -262,7 +263,7 @@ export default async function Home() {
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto">
+            <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto mb-8">
               <div className="text-center">
                 <div className="text-3xl font-bold text-primary mb-1">
                   {stats.totalBooths ? stats.totalBooths.toLocaleString() : "..."}
@@ -281,6 +282,15 @@ export default async function Home() {
                 </div>
                 <div className="text-sm text-muted-foreground">Operational</div>
               </div>
+            </div>
+
+            {/* Content Freshness Signal */}
+            <div className="flex justify-center">
+              <ContentFreshness
+                updatedAt={new Date().toISOString()}
+                label="Database Updated"
+                className="text-xs opacity-75 hover:opacity-100 transition-opacity"
+              />
             </div>
           </div>
         </div>

@@ -498,17 +498,17 @@ export default function AdminPage() {
             }`}>
               <div className="text-center">
                 <Eye className="w-16 h-16 text-amber-400 mx-auto mb-4" />
-                <h2 className="font-display text-xl font-semibold text-white mb-2">Moderate Content</h2>
+                <h2 className="font-display text-xl font-semibold text-white mb-2">Moderate Photos</h2>
                 <p className="text-neutral-400 text-sm mb-6">
-                  Review photos, manage users, and moderate content
+                  Review and approve community-uploaded photos
                 </p>
-                <Link href="/admin/moderation">
+                <Link href="/admin/photos">
                   <Button
                     size="lg"
                     className={`w-full ${stats.pendingPhotos > 0 ? 'bg-amber-600 hover:bg-amber-700' : ''}`}
                   >
                     <Eye className="w-5 h-5 mr-2" />
-                    {stats.pendingPhotos > 0 ? `Review ${stats.pendingPhotos} Photos` : 'Open Moderation'}
+                    {stats.pendingPhotos > 0 ? `Review ${stats.pendingPhotos} Photos` : 'Open Photo Moderation'}
                   </Button>
                 </Link>
               </div>
@@ -602,23 +602,21 @@ export default function AdminPage() {
                   </Link>
 
                   {/* Review Photos */}
-                  <Button
-                    size="lg"
-                    variant={stats.pendingPhotos > 0 ? "default" : "outline"}
-                    className={`h-24 flex flex-col items-center justify-center gap-2 ${
-                      stats.pendingPhotos > 0 ? 'bg-amber-600 hover:bg-amber-700' : ''
-                    }`}
-                    onClick={() => {
-                      const tabs = document.querySelector('[value="moderation"]') as HTMLElement;
-                      tabs?.click();
-                    }}
-                  >
-                    <Eye className="w-6 h-6" />
-                    <span>Review Photos</span>
-                    {stats.pendingPhotos > 0 && (
-                      <Badge className="bg-white text-amber-900">{stats.pendingPhotos}</Badge>
-                    )}
-                  </Button>
+                  <Link href="/admin/photos" className="block">
+                    <Button
+                      size="lg"
+                      variant={stats.pendingPhotos > 0 ? "default" : "outline"}
+                      className={`h-24 w-full flex flex-col items-center justify-center gap-2 ${
+                        stats.pendingPhotos > 0 ? 'bg-amber-600 hover:bg-amber-700' : ''
+                      }`}
+                    >
+                      <Eye className="w-6 h-6" />
+                      <span>Review Photos</span>
+                      {stats.pendingPhotos > 0 && (
+                        <Badge className="bg-white text-amber-900">{stats.pendingPhotos}</Badge>
+                      )}
+                    </Button>
+                  </Link>
                 </div>
               </Card>
 

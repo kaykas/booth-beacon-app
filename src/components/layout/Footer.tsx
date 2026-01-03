@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { Instagram, Twitter, Mail } from 'lucide-react';
+import { TrustSignals } from '@/components/seo/TrustSignals';
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
@@ -116,6 +117,11 @@ export function Footer() {
               </button>
             </form>
           </div>
+        </div>
+
+        {/* Trust Signals Section */}
+        <div className="border-t border-primary/10 pt-8 mb-8">
+          <TrustSignals variant="full" />
         </div>
 
         {/* Bottom Bar */}

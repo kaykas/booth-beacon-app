@@ -38,6 +38,7 @@ import { StreetViewEmbed } from '@/components/booth/StreetViewEmbed';
 import { CommunityPhotoUpload } from '@/components/booth/CommunityPhotoUpload';
 import { StructuredHours } from '@/components/booth/StructuredHours';
 import { ReportIssueButton } from '@/components/booth/ReportIssueButton';
+import { ContentFreshness } from '@/components/seo/ContentFreshness';
 import { createPublicServerClient } from '@/lib/supabase';
 import { normalizeBooth, RenderableBooth } from '@/lib/boothViewModel';
 import { generateCombinedStructuredData } from '@/lib/seo/structuredDataOptimized';
@@ -152,6 +153,30 @@ async function getBooth(slug: string): Promise<RenderableBooth | null> {
   } catch (error) {
     console.error(`Error fetching booth "${slug}":`, error);
     return null;
+  }
+}
+
+// Fetch approved community photos for a booth
+async function getCommunityPhotos(boothId: string): Promise<string[]> {
+  try {
+    const supabase = createPublicServerClient();
+    const { data, error } = await supabase
+      .from('booth_user_photos')
+      .select('photo_url')
+      .eq('booth_id', boothId)
+      .eq('moderation_status', 'approved')
+      .order('created_at', { ascending: false })
+      .limit(20);
+
+    if (error) {
+      console.error('Error fetching community photos:', error);
+      return [];
+    }
+
+    return data?.map((photo) => photo.photo_url) || [];
+  } catch (error) {
+    console.error('Error fetching community photos:', error);
+    return [];
   }
 }
 
@@ -278,6 +303,9 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
   if (!booth) {
     notFound();
   }
+
+  // Fetch approved community photos for this booth
+  const communityPhotos = await getCommunityPhotos(booth.id);
 
   // Check if booth is closed/invalid
   const isClosedOrInvalid = booth.status === 'closed' || booth.name === 'N/A' || booth.data_source_type === 'invalid_extraction';
@@ -700,15 +728,14 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
                   </div>
                 )}
 
-                {/* Last Updated Timestamp */}
+                {/* Content Freshness Signal */}
                 {booth.updated_at && (
                   <div className="mt-4 pt-4 border-t border-neutral-200">
-                    <div className="text-xs text-neutral-500">
-                      <span className="font-medium">Last updated:</span>{' '}
-                      <time dateTime={booth.updated_at}>
-                        {formatLastUpdated(booth.updated_at)}
-                      </time>
-                    </div>
+                    <ContentFreshness
+                      updatedAt={booth.updated_at}
+                      label="Listing Updated"
+                      className="text-xs"
+                    />
                   </div>
                 )}
               </div>
@@ -743,25 +770,31 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
               </Card>
             )}
 
-            {/* Street View - Only show if we have a proper address, not just city name */}
+            {/* Street View - Only show if validated as available or not yet validated */}
             {hasValidLocation &&
              booth.latitude &&
              booth.longitude &&
              booth.address &&
              booth.address !== booth.city &&
-             booth.address.length > 10 && (
+             booth.address.length > 10 &&
+             booth.street_view_available !== false && ( // Only hide if explicitly validated as unavailable
               <div>
                 <h2 className="text-xl font-semibold mb-4">Street View</h2>
                 <StreetViewEmbed
                   latitude={booth.latitude}
                   longitude={booth.longitude}
                   boothName={booth.name}
+                  boothId={booth.id}
+                  streetViewAvailable={booth.street_view_available}
+                  streetViewPanoramaId={booth.street_view_panorama_id}
+                  streetViewDistanceMeters={booth.street_view_distance_meters}
+                  streetViewHeading={booth.street_view_heading}
                 />
               </div>
             )}
 
             {/* Photos Section */}
-            {(booth.photo_exterior_url || booth.photo_interior_url || booth.google_photos) ? (
+            {(booth.photo_exterior_url || booth.photo_interior_url || booth.google_photos || communityPhotos.length > 0) ? (
               <Card className="p-6">
                 <h2 className="text-xl font-semibold mb-4">Photos</h2>
 
@@ -771,8 +804,10 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
                     ...(booth.photo_exterior_url ? [booth.photo_exterior_url] : []),
                     ...(booth.photo_interior_url ? [booth.photo_interior_url] : []),
                     ...(booth.google_photos || []),
+                    ...communityPhotos,
                   ]}
                   boothName={booth.name}
+                  communityPhotosCount={communityPhotos.length}
                 />
               </Card>
             ) : null}

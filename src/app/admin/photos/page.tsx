@@ -1,0 +1,112 @@
+import { redirect } from 'next/navigation';
+import { cookies } from 'next/headers';
+import { createServerClient as createSSRServerClient } from '@supabase/ssr';
+import { createServerClient } from '@/lib/supabase/client';
+import { isAdmin } from '@/lib/adminAuth';
+import { Header } from '@/components/layout/Header';
+import { Footer } from '@/components/layout/Footer';
+import { PhotoModerationDashboard } from './PhotoModerationDashboard';
+
+export const metadata = {
+  title: 'Photo Moderation - Admin',
+  description: 'Moderate community-uploaded photos',
+};
+
+/**
+ * Server component that handles authentication and data fetching for photo moderation
+ */
+export default async function PhotoModerationPage() {
+  // Create auth client with cookie access to get logged-in user
+  const cookieStore = await cookies();
+  const authClient = createSSRServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return cookieStore.get(name)?.value;
+        },
+      },
+    }
+  );
+
+  // Get current user from auth session
+  const {
+    data: { user },
+  } = await authClient.auth.getUser();
+
+  // Redirect if not logged in
+  if (!user) {
+    redirect('/');
+  }
+
+  // Check if user is admin
+  const adminStatus = await isAdmin(user.id, true);
+  if (!adminStatus) {
+    redirect('/admin');
+  }
+
+  // Create service role client for querying moderation data
+  const supabase = createServerClient();
+
+  // Fetch photos with booth and profile info
+  const photosResult = await supabase
+    .from('booth_user_photos')
+    .select(
+      `
+      *,
+      booth:booths!inner(id, name, city, country, slug),
+      profile:profiles!inner(id, full_name, email)
+    `
+    )
+    .order('created_at', { ascending: false })
+    .limit(200);
+
+  // Handle errors
+  if (photosResult.error) {
+    console.error('Error fetching photos:', photosResult.error);
+  }
+
+  // Type assertion to fix Supabase type inference issue with joins
+  type PhotoWithRelations = {
+    id: string;
+    user_id: string;
+    booth_id: string;
+    photo_url: string;
+    caption: string | null;
+    photo_type: string | null;
+    notes: string | null;
+    moderation_status: 'pending' | 'approved' | 'rejected';
+    created_at: string;
+    moderated_at: string | null;
+    moderated_by: string | null;
+    booth: { id: string; name: string; city: string; country: string; slug: string };
+    profile: { id: string; full_name: string | null; email: string };
+  };
+
+  const photos = (photosResult.data as PhotoWithRelations[]) || [];
+
+  // Calculate stats
+  const stats = {
+    total: photos.length,
+    pending: photos.filter((p) => p.moderation_status === 'pending').length,
+    approved: photos.filter((p) => p.moderation_status === 'approved').length,
+    rejected: photos.filter((p) => p.moderation_status === 'rejected').length,
+  };
+
+  return (
+    <>
+      <Header />
+      <main className="min-h-screen bg-neutral-900 py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <PhotoModerationDashboard
+            initialPhotos={photos}
+            stats={stats}
+            userId={user.id}
+          />
+        </div>
+      </main>
+      <Footer />
+    </>
+  );
+}
