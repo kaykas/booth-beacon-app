@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { Card } from '@/components/ui/card';
-import { MapPin, ExternalLink } from 'lucide-react';
+import { MapPin, ExternalLink, Navigation } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface StreetViewEmbedProps {
@@ -19,7 +19,7 @@ export function StreetViewEmbed({
   longitude,
   boothName,
   heading = 0,
-  pitch = 0,
+  pitch = 10,
   fov = 90,
 }: StreetViewEmbedProps) {
   const [isAvailable, setIsAvailable] = useState<boolean>(true);
@@ -37,9 +37,15 @@ export function StreetViewEmbed({
     return () => clearTimeout(timer);
   }, [latitude, longitude]);
 
+  // Use the booth's actual coordinates for Street View
+  // The embed API automatically finds the nearest Street View panorama
   const streetViewUrl = `https://www.google.com/maps/embed/v1/streetview?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''}&location=${latitude},${longitude}&heading=${heading}&pitch=${pitch}&fov=${fov}`;
 
-  const fallbackUrl = `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${latitude},${longitude}&heading=${heading}&pitch=${pitch}&fov=${fov}`;
+  // Fallback URL to open in Google Maps with Street View at the booth's location
+  const fallbackUrl = `https://www.google.com/maps/@${latitude},${longitude},19z/data=!3m1!1e3`;
+
+  // Direct link to open Street View in Google Maps at exact coordinates
+  const openInMapsUrl = `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${latitude},${longitude}`;
 
   if (!isAvailable && !isLoading) {
     return (
@@ -66,11 +72,11 @@ export function StreetViewEmbed({
   }
 
   return (
-    <Card className="overflow-hidden">
+    <Card className="overflow-hidden shadow-md">
       <div className="relative w-full h-[400px] bg-neutral-100">
         {isLoading && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="text-neutral-500 text-sm">Loading Street View...</div>
+          <div className="absolute inset-0 flex items-center justify-center bg-neutral-100">
+            <div className="text-neutral-600 text-sm font-medium">Loading Street View...</div>
           </div>
         )}
         <iframe
@@ -81,7 +87,7 @@ export function StreetViewEmbed({
           style={{ border: 0 }}
           loading="lazy"
           referrerPolicy="no-referrer-when-downgrade"
-          title={`Street View of ${boothName}`}
+          title={`Street View of ${boothName} at ${latitude}, ${longitude}`}
           onError={() => {
             setIsAvailable(false);
             setIsLoading(false);
@@ -89,22 +95,38 @@ export function StreetViewEmbed({
           onLoad={() => setIsLoading(false)}
         />
       </div>
-      <div className="p-4 bg-white border-t border-neutral-200">
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-neutral-600">
-            360° Street View
+      {/* Enhanced Footer with Better Contrast and Actions */}
+      <div className="p-4 bg-white border-t-2 border-neutral-200">
+        <div className="flex items-center justify-between gap-4">
+          {/* Left Side - Street View Label with High Contrast */}
+          <div className="flex items-center gap-2">
+            <Navigation className="w-4 h-4 text-neutral-700" />
+            <p className="text-sm font-semibold text-neutral-900">
+              360° Street View
+            </p>
+          </div>
+
+          {/* Right Side - Action Buttons */}
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" asChild className="h-8">
+              <a
+                href={openInMapsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs font-medium"
+              >
+                <ExternalLink className="w-3 h-3 mr-1" />
+                Open in Maps
+              </a>
+            </Button>
+          </div>
+        </div>
+
+        {/* Location Coordinates Footer Info */}
+        <div className="mt-2 pt-2 border-t border-neutral-100">
+          <p className="text-xs text-neutral-500">
+            Location: {latitude.toFixed(6)}, {longitude.toFixed(6)}
           </p>
-          <Button variant="ghost" size="sm" asChild>
-            <a
-              href={fallbackUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs"
-            >
-              <ExternalLink className="w-3 h-3 mr-1" />
-              Open in Maps
-            </a>
-          </Button>
         </div>
       </div>
     </Card>
