@@ -34,9 +34,10 @@ function MapContent() {
   });
   const [userLocation, setUserLocation] = useState<Coordinates | null>(null);
   const [sortByDistance, setSortByDistance] = useState(false);
+  const [sortingByDistance, setSortingByDistance] = useState(false);
   const [selectedCity, setSelectedCity] = useState<string>('all');
   const [selectedCountry, setSelectedCountry] = useState<string>('all');
-  
+
   const searchParams = useSearchParams();
   const [autoCenter, setAutoCenter] = useState(false);
   const [shouldCenterOnLoad, setShouldCenterOnLoad] = useState(false);
@@ -265,10 +266,24 @@ function MapContent() {
     return filtered;
   }, [booths, selectedCity, selectedCountry, filters, sortByDistance, userLocation]);
 
-  // Update filteredBooths when computed value changes
+  // Update filteredBooths when computed value changes - with async handling for distance sorting
   useEffect(() => {
-    setFilteredBooths(computedFilteredBooths);
-  }, [computedFilteredBooths]);
+    if (sortByDistance && userLocation && computedFilteredBooths.length > 0) {
+      // Show loading state for distance sorting
+      setSortingByDistance(true);
+
+      // Defer the state update slightly to allow UI to show loading state
+      const timeoutId = setTimeout(() => {
+        setFilteredBooths(computedFilteredBooths);
+        setSortingByDistance(false);
+      }, 50);
+
+      return () => clearTimeout(timeoutId);
+    } else {
+      setFilteredBooths(computedFilteredBooths);
+      setSortingByDistance(false);
+    }
+  }, [computedFilteredBooths, sortByDistance, userLocation]);
 
   const clearFilters = useCallback(() => {
     setFilters({ status: 'all' });
@@ -310,11 +325,15 @@ function MapContent() {
               setAutoCenter(true);
             }
           }}
-          disabled={!userLocation}
-          title={!userLocation ? 'Enable location to use this feature' : 'Sort by distance and center map'}
+          disabled={!userLocation || sortingByDistance}
+          title={!userLocation ? 'Enable location to use this feature' : sortingByDistance ? 'Calculating distances...' : 'Sort by distance and center map'}
         >
-          <Navigation className="w-4 h-4 mr-2" />
-          Near Me
+          {sortingByDistance ? (
+            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+          ) : (
+            <Navigation className="w-4 h-4 mr-2" />
+          )}
+          {sortingByDistance ? 'Calculating...' : 'Near Me'}
         </Button>
 
         {/* Filter Toggle */}

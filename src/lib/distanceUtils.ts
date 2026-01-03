@@ -48,7 +48,18 @@ export function formatDistance(distanceKm: number): string {
 }
 
 /**
+ * Fast approximate distance calculation using Euclidean distance
+ * Good enough for sorting, much faster than Haversine
+ */
+function fastDistanceApprox(coord1: Coordinates, coord2: Coordinates): number {
+  const latDiff = coord2.lat - coord1.lat;
+  const lngDiff = (coord2.lng - coord1.lng) * Math.cos(toRad(coord1.lat));
+  return Math.sqrt(latDiff * latDiff + lngDiff * lngDiff) * 111.32; // Convert to km
+}
+
+/**
  * Sort booths by distance from a given location
+ * Optimized: uses fast approximation for sorting, then precise calculation for display
  * @param booths Array of booths to sort
  * @param userLocation User's current location
  * @returns Sorted array of booths with distance property added
@@ -57,24 +68,40 @@ export function sortBoothsByDistance(
   booths: Booth[],
   userLocation: Coordinates
 ): (Booth & { distance?: number })[] {
-  return booths
-    .map((booth) => {
-      if (!booth.latitude || !booth.longitude) {
-        return { ...booth, distance: undefined };
-      }
+  // First pass: fast approximation for sorting
+  const boothsWithApproxDistance = booths.map((booth) => {
+    if (!booth.latitude || !booth.longitude) {
+      return { booth, approxDistance: Infinity };
+    }
 
-      const distance = calculateDistance(userLocation, {
-        lat: booth.latitude,
-        lng: booth.longitude,
-      });
-
-      return { ...booth, distance };
-    })
-    .sort((a, b) => {
-      if (a.distance === undefined) return 1;
-      if (b.distance === undefined) return -1;
-      return a.distance - b.distance;
+    const approxDistance = fastDistanceApprox(userLocation, {
+      lat: booth.latitude,
+      lng: booth.longitude,
     });
+
+    return { booth, approxDistance };
+  });
+
+  // Sort by approximate distance
+  boothsWithApproxDistance.sort((a, b) => a.approxDistance - b.approxDistance);
+
+  // Second pass: calculate precise distance only for nearest 100 booths
+  // For the rest, use the approximation
+  return boothsWithApproxDistance.map(({ booth, approxDistance }, index) => {
+    if (approxDistance === Infinity) {
+      return { ...booth, distance: undefined };
+    }
+
+    // Use precise calculation for top 100, approximation for the rest
+    const distance = index < 100
+      ? calculateDistance(userLocation, {
+          lat: booth.latitude!,
+          lng: booth.longitude!,
+        })
+      : approxDistance;
+
+    return { ...booth, distance };
+  });
 }
 
 /**
