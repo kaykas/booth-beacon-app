@@ -66,7 +66,7 @@ async function BrowseContent({ searchParams }: { searchParams: SearchParams }) {
   const hasFilters = filters.query || filters.country || filters.hasCoordinates !== null;
 
   return (
-    <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <main id="main-content" role="main" className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       {/* Hero Section */}
       <div className="mb-8 text-center">
         <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-sm font-semibold text-primary">

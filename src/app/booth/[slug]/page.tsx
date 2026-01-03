@@ -43,6 +43,8 @@ import { normalizeBooth, RenderableBooth } from '@/lib/boothViewModel';
 import { generateCombinedStructuredData } from '@/lib/seo/structuredDataOptimized';
 import { boothDetailFAQs } from '@/lib/seo/faqData';
 import { formatLastUpdated } from '@/lib/dateUtils';
+import { generateAIMetaTags, generateContentFreshnessSignals } from '@/lib/ai-meta-tags';
+import { generateBoothPageSchemas, injectStructuredData as injectKnowledgeGraph } from '@/lib/knowledge-graph-schemas';
 
 interface BoothDetailPageProps {
   params: Promise<{
@@ -210,6 +212,32 @@ export async function generateMetadata({ params }: BoothDetailPageProps): Promis
   // Use AI-generated image or exterior photo for OG image if available
   const ogImage = booth.photo_exterior_url || booth.ai_generated_image_url || booth.ai_preview_url;
 
+  // Generate AI meta tags for this booth
+  const aiTags = generateAIMetaTags({
+    summary: `${booth.name} is an analog photo booth located in ${city}${country ? `, ${country}` : ''}. Authentic photochemical photography with film processing and instant photo strips.`,
+    keyConcepts: [
+      'analog photo booth',
+      booth.name,
+      city,
+      country || '',
+      'photochemical photography',
+      'film processing',
+      'instant photos',
+      'photo strips',
+      booth.machine_model || 'classic booth',
+    ].filter(Boolean),
+    contentStructure: 'reference',
+    expertiseLevel: 'beginner',
+    perspective: 'commercial',
+    authority: 'industry-expert',
+  });
+
+  const freshnessTags = generateContentFreshnessSignals({
+    publishedDate: booth.created_at || '2025-11-01T08:00:00Z',
+    modifiedDate: booth.updated_at || new Date().toISOString(),
+    revisedDate: new Date(booth.updated_at || new Date()).toISOString().split('T')[0],
+  });
+
   return {
     title,
     description,
@@ -235,6 +263,10 @@ export async function generateMetadata({ params }: BoothDetailPageProps): Promis
       title,
       description,
       ...(ogImage && { images: [ogImage] }),
+    },
+    other: {
+      ...aiTags,
+      ...freshnessTags,
     },
   };
 }
@@ -308,6 +340,9 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
     boothDetailFAQs
   );
 
+  // Generate knowledge graph schemas for this booth
+  const knowledgeGraphSchemas = generateBoothPageSchemas(booth);
+
   return (
     <div className="min-h-screen bg-vintage-cream">
       {/* Sticky Action Bar */}
@@ -328,8 +363,19 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
         dangerouslySetInnerHTML={{ __html: combinedStructuredData }}
       />
 
-      {/* Breadcrumbs */}
-      <div className="bg-white border-b border-neutral-200">
+      {/* Knowledge Graph - Place and TouristAttraction Schemas */}
+      {knowledgeGraphSchemas.map((schema, index) => (
+        <script
+          key={`knowledge-graph-${index}`}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: injectKnowledgeGraph(schema) }}
+        />
+      ))}
+
+      {/* Main content wrapper for accessibility */}
+      <main id="main-content" role="main">
+        {/* Breadcrumbs */}
+        <div className="bg-white border-b border-neutral-200">
         <div className="max-w-7xl mx-auto px-4 py-3">
           <nav className="flex items-center gap-2 text-sm text-neutral-600 overflow-x-auto">
             {breadcrumbItems.map((crumb, index) => (
@@ -382,7 +428,12 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
       )}
 
       {/* Hero Section */}
-      <div className="bg-white border-b border-neutral-200">
+      <div
+        className="bg-white border-b border-neutral-200"
+        data-ai-section="main-content"
+        data-ai-type="entity-info"
+        data-ai-importance="critical"
+      >
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
             {/* Image */}
@@ -563,7 +614,12 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
 
               {/* Details */}
               {booth.description && (
-                <div className="mb-6">
+                <div
+                  className="mb-6"
+                  data-ai-section="content"
+                  data-ai-type="descriptive"
+                  data-ai-importance="medium"
+                >
                   <p className="text-neutral-700 leading-relaxed">{booth.description}</p>
                 </div>
               )}
@@ -601,7 +657,12 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
               )}
 
               {/* Visit Info */}
-              <div className="space-y-2">
+              <div
+                className="space-y-2"
+                data-ai-section="practical-info"
+                data-ai-type="actionable"
+                data-ai-importance="high"
+              >
                 <h3 className="text-sm font-semibold text-neutral-500 uppercase tracking-wide">
                   Visit Info
                 </h3>
@@ -770,7 +831,12 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
             )}
 
             {/* Location Card */}
-            <Card className="p-6">
+            <Card
+              className="p-6"
+              data-ai-section="location-data"
+              data-ai-type="factual"
+              data-ai-importance="critical"
+            >
               <h3 className="font-semibold text-lg mb-4">Location</h3>
 
               {/* Map */}
@@ -936,6 +1002,7 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
           </div>
         </div>
       </div>
+      </main>
     </div>
   );
 }

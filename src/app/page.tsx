@@ -16,6 +16,43 @@ import { createPublicServerClient } from '@/lib/supabase';
 import { Booth } from '@/types';
 import { generateWebsiteSchema, generateFAQPageSchema, injectStructuredData } from '@/lib/seo/structuredData';
 import { homepageFAQs } from '@/lib/seo/faqData';
+import { generateAIMetaTags, generateContentFreshnessSignals } from '@/lib/ai-meta-tags';
+import { generatePhotoBoothGlossary, generateBoothBeaconOrganizationSchema, injectStructuredData as injectKnowledgeGraph } from '@/lib/knowledge-graph-schemas';
+import { Metadata } from 'next';
+
+// Homepage AI Meta Tags
+const aiTags = generateAIMetaTags({
+  summary: 'Comprehensive directory of authentic analog photo booths worldwide with interactive maps, booth details, locations, and visitor information for classic photochemical photography enthusiasts.',
+  keyConcepts: [
+    'analog photo booth',
+    'vintage photo booth',
+    'photochemical photography',
+    'photo booth directory',
+    'photo booth map',
+    'classic photo booths',
+    'film photography',
+    'instant photos',
+    'photo booth finder',
+  ],
+  contentStructure: 'directory',
+  expertiseLevel: 'beginner',
+  perspective: 'commercial',
+  authority: 'industry-expert',
+});
+
+const freshnessTags = generateContentFreshnessSignals({
+  publishedDate: '2025-11-01T08:00:00Z',
+  modifiedDate: new Date().toISOString(),
+  revisedDate: new Date().toISOString().split('T')[0],
+});
+
+// Export metadata with AI tags
+export const metadata: Metadata = {
+  other: {
+    ...aiTags,
+    ...freshnessTags,
+  },
+};
 
 function getPublicSupabaseClient() {
   try {
@@ -127,6 +164,8 @@ export default async function Home() {
 
   const websiteSchema = generateWebsiteSchema();
   const faqSchema = generateFAQPageSchema(homepageFAQs);
+  const glossarySchema = generatePhotoBoothGlossary();
+  const organizationSchema = generateBoothBeaconOrganizationSchema();
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -142,10 +181,29 @@ export default async function Home() {
         dangerouslySetInnerHTML={{ __html: injectStructuredData(faqSchema) }}
       />
 
+      {/* Knowledge Graph - Photo Booth Glossary */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: injectKnowledgeGraph(glossarySchema) }}
+      />
+
+      {/* Knowledge Graph - Organization with E-E-A-T Signals */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: injectKnowledgeGraph(organizationSchema) }}
+      />
+
       <Header />
 
-      {/* Hero Section - Dark Nightclub Aesthetic */}
-      <section className="relative py-20 overflow-hidden warm-glow">
+      {/* Main content wrapper for accessibility */}
+      <main id="main-content" role="main">
+        {/* Hero Section - Dark Nightclub Aesthetic */}
+        <section
+          className="relative py-20 overflow-hidden warm-glow"
+          data-ai-section="main-content"
+          data-ai-type="hero"
+          data-ai-importance="critical"
+        >
         {/* Pink gradient background */}
         <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-background to-background"></div>
 
@@ -295,7 +353,12 @@ export default async function Home() {
       </section>
 
       {/* Featured Booths */}
-      <section className="py-16 px-4 bg-background">
+      <section
+        className="py-16 px-4 bg-background"
+        data-ai-section="catalog"
+        data-ai-type="examples"
+        data-ai-importance="high"
+      >
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center justify-between mb-8">
             <div>
@@ -329,7 +392,13 @@ export default async function Home() {
       <RecentlyAdded />
 
       {/* How It Works */}
-      <section id="how-it-works" className="py-16 px-4 bg-card film-grain">
+      <section
+        id="how-it-works"
+        className="py-16 px-4 bg-card film-grain"
+        data-ai-section="guide"
+        data-ai-type="educational"
+        data-ai-importance="medium"
+      >
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="font-display text-4xl font-semibold text-foreground mb-4">
@@ -384,7 +453,12 @@ export default async function Home() {
       </section>
 
       {/* Photo Tours Section */}
-      <section className="py-16 px-4 bg-background">
+      <section
+        className="py-16 px-4 bg-background"
+        data-ai-section="navigation"
+        data-ai-type="directory"
+        data-ai-importance="high"
+      >
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center justify-between mb-8">
             <div>
@@ -477,6 +551,7 @@ export default async function Home() {
           </Button>
         </div>
       </section>
+      </main>
 
       <Footer />
     </div>

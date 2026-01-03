@@ -289,7 +289,7 @@ function MapContent() {
   return (
     <div className="h-screen flex flex-col bg-background">
       {/* Header */}
-      <header className="bg-card border-b border-primary/10 px-4 py-3 flex items-center gap-4 z-10">
+      <header role="banner" className="bg-card border-b border-primary/10 px-4 py-3 flex items-center gap-4 z-10">
         <Link href="/" className="font-display text-xl font-semibold text-foreground">
           Booth Beacon
         </Link>
@@ -349,7 +349,7 @@ function MapContent() {
       </header>
 
       {/* Main Content */}
-      <div className="flex-1 flex overflow-hidden">
+      <main id="main-content" role="main" className="flex-1 flex overflow-hidden">
         {/* Filter Panel */}
         {showFilters && (
           <aside className="w-80 bg-card border-r border-primary/10 p-6 overflow-y-auto">
@@ -629,7 +629,7 @@ function MapContent() {
             </div>
           )}
         </div>
-      </div>
+      </main>
     </div>
   );
 }

@@ -63,7 +63,11 @@ export function BoothImage({
         <div className={`relative w-full h-full ${(hasAiGenerated || hasAiPreview) ? 'ai-image-sepia' : ''}`}>
           <Image
             src={imageUrl}
-            alt={booth.name}
+            alt={`${booth.name} - Classic analog photo booth located in ${booth.city}${booth.state ? `, ${booth.state}` : ''}, ${booth.country}. ${
+              hasAiGenerated ? 'AI-generated artistic visualization.' :
+              hasAiPreview ? 'AI preview image.' :
+              'Real community-submitted photo.'
+            }`}
             fill
             className="object-cover transition-opacity"
             sizes={
@@ -104,8 +108,9 @@ export function BoothImage({
           <button
             onClick={onAddPhoto}
             className="px-4 py-2 bg-white text-neutral-900 rounded-lg font-medium text-sm flex items-center gap-2 hover:bg-neutral-100 transition"
+            aria-label={hasNoImage ? `Add photo for ${booth.name}` : `Add real photo for ${booth.name} to replace AI-generated image`}
           >
-            <Upload className="w-4 h-4" />
+            <Upload className="w-4 h-4" aria-hidden="true" />
             {hasNoImage ? 'Add Photo' : 'Add Real Photo'}
           </button>
         </div>

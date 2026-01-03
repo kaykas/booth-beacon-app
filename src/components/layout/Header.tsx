@@ -11,7 +11,7 @@ export function Header() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   return (
-    <header className="bg-card border-b border-primary/10 sticky top-0 z-50 backdrop-blur-sm bg-card/95">
+    <header role="banner" className="bg-card border-b border-primary/10 sticky top-0 z-50 backdrop-blur-sm bg-card/95">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -27,7 +27,7 @@ export function Header() {
           </div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-8">
+          <nav role="navigation" aria-label="Main navigation" className="hidden md:flex items-center gap-8">
             <Link
               href="/map"
               className="text-muted-foreground hover:text-primary transition font-medium"
@@ -113,7 +113,7 @@ export function Header() {
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
         <div className="md:hidden border-t border-neutral-200 bg-white">
-          <nav className="px-4 py-4 space-y-3">
+          <nav role="navigation" aria-label="Mobile navigation" className="px-4 py-4 space-y-3">
             <Link
               href="/map"
               className="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 rounded transition"
