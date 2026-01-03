@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useMemo } from 'react';
 import { Booth, Coordinates } from '@/types';
 import { MapPin, Loader2 } from 'lucide-react';
-import { MarkerClusterer } from '@googlemaps/markerclusterer';
+import { MarkerClusterer, GridAlgorithm } from '@googlemaps/markerclusterer';
 import { loadGoogleMaps } from '@/lib/googleMapsLoader';
 
 interface BoothMapProps {
@@ -84,6 +84,56 @@ const statusColors = {
   unverified: '#FB923C', // Light orange for unverified
   closed: '#6B7280', // Gray for closed
 };
+
+// Cache for marker SVG icons to prevent regeneration
+// Key format: "status-boothId"
+const markerIconCache = new Map<string, string>();
+
+// Generate cached marker icon
+function getMarkerIcon(boothId: string, status: string): string {
+  const cacheKey = `${status}-${boothId}`;
+  const cached = markerIconCache.get(cacheKey);
+
+  if (cached) {
+    return cached;
+  }
+
+  const markerColor = statusColors[status as keyof typeof statusColors] || statusColors.unverified;
+
+  // Create custom HTML marker using SVG icon
+  const svgIcon = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 44 44">
+      <!-- Drop shadow -->
+      <defs>
+        <filter id="shadow-${boothId}" x="-50%" y="-50%" width="200%" height="200%">
+          <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.4"/>
+        </filter>
+      </defs>
+      <!-- Teardrop pin shape -->
+      <g transform="translate(22, 18)" filter="url(#shadow-${boothId})">
+        <path d="M 0,-18 C -10,-18 -18,-10 -18,0 C -18,6 -10,14 0,26 C 10,14 18,6 18,0 C 18,-10 10,-18 0,-18 Z"
+              fill="${markerColor}"
+              stroke="white"
+              stroke-width="3"/>
+        <!-- Camera icon -->
+        <g transform="translate(0, -5)" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M 5,-6 L 3,-3 L -7,-3 C -8,-3 -9,-2 -9,0 L -9,7 C -9,8 -8,9 -7,9 L 7,9 C 8,9 9,8 9,7 L 9,0 C 9,-2 8,-3 7,-3 L -3,-3 L -5,-6 Z"/>
+          <circle cx="0" cy="3" r="3"/>
+        </g>
+      </g>
+    </svg>
+  `;
+
+  markerIconCache.set(cacheKey, svgIcon);
+
+  // Limit cache size to prevent memory issues with 1000+ booths
+  if (markerIconCache.size > 1000) {
+    const firstKey = markerIconCache.keys().next().value;
+    if (firstKey) markerIconCache.delete(firstKey);
+  }
+
+  return svgIcon;
+}
 
 export function BoothMap({
   booths,
@@ -191,8 +241,18 @@ export function BoothMap({
   }, [stableCenter, stableZoom, onViewportChange]);
 
   // Create markers for booths
-  // Performance optimized: markers only created when map or booths change
-  // Clustering handles 100+ markers efficiently with custom renderer
+  // ========================
+  // PERFORMANCE OPTIMIZATIONS FOR 900+ MARKERS:
+  // ========================
+  // 1. Icon Caching: Marker SVGs are memoized (getMarkerIcon function)
+  // 2. GridAlgorithm: Most performant clustering for large datasets
+  // 3. Viewport Loading: Only load markers in visible viewport (parent handles this)
+  // 4. Debounced Updates: Marker recreation only on map/booths change
+  // 5. Optimized Rendering: optimized:false for SVG markers, proper z-index
+  // 6. Smart Bounds: Only fitBounds on initial load, not on updates
+  // 7. Cluster Click: Zoom into cluster bounds for better UX
+  // 8. Tiered Cluster Styling: 5 cluster tiers (10, 20, 50, 100, 100+)
+  // ========================
   useEffect(() => {
     if (!map || booths.length === 0) return;
 
@@ -211,32 +271,8 @@ export function BoothMap({
       const position = { lat: booth.latitude, lng: booth.longitude };
       bounds.extend(position);
 
-      // Create custom camera icon marker with vintage styling
-      const markerColor = statusColors[booth.status] || statusColors.unverified;
-
-      // Create custom HTML marker using SVG icon
-      const svgIcon = `
-        <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 44 44">
-          <!-- Drop shadow -->
-          <defs>
-            <filter id="shadow-${booth.id}" x="-50%" y="-50%" width="200%" height="200%">
-              <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.4"/>
-            </filter>
-          </defs>
-          <!-- Teardrop pin shape -->
-          <g transform="translate(22, 18)" filter="url(#shadow-${booth.id})">
-            <path d="M 0,-18 C -10,-18 -18,-10 -18,0 C -18,6 -10,14 0,26 C 10,14 18,6 18,0 C 18,-10 10,-18 0,-18 Z"
-                  fill="${markerColor}"
-                  stroke="white"
-                  stroke-width="3"/>
-            <!-- Camera icon -->
-            <g transform="translate(0, -5)" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M 5,-6 L 3,-3 L -7,-3 C -8,-3 -9,-2 -9,0 L -9,7 C -9,8 -8,9 -7,9 L 7,9 C 8,9 9,8 9,7 L 9,0 C 9,-2 8,-3 7,-3 L -3,-3 L -5,-6 Z"/>
-              <circle cx="0" cy="3" r="3"/>
-            </g>
-          </g>
-        </svg>
-      `;
+      // Get cached marker icon (memoized for performance)
+      const svgIcon = getMarkerIcon(booth.id, booth.status);
 
       const marker = new google.maps.Marker({
         position,
@@ -255,19 +291,19 @@ export function BoothMap({
         content: createInfoWindowContent(booth),
       });
 
-      // Add hover scale effect
+      // Add hover scale effect - optimized with cached icons
       marker.addListener('mouseover', () => {
         // Create scaled up version for hover
-        const scaledSvgIcon = svgIcon.replace('width="44" height="44"', 'width="50" height="50"');
+        const scaledSvgIcon = svgIcon.replace('width="44" height="44"', 'width="52" height="52"');
         marker.setIcon({
           url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(scaledSvgIcon),
-          scaledSize: new google.maps.Size(50, 50),
-          anchor: new google.maps.Point(25, 50),
+          scaledSize: new google.maps.Size(52, 52),
+          anchor: new google.maps.Point(26, 52),
         });
       });
 
       marker.addListener('mouseout', () => {
-        // Reset to normal size
+        // Reset to normal size using cached icon
         marker.setIcon({
           url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svgIcon),
           scaledSize: new google.maps.Size(44, 44),
@@ -307,15 +343,67 @@ export function BoothMap({
     markersRef.current = newMarkers;
 
     // Add marker clustering if enabled
+    // Performance optimized for 900+ markers:
+    // - GridAlgorithm for faster clustering
+    // - Custom renderer with tiered styling
+    // - Proper z-index management
+    // - Click handlers for zoom to cluster
     if (showClustering && newMarkers.length > 0) {
       const clusterer = new MarkerClusterer({
         map,
         markers: newMarkers,
+        // GridAlgorithm is most performant for large marker sets (900+)
+        // Default maxZoom is 14, meaning clusters won't form beyond zoom level 14
+        algorithm: new GridAlgorithm({ maxZoom: 15 }),
+        // Optimize for performance - zoom into cluster on click
+        onClusterClick: (_event, cluster, mapInstance) => {
+          // Zoom into cluster on click
+          const bounds = new google.maps.LatLngBounds();
+          cluster.markers?.forEach((marker) => {
+            // Handle both regular Marker and AdvancedMarkerElement
+            if ('position' in marker && marker.position) {
+              bounds.extend(marker.position as google.maps.LatLng);
+            } else if ('getPosition' in marker) {
+              const pos = (marker as google.maps.Marker).getPosition();
+              if (pos) bounds.extend(pos);
+            }
+          });
+          mapInstance.fitBounds(bounds);
+          // Slight zoom out for better context
+          const currentZoom = mapInstance.getZoom();
+          if (currentZoom && currentZoom > 15) {
+            mapInstance.setZoom(15);
+          }
+        },
         renderer: {
           render: ({ count, position }) => {
-            // Custom cluster styling with amber/orange vintage theme
-            const color = count > 50 ? '#D97706' : count > 20 ? '#F59E0B' : '#FB923C';
-            const size = count > 50 ? 60 : count > 20 ? 50 : 40;
+            // Tiered cluster styling with amber/orange vintage theme
+            // More granular tiers for better visual feedback at scale
+            let color: string;
+            let size: number;
+            let fontSize: string;
+
+            if (count > 100) {
+              color = '#B45309'; // Dark amber for massive clusters
+              size = 70;
+              fontSize = '16px';
+            } else if (count > 50) {
+              color = '#D97706'; // Amber-700 for large clusters
+              size = 60;
+              fontSize = '15px';
+            } else if (count > 20) {
+              color = '#F59E0B'; // Amber-500 for medium clusters
+              size = 50;
+              fontSize = '14px';
+            } else if (count > 10) {
+              color = '#FB923C'; // Light orange for small-medium clusters
+              size = 42;
+              fontSize = '13px';
+            } else {
+              color = '#FCD34D'; // Lighter amber for tiny clusters
+              size = 36;
+              fontSize = '12px';
+            }
 
             return new google.maps.Marker({
               position,
@@ -330,9 +418,10 @@ export function BoothMap({
               label: {
                 text: String(count),
                 color: '#ffffff',
-                fontSize: '14px',
+                fontSize,
                 fontWeight: 'bold',
               },
+              // Higher z-index for larger clusters ensures they're always clickable
               zIndex: 1000 + count,
             });
           },

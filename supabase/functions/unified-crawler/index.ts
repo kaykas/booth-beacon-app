@@ -321,21 +321,23 @@ serve(async (req) => {
     const resend = resendApiKey ? new Resend(resendApiKey) : null;
 
     // Parse parameters from either POST body or GET query string
-    let specificSource, force_crawl, stream, admin_email;
+    let specificSource, force_crawl, stream, admin_email, async_mode;
 
     if (req.method === "GET") {
       const url = new URL(req.url);
       specificSource = url.searchParams.get('source_name');
       force_crawl = url.searchParams.get('force_crawl') === 'true';
       stream = url.searchParams.get('stream') === 'true';
+      async_mode = url.searchParams.get('async') === 'true';
       admin_email = url.searchParams.get('admin_email') || "admin@boothbeacon.org";
-      addLog("info", "Parsed GET parameters", { specificSource, force_crawl, stream });
+      addLog("info", "Parsed GET parameters", { specificSource, force_crawl, stream, async_mode });
     } else {
       addLog("info", "Parsing request body");
       const body = await req.json().catch(() => ({}));
       specificSource = body.source_name;
       force_crawl = body.force_crawl || false;
       stream = body.stream || false;
+      async_mode = body.async || body.async_mode || false;
       admin_email = body.admin_email || "admin@boothbeacon.org";
     }
 
@@ -375,6 +377,53 @@ serve(async (req) => {
       );
     }
 
+    // ASYNC MODE: Start crawl jobs and return immediately (no timeout!)
+    if (async_mode) {
+      addLog("info", "Using ASYNC mode - starting crawl jobs");
+      const { startAsyncCrawl } = await import("./async-crawler.ts");
+
+      const asyncResults = [];
+
+      for (const source of sources) {
+        try {
+          const domainConfig = getDomainConfig(source.source_url);
+          const pageLimit = source.pages_per_batch || domainConfig.pageLimit;
+
+          const result = await startAsyncCrawl({
+            sourceId: source.id,
+            sourceName: source.source_name,
+            sourceUrl: source.source_url,
+            extractorType: source.extractor_type,
+            pageLimit,
+            firecrawlApiKey: firecrawlKey,
+            supabaseUrl,
+            supabaseServiceKey: supabaseKey,
+          });
+
+          asyncResults.push(result);
+          addLog("info", `✅ Started async crawl: ${source.source_name}`, { jobId: result.jobId });
+        } catch (error: any) {
+          addLog("error", `❌ Failed to start async crawl: ${source.source_name}`, { error: error.message });
+          asyncResults.push({
+            success: false,
+            sourceName: source.source_name,
+            error: error.message,
+          });
+        }
+      }
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          mode: 'async',
+          message: `Started ${asyncResults.filter(r => r.success).length} async crawl jobs`,
+          jobs: asyncResults,
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // SYNC MODE (default): Process sources and wait for results
     const results: CrawlResult[] = [];
     let totalBooths = 0;
     let totalAdded = 0;

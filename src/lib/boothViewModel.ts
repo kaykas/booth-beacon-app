@@ -49,7 +49,11 @@ export function normalizeBooth(data: Partial<Booth> | null): RenderableBooth | n
   const longitude = safeNumber(data.longitude);
   const hasValidLocation = latitude !== undefined && longitude !== undefined;
 
-  const locationLabel = `${city}${country ? `, ${country}` : ''}`;
+  // locationLabel: Use full address if available, otherwise fall back to city/country
+  const locationLabel = address && address !== 'Address not available'
+    ? `${address}${state && city !== state ? `, ${state}` : ''}${city ? `, ${city}` : ''}${country ? `, ${country}` : ''}`
+    : `${city}${country ? `, ${country}` : ''}`;
+
   const addressDisplay = [address, postalCode, `${city}${state ? `, ${state}` : ''}${country ? `, ${country}` : ''}`]
     .filter(Boolean)
     .join(', ');
