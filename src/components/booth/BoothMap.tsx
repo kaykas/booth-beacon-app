@@ -108,6 +108,7 @@ export function BoothMap({
   const userMarkerRef = useRef<google.maps.Marker | null>(null);
   const isInitializedRef = useRef(false);
   const hasInitialFitBoundsRef = useRef(false); // Track if we've done initial fitBounds
+  const selectedBoothIdRef = useRef<string | null>(null); // Track which booth's info window is open
 
   // Use external location if provided, otherwise use internal state
   const userLocation = externalUserLocation ?? internalUserLocation;
@@ -276,6 +277,9 @@ export function BoothMap({
 
       // Add click listener with zoom to booth
       marker.addListener('click', () => {
+        // Track which booth's info window is open
+        selectedBoothIdRef.current = booth.id;
+
         // Zoom to booth location
         map.panTo(position);
         map.setZoom(16);
@@ -287,6 +291,15 @@ export function BoothMap({
           onBoothClick(booth);
         }
       });
+
+      // If this is the selected booth, automatically re-open its info window
+      // (This handles the case where markers are recreated due to viewport changes)
+      if (selectedBoothIdRef.current === booth.id) {
+        // Use setTimeout to ensure map is ready and marker is rendered
+        setTimeout(() => {
+          infoWindow.open(map, marker);
+        }, 100);
+      }
 
       newMarkers.push(marker);
     });
