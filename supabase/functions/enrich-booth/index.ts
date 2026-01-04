@@ -24,6 +24,7 @@ interface EnrichmentResult {
     rating: boolean;
     photos: number;
     hours: boolean;
+    streetView?: boolean;
   };
   error?: string;
 }
@@ -184,10 +185,60 @@ async function enrichBooth(
       }
     }
 
-    // 7. Format opening hours
+    // 7. Validate Street View availability
+    let streetViewValidation: {
+      available: boolean;
+      panoramaId?: string;
+      distance?: number;
+      heading?: number;
+    } | null = null;
+
+    if (booth.latitude && booth.longitude) {
+      console.log(`[${boothId}] Validating Street View...`);
+      try {
+        const streetViewUrl = `https://maps.googleapis.com/maps/api/streetview/metadata?location=${booth.latitude},${booth.longitude}&radius=50&key=${googleApiKey}`;
+        const streetViewResponse = await fetch(streetViewUrl);
+        const streetViewData = await streetViewResponse.json();
+
+        if (streetViewData.status === 'OK' && streetViewData.pano_id && streetViewData.location) {
+          // Calculate distance from booth to panorama
+          const R = 6371e3; // Earth radius in meters
+          const φ1 = (booth.latitude * Math.PI) / 180;
+          const φ2 = (streetViewData.location.lat * Math.PI) / 180;
+          const Δφ = ((streetViewData.location.lat - booth.latitude) * Math.PI) / 180;
+          const Δλ = ((streetViewData.location.lng - booth.longitude) * Math.PI) / 180;
+          const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+                    Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+          const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+          const distance = R * c;
+
+          // Calculate heading from panorama toward booth
+          const y = Math.sin(Δλ) * Math.cos(φ2);
+          const x = Math.cos(φ1) * Math.sin(φ2) - Math.sin(φ1) * Math.cos(φ2) * Math.cos(Δλ);
+          const θ = Math.atan2(y, x);
+          const heading = Math.round(((θ * 180) / Math.PI + 360) % 360);
+
+          streetViewValidation = {
+            available: true,
+            panoramaId: streetViewData.pano_id,
+            distance: Math.round(distance * 100) / 100,
+            heading,
+          };
+
+          console.log(`[${boothId}] ✅ Street View: panorama ${streetViewData.pano_id} (${Math.round(distance)}m, ${heading}°)`);
+        } else {
+          streetViewValidation = { available: false };
+          console.log(`[${boothId}] ⚠️  No Street View available`);
+        }
+      } catch (streetViewError: any) {
+        console.error(`[${boothId}] Street View validation error:`, streetViewError.message);
+      }
+    }
+
+    // 8. Format opening hours
     const formattedHours = place.opening_hours?.weekday_text?.join('\n') || null;
 
-    // 8. Update booth with enrichment data (using only existing columns)
+    // 9. Update booth with enrichment data (using only existing columns)
     const updateData: any = {
       phone: place.formatted_phone_number || place.international_phone_number || booth.phone,
       website: place.website || booth.website,
@@ -201,6 +252,17 @@ async function enrichBooth(
     // Only set photo_exterior_url if we successfully downloaded and hosted it
     if (permanentPhotoUrl) {
       updateData.photo_exterior_url = permanentPhotoUrl;
+    }
+
+    // Add Street View validation results (if columns exist)
+    if (streetViewValidation) {
+      updateData.street_view_available = streetViewValidation.available;
+      updateData.street_view_validated_at = new Date().toISOString();
+      if (streetViewValidation.available && streetViewValidation.panoramaId) {
+        updateData.street_view_panorama_id = streetViewValidation.panoramaId;
+        updateData.street_view_distance_meters = streetViewValidation.distance;
+        updateData.street_view_heading = streetViewValidation.heading;
+      }
     }
 
     const { error: updateError } = await supabase
@@ -230,6 +292,41 @@ async function enrichBooth(
 
     console.log(`[${boothId}] ✅ Enrichment complete`);
 
+    // 11. Trigger on-demand ISR revalidation
+    const revalidateToken = Deno.env.get('REVALIDATE_TOKEN');
+    const appUrl = Deno.env.get('APP_URL') || 'https://boothbeacon.org';
+
+    if (revalidateToken && booth.slug) {
+      try {
+        console.log(`[${boothId}] Triggering page revalidation...`);
+
+        const revalidateUrl = `${appUrl}/api/revalidate?token=${revalidateToken}&path=/booth/${booth.slug}`;
+        const revalidateResponse = await fetch(revalidateUrl, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (revalidateResponse.ok) {
+          console.log(`[${boothId}] ✅ Page revalidated successfully`);
+        } else {
+          const errorText = await revalidateResponse.text();
+          console.warn(`[${boothId}] ⚠️  Revalidation failed: ${revalidateResponse.status} - ${errorText}`);
+        }
+      } catch (revalidateError: any) {
+        console.warn(`[${boothId}] ⚠️  Revalidation error: ${revalidateError.message}`);
+        // Don't fail enrichment if revalidation fails
+      }
+    } else {
+      if (!revalidateToken) {
+        console.log(`[${boothId}] ℹ️  Revalidation skipped (REVALIDATE_TOKEN not set)`);
+      }
+      if (!booth.slug) {
+        console.warn(`[${boothId}] ⚠️  Revalidation skipped (no slug)`);
+      }
+    }
+
     return {
       success: true,
       boothId,
@@ -240,6 +337,7 @@ async function enrichBooth(
         rating: !!place.rating,
         photos: permanentPhotoUrl ? 1 : 0,
         hours: !!formattedHours,
+        streetView: streetViewValidation?.available || false,
       },
     };
   } catch (error: any) {
