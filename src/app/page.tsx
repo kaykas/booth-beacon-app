@@ -104,8 +104,7 @@ async function getMapBooths(): Promise<Booth[]> {
     .select(
       `id, name, slug, city, country, latitude, longitude, photo_exterior_url, ai_preview_url, ai_generated_image_url, status, is_operational`
     )
-    .in('status', ['active', 'unverified']) // Show active and unverified booths
-    .eq('is_operational', true)
+    // Show ALL booths regardless of status (active, closed, inactive, unverified)
     .neq('name', 'N/A') // Exclude invalid extraction failures
     .not('latitude', 'is', null)
     .not('longitude', 'is', null);
@@ -130,8 +129,7 @@ async function getBoothStats(): Promise<{ totalBooths: number; countries: number
   const { data: booths, error, count } = await supabase
     .from('booths')
     .select('country, is_operational', { count: 'exact' })
-    .in('status', ['active', 'unverified']) // Show active and unverified booths
-    .eq('is_operational', true)
+    // Show ALL booths regardless of status (active, closed, inactive, unverified)
     .not('latitude', 'is', null)
     .not('longitude', 'is', null);
 
