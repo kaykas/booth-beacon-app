@@ -159,6 +159,7 @@ export function BoothMap({
   const isInitializedRef = useRef(false);
   const hasInitialFitBoundsRef = useRef(false); // Track if we've done initial fitBounds
   const selectedBoothIdRef = useRef<string | null>(null); // Track which booth's info window is open
+  const openInfoWindowRef = useRef<google.maps.InfoWindow | null>(null); // Track currently open info window
 
   // Use external location if provided, otherwise use internal state
   const userLocation = externalUserLocation ?? internalUserLocation;
@@ -329,8 +330,14 @@ export function BoothMap({
 
       // Add click listener with zoom to booth
       marker.addListener('click', () => {
+        // Close any previously open info window
+        if (openInfoWindowRef.current) {
+          openInfoWindowRef.current.close();
+        }
+
         // Track which booth's info window is open
         selectedBoothIdRef.current = booth.id;
+        openInfoWindowRef.current = infoWindow;
 
         // Zoom to booth location
         map.panTo(position);
@@ -341,6 +348,14 @@ export function BoothMap({
 
         if (onBoothClick) {
           onBoothClick(booth);
+        }
+      });
+
+      // Listen for info window close to clear selected booth
+      infoWindow.addListener('closeclick', () => {
+        if (selectedBoothIdRef.current === booth.id) {
+          selectedBoothIdRef.current = null;
+          openInfoWindowRef.current = null;
         }
       });
 
