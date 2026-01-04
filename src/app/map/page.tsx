@@ -44,9 +44,10 @@ function MapContent() {
 
   useEffect(() => {
     if (searchParams.get('nearme') === 'true') {
-      // Don't sort immediately - wait until after map centers to avoid crash
-      // setSortByDistance(true); // DEFERRED - will be enabled after centering
-      setShouldCenterOnLoad(true);
+      // TEMPORARY: Completely disable Near Me behavior to test if this is the crash source
+      // TODO: Re-enable after identifying root cause
+      // setShouldCenterOnLoad(true);
+      console.log('Near Me requested but disabled for debugging');
     }
   }, [searchParams]);
 
