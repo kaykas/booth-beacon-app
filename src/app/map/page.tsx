@@ -119,13 +119,18 @@ function MapContent() {
     setLoading(true);
 
     try {
+      // For "Near Me", load fewer booths initially to prevent crash
+      // Start with just 100 booths - more will load as user pans/zooms the map
+      const isNearMe = searchParams.get('nearme') === 'true';
+      const initialLimit = isNearMe ? '100' : '1000';
+
       // Use viewport API for faster loading with a global viewport
       const params = new URLSearchParams({
         north: '85',
         south: '-85',
         east: '180',
         west: '-180',
-        limit: '1000', // Load all booths on initial load
+        limit: initialLimit,
       });
 
       if (filters.status && filters.status !== 'all') {
@@ -149,7 +154,7 @@ function MapContent() {
     } finally {
       setLoading(false);
     }
-  }, [filters.status]);
+  }, [filters.status, searchParams]);
 
   // Fetch initial booths on mount
   useEffect(() => {
