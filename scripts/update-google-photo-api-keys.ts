@@ -5,8 +5,15 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-const OLD_KEY = 'AIzaSyD85rR9ze3sBtOmZ5DM8NyehutWyjPuteA';
-const NEW_KEY = 'AIzaSyDJLpEwja8Hyh2IPpBMZmVbDLL6h7rIiUI';
+// Read API keys from environment variables
+const OLD_KEY = process.env.OLD_GOOGLE_API_KEY!;
+const NEW_KEY = process.env.NEW_GOOGLE_API_KEY!;
+
+if (!OLD_KEY || !NEW_KEY) {
+  console.error('Error: OLD_GOOGLE_API_KEY and NEW_GOOGLE_API_KEY environment variables must be set');
+  console.error('Usage: OLD_GOOGLE_API_KEY="old_key" NEW_GOOGLE_API_KEY="new_key" npx tsx scripts/update-google-photo-api-keys.ts');
+  process.exit(1);
+}
 
 async function updatePhotoApiKeys() {
   console.log('🔍 Finding booths with Google Maps photo URLs using old API key...\n');
