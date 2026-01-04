@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useMemo, useCallback, useRef, Suspense } from 'react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+// TEMPORARILY REMOVED: useSearchParams causing React error #185 crash
+// import { useSearchParams } from 'next/navigation';
 import { MapPin, SlidersHorizontal, List, X, Loader2, Navigation } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -38,18 +39,17 @@ function MapContent() {
   const [selectedCity, setSelectedCity] = useState<string>('all');
   const [selectedCountry, setSelectedCountry] = useState<string>('all');
 
-  const searchParams = useSearchParams();
+  // REMOVED: useSearchParams() causing React error #185 infinite loop crash
+  // const searchParams = useSearchParams();
   const [autoCenter, setAutoCenter] = useState(false);
   const [shouldCenterOnLoad, setShouldCenterOnLoad] = useState(false);
 
-  useEffect(() => {
-    if (searchParams.get('nearme') === 'true') {
-      // TEMPORARY: Completely disable Near Me behavior to test if this is the crash source
-      // TODO: Re-enable after identifying root cause
-      // setShouldCenterOnLoad(true);
-      console.log('Near Me requested but disabled for debugging');
-    }
-  }, [searchParams]);
+  // REMOVED: Near Me parameter detection - was causing crash
+  // useEffect(() => {
+  //   if (searchParams.get('nearme') === 'true') {
+  //     console.log('Near Me requested but disabled for debugging');
+  //   }
+  // }, [searchParams]);
 
   // Track current viewport for progressive loading
   const [_currentViewport, setCurrentViewport] = useState<{
@@ -613,10 +613,8 @@ function MapContent() {
               autoCenterOnUser={autoCenter}
               onCenterComplete={() => {
                 setAutoCenter(false);
-                // Enable distance sorting AFTER map has centered (avoids crash on load)
-                if (searchParams.get('nearme') === 'true') {
-                  setSortByDistance(true);
-                }
+                // REMOVED: searchParams reference causing crash
+                // Enable distance sorting AFTER map has centered (disabled for now)
               }}
               onViewportChange={handleViewportChange}
             />
