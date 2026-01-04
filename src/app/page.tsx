@@ -104,7 +104,7 @@ async function getMapBooths(): Promise<Booth[]> {
     .select(
       `id, name, slug, city, country, latitude, longitude, photo_exterior_url, ai_preview_url, ai_generated_image_url, status, is_operational`
     )
-    .eq('status', 'active')
+    .in('status', ['active', 'unverified']) // Show active and unverified booths
     .eq('is_operational', true)
     .neq('name', 'N/A') // Exclude invalid extraction failures
     .not('latitude', 'is', null)
@@ -130,7 +130,7 @@ async function getBoothStats(): Promise<{ totalBooths: number; countries: number
   const { data: booths, error, count } = await supabase
     .from('booths')
     .select('country, is_operational', { count: 'exact' })
-    .eq('status', 'active')
+    .in('status', ['active', 'unverified']) // Show active and unverified booths
     .eq('is_operational', true)
     .not('latitude', 'is', null)
     .not('longitude', 'is', null);
@@ -345,8 +345,8 @@ export default async function Home() {
             <Suspense fallback={<div className="h-[500px] bg-neutral-200 animate-pulse"></div>}>
               <BoothMap
                 booths={mapBooths}
-                center={{ lat: 39.8283, lng: -98.5795 }}
-                zoom={4}
+                center={{ lat: 40.7128, lng: -74.0060 }} // NYC - high booth density
+                zoom={11} // Street level - markers visible
                 showUserLocation={false}
                 showClustering={true}
               />
