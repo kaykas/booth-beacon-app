@@ -51,6 +51,7 @@ import {
   extractMetroAutoPhoto,
 } from "./european-extractors.ts";
 import { validateCountry } from "./country-validation.ts";
+import { extractWithHybridStrategy } from "./hybrid-strategy.ts";
 import {
   extractPhotoboothNetEnhanced,
   extractCityGuideEnhanced,
@@ -982,6 +983,8 @@ async function processSource(
             source.extractor_type,
             anthropicApiKey,
             firecrawl,
+            supabase,
+            source,
             (event) => sendProgressEvent({
               ...event,
               page_index: pageIndex + 1,
@@ -1121,7 +1124,9 @@ async function processSource(
         source.source_name,
         source.extractor_type,
         anthropicApiKey,
-        firecrawl
+        firecrawl,
+        supabase,
+        source
       );
     }
 
@@ -1471,8 +1476,30 @@ async function extractFromSource(
   extractorType: string,
   anthropicApiKey: string,
   firecrawl: any,
+  supabase: any,
+  source?: any,
   onProgress?: (event: any) => void
 ): Promise<ExtractorResult> {
+  // HYBRID STRATEGY: Check if source has extraction_mode configured
+  if (source && source.extraction_mode) {
+    console.log(`🔄 Using HYBRID STRATEGY for ${sourceName} (mode: ${source.extraction_mode})`);
+
+    const sourceType = determineSourceType(extractorType);
+
+    return await extractWithHybridStrategy(html, markdown, sourceUrl, {
+      source_id: source.id,
+      source_name: sourceName,
+      source_type: sourceType,
+      extraction_mode: source.extraction_mode,
+      pattern_learning_status: source.pattern_learning_status || 'not_started',
+      pattern_learned_at: source.pattern_learned_at,
+      anthropic_api_key: anthropicApiKey,
+      supabase: supabase,
+      onProgress
+    });
+  }
+
+  // FALLBACK: Use existing extractor routing (backwards compatible)
   // PRIORITY: Use enhanced AI extractors for gold standard sources
   switch (extractorType) {
     // GOLD STANDARD: photobooth.net - Use enhanced extractor
@@ -1545,6 +1572,17 @@ async function extractFromSource(
     default:
       return extractGeneric(html, markdown, sourceUrl, sourceName, anthropicApiKey);
   }
+}
+
+/**
+ * Helper function to map extractor_type to source_type for hybrid strategy
+ */
+function determineSourceType(extractorType: string): 'directory' | 'city_guide' | 'blog' | 'community' | 'operator' {
+  if (extractorType.includes('city_guide')) return 'city_guide';
+  if (extractorType.includes('blog') || extractorType.includes('travel')) return 'blog';
+  if (extractorType.includes('community') || extractorType.includes('reddit')) return 'community';
+  if (extractorType.includes('operator') || extractorType.includes('fotoautomat') || extractorType.includes('autofoto')) return 'operator';
+  return 'directory';
 }
 
 /**
