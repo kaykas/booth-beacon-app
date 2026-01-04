@@ -74,7 +74,7 @@ function MapContent() {
         south: viewport.south.toString(),
         east: viewport.east.toString(),
         west: viewport.west.toString(),
-        limit: '200',
+        limit: '1000', // Load more booths per viewport
       });
 
       // Add filters
@@ -124,7 +124,7 @@ function MapContent() {
         south: '-85',
         east: '180',
         west: '-180',
-        limit: '200',
+        limit: '1000', // Load all booths on initial load
       });
 
       if (filters.status && filters.status !== 'all') {

@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
     const photoType = searchParams.get('photoType');
     const machineModel = searchParams.get('machineModel');
     const payment = searchParams.get('payment');
-    const limit = Math.min(parseInt(searchParams.get('limit') || '200'), 500); // Max 500 booths per request
+    const limit = Math.min(parseInt(searchParams.get('limit') || '1000'), 2000); // Max 2000 booths per request
 
     // Build query with spatial filter
     let query = supabase
