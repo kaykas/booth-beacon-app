@@ -53,12 +53,12 @@ async function enrichBooth(
 
   console.log(`[${boothId}] Found booth: ${booth.name}`);
 
-  // 2. Check if recently enriched (skip if < 90 days)
-  if (booth.google_enriched_at) {
-    const lastEnriched = new Date(booth.google_enriched_at);
+  // 2. Check if recently enriched (skip if < 7 days to allow photo recovery)
+  if (booth.enriched_at) {
+    const lastEnriched = new Date(booth.enriched_at);
     const daysSince = (Date.now() - lastEnriched.getTime()) / (1000 * 60 * 60 * 24);
 
-    if (daysSince < 90) {
+    if (daysSince < 7) {
       console.log(`[${boothId}] Recently enriched ${Math.floor(daysSince)} days ago, skipping`);
       return {
         success: true,
@@ -134,34 +134,78 @@ async function enrichBooth(
       hasHours: !!place.opening_hours,
     });
 
-    // 6. Extract photo URLs (max 5)
-    const photoUrls = place.photos?.slice(0, 5).map((photo: any) =>
-      `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference=${photo.photo_reference}&key=${googleApiKey}`
-    ) || [];
+    // 6. Download and host primary photo permanently
+    let permanentPhotoUrl: string | null = null;
+
+    if (place.photos && place.photos.length > 0) {
+      console.log(`[${boothId}] Downloading primary photo...`);
+
+      try {
+        const firstPhoto = place.photos[0];
+        const tempPhotoUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&photoreference=${firstPhoto.photo_reference}&key=${googleApiKey}`;
+
+        // Download photo from Google
+        const photoResponse = await fetch(tempPhotoUrl);
+
+        if (photoResponse.ok) {
+          const photoBlob = await photoResponse.arrayBuffer();
+          const photoBuffer = new Uint8Array(photoBlob);
+
+          // Generate unique filename
+          const hash = boothId.substring(0, 8);
+          const filename = `booth-${hash}-exterior.jpg`;
+          const storagePath = `booth-photos/${filename}`;
+
+          // Upload to Supabase Storage
+          const { data: uploadData, error: uploadError } = await supabase.storage
+            .from('booth-images')
+            .upload(storagePath, photoBuffer, {
+              contentType: 'image/jpeg',
+              cacheControl: '31536000', // 1 year cache
+              upsert: true, // Overwrite if exists
+            });
+
+          if (uploadError) {
+            console.error(`[${boothId}] Failed to upload photo:`, uploadError);
+          } else {
+            // Get public URL
+            const { data: publicUrlData } = supabase.storage
+              .from('booth-images')
+              .getPublicUrl(storagePath);
+
+            permanentPhotoUrl = publicUrlData.publicUrl;
+            console.log(`[${boothId}] ✅ Photo hosted: ${permanentPhotoUrl.substring(0, 80)}...`);
+          }
+        } else {
+          console.warn(`[${boothId}] Failed to download photo: ${photoResponse.status}`);
+        }
+      } catch (photoError: any) {
+        console.error(`[${boothId}] Photo download error:`, photoError.message);
+      }
+    }
 
     // 7. Format opening hours
     const formattedHours = place.opening_hours?.weekday_text?.join('\n') || null;
 
-    // 8. Update booth with enrichment data
+    // 8. Update booth with enrichment data (using only existing columns)
+    const updateData: any = {
+      phone: place.formatted_phone_number || place.international_phone_number || booth.phone,
+      website: place.website || booth.website,
+      google_place_id: placeId,
+      google_rating: place.rating || null,
+      hours: formattedHours || booth.hours,
+      enriched_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
+    // Only set photo_exterior_url if we successfully downloaded and hosted it
+    if (permanentPhotoUrl) {
+      updateData.photo_exterior_url = permanentPhotoUrl;
+    }
+
     const { error: updateError } = await supabase
       .from('booths')
-      .update({
-        phone: place.formatted_phone_number || place.international_phone_number || booth.phone,
-        website: place.website || booth.website,
-        google_place_id: placeId,
-        google_rating: place.rating || null,
-        google_user_ratings_total: place.user_ratings_total || null,
-        google_photos: photoUrls.length > 0 ? photoUrls : null,
-        google_enriched_at: new Date().toISOString(),
-        google_business_status: place.business_status || null,
-        google_formatted_address: place.formatted_address || null,
-        google_phone: place.formatted_phone_number || null,
-        google_website: place.website || null,
-        google_opening_hours: place.opening_hours || null,
-        // Only update hours if Google has them and booth doesn't
-        hours: formattedHours || booth.hours,
-        updated_at: new Date().toISOString(),
-      })
+      .update(updateData)
       .eq('id', boothId);
 
     if (updateError) {
@@ -169,7 +213,7 @@ async function enrichBooth(
       throw updateError;
     }
 
-    // 9. Store full enrichment data in booth_enrichments
+    // 10. Store full enrichment data in booth_enrichments
     const { error: enrichmentUpdateError } = await supabase
       .from('booth_enrichments')
       .update({
@@ -194,7 +238,7 @@ async function enrichBooth(
         phone: !!place.formatted_phone_number,
         website: !!place.website,
         rating: !!place.rating,
-        photos: photoUrls.length,
+        photos: permanentPhotoUrl ? 1 : 0,
         hours: !!formattedHours,
       },
     };
