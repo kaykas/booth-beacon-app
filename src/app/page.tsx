@@ -347,6 +347,7 @@ export default async function Home() {
                 zoom={11} // Street level - markers visible
                 showUserLocation={false}
                 showClustering={true}
+                disableAutoFit={true} // Keep fixed zoom/center, don't auto-fit to all booths
               />
             </Suspense>
           </div>

@@ -16,6 +16,7 @@ interface BoothMapProps {
   externalUserLocation?: Coordinates | null; // Pass user location from parent to avoid duplicate geolocation requests
   autoCenterOnUser?: boolean;
   onCenterComplete?: () => void; // Callback when auto-centering is complete
+  disableAutoFit?: boolean; // Disable automatic fitBounds on initial load (for fixed zoom/center views)
   onViewportChange?: (viewport: {
     north: number;
     south: number;
@@ -145,6 +146,7 @@ export function BoothMap({
   externalUserLocation,
   autoCenterOnUser = false,
   onCenterComplete,
+  disableAutoFit = false,
   onViewportChange,
 }: BoothMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
@@ -464,7 +466,8 @@ export function BoothMap({
 
     // Fit map to show all booths ONLY on initial load, not on subsequent updates
     // This prevents the map from zooming out after user interactions
-    if (booths.length > 1 && !hasInitialFitBoundsRef.current) {
+    // Skip if disableAutoFit is true (for fixed zoom/center views like homepage preview)
+    if (booths.length > 1 && !hasInitialFitBoundsRef.current && !disableAutoFit) {
       map.fitBounds(bounds);
       hasInitialFitBoundsRef.current = true;
     }
@@ -475,7 +478,7 @@ export function BoothMap({
         markerClustererRef.current.clearMarkers();
       }
     };
-  }, [map, booths, onBoothClick, showClustering]);
+  }, [map, booths, onBoothClick, showClustering, disableAutoFit]);
 
   // Get user location (only once when component mounts)
   const locationRequestedRef = useRef(false);
