@@ -580,7 +580,9 @@ export function BoothMap({
   useEffect(() => {
     if (autoCenterOnUser && userLocation && map) {
       map.panTo(userLocation);
-      map.setZoom(14);
+      // Use zoom 11 instead of 14 - less aggressive, better clustering performance
+      // Zoom 11 shows ~25km radius, zoom 14 shows ~5km radius
+      map.setZoom(11);
       // Notify parent that centering is complete
       if (onCenterComplete) {
         onCenterComplete();

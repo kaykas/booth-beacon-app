@@ -44,7 +44,8 @@ function MapContent() {
 
   useEffect(() => {
     if (searchParams.get('nearme') === 'true') {
-      setSortByDistance(true);
+      // Don't sort immediately - wait until after map centers to avoid crash
+      // setSortByDistance(true); // DEFERRED - will be enabled after centering
       setShouldCenterOnLoad(true);
     }
   }, [searchParams]);
@@ -606,7 +607,13 @@ function MapContent() {
               zoom={2}
               externalUserLocation={userLocation}
               autoCenterOnUser={autoCenter}
-              onCenterComplete={() => setAutoCenter(false)}
+              onCenterComplete={() => {
+                setAutoCenter(false);
+                // Enable distance sorting AFTER map has centered (avoids crash on load)
+                if (searchParams.get('nearme') === 'true') {
+                  setSortByDistance(true);
+                }
+              }}
               onViewportChange={handleViewportChange}
             />
           ) : (
