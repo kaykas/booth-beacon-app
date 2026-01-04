@@ -120,10 +120,8 @@ function MapContent() {
     setLoading(true);
 
     try {
-      // For "Near Me", load fewer booths initially to prevent crash
-      // Start with just 100 booths - more will load as user pans/zooms the map
-      const isNearMe = searchParams.get('nearme') === 'true';
-      const initialLimit = isNearMe ? '100' : '1000';
+      // Load all booths - no special handling needed for nearme
+      const initialLimit = '1000';
 
       // Use viewport API for faster loading with a global viewport
       const params = new URLSearchParams({
@@ -155,7 +153,7 @@ function MapContent() {
     } finally {
       setLoading(false);
     }
-  }, [filters.status, searchParams]);
+  }, [filters.status]);
 
   // Fetch initial booths on mount
   useEffect(() => {
