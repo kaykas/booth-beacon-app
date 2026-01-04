@@ -424,15 +424,22 @@ EXTRACTION STRATEGY:
 - Parse map markers and location data
 - Extract from comments or user reports
 
-ADDRESS COMPLETENESS (CRITICAL):
+ADDRESS COMPLETENESS (CRITICAL - varies by source type):
+
+FOR DIRECTORIES (operator sites, business listings):
 - REQUIRED: Always extract full street address with number (e.g., "123 Main Street")
 - REQUIRED: Address must include both street number AND street name
-- REJECT: Do not extract if only venue/business name is available (without street address)
-- REJECT: Do not use business name as address (these cause geocoding failures)
+- REJECT: Do not extract if only venue/business name is available
+- Always verify address includes a number before a street name
+
+FOR CITY GUIDES & BLOGS (venue mentions, listicles):
+- BEST: Full street address with number when available
+- ACCEPTABLE: Venue name + neighborhood (e.g., "Hotel Utah Saloon, SoMa")
+- ACCEPTABLE: Venue name + cross streets (e.g., "The Ha-Ra Club at 16th & Mission")
+- We can geocode venue names later - partial data is better than no data
 - Include: Venue/business name if booth is inside (separate from address)
 - Include: Floor/area within building if mentioned
 - Include: Postal codes when present
-- Always verify address includes a number before a street name
 
 GOOD ADDRESS EXAMPLES:
 - "123 Main Street, New York, NY 10001" - GOOD (has street number)
@@ -452,14 +459,16 @@ QUALITY STANDARDS:
 - Don't hallucinate information not in the content
 - If unsure about operational status, mark as unknown
 - Standardize country names (USA → United States, UK → United Kingdom)
-- If address doesn't have a street number, SKIP that booth entry (don't extract it)
+- For DIRECTORIES: If address doesn't have a street number, SKIP that booth entry
+- For CITY GUIDES/BLOGS: Extract even with partial address (venue+neighborhood is OK)
 
 EDGE CASES:
-- If multiple booths at same venue, extract as separate entries (each with full street address)
-- If booth has moved, extract only current location (with full street address)
+- If multiple booths at same venue, extract as separate entries
+- If booth has moved, extract only current location
 - If booth is definitively closed/removed, mark status appropriately
 - If content mentions "no longer there", mark inactive
-- If only venue name available without street address, DO NOT EXTRACT
+- For DIRECTORIES: If only venue name without street address, DO NOT EXTRACT
+- For CITY GUIDES/BLOGS: Extract venue name with neighborhood/area (we'll geocode later)
 
 SOURCE-SPECIFIC GUIDANCE:
 - autophoto.org: Often lists simple addresses line-by-line. Treat each line with an address as a booth.

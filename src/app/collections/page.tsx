@@ -39,9 +39,16 @@ export default async function CollectionsPage() {
           </h1>
 
           <p className="text-xl text-muted-foreground mb-6">
-            Explore our global directory of analog photo booths organized by
-            country and city.
+            Explore our complete directory of analog photo booths organized by
+            country and city. Every booth, no curation.
           </p>
+
+          <div className="text-sm text-muted-foreground mb-8">
+            Looking for curated routes?{' '}
+            <Link href="/guides" className="text-primary hover:underline font-medium">
+              View City Guides
+            </Link>
+          </div>
 
           <div className="flex items-center justify-center gap-8 text-lg">
             <div className="text-center">

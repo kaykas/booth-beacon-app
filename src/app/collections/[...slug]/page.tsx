@@ -126,7 +126,14 @@ export default async function CollectionPage({
 
       <div className="container mx-auto px-4 py-8">
         {/* Breadcrumbs */}
-        <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
+        <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-6" aria-label="Breadcrumb">
+          <Link
+            href="/"
+            className="hover:text-primary transition"
+          >
+            Home
+          </Link>
+          <ChevronRight className="w-4 h-4" />
           <Link
             href="/collections"
             className="hover:text-primary transition"
@@ -166,6 +173,29 @@ export default async function CollectionPage({
               <MapPin className="w-6 h-6 text-primary" />
             </div>
           </div>
+
+          {/* Info Box - What is this page? */}
+          {!city && cities && cities.length > 0 && (
+            <Card className="mb-6 p-4 bg-primary/5 border-primary/20">
+              <p className="text-sm text-muted-foreground">
+                This collection shows all photo booths in {country}. Click a city below to see booths in that specific city, or browse all booths below.{' '}
+                <Link href="/guides" className="text-primary hover:underline font-medium">
+                  Looking for a curated route instead?
+                </Link>
+              </p>
+            </Card>
+          )}
+
+          {city && (
+            <Card className="mb-6 p-4 bg-primary/5 border-primary/20">
+              <p className="text-sm text-muted-foreground">
+                Showing all {totalCount} photo booth{totalCount !== 1 ? 's' : ''} in {city}, {country}.{' '}
+                <Link href="/guides" className="text-primary hover:underline font-medium">
+                  Want a curated walking tour instead?
+                </Link>
+              </p>
+            </Card>
+          )}
 
           {/* City filter badges (for country pages) */}
           {!city && cities && cities.length > 0 && (

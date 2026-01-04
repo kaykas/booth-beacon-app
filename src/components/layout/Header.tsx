@@ -53,7 +53,7 @@ export function Header() {
               Collections
             </Link>
             <Link
-              href="/guides/berlin"
+              href="/guides"
               className="text-muted-foreground hover:text-primary transition font-medium"
             >
               Guides
@@ -139,7 +139,7 @@ export function Header() {
               Collections
             </Link>
             <Link
-              href="/guides/berlin"
+              href="/guides"
               className="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 rounded transition"
             >
               Guides

@@ -12,7 +12,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { BarChart3, Users, MessageSquare, CheckCircle, XCircle, Clock, Database, PlayCircle, PauseCircle, RefreshCw, Shield, Wifi, Activity, AlertCircle, Zap, Loader2, FileText, Heart, Recycle, Eye, ChevronDown, ChevronRight } from 'lucide-react';
+import { BarChart3, Users, MessageSquare, CheckCircle, XCircle, Clock, Database, PlayCircle, PauseCircle, RefreshCw, Shield, Wifi, Activity, AlertCircle, Zap, Loader2, FileText, Heart, Recycle, Eye, ChevronDown, ChevronRight, Inbox } from 'lucide-react';
 import { toast } from 'sonner';
 import { MetricsDashboard } from '@/components/admin/MetricsDashboard';
 import { CrawlPerformanceBreakdown } from '@/components/admin/CrawlPerformanceBreakdown';
@@ -51,6 +51,7 @@ export default function AdminPage() {
     totalUsers: 0,
     pendingPhotos: 0,
     totalReviews: 0,
+    pendingSubmissions: 0,
   });
   const [pendingPhotos, setPendingPhotos] = useState<Photo[]>([]);
   const [crawlerRunning, setCrawlerRunning] = useState(false);
@@ -126,6 +127,12 @@ export default function AdminPage() {
 
       const data = await response.json();
 
+      // Get pending submissions count
+      const { count: submissionsCount } = await supabase
+        .from('booth_submissions')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'pending');
+
       setStats({
         totalBooths: data.booths.total,
         activeBooths: data.booths.active,
@@ -133,6 +140,7 @@ export default function AdminPage() {
         totalUsers: data.users.total,
         pendingPhotos: data.photos.pending,
         totalReviews: data.reviews.total,
+        pendingSubmissions: submissionsCount || 0,
       });
 
       setCrawlerMetrics({
@@ -438,7 +446,31 @@ export default function AdminPage() {
           </div>
 
           {/* Primary Actions - Simple and Clear */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            {/* Review Submissions */}
+            <Card className={`p-8 border-2 transition-all ${
+              stats.pendingSubmissions > 0
+                ? 'bg-blue-900/20 border-blue-500/50 hover:border-blue-400'
+                : 'bg-neutral-800 border-neutral-700 hover:border-accent/50'
+            }`}>
+              <div className="text-center">
+                <Inbox className="w-16 h-16 text-blue-400 mx-auto mb-4" />
+                <h2 className="font-display text-xl font-semibold text-white mb-2">Review Submissions</h2>
+                <p className="text-neutral-400 text-sm mb-6">
+                  Approve or reject community booth submissions
+                </p>
+                <Link href="/admin/submissions">
+                  <Button
+                    size="lg"
+                    className={`w-full ${stats.pendingSubmissions > 0 ? 'bg-blue-600 hover:bg-blue-700' : ''}`}
+                  >
+                    <Inbox className="w-5 h-5 mr-2" />
+                    {stats.pendingSubmissions > 0 ? `Review ${stats.pendingSubmissions} Submissions` : 'Open Submissions'}
+                  </Button>
+                </Link>
+              </div>
+            </Card>
+
             {/* Run Crawler */}
             <Card className="p-8 bg-neutral-800 border-neutral-700 hover:border-primary/50 transition-all">
               <div className="text-center">
@@ -517,10 +549,16 @@ export default function AdminPage() {
 
           {/* Quick Stats Bar */}
           <Card className="p-4 bg-neutral-800 border-neutral-700 mb-8">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-center">
               <div>
                 <div className="text-2xl font-bold text-white">{stats.totalBooths}</div>
                 <div className="text-xs text-neutral-400">Total Booths</div>
+              </div>
+              <div>
+                <div className={`text-2xl font-bold ${stats.pendingSubmissions > 0 ? 'text-blue-400' : 'text-white'}`}>
+                  {stats.pendingSubmissions}
+                </div>
+                <div className="text-xs text-neutral-400">Pending Submissions</div>
               </div>
               <div>
                 <div className="text-2xl font-bold text-white">{stats.totalUsers}</div>
@@ -534,7 +572,7 @@ export default function AdminPage() {
                 <div className={`text-2xl font-bold ${stats.pendingPhotos > 0 ? 'text-amber-400' : 'text-white'}`}>
                   {stats.pendingPhotos}
                 </div>
-                <div className="text-xs text-neutral-400">Pending Review</div>
+                <div className="text-xs text-neutral-400">Pending Photos</div>
               </div>
             </div>
           </Card>

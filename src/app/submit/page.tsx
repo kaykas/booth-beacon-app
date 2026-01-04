@@ -20,8 +20,9 @@ import {
 import { supabase } from '@/lib/supabase/client';
 import { Database } from '@/lib/supabase/types';
 import { toast } from 'sonner';
+import { useAuth } from '@/lib/auth/AuthContext';
 
-type BoothInsert = Database['public']['Tables']['booths']['Insert'];
+type BoothSubmissionInsert = Database['public']['Tables']['booth_submissions']['Insert'];
 
 // Common machine models
 const MACHINE_MODELS = [
@@ -74,6 +75,7 @@ const initialFormData: FormData = {
 
 export default function SubmitBoothPage() {
   const router = useRouter();
+  const { user } = useAuth();
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -142,52 +144,29 @@ export default function SubmitBoothPage() {
     setIsSubmitting(true);
 
     try {
-      // Generate slug from name
-      const slug = generateSlug(formData.name);
-
       // Prepare data for submission
-      const submissionData: BoothInsert = {
+      const submissionData: BoothSubmissionInsert = {
         name: formData.name.trim(),
-        slug,
         address: formData.address.trim(),
         city: formData.city.trim(),
         country: formData.country.trim(),
         state: formData.state.trim() || null,
         postal_code: formData.postal_code.trim() || null,
-        latitude: null,
-        longitude: null,
-        coordinates: null,
         machine_model: formData.machine_model || null,
-        machine_year: null,
-        machine_manufacturer: null,
-        machine_serial: null,
-        booth_type: (formData.booth_type as BoothInsert['booth_type']) || null,
-        photo_type: (formData.photo_type as BoothInsert['photo_type']) || null,
-        operator_id: null,
-        operator_name: null,
-        photo_exterior_url: formData.photo_url.trim() || null,
-        photo_interior_url: null,
-        photo_sample_strips: null,
-        ai_preview_url: null,
-        ai_preview_generated_at: null,
-        status: 'unverified',
-        is_operational: true,
+        booth_type: (formData.booth_type as BoothSubmissionInsert['booth_type']) || null,
+        photo_type: (formData.photo_type as BoothSubmissionInsert['photo_type']) || null,
         hours: formData.hours.trim() || null,
         cost: formData.cost.trim() || null,
         accepts_cash: formData.accepts_cash,
         accepts_card: formData.accepts_card,
         description: formData.description.trim() || null,
-        historical_notes: null,
-        access_instructions: null,
-        features: null,
-        source_primary: 'user_submission',
-        source_urls: null,
-        source_verified_date: null,
-        last_verified: null,
+        photo_url: formData.photo_url.trim() || null,
+        submitted_by: user?.id || null,
+        status: 'pending',
       };
 
       const { error } = await supabase
-        .from('booths')
+        .from('booth_submissions')
         .insert([submissionData] as never)
         .select()
         .single();
@@ -231,7 +210,7 @@ export default function SubmitBoothPage() {
             Thank You!
           </h1>
           <p className="text-lg text-muted-foreground mb-6">
-            Your booth submission has been received. We&apos;ll review it and add it to the map soon!
+            Your booth submission has been received and is pending review. We&apos;ll review it and add it to the map soon!
           </p>
           <Button asChild className="btn-analog text-white border-0">
             <Link href="/map">View Map</Link>

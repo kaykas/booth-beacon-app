@@ -21,19 +21,56 @@ interface CityGuideData {
   country: string;
   title: string;
   description: string;
+  hero_image_url?: string;
   booth_ids: string[];
   estimated_time: string;
   tips: string;
   published: boolean;
 }
 
+// Top 5 cities by booth count - priority order
 const CITIES = [
-  { name: 'New York', country: 'USA', state: 'NY' },
-  { name: 'Berlin', country: 'Germany', state: null },
-  { name: 'London', country: 'United Kingdom', state: null },
-  { name: 'Los Angeles', country: 'USA', state: 'CA' },
-  { name: 'Chicago', country: 'USA', state: 'IL' }
+  {
+    name: 'Berlin',
+    country: 'Germany',
+    state: null,
+    heroImage: 'https://images.unsplash.com/photo-1560969184-10fe8719e047?w=1600&q=80' // Berlin street scene
+  },
+  {
+    name: 'Chicago',
+    country: 'USA',
+    state: 'IL',
+    heroImage: 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1600&q=80' // Chicago cityscape
+  },
+  {
+    name: 'Los Angeles',
+    country: 'USA',
+    state: 'CA',
+    heroImage: 'https://images.unsplash.com/photo-1534190239940-9ba8944ea261?w=1600&q=80' // LA urban
+  },
+  {
+    name: 'New York',
+    country: 'USA',
+    state: 'NY',
+    heroImage: 'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=1600&q=80' // NYC street
+  },
+  {
+    name: 'San Francisco',
+    country: 'USA',
+    state: 'CA',
+    heroImage: 'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=1600&q=80' // SF skyline
+  }
 ];
+
+// Helper to get full state name from abbreviation
+function getFullStateName(abbr: string): string {
+  const stateMap: Record<string, string> = {
+    'IL': 'Illinois',
+    'CA': 'California',
+    'NY': 'New York'
+  };
+  return stateMap[abbr] || abbr;
+}
 
 // Calculate distance between two coordinates (Haversine formula)
 function calculateDistance(
@@ -113,7 +150,12 @@ function generateCityTips(city: string): string {
     'Chicago': `• Start in Logan Square and work through Wicker Park
 • Winter visits: call ahead to confirm booth is working
 • Most locations are in bars - afternoon/early evening is ideal
-• Bring $5-10 in cash and dress for the weather`
+• Bring $5-10 in cash and dress for the weather`,
+
+    'San Francisco': `• Start in the Mission District and explore Valencia Street corridor
+• Many booths are in bars/venues - late afternoon works best
+• Public transit (MUNI/BART) makes it easy to hop between locations
+• Bring $5-10 in cash, some vintage machines are coin-only`
   };
 
   return tipsMap[city] || `• Check booth locations and hours before visiting
@@ -135,18 +177,27 @@ async function fetchBoothsForCity(
 ): Promise<Booth[]> {
   console.log(`\n🔍 Querying booths for ${city}, ${country}...`);
 
+  // Build query - handle country variations
   let query = supabase
     .from('booths')
     .select('id, name, city, latitude, longitude, photo_exterior_url, booth_type')
     .eq('city', city)
-    .eq('country', country)
     .eq('status', 'active')
     .eq('is_operational', true)
     .not('latitude', 'is', null)
     .not('longitude', 'is', null);
 
+  // Handle USA country variations
+  if (country === 'USA') {
+    query = query.or(`country.eq.USA,country.eq.United States,country.eq.US`);
+  } else {
+    query = query.eq('country', country);
+  }
+
   if (state) {
-    query = query.eq('state', state);
+    // Handle state variations (IL vs Illinois)
+    const stateQuery = `state.eq.${state},state.eq.${getFullStateName(state)}`;
+    query = query.or(stateQuery);
   }
 
   const { data, error } = await query;
@@ -177,9 +228,9 @@ async function fetchBoothsForCity(
     return a.booth.name.localeCompare(b.booth.name);
   });
 
-  // Take top 5-10 booths
+  // Take top 8-15 booths (target: 12)
   const selectedBooths = scoredBooths
-    .slice(0, Math.min(10, scoredBooths.length))
+    .slice(0, Math.min(15, scoredBooths.length))
     .map((sb) => sb.booth);
 
   console.log(`✨ Selected ${selectedBooths.length} high-quality booths`);
@@ -197,7 +248,8 @@ async function fetchBoothsForCity(
 async function createCityGuide(
   city: string,
   country: string,
-  state: string | null
+  state: string | null,
+  heroImage?: string
 ): Promise<boolean> {
   console.log(`\n${'='.repeat(60)}`);
   console.log(`📖 Creating guide for ${city}, ${country}`);
@@ -206,8 +258,8 @@ async function createCityGuide(
   // Fetch booths
   const booths = await fetchBoothsForCity(city, country, state);
 
-  if (booths.length < 5) {
-    console.log(`⏭️  Skipping ${city} - needs at least 5 booths (found ${booths.length})`);
+  if (booths.length < 8) {
+    console.log(`⏭️  Skipping ${city} - needs at least 8 booths (found ${booths.length})`);
     return false;
   }
 
@@ -229,8 +281,9 @@ async function createCityGuide(
     slug,
     city,
     country,
-    title: `The Ultimate ${city} Photo Booth Tour`,
+    title: `Photo Booth Tour of ${city}`,
     description: generateDescription(city, country, orderedBooths.length),
+    hero_image_url: heroImage,
     booth_ids: orderedBooths.map((b) => b.id),
     estimated_time: estimatedTime,
     tips: generateCityTips(city),
@@ -271,8 +324,8 @@ async function seed() {
   let successCount = 0;
   let skipCount = 0;
 
-  for (const { name, country, state } of CITIES) {
-    const success = await createCityGuide(name, country, state);
+  for (const { name, country, state, heroImage } of CITIES) {
+    const success = await createCityGuide(name, country, state, heroImage);
     if (success) {
       successCount++;
     } else {
