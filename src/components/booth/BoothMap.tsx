@@ -365,6 +365,7 @@ export function BoothMap({
         // Use setTimeout to ensure map is ready and marker is rendered
         setTimeout(() => {
           infoWindow.open(map, marker);
+          openInfoWindowRef.current = infoWindow; // Update ref to track reopened window
         }, 100);
       }
 
