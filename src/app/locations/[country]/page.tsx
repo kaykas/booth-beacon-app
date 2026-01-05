@@ -15,7 +15,7 @@ import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 
 // ISR with 1-hour revalidation
-export const revalidate = 3600;
+export const revalidate = 300;
 
 interface PageProps {
   params: Promise<{ country: string }>;

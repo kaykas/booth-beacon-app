@@ -18,7 +18,7 @@ import {
 } from '@/lib/seo/structuredData';
 
 // ISR with 1-hour revalidation
-export const revalidate = 3600;
+export const revalidate = 300;
 
 interface PageProps {
   params: Promise<{ country: string; state: string }>;
