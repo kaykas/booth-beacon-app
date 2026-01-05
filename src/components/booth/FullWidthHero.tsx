@@ -48,9 +48,9 @@ export function FullWidthHero({ booth, locationString, hasValidLocation }: FullW
   const isOperational = booth.status === 'active' && !booth.needs_verification;
 
   return (
-    <div className="relative mb-8">
+    <div className="relative">
       {/* Full-Width Hero Image */}
-      <div className="relative h-[45vh] min-h-[450px] max-h-[600px] bg-neutral-100">
+      <div className="relative h-[45vh] min-h-[450px] max-h-[600px] bg-neutral-100 overflow-hidden">
         <div className="absolute inset-0">
           <BoothImage booth={booth} size="hero" showAiBadge={false} />
         </div>
@@ -58,9 +58,9 @@ export function FullWidthHero({ booth, locationString, hasValidLocation }: FullW
         {/* Gradient Overlay for Text Readability */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
 
-      {/* Hero Content - Overlaid on Image */}
-      <div className="absolute bottom-0 left-0 right-0 pb-8 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-5xl mx-auto">
+        {/* Hero Content - Overlaid on Image */}
+        <div className="absolute bottom-0 left-0 right-0 pb-8 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-5xl mx-auto">
           {/* Location Breadcrumb */}
           <div className="flex items-center gap-2 text-white/90 mb-4">
             <MapPin className="w-4 h-4" />
@@ -192,8 +192,8 @@ export function FullWidthHero({ booth, locationString, hasValidLocation }: FullW
               className="bg-white/10 hover:bg-white/20 backdrop-blur-sm border-white/30 text-white hover:text-white"
             />
           </div>
+          </div>
         </div>
-      </div>
       </div>
     </div>
   );

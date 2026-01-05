@@ -461,7 +461,7 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
       <FullWidthHero booth={booth} locationString={locationString} hasValidLocation={hasValidLocation} />
 
       {/* Main Content - Single Column E-Commerce Layout */}
-      <div className="bg-white pb-24 lg:pb-16">
+      <div className="bg-white pb-24 lg:pb-16 mt-24 sm:mt-32">
         <div className="max-w-4xl mx-auto px-4 py-16 space-y-16">
 
           {/* About Section */}
