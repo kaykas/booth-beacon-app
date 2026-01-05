@@ -50,16 +50,17 @@ export function FullWidthHero({ booth, locationString, hasValidLocation }: FullW
   return (
     <div className="relative">
       {/* Full-Width Hero Image */}
-      <div className="relative h-[50vh] min-h-[400px] max-h-[600px] bg-neutral-100">
-        <BoothImage booth={booth} size="hero" showAiBadge={false} />
+      <div className="relative h-[60vh] min-h-[500px] max-h-[700px] bg-neutral-100">
+        <div className="absolute inset-0">
+          <BoothImage booth={booth} size="hero" showAiBadge={false} />
+        </div>
 
         {/* Gradient Overlay for Text Readability */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-      </div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
 
       {/* Hero Content - Overlaid on Image */}
-      <div className="absolute bottom-0 left-0 right-0 pb-12 px-4">
-        <div className="max-w-4xl mx-auto">
+      <div className="absolute bottom-0 left-0 right-0 pb-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-5xl mx-auto">
           {/* Location Breadcrumb */}
           <div className="flex items-center gap-2 text-white/90 mb-4">
             <MapPin className="w-4 h-4" />
@@ -67,12 +68,12 @@ export function FullWidthHero({ booth, locationString, hasValidLocation }: FullW
           </div>
 
           {/* Booth Name - Large Serif Heading */}
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight font-serif">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 sm:mb-8 leading-tight font-serif">
             {booth.name}
           </h1>
 
           {/* Trust Badges Row */}
-          <div className="flex flex-wrap items-center gap-3 mb-6">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-6">
             {/* Google Rating */}
             {booth.google_rating && (
               <div className="flex items-center gap-2 bg-white/95 backdrop-blur-sm px-4 py-2 rounded-lg">
@@ -156,35 +157,43 @@ export function FullWidthHero({ booth, locationString, hasValidLocation }: FullW
           </div>
 
           {/* CTAs */}
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap gap-3 items-center">
             {/* Primary CTA - Get Directions */}
             {hasValidLocation && booth.latitude && booth.longitude && (
               <Button
                 size="xl"
-                className="bg-amber-500 hover:bg-amber-600 text-white font-bold text-lg px-10 py-6 shadow-2xl hover:shadow-amber-500/50 transition-all duration-200"
+                className="bg-amber-500 hover:bg-amber-600 text-white font-extrabold shadow-2xl hover:shadow-amber-500/50 transition-all duration-200"
                 asChild
               >
                 <a
                   href={`https://www.google.com/maps/dir/?api=1&destination=${booth.latitude},${booth.longitude}`}
                   target="_blank"
                   rel="noopener noreferrer"
+                  className="flex items-center"
                 >
-                  <Navigation className="w-6 h-6 mr-3" />
+                  <Navigation className="w-5 h-5 mr-2" />
                   Get Directions
                 </a>
               </Button>
             )}
 
             {/* Secondary Actions */}
-            <BookmarkButton boothId={booth.id} variant="secondary" size="lg" />
+            <BookmarkButton
+              boothId={booth.id}
+              variant="outline"
+              size="lg"
+              className="bg-white/10 hover:bg-white/20 backdrop-blur-sm border-white/30 text-white hover:text-white"
+            />
             <ShareButton
               title={`${booth.name} - ${locationString}`}
               text={`Check out this photo booth: ${booth.name}`}
-              variant="secondary"
+              variant="outline"
               size="lg"
+              className="bg-white/10 hover:bg-white/20 backdrop-blur-sm border-white/30 text-white hover:text-white"
             />
           </div>
         </div>
+      </div>
       </div>
     </div>
   );
