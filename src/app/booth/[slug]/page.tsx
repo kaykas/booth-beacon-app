@@ -682,6 +682,7 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
           </div>
         </div>
       </div>
+      </div>
       </main>
     </div>
   );
