@@ -53,11 +53,12 @@ export function CityBooths({
         setLoading(true);
 
         // Build query to get booths in the same city
+        // Use ilike for city/country to handle case variations
         let query = supabase
           .from('booths')
           .select('id, name, slug, city, state, country, neighborhood, photo_exterior_url, photo_interior_url, ai_preview_url, ai_generated_image_url, status, booth_type, machine_model, cost', { count: 'exact' })
-          .eq('city', city)
-          .eq('country', country)
+          .ilike('city', city)
+          .ilike('country', country)
           .eq('status', 'active')
           .eq('is_operational', true)
           .neq('id', boothId)
@@ -66,7 +67,7 @@ export function CityBooths({
 
         // Add state filter if provided (for US, Canada, etc.)
         if (state) {
-          query = query.eq('state', state);
+          query = query.ilike('state', state);
         }
 
         const { data, error: queryError, count } = await query;

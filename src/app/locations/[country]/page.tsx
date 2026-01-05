@@ -59,7 +59,7 @@ export default async function CountryPage({ params, searchParams }: PageProps) {
   const limit = 100;
   const offset = (page - 1) * limit;
 
-  const { booths, totalCount, hasMore } = await getLocationBooths(country, undefined, undefined, {
+  const { booths, totalCount, hasMore, operationalCount = 0, geocodedCount = 0 } = await getLocationBooths(country, undefined, undefined, {
     limit,
     offset,
   });

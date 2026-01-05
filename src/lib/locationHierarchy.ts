@@ -21,6 +21,8 @@ export interface LocationBooths {
   booths: Booth[];
   totalCount: number;
   hasMore: boolean;
+  operationalCount?: number;
+  geocodedCount?: number;
 }
 
 /**
@@ -328,16 +330,55 @@ export async function getLocationBooths(
         booths: [],
         totalCount: 0,
         hasMore: false,
+        operationalCount: 0,
+        geocodedCount: 0,
       };
     }
 
     const totalCount = count || 0;
     const hasMore = offset + limit < totalCount;
 
+    // Calculate operational and geocoded counts separately for accurate stats
+    // This is more efficient than fetching all booths
+    let operationalQuery = supabase
+      .from('booths')
+      .select('id', { count: 'exact', head: true })
+      .ilike('country', country)
+      .eq('status', 'active')
+      .eq('is_operational', true);
+
+    if (state) {
+      operationalQuery = operationalQuery.ilike('state', state);
+    }
+    if (city) {
+      operationalQuery = operationalQuery.ilike('city', city);
+    }
+
+    let geocodedQuery = supabase
+      .from('booths')
+      .select('id', { count: 'exact', head: true })
+      .ilike('country', country)
+      .not('latitude', 'is', null)
+      .not('longitude', 'is', null);
+
+    if (state) {
+      geocodedQuery = geocodedQuery.ilike('state', state);
+    }
+    if (city) {
+      geocodedQuery = geocodedQuery.ilike('city', city);
+    }
+
+    const [{ count: opCount }, { count: geoCount }] = await Promise.all([
+      operationalQuery,
+      geocodedQuery,
+    ]);
+
     return {
       booths: (data as Booth[]) || [],
       totalCount,
       hasMore,
+      operationalCount: opCount || 0,
+      geocodedCount: geoCount || 0,
     };
   } catch (error) {
     console.error('Error in getLocationBooths:', error);
@@ -345,6 +386,8 @@ export async function getLocationBooths(
       booths: [],
       totalCount: 0,
       hasMore: false,
+      operationalCount: 0,
+      geocodedCount: 0,
     };
   }
 }
@@ -514,6 +557,8 @@ export async function getBrowseBooths(filters: {
         booths: [],
         totalCount: 0,
         hasMore: false,
+        operationalCount: 0,
+        geocodedCount: 0,
       };
     }
 
@@ -531,6 +576,8 @@ export async function getBrowseBooths(filters: {
       booths: [],
       totalCount: 0,
       hasMore: false,
+      operationalCount: 0,
+      geocodedCount: 0,
     };
   }
 }
