@@ -48,9 +48,9 @@ export function FullWidthHero({ booth, locationString, hasValidLocation }: FullW
   const isOperational = booth.status === 'active' && !booth.needs_verification;
 
   return (
-    <div className="relative">
+    <div className="relative mb-8">
       {/* Full-Width Hero Image */}
-      <div className="relative h-[60vh] min-h-[500px] max-h-[700px] bg-neutral-100">
+      <div className="relative h-[45vh] min-h-[450px] max-h-[600px] bg-neutral-100">
         <div className="absolute inset-0">
           <BoothImage booth={booth} size="hero" showAiBadge={false} />
         </div>
@@ -59,7 +59,7 @@ export function FullWidthHero({ booth, locationString, hasValidLocation }: FullW
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
 
       {/* Hero Content - Overlaid on Image */}
-      <div className="absolute bottom-0 left-0 right-0 pb-16 px-4 sm:px-6 lg:px-8">
+      <div className="absolute bottom-0 left-0 right-0 pb-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto">
           {/* Location Breadcrumb */}
           <div className="flex items-center gap-2 text-white/90 mb-4">
@@ -68,15 +68,15 @@ export function FullWidthHero({ booth, locationString, hasValidLocation }: FullW
           </div>
 
           {/* Booth Name - Large Serif Heading */}
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 sm:mb-8 leading-tight font-serif">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 sm:mb-6 leading-tight font-serif">
             {booth.name}
           </h1>
 
           {/* Trust Badges Row */}
-          <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-6">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-4">
             {/* Google Rating */}
             {booth.google_rating && (
-              <div className="flex items-center gap-2 bg-white/95 backdrop-blur-sm px-4 py-2 rounded-lg">
+              <div className="flex items-center gap-2 bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-lg text-sm">
                 <div className="flex items-center">
                   {[...Array(5)].map((_, i) => (
                     <Star
@@ -102,9 +102,9 @@ export function FullWidthHero({ booth, locationString, hasValidLocation }: FullW
 
             {/* Verified Badge */}
             {isVerified && booth.last_verified && (
-              <div className="flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded-lg">
-                <CheckCircle className="w-4 h-4" />
-                <span className="text-sm font-semibold">
+              <div className="flex items-center gap-1.5 bg-green-500 text-white px-3 py-1.5 rounded-lg text-sm">
+                <CheckCircle className="w-3.5 h-3.5" />
+                <span className="font-semibold">
                   Verified {formatDistanceToNow(new Date(booth.last_verified), { addSuffix: true })}
                 </span>
               </div>
@@ -112,28 +112,28 @@ export function FullWidthHero({ booth, locationString, hasValidLocation }: FullW
 
             {/* Operational Status */}
             {isOperational && (
-              <div className="flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded-lg">
-                <CheckCircle className="w-4 h-4" />
-                <span className="text-sm font-semibold">Currently Operational</span>
+              <div className="flex items-center gap-1.5 bg-green-500 text-white px-3 py-1.5 rounded-lg text-sm">
+                <CheckCircle className="w-3.5 h-3.5" />
+                <span className="font-semibold">Currently Operational</span>
               </div>
             )}
 
             {/* Open Now */}
             {isOpen && (
-              <div className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-lg">
-                <Clock className="w-4 h-4" />
-                <span className="text-sm font-semibold">Open Now</span>
+              <div className="flex items-center gap-1.5 bg-blue-500 text-white px-3 py-1.5 rounded-lg text-sm">
+                <Clock className="w-3.5 h-3.5" />
+                <span className="font-semibold">Open Now</span>
               </div>
             )}
           </div>
 
           {/* Key Details Row */}
-          <div className="flex flex-wrap items-center gap-4 mb-8">
+          <div className="flex flex-wrap items-center gap-3 mb-6">
             {/* Cost */}
             {booth.cost && (
               <div className="text-white/90">
-                <span className="text-2xl font-bold">{booth.cost}</span>
-                <span className="text-sm ml-2">per strip</span>
+                <span className="text-xl font-bold">{booth.cost}</span>
+                <span className="text-xs ml-1.5">per strip</span>
               </div>
             )}
 
@@ -141,15 +141,15 @@ export function FullWidthHero({ booth, locationString, hasValidLocation }: FullW
             {(booth.accepts_cash || booth.accepts_card) && (
               <div className="flex items-center gap-2">
                 {booth.accepts_cash && (
-                  <div className="flex items-center gap-1 bg-white/20 backdrop-blur-sm text-white px-3 py-1.5 rounded-md">
-                    <Banknote className="w-4 h-4" />
-                    <span className="text-sm font-medium">Cash</span>
+                  <div className="flex items-center gap-1 bg-white/20 backdrop-blur-sm text-white px-2.5 py-1 rounded-md text-sm">
+                    <Banknote className="w-3.5 h-3.5" />
+                    <span className="font-medium">Cash</span>
                   </div>
                 )}
                 {booth.accepts_card && (
-                  <div className="flex items-center gap-1 bg-white/20 backdrop-blur-sm text-white px-3 py-1.5 rounded-md">
-                    <CreditCard className="w-4 h-4" />
-                    <span className="text-sm font-medium">Card</span>
+                  <div className="flex items-center gap-1 bg-white/20 backdrop-blur-sm text-white px-2.5 py-1 rounded-md text-sm">
+                    <CreditCard className="w-3.5 h-3.5" />
+                    <span className="font-medium">Card</span>
                   </div>
                 )}
               </div>
