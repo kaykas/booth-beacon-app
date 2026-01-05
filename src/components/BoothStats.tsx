@@ -137,21 +137,15 @@ export function BoothStats({ boothId }: BoothStatsProps) {
     };
   }, [boothId]);
 
+  // Don't show stats if everything is zero (empty booth)
+  const hasAnyStats = stats.photoCount > 0 || stats.reviewCount > 0 || stats.bookmarkCount > 0;
+
   if (loading) {
-    return (
-      <Card className="p-6">
-        <h3 className="text-lg font-semibold mb-4">Community Stats</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[...Array(4)].map((_, i) => (
-            <div key={i} className="text-center">
-              <div className="w-12 h-12 bg-neutral-200 rounded-full mx-auto mb-2 animate-pulse" />
-              <div className="h-6 w-16 bg-neutral-200 rounded mx-auto mb-1 animate-pulse" />
-              <div className="h-4 w-20 bg-neutral-200 rounded mx-auto animate-pulse" />
-            </div>
-          ))}
-        </div>
-      </Card>
-    );
+    return null; // Don't show loading state for stats, just hide it
+  }
+
+  if (!hasAnyStats) {
+    return null; // Hide completely if no community engagement
   }
 
   return (

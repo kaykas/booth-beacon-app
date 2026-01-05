@@ -19,7 +19,9 @@ import { formatDistanceToNow } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { StatusBadge } from '@/components/booth/StatusBadge';
+import { StatusBar } from '@/components/booth/StatusBar';
 import { BoothImage } from '@/components/booth/BoothImage';
+import { FullWidthHero } from '@/components/booth/FullWidthHero';
 import { BoothMap } from '@/components/booth/BoothMap';
 import { CopyAddressButton } from '@/components/booth/CopyAddressButton';
 import { BookmarkButton } from '@/components/BookmarkButton';
@@ -455,515 +457,160 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
         </div>
       )}
 
-      {/* Hero Section */}
-      <div
-        className="bg-white border-b border-neutral-200"
-        data-ai-section="main-content"
-        data-ai-type="entity-info"
-        data-ai-importance="critical"
-      >
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
-            {/* Image */}
-            <div className="relative h-64 sm:h-80 lg:h-[500px] bg-neutral-100">
-              <BoothImage booth={booth} size="hero" showAiBadge={true} />
+      {/* E-Commerce Style Full-Width Hero */}
+      <FullWidthHero booth={booth} locationString={locationString} hasValidLocation={hasValidLocation} />
+
+      {/* Main Content - Single Column E-Commerce Layout */}
+      <div className="bg-white pb-24 lg:pb-16">
+        <div className="max-w-4xl mx-auto px-4 py-16 space-y-16">
+
+          {/* About Section */}
+          {booth.description && (
+            <section>
+              <h2 className="text-3xl font-bold text-neutral-900 mb-6">About This Booth</h2>
+              <p className="text-lg text-neutral-700 leading-relaxed">{booth.description}</p>
+            </section>
+          )}
+
+          {/* Details Section */}
+          <section>
+            <h2 className="text-3xl font-bold text-neutral-900 mb-6">Details</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 text-lg">
+              {/* Machine Details */}
+              {booth.machine_model && (
+                <div className="flex justify-between py-3 border-b border-neutral-200">
+                  <span className="text-neutral-600">Machine</span>
+                  <span className="font-semibold text-neutral-900">{booth.machine_model}</span>
+                </div>
+              )}
+              {booth.booth_type && (
+                <div className="flex justify-between py-3 border-b border-neutral-200">
+                  <span className="text-neutral-600">Type</span>
+                  <span className="font-semibold text-neutral-900 capitalize">{booth.booth_type}</span>
+                </div>
+              )}
+              {booth.cost && (
+                <div className="flex justify-between py-3 border-b border-neutral-200">
+                  <span className="text-neutral-600">Cost</span>
+                  <span className="font-semibold text-neutral-900">{booth.cost}</span>
+                </div>
+              )}
+              {(booth.accepts_cash || booth.accepts_card) && (
+                <div className="flex justify-between py-3 border-b border-neutral-200">
+                  <span className="text-neutral-600">Payment</span>
+                  <span className="font-semibold text-neutral-900">
+                    {booth.accepts_cash && booth.accepts_card ? 'Cash & Card' :
+                     booth.accepts_cash ? 'Cash Only' : 'Card Only'}
+                  </span>
+                </div>
+              )}
             </div>
 
-            {/* Info */}
-            <div className="p-6 lg:p-12">
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex-1">
-                  <h1 className="text-3xl lg:text-4xl font-bold text-neutral-900 mb-2">
-                    {booth.name}
-                  </h1>
-                  <div className="flex items-center gap-2 text-neutral-600 mb-3">
-                    <MapPin className="w-4 h-4 flex-shrink-0" />
-                    <span>{locationString}</span>
+            {/* Hours */}
+            {booth.hours && (
+              <div className="mt-8">
+                <h3 className="text-2xl font-bold text-neutral-900 mb-4">Hours</h3>
+                <StructuredHours hours={booth.hours} />
+              </div>
+            )}
+          </section>
+
+          {/* Access Instructions */}
+          {booth.access_instructions && (
+            <section>
+              <Card className="p-8 bg-amber-50 border-2 border-amber-200">
+                <div className="flex items-start gap-4">
+                  <AlertCircle className="w-6 h-6 text-amber-600 mt-1 flex-shrink-0" />
+                  <div>
+                    <h3 className="text-xl font-bold text-amber-900 mb-2">Access Instructions</h3>
+                    <p className="text-lg text-amber-800 leading-relaxed">{booth.access_instructions}</p>
                   </div>
-
-                  {/* Verification Badge - Trust Signal */}
-                  {booth.last_verified && isRecentlyVerified(booth.last_verified) && (
-                    <div className="flex items-center gap-2 px-4 py-2 bg-green-100 border-2 border-green-600 rounded-lg mb-4">
-                      <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
-                      <span className="text-green-900 font-semibold text-sm">
-                        Verified {formatDistanceToNow(new Date(booth.last_verified), { addSuffix: true })}
-                      </span>
-                    </div>
-                  )}
-
-                  {/* Hours Status & Distance */}
-                  <div className="flex flex-wrap items-center gap-3 mb-3">
-                    <HoursStatus hours={booth.hours} />
-                    {hasValidLocation && booth.latitude && booth.longitude && (
-                      <DistanceDisplay boothLatitude={booth.latitude} boothLongitude={booth.longitude} />
-                    )}
-                  </div>
-
-                  {/* Quick Stats Pills */}
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {booth.booth_type && (
-                      <span className="px-2 py-1 bg-neutral-100 text-neutral-700 text-xs rounded font-medium capitalize">
-                        {booth.booth_type}
-                      </span>
-                    )}
-                    {booth.machine_model && (
-                      <span className="px-2 py-1 bg-neutral-100 text-neutral-700 text-xs rounded font-medium">
-                        {booth.machine_model}
-                      </span>
-                    )}
-                    {booth.cost && (
-                      <span className="px-2 py-1 bg-amber-100 text-amber-800 text-xs rounded font-medium">
-                        {booth.cost}
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Quick Info Pills Above the Fold */}
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {/* Show verification status badges */}
-                    {isClosedOrInvalid && (
-                      <span className="bg-red-600 text-white px-3 py-1.5 text-sm font-bold rounded-md flex items-center gap-1">
-                        <AlertCircle className="w-4 h-4" />
-                        Unverified - Use Caution
-                      </span>
-                    )}
-                    {!isClosedOrInvalid && booth.status === 'active' && !booth.needs_verification && (
-                      <span className="bg-green-500 text-white px-3 py-1.5 text-sm font-medium rounded-md">
-                        ✓ Currently Operational
-                      </span>
-                    )}
-                    {!isClosedOrInvalid && (booth.status === 'unverified' || booth.needs_verification) && (
-                      <span className="bg-amber-500 text-white px-3 py-1.5 text-sm font-medium rounded-md flex items-center gap-1">
-                        <AlertCircle className="w-4 h-4" />
-                        Needs Verification
-                      </span>
-                    )}
-                    {booth.cost && (
-                      <span className="bg-amber-500 text-white px-3 py-1.5 text-sm font-bold rounded-md">
-                        {booth.cost} per strip
-                      </span>
-                    )}
-                    {booth.hours && isOpenNow(booth.hours) && (
-                      <span className="bg-blue-500 text-white px-3 py-1.5 text-sm font-medium rounded-md">
-                        🕐 Open Now
-                      </span>
-                    )}
-                    {booth.accepts_cash && !booth.accepts_card && (
-                      <span className="bg-purple-500 text-white px-3 py-1.5 text-sm font-medium rounded-md">
-                        💵 Cash Only
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Google Rating */}
-                  {booth.google_rating && (
-                    <div className="flex items-center gap-2 mb-4">
-                      <div className="flex items-center">
-                        {[...Array(5)].map((_, i) => (
-                          <Star
-                            key={i}
-                            className={`w-4 h-4 ${
-                              i < Math.floor(booth.google_rating!)
-                                ? 'fill-yellow-400 text-yellow-400'
-                                : 'text-neutral-300'
-                            }`}
-                          />
-                        ))}
-                      </div>
-                      <span className="text-sm font-medium text-neutral-700">
-                        {booth.google_rating.toFixed(1)}
-                      </span>
-                      {booth.google_user_ratings_total && (
-                        <span className="text-sm text-neutral-500">
-                          ({booth.google_user_ratings_total} reviews)
-                        </span>
-                      )}
-                      <span className="text-xs text-neutral-400">· Google</span>
-                    </div>
-                  )}
                 </div>
-                <StatusBadge status={booth.status || 'active'} />
+              </Card>
+            </section>
+          )}
+
+          {/* Location Section */}
+          <section>
+            <h2 className="text-3xl font-bold text-neutral-900 mb-6">Location & Directions</h2>
+
+            {hasValidLocation && booth.latitude && booth.longitude && (
+              <div className="mb-6 rounded-xl overflow-hidden h-96">
+                <BoothMap
+                  booths={[booth]}
+                  center={{ lat: booth.latitude, lng: booth.longitude }}
+                  zoom={15}
+                  showUserLocation={false}
+                />
+              </div>
+            )}
+
+            <div className="space-y-4 text-lg">
+              <div>
+                <p className="font-semibold text-neutral-900">{address}</p>
+                {booth.postal_code && <p className="text-neutral-700">{booth.postal_code}</p>}
+                <p className="text-neutral-700">
+                  {city}{booth.state ? `, ${booth.state}` : ''}{country ? `, ${country}` : ''}
+                </p>
               </div>
 
-              {/* Primary CTA - Hero Button with Vintage Amber Gradient */}
-              {hasValidLocation && (
-                <div className="mb-6">
-                  <Button
-                    size="xl"
-                    className="w-full text-lg px-12 py-8 btn-vintage-amber shadow-2xl transform hover:scale-105 transition-all duration-200 font-bold text-white"
-                    asChild
-                  >
+              {hasValidLocation && booth.latitude && booth.longitude && (
+                <div className="flex flex-wrap gap-3 mt-6">
+                  <CopyAddressButton address={address} />
+                  <Button variant="outline" size="lg" asChild>
                     <a
-                      href={`https://www.google.com/maps/dir/?api=1&destination=${booth.latitude},${booth.longitude}`}
+                      href={`https://www.google.com/maps/search/?api=1&query=${booth.latitude},${booth.longitude}`}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      <Navigation className="w-6 h-6 mr-3" />
-                      Get Directions Now
+                      <ExternalLink className="w-4 h-4 mr-2" />
+                      View on Google Maps
                     </a>
                   </Button>
                 </div>
               )}
-
-              {/* Secondary Actions */}
-              <div className="flex flex-wrap gap-2 mb-8">
-                <BookmarkButton boothId={booth.id} variant="default" />
-                {hasValidLocation && (
-                  <>
-                    <Button variant="outline" asChild>
-                      <a
-                        href={`https://www.google.com/maps/search/?api=1&query=${booth.latitude},${booth.longitude}&query_place_id=${booth.google_place_id || ''}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        title="Open in Google Maps"
-                      >
-                        <Map className="w-4 h-4 mr-2" />
-                        Google Maps
-                      </a>
-                    </Button>
-                    <Button variant="outline" asChild>
-                      <a
-                        href={`http://maps.apple.com/?q=${encodeURIComponent(booth.name)}&ll=${booth.latitude},${booth.longitude}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        title="Open in Apple Maps"
-                      >
-                        <Map className="w-4 h-4 mr-2" />
-                        Apple Maps
-                      </a>
-                    </Button>
-                  </>
-                )}
-                <ShareButton
-                  title={`${booth.name} - ${locationString}`}
-                  text={`Check out this photo booth: ${booth.name}`}
-                />
-              </div>
-
-              {/* Details */}
-              {booth.description && (
-                <div
-                  className="mb-6"
-                  data-ai-section="content"
-                  data-ai-type="descriptive"
-                  data-ai-importance="medium"
-                >
-                  <p className="text-neutral-700 leading-relaxed">{booth.description}</p>
-                </div>
-              )}
-
-              {/* Machine Info */}
-              {(booth.machine_model || booth.machine_manufacturer || booth.operator_name) && (
-                <div className="space-y-2 mb-6">
-                  <h3 className="text-sm font-semibold text-neutral-500 uppercase tracking-wide">
-                    Machine Details
-                  </h3>
-                  {booth.machine_model && (
-                    <div className="flex justify-between items-center">
-                      <span className="text-neutral-600">Model</span>
-                      <Link
-                        href={`/machines/${booth.machine_model.toLowerCase().replace(/\s+/g, '-')}`}
-                        className="font-medium text-primary hover:underline"
-                      >
-                        {booth.machine_model}
-                      </Link>
-                    </div>
-                  )}
-                  {booth.machine_manufacturer && (
-                    <div className="flex justify-between">
-                      <span className="text-neutral-600">Manufacturer</span>
-                      <span className="font-medium">{booth.machine_manufacturer}</span>
-                    </div>
-                  )}
-                  {booth.operator_name && (
-                    <div className="flex justify-between">
-                      <span className="text-neutral-600">Operator</span>
-                      <span className="font-medium">{booth.operator_name}</span>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Visit Info */}
-              <div
-                className="space-y-2"
-                data-ai-section="practical-info"
-                data-ai-type="actionable"
-                data-ai-importance="high"
-              >
-                <h3 className="text-sm font-semibold text-neutral-500 uppercase tracking-wide">
-                  Visit Info
-                </h3>
-                {booth.cost && (
-                  <div className="flex justify-between">
-                    <span className="text-neutral-600 flex items-center">
-                      <DollarSign className="w-4 h-4 mr-1" />
-                      Cost
-                    </span>
-                    <span className="font-medium">{booth.cost}</span>
-                  </div>
-                )}
-                <div className="space-y-2">
-                  <div className="text-neutral-700 font-semibold flex items-center mb-2">
-                    <Clock className="w-4 h-4 mr-1" />
-                    Hours
-                  </div>
-                  <StructuredHours hours={booth.hours} />
-                </div>
-                {(booth.accepts_cash || booth.accepts_card) && (
-                  <div className="flex justify-between items-center">
-                    <span className="text-neutral-600">Payment</span>
-                    <div className="flex gap-2">
-                      {booth.accepts_cash && (
-                        <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded font-medium">
-                          💵 Cash
-                        </span>
-                      )}
-                      {booth.accepts_card && (
-                        <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded font-medium">
-                          💳 Card
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {/* Content Freshness Signal */}
-                {booth.updated_at && (
-                  <div className="mt-4 pt-4 border-t border-neutral-200">
-                    <ContentFreshness
-                      updatedAt={booth.updated_at}
-                      label="Listing Updated"
-                      className="text-xs"
-                    />
-                  </div>
-                )}
-              </div>
             </div>
-          </div>
+          </section>
+
+          {/* Historical Notes */}
+          {booth.historical_notes && (
+            <section>
+              <h2 className="text-3xl font-bold text-neutral-900 mb-6">History</h2>
+              <p className="text-lg text-neutral-700 leading-relaxed">{booth.historical_notes}</p>
+            </section>
+          )}
+
+          {/* Community Photos */}
+          {(booth.photo_exterior_url || booth.photo_interior_url || booth.google_photos || communityPhotos.length > 0) && (
+            <section>
+              <h2 className="text-3xl font-bold text-neutral-900 mb-6">Community Photos</h2>
+              <PhotoGallery
+                photos={[
+                  ...(booth.photo_exterior_url ? [booth.photo_exterior_url] : []),
+                  ...(booth.photo_interior_url ? [booth.photo_interior_url] : []),
+                  ...(booth.google_photos || []),
+                  ...communityPhotos,
+                ]}
+                boothName={booth.name}
+                communityPhotosCount={communityPhotos.length}
+              />
+              <div className="mt-6">
+                <CommunityPhotoUpload boothId={booth.id} boothName={booth.name} />
+              </div>
+            </section>
+          )}
+
         </div>
       </div>
 
-      {/* Main Content - Add bottom padding on mobile for sticky bar */}
-      <div className="max-w-7xl mx-auto p-4 lg:p-8 pb-24 lg:pb-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Access Instructions */}
-            {booth.access_instructions && (
-              <Card className="p-6 bg-amber-50 border-amber-200">
-                <div className="flex items-start gap-3">
-                  <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
-                  <div>
-                    <h3 className="font-semibold text-amber-900 mb-1">Access Instructions</h3>
-                    <p className="text-amber-800 text-sm">{booth.access_instructions}</p>
-                  </div>
-                </div>
-              </Card>
-            )}
-
-            {/* Historical Notes */}
-            {booth.historical_notes && (
-              <Card className="p-6">
-                <h2 className="text-xl font-semibold mb-3">Historical Notes</h2>
-                <p className="text-neutral-700 leading-relaxed">{booth.historical_notes}</p>
-              </Card>
-            )}
-
-            {/* Street View - Only show if validated as available or not yet validated */}
-            {hasValidLocation &&
-             booth.latitude &&
-             booth.longitude &&
-             booth.address &&
-             booth.address !== booth.city &&
-             booth.address.length > 10 &&
-             booth.street_view_available !== false && ( // Only hide if explicitly validated as unavailable
-              <div>
-                <h2 className="text-xl font-semibold mb-4">Street View</h2>
-                <StreetViewEmbed
-                  latitude={booth.latitude}
-                  longitude={booth.longitude}
-                  boothName={booth.name}
-                  boothId={booth.id}
-                  streetViewAvailable={booth.street_view_available}
-                  streetViewPanoramaId={booth.street_view_panorama_id}
-                  streetViewDistanceMeters={booth.street_view_distance_meters}
-                  streetViewHeading={booth.street_view_heading}
-                />
-              </div>
-            )}
-
-            {/* Photos Section */}
-            {(booth.photo_exterior_url || booth.photo_interior_url || booth.google_photos || communityPhotos.length > 0) ? (
-              <Card className="p-6">
-                <h2 className="text-xl font-semibold mb-4">Photos</h2>
-
-                {/* Enhanced Photo Gallery with Lightbox */}
-                <PhotoGallery
-                  photos={[
-                    ...(booth.photo_exterior_url ? [booth.photo_exterior_url] : []),
-                    ...(booth.photo_interior_url ? [booth.photo_interior_url] : []),
-                    ...(booth.google_photos || []),
-                    ...communityPhotos,
-                  ]}
-                  boothName={booth.name}
-                  communityPhotosCount={communityPhotos.length}
-                />
-              </Card>
-            ) : null}
-
-            {/* Community Photo Upload */}
-            <CommunityPhotoUpload boothId={booth.id} boothName={booth.name} />
-          </div>
-
-          {/* Right Column - Sidebar */}
-          <div className="space-y-6">
-            {/* Contact Info Card */}
-            {(booth.phone || booth.website || booth.instagram) && (
-              <Card className="p-6">
-                <h3 className="font-semibold text-lg mb-4">Contact</h3>
-                <div className="space-y-3">
-                  {booth.phone && (
-                    <a
-                      href={`tel:${booth.phone}`}
-                      className="flex items-center gap-3 p-3 -m-3 rounded-lg hover:bg-primary/5 text-neutral-700 hover:text-primary transition group"
-                    >
-                      <div className="p-2 bg-primary/10 rounded-full group-hover:bg-primary/20 transition">
-                        <Phone className="w-4 h-4 flex-shrink-0 text-primary" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="text-xs text-neutral-500 uppercase font-medium tracking-wide">Call Now</div>
-                        <div className="text-sm font-semibold">{booth.phone}</div>
-                      </div>
-                    </a>
-                  )}
-                  {booth.website && (
-                    <a
-                      href={booth.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-3 text-neutral-700 hover:text-primary transition"
-                    >
-                      <Globe className="w-4 h-4 flex-shrink-0" />
-                      <span className="text-sm">Website</span>
-                      <ExternalLink className="w-3 h-3 ml-auto" />
-                    </a>
-                  )}
-                  {booth.instagram && (
-                    <a
-                      href={`https://instagram.com/${booth.instagram.replace('@', '')}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-3 text-neutral-700 hover:text-primary transition"
-                    >
-                      <Instagram className="w-4 h-4 flex-shrink-0" />
-                      <span className="text-sm">@{booth.instagram.replace('@', '')}</span>
-                      <ExternalLink className="w-3 h-3 ml-auto" />
-                    </a>
-                  )}
-                </div>
-              </Card>
-            )}
-
-            {/* Location Card */}
-            <Card
-              className="p-6"
-              data-ai-section="location-data"
-              data-ai-type="factual"
-              data-ai-importance="critical"
-            >
-              <h3 className="font-semibold text-lg mb-4">Location</h3>
-
-              {/* Map */}
-              {hasValidLocation && booth.latitude && booth.longitude && (
-                <div className="mb-4 rounded-lg overflow-hidden h-48">
-                  <BoothMap
-                    booths={[booth]}
-                    center={{ lat: booth.latitude, lng: booth.longitude }}
-                    zoom={15}
-                    showUserLocation={false}
-                  />
-                </div>
-              )}
-
-              {!hasValidLocation && (
-                <div className="mb-4 rounded-lg overflow-hidden h-48 bg-neutral-100 flex items-center justify-center text-neutral-500 text-sm">
-                  <div className="text-center">
-                    <MapPin className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                    <p>Location coordinates not available</p>
-                  </div>
-                </div>
-              )}
-
-              {/* Address */}
-              <div className="space-y-3">
-                <div className="text-sm space-y-1">
-                  <div className="text-neutral-600 mb-1">Address</div>
-                  <div className="text-neutral-900">{address}</div>
-                  {booth.postal_code && (
-                    <div className="text-neutral-900">{booth.postal_code}</div>
-                  )}
-                  <div className="text-neutral-900">
-                    {city}{booth.state ? `, ${booth.state}` : ''}{country ? `, ${country}` : ''}
-                  </div>
-                </div>
-
-                {hasValidLocation && booth.latitude && booth.longitude && (
-                  <>
-                    <CopyAddressButton address={address} />
-
-                    <Button variant="default" size="sm" className="w-full" asChild>
-                      <a
-                        href={
-                          booth.google_place_id
-                            ? `https://www.google.com/maps/place/?q=place_id:${booth.google_place_id}`
-                            : `https://www.google.com/maps/search/?api=1&query=${booth.latitude},${booth.longitude}`
-                        }
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <ExternalLink className="w-4 h-4 mr-2" />
-                        {booth.google_place_id ? 'View on Google Maps' : 'Open in Google Maps'}
-                      </a>
-                    </Button>
-                  </>
-                )}
-
-                {!hasValidLocation && (
-                  <div className="text-xs text-neutral-500 italic mt-2">
-                    Precise coordinates not available for this booth.
-                  </div>
-                )}
-              </div>
-            </Card>
-
-            {/* Social Proof */}
-            <SocialProof
-              favoriteCount={booth.favorite_count || 0}
-              visitCount={booth.visit_count || 0}
-            />
-
-            {/* Community Stats */}
-            <BoothStats boothId={booth.id} />
-
-            {/* Visit Checklist */}
-            <VisitChecklist
-              boothName={booth.name}
-              hasHours={!!booth.hours}
-              acceptsCash={booth.accepts_cash || false}
-              acceptsCard={booth.accepts_card || false}
-              cost={booth.cost || undefined}
-            />
-
-            {/* Report Issue - Priority 3 Implementation */}
-            <ReportIssueButton boothId={booth.id} boothName={booth.name} />
-          </div>
-        </div>
-
-        {/* Discovery Section - City, Nearby & Similar Booths */}
+      {/* Discovery Section - More Booths */}
+      <div className="bg-neutral-50 py-16">
+        <div className="max-w-7xl mx-auto px-4">
         {hasValidLocation && booth.latitude && booth.longitude && (
           <div className="mt-12 space-y-8">
-            <h2 className="text-2xl font-bold">Discover More Booths</h2>
+            <h2 className="text-3xl font-bold text-neutral-900 mb-6">
+              More Photo Booths in {city}
+            </h2>
 
             {/* City-Specific Booths */}
             <CityBooths
@@ -974,8 +621,9 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
               limit={6}
             />
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Nearby Booths */}
+            {/* Nearby Booths only (removed Similar to reduce duplication) */}
+            <div className="mt-8">
+              <h3 className="text-2xl font-bold text-neutral-900 mb-4">Nearby</h3>
               <NearbyBooths
                 boothId={booth.id}
                 latitude={booth.latitude}
@@ -983,9 +631,6 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
                 radiusKm={25}
                 limit={6}
               />
-
-              {/* Similar Booths */}
-              <SimilarBooths boothId={booth.id} limit={6} />
             </div>
           </div>
         )}
@@ -993,7 +638,9 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
         {/* If no valid location, still show city and similar booths */}
         {!hasValidLocation && (
           <div className="mt-12 space-y-8">
-            <h2 className="text-2xl font-bold">You Might Also Like</h2>
+            <h2 className="text-3xl font-bold text-neutral-900 mb-6">
+              More Photo Booths in {city}
+            </h2>
 
             {/* City-Specific Booths */}
             <CityBooths
@@ -1003,8 +650,6 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
               country={country}
               limit={6}
             />
-
-            <SimilarBooths boothId={booth.id} limit={6} />
           </div>
         )}
 

@@ -19,9 +19,9 @@ export function VisitChecklist({
   acceptsCard,
   cost,
 }: VisitChecklistProps) {
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false); // Collapsed by default
 
-  // Build dynamic checklist items based on booth data
+  // Simplified checklist - only 3 essential items
   const checklistItems = [
     {
       id: 'hours',
@@ -42,25 +42,11 @@ export function VisitChecklist({
       bgColor: acceptsCash && !acceptsCard ? 'bg-green-50' : 'bg-amber-50',
     },
     {
-      id: 'patience',
-      text: 'Analog booths take 2-5 minutes to develop - be patient!',
-      icon: Clock,
-      color: 'text-indigo-700',
-      bgColor: 'bg-indigo-50',
-    },
-    {
       id: 'status',
       text: 'Call ahead if traveling far - booths can break unexpectedly',
       icon: AlertCircle,
       color: 'text-amber-700',
       bgColor: 'bg-amber-50',
-    },
-    {
-      id: 'phone',
-      text: 'Save location to your phone before you go',
-      icon: Smartphone,
-      color: 'text-purple-700',
-      bgColor: 'bg-purple-50',
     },
   ];
 
@@ -106,12 +92,6 @@ export function VisitChecklist({
               );
             })}
           </ul>
-
-          <div className="mt-4 p-3 bg-orange-100 border border-orange-200 rounded-lg">
-            <p className="text-xs text-orange-900 font-medium text-center">
-              Pro tip: Vintage booths have character and quirks - that&apos;s part of the charm!
-            </p>
-          </div>
         </>
       )}
     </Card>

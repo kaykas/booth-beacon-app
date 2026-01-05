@@ -64,11 +64,11 @@ export function StickyActionBar({
         paddingBottom: 'max(1rem, env(safe-area-inset-bottom))',
       }}
     >
-      <div className="max-w-lg mx-auto px-4 py-4">
-        <div className="flex items-center gap-3">
+      <div className="max-w-lg mx-auto px-4 py-2.5">
+        <div className="flex items-center gap-2">
           {/* Primary CTA - Get Directions (70% width) */}
           <Button
-            size="lg"
+            size="default"
             className="flex-[0_0_70%] bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold shadow-md hover:shadow-lg transition-all duration-200"
             asChild
           >
@@ -77,7 +77,7 @@ export function StickyActionBar({
               target="_blank"
               rel="noopener noreferrer"
             >
-              <Navigation className="w-5 h-5 mr-2" />
+              <Navigation className="w-4 h-4 mr-2" />
               Get Directions
             </a>
           </Button>
@@ -88,19 +88,19 @@ export function StickyActionBar({
             <BookmarkButton
               boothId={boothId}
               variant="outline"
-              size="lg"
+              size="default"
               showText={false}
             />
 
             {/* Share Button */}
             <Button
-              size="lg"
+              size="default"
               variant="outline"
               onClick={handleShare}
               className="flex-1"
               aria-label="Share this booth"
             >
-              <Share2 className="w-5 h-5" />
+              <Share2 className="w-4 h-4" />
             </Button>
           </div>
         </div>
