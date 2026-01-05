@@ -49,7 +49,20 @@ export function generateLocationSlug(
 }
 
 /**
+ * Country name aliases for backward compatibility
+ * Maps old URL slugs to standardized country names
+ */
+const COUNTRY_ALIASES: Record<string, string> = {
+  'usa': 'United States',
+  'us': 'United States',
+  'united-states': 'United States',
+  'uk': 'United Kingdom',
+  'united-kingdom': 'United Kingdom',
+};
+
+/**
  * Parse location from URL path segments
+ * Handles country name aliases for backward compatibility
  */
 export function parseLocationPath(segments: string[]): {
   country?: string;
@@ -66,8 +79,12 @@ export function parseLocationPath(segments: string[]): {
     return {};
   }
 
+  // Check for country alias first (case-insensitive)
+  const countrySlug = segments[0].toLowerCase();
+  const country = COUNTRY_ALIASES[countrySlug] || deslugify(segments[0]);
+
   const result: { country?: string; state?: string; city?: string } = {
-    country: deslugify(segments[0]),
+    country,
   };
 
   if (segments.length > 1) {
