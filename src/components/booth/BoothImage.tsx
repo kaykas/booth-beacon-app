@@ -25,13 +25,44 @@ export function BoothImage({
   // Check if AI preview URL is the broken Unsplash Source API
   const isBrokenUnsplashUrl = booth.ai_preview_url?.includes('source.unsplash.com');
 
-  // Priority: photo_exterior_url > ai_generated_image_url > ai_preview_url (if not broken)
+  // Helper: Generate Street View URL from booth data
+  const getStreetViewUrl = (): string | null => {
+    if (!booth.street_view_available) return null;
+
+    const googleApiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+    if (!googleApiKey) return null;
+
+    // Size based on component size
+    const sizeMap = {
+      thumbnail: '200x200',
+      card: '800x600',
+      hero: '1200x800',
+    };
+    const imageSize = sizeMap[size];
+
+    // Use panorama ID if available (most reliable)
+    if (booth.street_view_panorama_id) {
+      return `https://maps.googleapis.com/maps/api/streetview?size=${imageSize}&pano=${booth.street_view_panorama_id}&heading=${booth.street_view_heading || 0}&pitch=0&fov=90&key=${googleApiKey}`;
+    }
+
+    // Fallback to coordinates
+    if (booth.latitude && booth.longitude) {
+      return `https://maps.googleapis.com/maps/api/streetview?size=${imageSize}&location=${booth.latitude},${booth.longitude}&heading=${booth.street_view_heading || 0}&pitch=0&fov=90&key=${googleApiKey}`;
+    }
+
+    return null;
+  };
+
+  // Priority: photo_exterior_url > Street View > ai_generated_image_url > ai_preview_url
+  const streetViewUrl = getStreetViewUrl();
   const imageUrl = booth.photo_exterior_url
+    || streetViewUrl
     || booth.ai_generated_image_url
     || (!isBrokenUnsplashUrl ? booth.ai_preview_url : null);
 
-  const hasAiGenerated = booth.ai_generated_image_url && !booth.photo_exterior_url;
-  const hasAiPreview = booth.ai_preview_url && !booth.photo_exterior_url && !booth.ai_generated_image_url && !isBrokenUnsplashUrl;
+  const hasStreetView = !!streetViewUrl && !booth.photo_exterior_url;
+  const hasAiGenerated = booth.ai_generated_image_url && !booth.photo_exterior_url && !streetViewUrl;
+  const hasAiPreview = booth.ai_preview_url && !booth.photo_exterior_url && !booth.ai_generated_image_url && !streetViewUrl && !isBrokenUnsplashUrl;
   const hasNoImage = !imageUrl || hasImageError;
 
   const sizeClasses = {
@@ -64,6 +95,7 @@ export function BoothImage({
           <Image
             src={imageUrl}
             alt={`${booth.name} - Classic analog photo booth located in ${booth.city}${booth.state ? `, ${booth.state}` : ''}, ${booth.country}. ${
+              hasStreetView ? 'Street View of venue exterior.' :
               hasAiGenerated ? 'AI-generated artistic visualization.' :
               hasAiPreview ? 'AI preview image.' :
               'Real community-submitted photo.'
@@ -79,9 +111,19 @@ export function BoothImage({
             }
             onError={() => setHasImageError(true)}
           />
-          {/* Photo Source Badge - Priority 3 Implementation */}
+          {/* Photo Source Badge */}
           {showAiBadge && (
             <>
+              {booth.photo_exterior_url && !hasAiGenerated && !hasAiPreview && !hasStreetView && (
+                <div className="absolute bottom-2 right-2 px-2 py-1 bg-green-600/90 text-white text-xs rounded backdrop-blur-sm flex items-center gap-1 shadow-sm z-10">
+                  <span className="text-[10px]">📸</span> Community Photo
+                </div>
+              )}
+              {hasStreetView && (
+                <div className="absolute bottom-2 right-2 px-2 py-1 bg-blue-600/90 text-white text-xs rounded backdrop-blur-sm flex items-center gap-1 shadow-sm z-10">
+                  <span className="text-[10px]">🗺️</span> Street View
+                </div>
+              )}
               {hasAiGenerated && (
                 <div className="absolute bottom-2 right-2 px-2 py-1 bg-purple-600/90 text-white text-xs rounded backdrop-blur-sm flex items-center gap-1 shadow-sm z-10">
                   <span className="text-[10px]">🤖</span> AI Generated
@@ -90,11 +132,6 @@ export function BoothImage({
               {hasAiPreview && (
                 <div className="absolute bottom-2 right-2 px-2 py-1 bg-black/70 text-white text-xs rounded backdrop-blur-sm shadow-sm z-10">
                   AI Preview
-                </div>
-              )}
-              {booth.photo_exterior_url && !hasAiGenerated && !hasAiPreview && (
-                <div className="absolute bottom-2 right-2 px-2 py-1 bg-green-600/90 text-white text-xs rounded backdrop-blur-sm flex items-center gap-1 shadow-sm z-10">
-                  <span className="text-[10px]">📸</span> Community Photo
                 </div>
               )}
             </>

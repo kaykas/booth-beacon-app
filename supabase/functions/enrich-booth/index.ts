@@ -54,7 +54,25 @@ async function enrichBooth(
 
   console.log(`[${boothId}] Found booth: ${booth.name}`);
 
-  // 2. Check if recently enriched (skip if < 7 days to allow photo recovery)
+  // 2. Daily quota check (prevents runaway costs)
+  const DAILY_QUOTA = 200;
+  const today = new Date().toISOString().split('T')[0];
+
+  const { count: todayCount, error: countError } = await supabase
+    .from('booths')
+    .select('*', { count: 'exact', head: true })
+    .gte('enriched_at', `${today}T00:00:00Z`);
+
+  if (!countError && todayCount !== null && todayCount >= DAILY_QUOTA) {
+    console.log(`[${boothId}] Daily quota reached (${todayCount}/${DAILY_QUOTA}), skipping`);
+    return {
+      success: false,
+      boothId,
+      error: `Daily enrichment quota exceeded (${todayCount}/${DAILY_QUOTA})`,
+    };
+  }
+
+  // 3. Check if recently enriched (skip if < 7 days to allow photo recovery)
   if (booth.enriched_at) {
     const lastEnriched = new Date(booth.enriched_at);
     const daysSince = (Date.now() - lastEnriched.getTime()) / (1000 * 60 * 60 * 24);
@@ -85,21 +103,28 @@ async function enrichBooth(
   }
 
   try {
-    // 4. Text Search - Find Place ID
-    const searchQuery = `"${booth.name}" photo booth near ${booth.address || ''} ${booth.city}, ${booth.country}`.trim();
-    console.log(`[${boothId}] Searching Google: ${searchQuery}`);
+    // 4. Get Place ID (use cached if available, otherwise search)
+    let placeId = booth.google_place_id;
 
-    const searchUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(searchQuery)}&key=${googleApiKey}`;
+    if (placeId) {
+      console.log(`[${boothId}] Using cached Place ID: ${placeId} (saves $0.032)`);
+    } else {
+      // Text Search - Find Place ID (only if not cached)
+      const searchQuery = `"${booth.name}" photo booth near ${booth.address || ''} ${booth.city}, ${booth.country}`.trim();
+      console.log(`[${boothId}] Searching Google: ${searchQuery}`);
 
-    const searchResponse = await fetch(searchUrl);
-    const searchData = await searchResponse.json();
+      const searchUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(searchQuery)}&key=${googleApiKey}`;
 
-    if (searchData.status !== 'OK' || !searchData.results || searchData.results.length === 0) {
-      throw new Error(`No Google Place found: ${searchData.status}`);
+      const searchResponse = await fetch(searchUrl);
+      const searchData = await searchResponse.json();
+
+      if (searchData.status !== 'OK' || !searchData.results || searchData.results.length === 0) {
+        throw new Error(`No Google Place found: ${searchData.status}`);
+      }
+
+      placeId = searchData.results[0].place_id;
+      console.log(`[${boothId}] Found place_id: ${placeId}`);
     }
-
-    const placeId = searchData.results[0].place_id;
-    console.log(`[${boothId}] Found place_id: ${placeId}`);
 
     // 5. Place Details - Get enrichment data
     const fields = [
@@ -185,53 +210,86 @@ async function enrichBooth(
       }
     }
 
-    // 7. Validate Street View availability
+    // 7. Validate Street View availability (NAME-BASED APPROACH)
     let streetViewValidation: {
       available: boolean;
       panoramaId?: string;
       distance?: number;
       heading?: number;
+      searchMethod?: string;
     } | null = null;
 
-    if (booth.latitude && booth.longitude) {
-      console.log(`[${boothId}] Validating Street View...`);
-      try {
-        const streetViewUrl = `https://maps.googleapis.com/maps/api/streetview/metadata?location=${booth.latitude},${booth.longitude}&radius=50&key=${googleApiKey}`;
-        const streetViewResponse = await fetch(streetViewUrl);
-        const streetViewData = await streetViewResponse.json();
+    console.log(`[${boothId}] Validating Street View using name-based search...`);
 
-        if (streetViewData.status === 'OK' && streetViewData.pano_id && streetViewData.location) {
-          // Calculate distance from booth to panorama
-          const R = 6371e3; // Earth radius in meters
-          const φ1 = (booth.latitude * Math.PI) / 180;
-          const φ2 = (streetViewData.location.lat * Math.PI) / 180;
-          const Δφ = ((streetViewData.location.lat - booth.latitude) * Math.PI) / 180;
-          const Δλ = ((streetViewData.location.lng - booth.longitude) * Math.PI) / 180;
-          const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-                    Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
-          const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-          const distance = R * c;
+    try {
+      let searchLat = booth.latitude;
+      let searchLng = booth.longitude;
+      let searchMethod = 'coordinates';
 
-          // Calculate heading from panorama toward booth
-          const y = Math.sin(Δλ) * Math.cos(φ2);
-          const x = Math.cos(φ1) * Math.sin(φ2) - Math.sin(φ1) * Math.cos(φ2) * Math.cos(Δλ);
-          const θ = Math.atan2(y, x);
-          const heading = Math.round(((θ * 180) / Math.PI + 360) % 360);
+      // METHOD 1: Search by venue name + address (most reliable for storefronts)
+      if (booth.name && booth.address) {
+        const searchQuery = `${booth.name}, ${booth.address}`;
+        console.log(`[${boothId}] Searching by name: "${searchQuery}"`);
 
-          streetViewValidation = {
-            available: true,
-            panoramaId: streetViewData.pano_id,
-            distance: Math.round(distance * 100) / 100,
-            heading,
-          };
+        const findPlaceUrl = `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${encodeURIComponent(searchQuery)}&inputtype=textquery&fields=geometry&key=${googleApiKey}`;
+        const findPlaceResponse = await fetch(findPlaceUrl);
+        const findPlaceData = await findPlaceResponse.json();
 
-          console.log(`[${boothId}] ✅ Street View: panorama ${streetViewData.pano_id} (${Math.round(distance)}m, ${heading}°)`);
+        if (findPlaceData.status === 'OK' && findPlaceData.candidates && findPlaceData.candidates[0]) {
+          searchLat = findPlaceData.candidates[0].geometry.location.lat;
+          searchLng = findPlaceData.candidates[0].geometry.location.lng;
+          searchMethod = 'name+address';
+          console.log(`[${boothId}] ✅ Found location via name search: ${searchLat}, ${searchLng}`);
         } else {
-          streetViewValidation = { available: false };
-          console.log(`[${boothId}] ⚠️  No Street View available`);
+          console.log(`[${boothId}] ⚠️  Name search failed, falling back to coordinates`);
         }
-      } catch (streetViewError: any) {
-        console.error(`[${boothId}] Street View validation error:`, streetViewError.message);
+      } else if (!booth.latitude || !booth.longitude) {
+        // No name/address and no coordinates - can't search
+        console.log(`[${boothId}] ⚠️  No name/address or coordinates available`);
+        streetViewValidation = { available: false, searchMethod: 'none' };
+        throw new Error('No location data available');
+      }
+
+      // METHOD 2: Search Street View at the determined location
+      const streetViewUrl = `https://maps.googleapis.com/maps/api/streetview/metadata?location=${searchLat},${searchLng}&radius=100&key=${googleApiKey}`;
+      const streetViewResponse = await fetch(streetViewUrl);
+      const streetViewData = await streetViewResponse.json();
+
+      if (streetViewData.status === 'OK' && streetViewData.pano_id && streetViewData.location) {
+        // Calculate distance from search location to panorama
+        const R = 6371e3; // Earth radius in meters
+        const φ1 = (searchLat * Math.PI) / 180;
+        const φ2 = (streetViewData.location.lat * Math.PI) / 180;
+        const Δφ = ((streetViewData.location.lat - searchLat) * Math.PI) / 180;
+        const Δλ = ((streetViewData.location.lng - searchLng) * Math.PI) / 180;
+        const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+                  Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        const distance = R * c;
+
+        // Calculate heading from panorama toward search location
+        const y = Math.sin(Δλ) * Math.cos(φ2);
+        const x = Math.cos(φ1) * Math.sin(φ2) - Math.sin(φ1) * Math.cos(φ2) * Math.cos(Δλ);
+        const θ = Math.atan2(y, x);
+        const heading = Math.round(((θ * 180) / Math.PI + 360) % 360);
+
+        streetViewValidation = {
+          available: true,
+          panoramaId: streetViewData.pano_id,
+          distance: Math.round(distance * 100) / 100,
+          heading,
+          searchMethod,
+        };
+
+        console.log(`[${boothId}] ✅ Street View found via ${searchMethod}: panorama ${streetViewData.pano_id} (${Math.round(distance)}m, ${heading}°)`);
+      } else {
+        streetViewValidation = { available: false, searchMethod };
+        console.log(`[${boothId}] ⚠️  No Street View available (searched via ${searchMethod})`);
+      }
+    } catch (streetViewError: any) {
+      console.error(`[${boothId}] Street View validation error:`, streetViewError.message);
+      if (!streetViewValidation) {
+        streetViewValidation = { available: false, searchMethod: 'error' };
       }
     }
 
