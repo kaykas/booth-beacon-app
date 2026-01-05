@@ -23,6 +23,7 @@ import { StatusBar } from '@/components/booth/StatusBar';
 import { BoothImage } from '@/components/booth/BoothImage';
 import { FullWidthHero } from '@/components/booth/FullWidthHero';
 import { BoothMap } from '@/components/booth/BoothMap';
+import { LocationTabs } from '@/components/booth/LocationTabs';
 import { CopyAddressButton } from '@/components/booth/CopyAddressButton';
 import { BookmarkButton } from '@/components/BookmarkButton';
 import { ShareButton } from '@/components/ShareButton';
@@ -535,14 +536,10 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
             <h2 className="text-3xl font-bold text-neutral-900 mb-6">Location & Directions</h2>
 
             {hasValidLocation && booth.latitude && booth.longitude && (
-              <div className="mb-6 rounded-xl overflow-hidden h-96">
-                <BoothMap
-                  booths={[booth]}
-                  center={{ lat: booth.latitude, lng: booth.longitude }}
-                  zoom={15}
-                  showUserLocation={false}
-                />
-              </div>
+              <LocationTabs
+                booth={booth}
+                hasStreetView={booth.street_view_available === true}
+              />
             )}
 
             <div className="space-y-4 text-lg">
