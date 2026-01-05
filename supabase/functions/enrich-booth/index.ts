@@ -251,7 +251,8 @@ async function enrichBooth(
       }
 
       // METHOD 2: Search Street View at the determined location
-      const streetViewUrl = `https://maps.googleapis.com/maps/api/streetview/metadata?location=${searchLat},${searchLng}&radius=100&key=${googleApiKey}`;
+      // Use source=outdoor to prefer official Street View imagery (newer, better positioned)
+      const streetViewUrl = `https://maps.googleapis.com/maps/api/streetview/metadata?location=${searchLat},${searchLng}&radius=100&source=outdoor&key=${googleApiKey}`;
       const streetViewResponse = await fetch(streetViewUrl);
       const streetViewData = await streetViewResponse.json();
 

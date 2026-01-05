@@ -53,9 +53,19 @@ Booth Beacon connects enthusiasts with authentic analog photo booths worldwide. 
 
 ## 📖 Documentation
 
--   [Contributing Guide](CONTRIBUTING.md) - **Read this first!**
--   [Architecture](docs/ARCHITECTURE.md)
--   [Crawler Strategy](docs/MASTER_CRAWLER_STRATEGY.md)
+### Quick Start
+-   **[Quick Start Guide](docs/QUICK_START.md)** - 10-minute onboarding for new sessions
+-   **[Project Overview](docs/PROJECT_README.md)** - Comprehensive project guide
+-   **[Latest Status](docs/SESSION-SUMMARY.md)** - Current session summary
+
+### Technical Docs
+-   [Architecture](docs/ARCHITECTURE.md) - System architecture & error handling
+-   [Crawler Strategy](docs/MASTER_CRAWLER_STRATEGY.md) - Web crawler system
+-   [Documentation Index](docs/INDEX.md) - Complete documentation catalog
+
+### Planning
+-   [Master TODO List](docs/MASTER_TODO_LIST.md) - Complete roadmap
+-   [Product Requirements](PRD.md) - Full PRD (1256 lines)
 
 ## 🤖 Crawlers & Data
 

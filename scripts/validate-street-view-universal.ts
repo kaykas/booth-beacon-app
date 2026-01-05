@@ -22,7 +22,7 @@ import { createClient } from '@supabase/supabase-js';
 
 const SUPABASE_URL = 'https://tmgbmcbwfkvmylmfpkzy.supabase.co';
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const GOOGLE_API_KEY = 'AIzaSyD8EsT8nSCCtkkShAbRwHg67hrPMXPoeHo';
+const GOOGLE_API_KEY = 'AIzaSyBn-ORBo7CgwPT4dZ8TY8R3Py98hBClwGs';
 
 if (!SUPABASE_KEY) {
   console.error('❌ Missing SUPABASE_SERVICE_ROLE_KEY');
