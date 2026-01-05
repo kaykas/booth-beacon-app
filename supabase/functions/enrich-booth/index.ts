@@ -476,7 +476,7 @@ serve(async (req) => {
         .select('id, name, city')
         .eq('status', 'active')
         .not('latitude', 'is', null)
-        .or(`google_enriched_at.is.null,google_enriched_at.lt.${ninetyDaysAgo}`)
+        .or(`enriched_at.is.null,enriched_at.lt.${ninetyDaysAgo}`)
         .order('created_at', { ascending: false })
         .limit(limit);
 
