@@ -12,6 +12,7 @@ interface BookmarkButtonProps {
   variant?: 'default' | 'outline' | 'ghost';
   size?: 'sm' | 'default' | 'lg';
   showText?: boolean;
+  className?: string;
 }
 
 export function BookmarkButton({
@@ -19,6 +20,7 @@ export function BookmarkButton({
   variant = 'outline',
   size = 'default',
   showText = true,
+  className,
 }: BookmarkButtonProps) {
   const { user } = useAuth();
   const { bookmark, isBookmarked, refetch } = useBookmark(boothId);
@@ -57,7 +59,7 @@ export function BookmarkButton({
       size={size}
       onClick={handleToggle}
       disabled={loading}
-      className={displayBookmarked ? 'bg-pink-600 hover:bg-pink-700' : ''}
+      className={`${displayBookmarked ? 'bg-pink-600 hover:bg-pink-700' : ''} ${className || ''}`}
     >
       <Heart
         className={`w-4 h-4 ${showText ? 'mr-2' : ''} ${displayBookmarked ? 'fill-current' : ''}`}

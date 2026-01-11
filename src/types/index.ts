@@ -76,6 +76,10 @@ export interface Booth {
   created_at: string;
   updated_at: string;
   last_verified?: string;
+
+  // Community verification
+  last_community_verified_at?: string | null;
+  last_community_verification_type?: 'working' | 'not_working' | 'closed' | 'moved' | null;
 }
 
 // Operator type
@@ -234,3 +238,6 @@ export interface SiteStats {
   city_count: number;
   verified_count: number;
 }
+
+// Re-export verification types
+export * from './verification';

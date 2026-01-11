@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next';
 import { createPublicServerClient } from '@/lib/supabase';
+import { getAllMachineModelSlugs } from '@/lib/machineData';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://boothbeacon.org';
@@ -50,6 +51,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     {
       url: baseUrl + '/locations',
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    },
+    {
+      url: baseUrl + '/machines',
       lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 0.8,
@@ -185,6 +192,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.error('Error fetching locations for sitemap:', error);
   }
 
+  // Generate machine model pages
+  const machineSlugs = getAllMachineModelSlugs();
+  const machinePages: MetadataRoute.Sitemap = machineSlugs.map((slug) => ({
+    url: baseUrl + '/machines/' + slug,
+    lastModified: new Date(),
+    changeFrequency: 'weekly' as const,
+    priority: 0.7,
+  }));
+
   return [
     ...staticPages,
     ...tourPages,
@@ -192,5 +208,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...boothPages,
     ...countryPages,
     ...cityPages,
+    ...machinePages,
   ];
 }

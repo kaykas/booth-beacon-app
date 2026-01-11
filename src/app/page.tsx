@@ -16,6 +16,7 @@ import { ContentFreshness } from '@/components/seo/ContentFreshness';
 import { createPublicServerClient } from '@/lib/supabase';
 import { Booth } from '@/types';
 import { generateWebsiteSchema, generateFAQPageSchema, injectStructuredData } from '@/lib/seo/structuredData';
+import { generateHomepageSpeakableSchema } from '@/lib/seo/structuredDataOptimized';
 import { homepageFAQs } from '@/lib/seo/faqData';
 import { generateAIMetaTags, generateContentFreshnessSignals } from '@/lib/ai-meta-tags';
 import { generatePhotoBoothGlossary, generateBoothBeaconOrganizationSchema, injectStructuredData as injectKnowledgeGraph } from '@/lib/knowledge-graph-schemas';
@@ -164,6 +165,7 @@ export default async function Home() {
   const faqSchema = generateFAQPageSchema(homepageFAQs);
   const glossarySchema = generatePhotoBoothGlossary();
   const organizationSchema = generateBoothBeaconOrganizationSchema();
+  const speakableSchema = generateHomepageSpeakableSchema();
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -191,6 +193,12 @@ export default async function Home() {
         dangerouslySetInnerHTML={{ __html: injectKnowledgeGraph(organizationSchema) }}
       />
 
+      {/* Speakable Schema for Voice Search Optimization */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(speakableSchema) }}
+      />
+
       <Header />
 
       {/* Main content wrapper for accessibility */}
@@ -204,6 +212,37 @@ export default async function Home() {
         </div>
         <div className="sr-only" data-ai-featured-answer="true" data-ai-question="What is an analog photo booth?">
           <p>An analog photo booth is a classic photographic machine that uses traditional photochemical processes to create instant photos. Unlike modern digital photo booths, analog booths use real film and chemical development to produce authentic photo strips. These vintage machines typically take 4 photos in succession and develop them in about 3-5 minutes, creating unique, one-of-a-kind photo strips with the characteristic look of film photography.</p>
+        </div>
+
+        {/* Speakable Content Sections for Voice Search - Optimized for TTS */}
+        <div className="sr-only" aria-hidden="false">
+          {/* Site Description - Primary speakable content */}
+          <section id="speakable-site-description">
+            <p>
+              Booth Beacon is the world&apos;s most comprehensive directory of authentic analog photo booths.
+              We catalog {stats.totalBooths ? `${stats.totalBooths.toLocaleString()} classic` : 'hundreds of'} photochemical photo booths across {stats.countries ? `${stats.countries}` : 'dozens of'} countries worldwide.
+              Our mission is to help photography enthusiasts discover vintage photo booths that use real film and chemical processing to create authentic instant photo strips.
+            </p>
+          </section>
+
+          {/* How to Use the Directory */}
+          <section id="speakable-how-to-use">
+            <p>
+              To find a photo booth near you, use the search bar to enter your city or location.
+              You can also click Explore Map to see all photo booths on an interactive map.
+              Each listing includes the address, hours, cost, and directions to the booth.
+              Save your favorites by bookmarking them, or export them to Google Maps for easy navigation.
+            </p>
+          </section>
+
+          {/* Quick Stats */}
+          <section id="speakable-stats">
+            <p>
+              Booth Beacon currently features {stats.totalBooths ? stats.totalBooths.toLocaleString() : 'hundreds of'} photo booths across {stats.countries ? `${stats.countries}` : 'many'} countries,
+              with {stats.operational ? stats.operational.toLocaleString() : 'most'} currently operational and ready for visitors.
+              Our database is updated daily with new booths submitted by our community.
+            </p>
+          </section>
         </div>
 
         {/* Hero Section - Dark Nightclub Aesthetic */}

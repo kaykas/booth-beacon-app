@@ -87,5 +87,8 @@ export function normalizeBooth(data: Partial<Booth> | null): RenderableBooth | n
     hasValidLocation,
     created_at: safeString(data.created_at, new Date().toISOString()),
     updated_at: safeString(data.updated_at, new Date().toISOString()),
+    // Community verification fields
+    last_community_verified_at: data.last_community_verified_at ?? null,
+    last_community_verification_type: data.last_community_verification_type ?? null,
   } as RenderableBooth;
 }

@@ -17,6 +17,7 @@ interface ShareButtonProps {
   url?: string;
   variant?: 'default' | 'outline' | 'ghost';
   size?: 'sm' | 'default' | 'lg';
+  className?: string;
 }
 
 export function ShareButton({
@@ -25,6 +26,7 @@ export function ShareButton({
   url,
   variant = 'outline',
   size = 'default',
+  className,
 }: ShareButtonProps) {
   const [copied, setCopied] = useState(false);
   const shareUrl = url || (typeof window !== 'undefined' ? window.location.href : '');
@@ -71,7 +73,7 @@ export function ShareButton({
 
   if (hasNativeShare) {
     return (
-      <Button variant={variant} size={size} onClick={handleNativeShare}>
+      <Button variant={variant} size={size} className={className} onClick={handleNativeShare}>
         <Share2 className="w-4 h-4 mr-2" />
         Share
       </Button>
@@ -81,7 +83,7 @@ export function ShareButton({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant={variant} size={size}>
+        <Button variant={variant} size={size} className={className}>
           <Share2 className="w-4 h-4 mr-2" />
           Share
         </Button>

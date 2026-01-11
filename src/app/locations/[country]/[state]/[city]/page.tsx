@@ -13,8 +13,10 @@ import { Footer } from '@/components/layout/Footer';
 import {
   generateBreadcrumbSchema,
   generateCollectionPageSchema,
+  generateFAQPageSchema,
   injectStructuredData,
 } from '@/lib/seo/structuredData';
+import { generateCityFAQs } from '@/lib/seo/faqData';
 
 // ISR with 5-minute revalidation for faster updates
 export const revalidate = 300;
@@ -129,6 +131,12 @@ export default async function CityPage({ params, searchParams }: PageProps) {
     }))
   );
 
+  // Generate city-specific FAQs for AI extraction and structured data
+  const cityFAQs = generateCityFAQs(city, state, country, totalCount, operationalCount);
+
+  // Generate FAQPage schema for search engines and AI
+  const faqPageSchema = generateFAQPageSchema(cityFAQs);
+
   return (
     <>
       <Header />
@@ -140,6 +148,10 @@ export default async function CityPage({ params, searchParams }: PageProps) {
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: injectStructuredData(collectionPageSchema) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: injectStructuredData(faqPageSchema) }}
         />
       </head>
       <main id="main-content" className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
@@ -312,69 +324,34 @@ export default async function CityPage({ params, searchParams }: PageProps) {
           </p>
         </article>
 
-        {/* FAQ Section */}
-        <div className="mt-12">
+        {/* FAQ Section - Uses generated city-specific FAQs for AI extraction */}
+        <div className="mt-12" data-ai-section="faq" data-ai-content="location-faq">
           <h2 className="font-display text-3xl font-semibold text-foreground mb-6">
-            Frequently Asked Questions
+            Frequently Asked Questions About Photo Booths in {city}
           </h2>
-          <div className="space-y-6">
-            <div className="rounded-lg border border-border bg-card p-6">
-              <h3 className="font-display text-xl font-semibold text-foreground mb-3 flex items-center gap-2">
-                <Info className="h-5 w-5 text-primary" />
-                How many photo booths are there in {city}?
-              </h3>
-              <p className="text-muted-foreground">
-                There are {totalCount} analog photo booths cataloged in {city}, {state}.
-                {operationalCount > 0 && (
-                  <> Currently, {operationalCount} are confirmed to be operational.</>
-                )}
-              </p>
-            </div>
-
-            <div className="rounded-lg border border-border bg-card p-6">
-              <h3 className="font-display text-xl font-semibold text-foreground mb-3 flex items-center gap-2">
-                <Info className="h-5 w-5 text-primary" />
-                What types of photo booths can I find in {city}?
-              </h3>
-              <p className="text-muted-foreground">
-                {city} features authentic analog photo booths that use traditional photochemical processes.
-                These vintage machines produce classic black-and-white or color photo strips, offering a
-                nostalgic and genuine instant photography experience.
-              </p>
-            </div>
-
-            <div className="rounded-lg border border-border bg-card p-6">
-              <h3 className="font-display text-xl font-semibold text-foreground mb-3 flex items-center gap-2">
-                <Info className="h-5 w-5 text-primary" />
-                How do I find photo booths near me in {city}?
-              </h3>
-              <p className="text-muted-foreground">
-                Use our interactive map to explore all photo booth locations in {city}. Each listing includes
-                the complete address, operating hours, and directions. You can also filter by operational
-                status to ensure the booth is currently active before your visit.
-              </p>
-            </div>
-
-            <div className="rounded-lg border border-border bg-card p-6">
-              <h3 className="font-display text-xl font-semibold text-foreground mb-3 flex items-center gap-2">
-                <Info className="h-5 w-5 text-primary" />
-                Are all {city} photo booths operational?
-              </h3>
-              <p className="text-muted-foreground">
-                {operationalCount > 0 ? (
-                  <>
-                    {operationalCount} out of {totalCount} photo booths in {city} are currently operational
-                    ({Math.round((operationalCount / totalCount) * 100)}%). We regularly update our database
-                    to reflect the current status of each location.
-                  </>
-                ) : (
-                  <>
-                    We&apos;re currently working to verify the operational status of photo booths in {city}.
-                    Check individual booth pages for the most up-to-date information.
-                  </>
-                )}
-              </p>
-            </div>
+          <div className="space-y-6" itemScope itemType="https://schema.org/FAQPage">
+            {cityFAQs.map((faq, index) => (
+              <div
+                key={index}
+                className="rounded-lg border border-border bg-card p-6"
+                itemScope
+                itemProp="mainEntity"
+                itemType="https://schema.org/Question"
+              >
+                <h3
+                  className="font-display text-xl font-semibold text-foreground mb-3 flex items-center gap-2"
+                  itemProp="name"
+                >
+                  <Info className="h-5 w-5 text-primary" />
+                  {faq.question}
+                </h3>
+                <div itemScope itemProp="acceptedAnswer" itemType="https://schema.org/Answer">
+                  <p className="text-muted-foreground leading-relaxed" itemProp="text">
+                    {faq.answer}
+                  </p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 

@@ -1,12 +1,14 @@
 'use client';
 
-import { MapPin, Navigation, Star, CheckCircle, Clock, Banknote, CreditCard } from 'lucide-react';
+import { MapPin, Navigation, Star, CheckCircle, Clock, Banknote, CreditCard, AlertTriangle, XCircle } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { BookmarkButton } from '@/components/BookmarkButton';
 import { ShareButton } from '@/components/ShareButton';
 import { BoothImage } from '@/components/booth/BoothImage';
+import { VerificationButton } from '@/components/booth/VerificationButton';
 import { RenderableBooth } from '@/lib/boothViewModel';
+import { VerificationType } from '@/types/verification';
 
 interface FullWidthHeroProps {
   booth: RenderableBooth;
@@ -42,10 +44,54 @@ function isOpenNow(hours: string | null | undefined): boolean {
   }
 }
 
+// Helper to get community verification badge config
+function getCommunityVerificationBadge(type: VerificationType | null | undefined, verifiedAt: string | null | undefined) {
+  if (!type || !verifiedAt) return null;
+
+  const daysSince = Math.floor((Date.now() - new Date(verifiedAt).getTime()) / (1000 * 60 * 60 * 24));
+  const isRecent = daysSince <= 30;
+  const timeAgo = formatDistanceToNow(new Date(verifiedAt), { addSuffix: true });
+
+  switch (type) {
+    case 'working':
+      return {
+        icon: <CheckCircle className="w-3.5 h-3.5" />,
+        text: `Verified working ${timeAgo}`,
+        className: isRecent ? 'bg-green-500 text-white' : 'bg-green-500/70 text-white',
+      };
+    case 'not_working':
+      return {
+        icon: <AlertTriangle className="w-3.5 h-3.5" />,
+        text: `Reported not working ${timeAgo}`,
+        className: 'bg-amber-500 text-white',
+      };
+    case 'closed':
+      return {
+        icon: <XCircle className="w-3.5 h-3.5" />,
+        text: `Reported closed ${timeAgo}`,
+        className: 'bg-red-500 text-white',
+      };
+    case 'moved':
+      return {
+        icon: <MapPin className="w-3.5 h-3.5" />,
+        text: `Reported moved ${timeAgo}`,
+        className: 'bg-blue-500 text-white',
+      };
+    default:
+      return null;
+  }
+}
+
 export function FullWidthHero({ booth, locationString, hasValidLocation }: FullWidthHeroProps) {
   const isVerified = isRecentlyVerified(booth.last_verified);
   const isOpen = isOpenNow(booth.hours);
   const isOperational = booth.status === 'active' && !booth.needs_verification;
+
+  // Community verification badge
+  const communityBadge = getCommunityVerificationBadge(
+    booth.last_community_verification_type as VerificationType | null,
+    booth.last_community_verified_at
+  );
 
   return (
     <div className="relative">
@@ -100,8 +146,16 @@ export function FullWidthHero({ booth, locationString, hasValidLocation }: FullW
               </div>
             )}
 
-            {/* Verified Badge */}
-            {isVerified && booth.last_verified && (
+            {/* Community Verification Badge */}
+            {communityBadge && (
+              <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm ${communityBadge.className}`}>
+                {communityBadge.icon}
+                <span className="font-semibold">{communityBadge.text}</span>
+              </div>
+            )}
+
+            {/* Source Verified Badge (fallback to source verification if no community verification) */}
+            {!communityBadge && isVerified && booth.last_verified && (
               <div className="flex items-center gap-1.5 bg-green-500 text-white px-3 py-1.5 rounded-lg text-sm">
                 <CheckCircle className="w-3.5 h-3.5" />
                 <span className="font-semibold">
@@ -178,6 +232,14 @@ export function FullWidthHero({ booth, locationString, hasValidLocation }: FullW
             )}
 
             {/* Secondary Actions */}
+            <div className="bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/30 rounded-md">
+              <VerificationButton
+                boothId={booth.id}
+                boothName={booth.name}
+                lastVerifiedAt={booth.last_community_verified_at}
+                lastVerificationType={booth.last_community_verification_type as VerificationType | undefined}
+              />
+            </div>
             <BookmarkButton
               boothId={booth.id}
               variant="outline"

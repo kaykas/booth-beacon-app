@@ -41,11 +41,13 @@ import { StreetViewEmbed } from '@/components/booth/StreetViewEmbed';
 import { CommunityPhotoUpload } from '@/components/booth/CommunityPhotoUpload';
 import { StructuredHours } from '@/components/booth/StructuredHours';
 import { ReportIssueButton } from '@/components/booth/ReportIssueButton';
+import { ReviewForm } from '@/components/booth/ReviewForm';
+import { ReviewList } from '@/components/booth/ReviewList';
 import { ContentFreshness } from '@/components/seo/ContentFreshness';
 import { createPublicServerClient } from '@/lib/supabase';
 import { normalizeBooth, RenderableBooth } from '@/lib/boothViewModel';
-import { generateCombinedStructuredData } from '@/lib/seo/structuredDataOptimized';
-import { boothDetailFAQs } from '@/lib/seo/faqData';
+import { generateCombinedStructuredData, ReviewStats } from '@/lib/seo/structuredDataOptimized';
+import { generateComprehensiveBoothFAQs } from '@/lib/seo/faqData';
 import { formatLastUpdated } from '@/lib/dateUtils';
 import { generateAIMetaTags, generateContentFreshnessSignals } from '@/lib/ai-meta-tags';
 import { generateBoothPageSchemas, injectStructuredData as injectKnowledgeGraph } from '@/lib/knowledge-graph-schemas';
@@ -180,6 +182,44 @@ async function getCommunityPhotos(boothId: string): Promise<string[]> {
   } catch (error) {
     console.error('Error fetching community photos:', error);
     return [];
+  }
+}
+
+// Fetch review statistics for a booth (for structured data)
+async function getReviewStats(boothId: string): Promise<ReviewStats | null> {
+  try {
+    const supabase = createPublicServerClient();
+    const { data, error } = await supabase
+      .from('booth_reviews')
+      .select('rating')
+      .eq('booth_id', boothId)
+      .eq('status', 'approved');
+
+    if (error) {
+      console.error('Error fetching review stats:', error);
+      return null;
+    }
+
+    if (!data || data.length === 0) {
+      return null;
+    }
+
+    const totalRating = data.reduce((sum, r) => sum + r.rating, 0);
+    const avgRating = Math.round((totalRating / data.length) * 10) / 10;
+
+    const distribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+    data.forEach((r) => {
+      distribution[r.rating as 1 | 2 | 3 | 4 | 5]++;
+    });
+
+    return {
+      average_rating: avgRating,
+      total_reviews: data.length,
+      rating_distribution: distribution,
+    };
+  } catch (error) {
+    console.error('Error fetching review stats:', error);
+    return null;
   }
 }
 
@@ -338,8 +378,11 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
     notFound();
   }
 
-  // Fetch approved community photos for this booth
-  const communityPhotos = await getCommunityPhotos(booth.id);
+  // Fetch approved community photos and review stats for this booth in parallel
+  const [communityPhotos, reviewStats] = await Promise.all([
+    getCommunityPhotos(booth.id),
+    getReviewStats(booth.id),
+  ]);
 
   // Check if booth is closed/invalid
   const isClosedOrInvalid = booth.status === 'closed' || booth.name === 'N/A' || booth.data_source_type === 'invalid_extraction';
@@ -395,11 +438,16 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
     url: `https://boothbeacon.org/booth/${booth.slug}`,
   });
 
+  // Generate booth-specific FAQs with natural language content for AI extraction
+  const boothFAQs = generateComprehensiveBoothFAQs(booth);
+
   // Generate combined structured data (single script tag for better performance)
+  // Include review stats for AggregateRating schema
   const combinedStructuredData = generateCombinedStructuredData(
     booth,
     breadcrumbItems,
-    boothDetailFAQs
+    boothFAQs,
+    reviewStats
   );
 
   // Generate knowledge graph schemas for this booth
@@ -436,6 +484,48 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
 
       {/* Main content wrapper for accessibility */}
       <main id="main-content" role="main" data-ai-page-type="local-business" data-ai-entity-type="photo-booth">
+        {/* Speakable Content Sections for Voice Search - Optimized for TTS */}
+        <div className="sr-only" aria-hidden="false">
+          {/* Booth Summary - Primary speakable content */}
+          <section id="speakable-booth-summary">
+            <p>
+              {booth.name} is an analog photo booth located in {city}{booth.state ? `, ${booth.state}` : ''}{country ? `, ${country}` : ''}.
+              {booth.description ? ` ${booth.description}` : ' This classic photo booth uses photochemical film processing to create authentic instant photo strips.'}
+            </p>
+          </section>
+
+          {/* Hours Information */}
+          {booth.hours && (
+            <section id="speakable-booth-hours">
+              <p>
+                Opening hours for {booth.name}: {booth.hours.replace(/\n/g, '. ')}.
+              </p>
+            </section>
+          )}
+
+          {/* Cost Information */}
+          {booth.cost && (
+            <section id="speakable-booth-cost">
+              <p>
+                The cost to use {booth.name} is {booth.cost} per photo strip.
+                {booth.accepts_cash && booth.accepts_card ? ' Both cash and card payments are accepted.' :
+                 booth.accepts_cash ? ' This booth accepts cash only.' :
+                 booth.accepts_card ? ' This booth accepts card payments.' : ''}
+              </p>
+            </section>
+          )}
+
+          {/* Directions Summary */}
+          {hasValidLocation && address && (
+            <section id="speakable-booth-directions">
+              <p>
+                {booth.name} is located at {address}{city !== 'Location Unknown' ? `, ${city}` : ''}{country ? `, ${country}` : ''}.
+                {booth.access_instructions ? ` ${booth.access_instructions}` : ''}
+                {booth.latitude && booth.longitude ? ' You can get directions using the map on this page.' : ''}
+              </p>
+            </section>
+          )}
+        </div>
         {/* Breadcrumbs */}
         <div className="bg-white border-b border-neutral-200" data-ai-section="breadcrumbs">
         <div className="max-w-7xl mx-auto px-4 py-3">
@@ -627,6 +717,18 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
               </div>
             </section>
           )}
+
+          {/* Reviews Section */}
+          <section data-ai-section="reviews" data-ai-content="user-reviews" id="reviews">
+            <h2 className="text-3xl font-bold text-neutral-900 mb-6">Reviews</h2>
+            <div className="space-y-8">
+              {/* Review List */}
+              <ReviewList boothId={booth.id} boothName={booth.name} />
+
+              {/* Review Form */}
+              <ReviewForm boothId={booth.id} boothName={booth.name} />
+            </div>
+          </section>
 
         </div>
       </div>
