@@ -435,9 +435,9 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
       ))}
 
       {/* Main content wrapper for accessibility */}
-      <main id="main-content" role="main">
+      <main id="main-content" role="main" data-ai-page-type="local-business" data-ai-entity-type="photo-booth">
         {/* Breadcrumbs */}
-        <div className="bg-white border-b border-neutral-200">
+        <div className="bg-white border-b border-neutral-200" data-ai-section="breadcrumbs">
         <div className="max-w-7xl mx-auto px-4 py-3">
           <nav className="flex items-center gap-2 text-sm text-neutral-600 overflow-x-auto">
             {breadcrumbItems.map((crumb, index) => (
@@ -460,7 +460,7 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
 
       {/* Closed/Invalid Booth Warning */}
       {isClosedOrInvalid && (
-        <div className="bg-red-50 border-b-4 border-red-600">
+        <div className="bg-red-50 border-b-4 border-red-600" data-ai-section="warning" data-ai-status="unverified">
           <div className="max-w-7xl mx-auto px-4 py-6">
             <div className="flex items-start gap-4">
               <AlertCircle className="w-8 h-8 text-red-600 flex-shrink-0 mt-1" />
@@ -498,16 +498,16 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
 
           {/* About Section */}
           {booth.description && (
-            <section>
+            <section data-ai-section="description" data-ai-content="primary-description">
               <h2 className="text-3xl font-bold text-neutral-900 mb-6">About This Booth</h2>
-              <p className="text-lg text-neutral-700 leading-relaxed">{booth.description}</p>
+              <p className="text-lg text-neutral-700 leading-relaxed" data-ai-summary="booth-overview">{booth.description}</p>
             </section>
           )}
 
           {/* Details Section */}
-          <section>
+          <section data-ai-section="details" data-ai-content="specifications">
             <h2 className="text-3xl font-bold text-neutral-900 mb-6">Details</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 text-lg">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 text-lg" data-ai-content="booth-specifications">
               {/* Machine Details */}
               {booth.machine_model && (
                 <div className="flex justify-between py-3 border-b border-neutral-200">
@@ -549,13 +549,13 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
 
           {/* Access Instructions */}
           {booth.access_instructions && (
-            <section>
+            <section data-ai-section="access" data-ai-content="visitor-instructions">
               <Card className="p-8 bg-amber-50 border-2 border-amber-200">
                 <div className="flex items-start gap-4">
                   <AlertCircle className="w-6 h-6 text-amber-600 mt-1 flex-shrink-0" />
                   <div>
                     <h3 className="text-xl font-bold text-amber-900 mb-2">Access Instructions</h3>
-                    <p className="text-lg text-amber-800 leading-relaxed">{booth.access_instructions}</p>
+                    <p className="text-lg text-amber-800 leading-relaxed" data-ai-content="how-to-access">{booth.access_instructions}</p>
                   </div>
                 </div>
               </Card>
@@ -563,7 +563,7 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
           )}
 
           {/* Location Section */}
-          <section>
+          <section data-ai-section="location" data-ai-content="address-and-directions">
             <h2 className="text-3xl font-bold text-neutral-900 mb-6">Location & Directions</h2>
 
             {hasValidLocation && booth.latitude && booth.longitude && (
@@ -573,12 +573,12 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
               />
             )}
 
-            <div className="space-y-4 text-lg">
-              <div>
-                <p className="font-semibold text-neutral-900">{address}</p>
-                {booth.postal_code && <p className="text-neutral-700">{booth.postal_code}</p>}
+            <div className="space-y-4 text-lg" data-ai-content="address">
+              <div itemScope itemType="https://schema.org/PostalAddress">
+                <p className="font-semibold text-neutral-900" itemProp="streetAddress">{address}</p>
+                {booth.postal_code && <p className="text-neutral-700" itemProp="postalCode">{booth.postal_code}</p>}
                 <p className="text-neutral-700">
-                  {city}{booth.state ? `, ${booth.state}` : ''}{country ? `, ${country}` : ''}
+                  <span itemProp="addressLocality">{city}</span>{booth.state ? <>, <span itemProp="addressRegion">{booth.state}</span></> : ''}{country ? <>, <span itemProp="addressCountry">{country}</span></> : ''}
                 </p>
               </div>
 
@@ -602,15 +602,15 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
 
           {/* Historical Notes */}
           {booth.historical_notes && (
-            <section>
+            <section data-ai-section="history" data-ai-content="historical-context">
               <h2 className="text-3xl font-bold text-neutral-900 mb-6">History</h2>
-              <p className="text-lg text-neutral-700 leading-relaxed">{booth.historical_notes}</p>
+              <p className="text-lg text-neutral-700 leading-relaxed" data-ai-content="historical-notes">{booth.historical_notes}</p>
             </section>
           )}
 
           {/* Community Photos */}
           {(booth.photo_exterior_url || booth.photo_interior_url || booth.google_photos || communityPhotos.length > 0) && (
-            <section>
+            <section data-ai-section="gallery" data-ai-content="visual-content">
               <h2 className="text-3xl font-bold text-neutral-900 mb-6">Community Photos</h2>
               <PhotoGallery
                 photos={[
@@ -632,10 +632,10 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
       </div>
 
       {/* Discovery Section - More Booths */}
-      <div className="bg-neutral-50 py-16">
+      <div className="bg-neutral-50 py-16" data-ai-section="related-content" data-ai-content="discovery">
         <div className="max-w-7xl mx-auto px-4">
         {hasValidLocation && booth.latitude && booth.longitude && (
-          <div className="mt-12 space-y-8">
+          <div className="mt-12 space-y-8" data-ai-content="nearby-booths">
             <h2 className="text-3xl font-bold text-neutral-900 mb-6">
               More Photo Booths in {city}
             </h2>
@@ -682,9 +682,9 @@ export default async function BoothDetailPage({ params }: BoothDetailPageProps) 
         )}
 
         {/* Source Attribution Footer */}
-        <div className="mt-8 pt-6 border-t border-neutral-200">
+        <div className="mt-8 pt-6 border-t border-neutral-200" data-ai-section="attribution" data-ai-content="source-verification">
           <div className="text-center text-sm text-neutral-500">
-            <p>
+            <p data-ai-content="data-source">
               Data from {booth.source_primary || 'community sources'}
               {booth.last_verified && ` · Last verified ${new Date(booth.last_verified).toLocaleDateString()}`}
             </p>
