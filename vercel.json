@@ -3,5 +3,22 @@
   "devCommand": "npm run dev",
   "installCommand": "npm install",
   "framework": "nextjs",
-  "regions": ["iad1"]
+  "regions": ["iad1"],
+  "redirects": [
+    {
+      "source": "/guides/london",
+      "destination": "/tours/london",
+      "permanent": true
+    },
+    {
+      "source": "/guides/new-york",
+      "destination": "/tours/new-york",
+      "permanent": true
+    },
+    {
+      "source": "/guides/san-francisco",
+      "destination": "/tours/san-francisco",
+      "permanent": true
+    }
+  ]
 }

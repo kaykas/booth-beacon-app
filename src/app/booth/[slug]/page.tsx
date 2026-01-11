@@ -187,14 +187,24 @@ async function getCommunityPhotos(boothId: string): Promise<string[]> {
 export const revalidate = 3600; // 1 hour
 export const dynamicParams = true; // Allow dynamic params for new booths
 
+// UUID regex pattern to filter out auto-generated slugs
+const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+// Check if a booth has sufficient content for indexing
+function hasValidContent(booth: { name?: string; city?: string; latitude?: number | null }): boolean {
+  if (!booth.name || booth.name === 'N/A' || booth.name.trim().length < 3) return false;
+  if (!booth.city && !booth.latitude) return false;
+  return true;
+}
+
 // Generate static pages for all booths at build time
-// Exclude closed/invalid booths from pre-rendering
+// Exclude closed/invalid booths and UUID slugs from pre-rendering
 export async function generateStaticParams() {
   try {
     const supabase = createPublicServerClient();
     const { data: booths, error } = await supabase
       .from('booths')
-      .select('slug')
+      .select('slug, name, city, latitude')
       .not('slug', 'is', null)
       .neq('status', 'closed') // Exclude closed/invalid booths
       .neq('name', 'N/A'); // Exclude invalid extraction failures
@@ -204,7 +214,13 @@ export async function generateStaticParams() {
       return [];
     }
 
-    return (booths || []).map((booth) => ({
+    // Filter out UUID-based slugs and thin content
+    const validBooths = (booths || []).filter((booth) => {
+      if (uuidPattern.test(booth.slug)) return false;
+      return hasValidContent(booth);
+    });
+
+    return validBooths.map((booth) => ({
       slug: booth.slug,
     }));
   } catch (error) {
@@ -221,8 +237,15 @@ export async function generateMetadata({ params }: BoothDetailPageProps): Promis
     return {
       title: 'Booth Not Found',
       description: 'The photo booth you are looking for could not be found.',
+      robots: { index: false, follow: false },
     };
   }
+
+  // Check if this is a thin content page that should not be indexed
+  const isUuidSlug = uuidPattern.test(slug);
+  const isThinContent = !hasValidContent({ name: booth.name, city: booth.city, latitude: booth.latitude });
+  const isClosedOrInvalid = booth.status === 'closed' || booth.name === 'N/A' || booth.data_source_type === 'invalid_extraction';
+  const shouldNoIndex = isUuidSlug || isThinContent || isClosedOrInvalid;
 
   const city = booth.city || 'Unknown Location';
   const country = booth.country || '';
@@ -269,6 +292,14 @@ export async function generateMetadata({ params }: BoothDetailPageProps): Promis
   return {
     title,
     description,
+    // Canonical URL to prevent duplicate content
+    alternates: {
+      canonical: `https://boothbeacon.org/booth/${booth.slug}`,
+    },
+    // Prevent indexing of thin content, UUID slugs, or closed booths
+    ...(shouldNoIndex && {
+      robots: { index: false, follow: true },
+    }),
     openGraph: {
       title,
       description,

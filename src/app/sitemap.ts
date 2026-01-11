@@ -64,16 +64,62 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
+  // Fetch published city guides from database
+  let guidePages: MetadataRoute.Sitemap = [];
+  try {
+    const { data: guides, error } = await supabase
+      .from('city_guides')
+      .select('slug, updated_at')
+      .eq('published', true);
+
+    if (!error && guides) {
+      guidePages = [
+        // Main guides index page
+        {
+          url: baseUrl + '/guides',
+          lastModified: new Date(),
+          changeFrequency: 'weekly' as const,
+          priority: 0.8,
+        },
+        // Individual guide pages
+        ...guides.map((guide) => ({
+          url: baseUrl + '/guides/' + guide.slug,
+          lastModified: guide.updated_at ? new Date(guide.updated_at) : new Date(),
+          changeFrequency: 'weekly' as const,
+          priority: 0.7,
+        })),
+      ];
+    }
+  } catch (error) {
+    console.error('Error fetching guides for sitemap:', error);
+  }
+
+  // UUID regex pattern to filter out auto-generated slugs
+  const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
   let boothPages: MetadataRoute.Sitemap = [];
   try {
     const { data: booths, error } = await supabase
       .from('booths')
-      .select('slug, updated_at, status')
+      .select('slug, updated_at, status, name, city, latitude, longitude')
       .eq('status', 'active')
-      .not('slug', 'is', null);
+      .not('slug', 'is', null)
+      .neq('name', 'N/A')  // Exclude invalid extractions
+      .neq('name', '');
 
     if (!error && booths) {
-      boothPages = booths.map((booth) => ({
+      // Filter out booths with UUID slugs or insufficient content
+      const validBooths = booths.filter((booth) => {
+        // Exclude UUID-based slugs
+        if (uuidPattern.test(booth.slug)) return false;
+        // Exclude booths without a valid name
+        if (!booth.name || booth.name.trim().length < 3) return false;
+        // Exclude booths without location data
+        if (!booth.city && !booth.latitude) return false;
+        return true;
+      });
+
+      boothPages = validBooths.map((booth) => ({
         url: baseUrl + '/booth/' + booth.slug,
         lastModified: booth.updated_at ? new Date(booth.updated_at) : new Date(),
         changeFrequency: 'weekly' as const,
@@ -142,6 +188,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     ...staticPages,
     ...tourPages,
+    ...guidePages,
     ...boothPages,
     ...countryPages,
     ...cityPages,
