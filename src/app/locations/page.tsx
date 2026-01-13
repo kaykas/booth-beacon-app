@@ -4,15 +4,64 @@ import { MapPin, Globe } from 'lucide-react';
 import Link from 'next/link';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
+import { generateBreadcrumbSchema } from '@/lib/seo/structuredData';
+import { generateAIMetaTags, generateContentFreshnessSignals } from '@/lib/ai-meta-tags';
+
+const aiTags = generateAIMetaTags({
+  summary: 'Browse analog photo booths by country with detailed statistics including total booth counts, operational status, and geocoded locations. Find photo booths organized by geographic region worldwide.',
+  keyConcepts: ['photo booth', 'analog photography', 'browse by location', 'country directory', 'photo booth map', 'worldwide locations'],
+  contentStructure: 'directory',
+  expertiseLevel: 'beginner',
+  perspective: 'commercial',
+  authority: 'industry-expert',
+});
+
+const freshnessTags = generateContentFreshnessSignals({
+  publishedDate: '2025-01-01T00:00:00Z',
+  modifiedDate: new Date().toISOString(),
+  revisedDate: new Date().toISOString().split('T')[0],
+});
 
 export const metadata: Metadata = {
   title: 'Browse by Location | Booth Beacon',
   description:
     'Explore photo booths by country. Find analog photo booths worldwide organized by geographic location.',
+  openGraph: {
+    title: 'Browse by Location | Booth Beacon',
+    description:
+      'Explore photo booths by country. Find analog photo booths worldwide organized by geographic location.',
+    type: 'website',
+    url: 'https://boothbeacon.org/locations',
+    siteName: 'Booth Beacon',
+    images: [
+      {
+        url: '/og-default.png',
+        width: 1200,
+        height: 630,
+        alt: 'Explore photo booths by country on Booth Beacon',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Browse by Location | Booth Beacon',
+    description:
+      'Explore photo booths by country. Find analog photo booths worldwide organized by geographic location.',
+    images: ['/og-default.png'],
+  },
+  other: {
+    ...aiTags,
+    ...freshnessTags,
+  },
 };
 
 // ISR with 1-hour revalidation
 export const revalidate = 3600;
+
+const locationsBreadcrumbs = [
+  { name: 'Home', url: 'https://boothbeacon.org' },
+  { name: 'Locations', url: 'https://boothbeacon.org/locations' },
+];
 
 export default async function LocationsIndexPage() {
   const countries = await getCountries();
@@ -20,6 +69,12 @@ export default async function LocationsIndexPage() {
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(generateBreadcrumbSchema(locationsBreadcrumbs)),
+        }}
+      />
       <Header />
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       {/* Hero Section */}

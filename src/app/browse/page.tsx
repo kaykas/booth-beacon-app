@@ -1,13 +1,81 @@
 import { Metadata } from 'next';
 import { Suspense } from 'react';
+import Link from 'next/link';
 import { getBrowseBooths, getCountries } from '@/lib/locationHierarchy';
 import { BoothCard } from '@/components/booth/BoothCard';
-import { Search, MapPin, List } from 'lucide-react';
+import { Search, MapPin, List, Globe, BookOpen, Camera } from 'lucide-react';
+import { generateFAQPageSchema, generateBreadcrumbSchema, FAQItem } from '@/lib/seo/structuredData';
+import { generateAIMetaTags, generateContentFreshnessSignals } from '@/lib/ai-meta-tags';
+
+const browseFAQs: FAQItem[] = [
+  {
+    question: 'How do I find photo booths near me?',
+    answer: 'Use our interactive map or browse by location to find analog photo booths in your area. You can filter by country, search by name or address, and view booths with or without map coordinates.',
+  },
+  {
+    question: 'How do I filter photo booths by location?',
+    answer: 'Use the country dropdown to filter booths by country, or enter a search term to find booths by name, city, or address. You can also filter to show only booths with map coordinates for easier navigation.',
+  },
+  {
+    question: 'What does it mean when a booth has no coordinates?',
+    answer: 'Some booths in our database do not have GPS coordinates yet, meaning they cannot be shown on the map. These booths still have address information you can use to find them. We are continuously working to geocode all locations.',
+  },
+  {
+    question: 'How many photo booths are in the Booth Beacon directory?',
+    answer: 'Booth Beacon has hundreds of analog photo booths cataloged worldwide across dozens of countries. Our directory is continuously growing as we discover and verify new locations.',
+  },
+  {
+    question: 'How can I report a closed or incorrect photo booth listing?',
+    answer: 'Visit the individual booth page and use the "Report Issue" button to submit corrections. We rely on community input to keep our directory accurate and appreciate all reports of closed locations or changed information.',
+  },
+];
+
+const aiTags = generateAIMetaTags({
+  summary: 'Complete directory of analog photo booths worldwide with advanced filtering by location, coordinates, and status. Search and browse authentic photo booth machines across all countries and cities.',
+  keyConcepts: ['photo booth', 'analog photography', 'photo booth directory', 'worldwide booths', 'photo booth search', 'booth locations'],
+  contentStructure: 'directory',
+  expertiseLevel: 'beginner',
+  perspective: 'commercial',
+  authority: 'industry-expert',
+});
+
+const freshnessTags = generateContentFreshnessSignals({
+  publishedDate: '2025-01-01T00:00:00Z',
+  modifiedDate: new Date().toISOString(),
+  revisedDate: new Date().toISOString().split('T')[0],
+});
 
 export const metadata: Metadata = {
   title: 'Browse All Photo Booths | Booth Beacon',
   description:
     'Browse all analog photo booths worldwide. Find booths by location, status, and more.',
+  openGraph: {
+    title: 'Browse All Photo Booths | Booth Beacon',
+    description:
+      'Browse all analog photo booths worldwide. Find booths by location, status, and more.',
+    type: 'website',
+    url: 'https://boothbeacon.org/browse',
+    siteName: 'Booth Beacon',
+    images: [
+      {
+        url: '/og-default.png',
+        width: 1200,
+        height: 630,
+        alt: 'Browse all analog photo booths worldwide on Booth Beacon',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Browse All Photo Booths | Booth Beacon',
+    description:
+      'Browse all analog photo booths worldwide. Find booths by location, status, and more.',
+    images: ['/og-default.png'],
+  },
+  other: {
+    ...aiTags,
+    ...freshnessTags,
+  },
 };
 
 // ISR with 1-hour revalidation
@@ -273,9 +341,25 @@ async function BrowseContent({ searchParams }: { searchParams: SearchParams }) {
           us identify which ones need attention.
         </p>
       </div>
+
+      {/* Internal Linking Section */}
+      <div className="mt-12 rounded-lg border border-primary/20 bg-primary/5 p-6">
+        <h3 className="mb-4 font-display text-lg font-semibold">Explore Other Ways to Find Booths</h3>
+        <ul className="grid grid-cols-2 gap-4 text-sm">
+          <li><Link href="/map" className="text-primary hover:underline flex items-center gap-2"><MapPin className="w-4 h-4" />Interactive Map</Link></li>
+          <li><Link href="/collections" className="text-primary hover:underline flex items-center gap-2"><Globe className="w-4 h-4" />Browse by Location</Link></li>
+          <li><Link href="/guides" className="text-primary hover:underline flex items-center gap-2"><BookOpen className="w-4 h-4" />City Guides</Link></li>
+          <li><Link href="/machines" className="text-primary hover:underline flex items-center gap-2"><Camera className="w-4 h-4" />Machine Models</Link></li>
+        </ul>
+      </div>
     </main>
   );
 }
+
+const browseBreadcrumbs = [
+  { name: 'Home', url: 'https://boothbeacon.org' },
+  { name: 'Browse All Booths', url: 'https://boothbeacon.org/browse' },
+];
 
 export default function BrowsePage({
   searchParams,
@@ -283,17 +367,31 @@ export default function BrowsePage({
   searchParams: Promise<SearchParams>;
 }) {
   return (
-    <Suspense
-      fallback={
-        <div className="flex min-h-screen items-center justify-center">
-          <div className="text-center">
-            <div className="mb-4 inline-block h-8 w-8 animate-spin rounded-full border-4 border-primary border-r-transparent" />
-            <p className="text-muted-foreground">Loading booths...</p>
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(generateBreadcrumbSchema(browseBreadcrumbs)),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(generateFAQPageSchema(browseFAQs)),
+        }}
+      />
+      <Suspense
+        fallback={
+          <div className="flex min-h-screen items-center justify-center">
+            <div className="text-center">
+              <div className="mb-4 inline-block h-8 w-8 animate-spin rounded-full border-4 border-primary border-r-transparent" />
+              <p className="text-muted-foreground">Loading booths...</p>
+            </div>
           </div>
-        </div>
-      }
-    >
-      <BrowseContent searchParams={searchParams as unknown as SearchParams} />
-    </Suspense>
+        }
+      >
+        <BrowseContent searchParams={searchParams as unknown as SearchParams} />
+      </Suspense>
+    </>
   );
 }

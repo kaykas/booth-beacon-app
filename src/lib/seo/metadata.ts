@@ -130,7 +130,8 @@ export function generateCityMetadata(city: string, country?: string): Metadata {
 export function generateTourMetadata(
   city: string,
   description: string,
-  boothCount?: number
+  boothCount?: number,
+  url?: string
 ): Metadata {
   const title = `${city} Photo Booth Tour | Booth Beacon`;
   const desc = `${description} ${boothCount ? `Discover ${boothCount} authentic analog photo booths across ${city}.` : ''}`;
@@ -138,6 +139,7 @@ export function generateTourMetadata(
   return generateMetadata({
     title,
     description: desc,
+    url,
     keywords: [
       `${city} photo booth tour`,
       `${city} photo booths`,

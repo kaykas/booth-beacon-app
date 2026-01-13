@@ -9,6 +9,12 @@ import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/lib/supabase/client';
 import { MapPin, ArrowRight } from 'lucide-react';
 
+function generateBoothAltText(booth: { name: string; city?: string; country?: string; machine_model?: string }) {
+  const location = [booth.city, booth.country].filter(Boolean).join(', ');
+  const model = booth.machine_model || 'Classic analog';
+  return `${booth.name} - ${model} photo booth${location ? ` in ${location}` : ''}. Vintage photochemical booth for instant photo strips.`;
+}
+
 interface CityBooth {
   id: string;
   name: string;
@@ -153,7 +159,7 @@ export function CityBooths({
                 <div className="relative aspect-[3/4] bg-neutral-200 rounded-lg overflow-hidden mb-2 shadow-md hover:shadow-lg transition-shadow">
                   <Image
                     src={imageUrl}
-                    alt={booth.name}
+                    alt={generateBoothAltText(booth)}
                     fill
                     className="object-cover group-hover:scale-105 transition-transform duration-300"
                     sizes="192px"

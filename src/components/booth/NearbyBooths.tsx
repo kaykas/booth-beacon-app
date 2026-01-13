@@ -8,6 +8,12 @@ import { Button } from '@/components/ui/button';
 import { supabase } from '@/lib/supabase/client';
 import { MapPin, Navigation } from 'lucide-react';
 
+function generateBoothAltText(booth: { name: string; city?: string; country?: string; machine_model?: string }) {
+  const location = [booth.city, booth.country].filter(Boolean).join(', ');
+  const model = booth.machine_model || 'Classic analog';
+  return `${booth.name} - ${model} photo booth${location ? ` in ${location}` : ''}. Vintage photochemical booth for instant photo strips.`;
+}
+
 interface NearbyBooth {
   id: string;
   name: string;
@@ -126,7 +132,7 @@ export function NearbyBooths({
                   booth.ai_preview_url ||
                   '/placeholder-booth.svg'
                 }
-                alt={booth.name}
+                alt={generateBoothAltText(booth)}
                 fill
                 className="object-cover group-hover:scale-105 transition-transform duration-200"
                 sizes="(max-width: 768px) 50vw, 33vw"

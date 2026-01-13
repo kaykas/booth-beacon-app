@@ -8,6 +8,12 @@ import { formatDistance } from '@/lib/distanceUtils';
 import { BookmarkButton } from '@/components/BookmarkButton';
 import { VintageBoothPlaceholder } from './VintageBoothPlaceholder';
 
+function generateBoothAltText(booth: { name: string; city?: string; country?: string; machine_model?: string }) {
+  const location = [booth.city, booth.country].filter(Boolean).join(', ');
+  const model = booth.machine_model || 'Classic analog';
+  return `${booth.name} - ${model} photo booth${location ? ` in ${location}` : ''}. Vintage photochemical booth for instant photo strips.`;
+}
+
 interface BoothCardProps {
   booth: Booth;
   variant?: 'default' | 'compact' | 'featured';
@@ -55,7 +61,7 @@ export function BoothCard({
             ) : (
               <Image
                 src={imageUrl}
-                alt={booth.name}
+                alt={generateBoothAltText(booth)}
                 fill
                 className="object-cover"
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"

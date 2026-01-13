@@ -9,6 +9,46 @@ import { Footer } from '@/components/layout/Footer';
 import { createPublicServerClient } from '@/lib/supabase';
 import { getAllMachineModels, normalizeMachineModel } from '@/lib/machineData';
 import { generateBreadcrumbSchema, serializeSchema } from '@/lib/schema-utils';
+import { generateFAQPageSchema, FAQItem } from '@/lib/seo/structuredData';
+import { generateAIMetaTags, generateContentFreshnessSignals } from '@/lib/ai-meta-tags';
+
+const machinesFAQs: FAQItem[] = [
+  {
+    question: 'What are the different types of photo booth machines?',
+    answer: 'There are several types of analog photo booth machines including Photomaton, Photo-Me, Fotoautomat, and various vintage Japanese and American models. Each manufacturer produces machines with unique characteristics, photo quality, and aesthetic features.',
+  },
+  {
+    question: 'What is the difference between Photomaton and Photo-Me booths?',
+    answer: 'Photomaton and Photo-Me are different photo booth manufacturers. Photomaton is a historic French brand known for elegant European styling, while Photo-Me is a British company that operates photo booths worldwide. Both produce authentic analog photo strips, but with different machine designs and photo characteristics.',
+  },
+  {
+    question: 'Are analog photo booth machines still being manufactured?',
+    answer: 'Most manufacturers have stopped producing new analog photo booth machines, but many vintage machines from the 1960s to 1990s are still operational. Some companies continue to service and restore classic analog booths, keeping them running for enthusiasts.',
+  },
+  {
+    question: 'What makes analog photo booth photos special?',
+    answer: 'Analog photo booth photos are created using real photochemical processing with silver halide film and chemical development. This produces authentic photographs with unique characteristics like natural grain, rich colors, and a nostalgic aesthetic that cannot be replicated digitally.',
+  },
+  {
+    question: 'How do I identify which type of photo booth machine I am using?',
+    answer: 'You can identify a photo booth machine by looking for manufacturer branding on the exterior, the style of the booth design, and the format of the photo strips produced. Our machine directory provides detailed information and photos to help you identify different booth types.',
+  },
+];
+
+const aiTags = generateAIMetaTags({
+  summary: 'Comprehensive catalog of analog photo booth machine models and manufacturers including Photomaton, Photo-Me, Fotoautomat, and other classic machines. Features specifications, history, country of origin, and booth counts.',
+  keyConcepts: ['photo booth', 'analog photography', 'photo booth machines', 'Photomaton', 'Photo-Me', 'Fotoautomat', 'vintage photo booth', 'machine manufacturers'],
+  contentStructure: 'directory',
+  expertiseLevel: 'beginner',
+  perspective: 'commercial',
+  authority: 'industry-expert',
+});
+
+const freshnessTags = generateContentFreshnessSignals({
+  publishedDate: '2025-01-01T00:00:00Z',
+  modifiedDate: new Date().toISOString(),
+  revisedDate: new Date().toISOString().split('T')[0],
+});
 
 export const metadata: Metadata = {
   title: 'Photo Booth Machine Models | Booth Beacon',
@@ -28,6 +68,10 @@ export const metadata: Metadata = {
     description: 'Explore different photo booth machine models and manufacturers worldwide.',
     type: 'website',
     url: 'https://boothbeacon.org/machines',
+  },
+  other: {
+    ...aiTags,
+    ...freshnessTags,
   },
 };
 
@@ -139,6 +183,11 @@ export default async function MachinesPage() {
         id="machines-itemlist-schema"
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
+      />
+      <Script
+        id="machines-faq-schema"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(generateFAQPageSchema(machinesFAQs)) }}
       />
 
       <main className="min-h-screen bg-neutral-50">

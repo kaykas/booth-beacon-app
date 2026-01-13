@@ -24,7 +24,9 @@ export const revalidate = 3600;
 export async function generateMetadata(): Promise<Metadata> {
   return generateTourMetadata(
     'London',
-    "Explore London's classic photo booth scene. From East End pubs to West End arcades, discover the UK capital's finest analog photobooths."
+    "Explore London's classic photo booth scene. From East End pubs to West End arcades, discover the UK capital's finest analog photobooths.",
+    undefined,
+    'https://boothbeacon.org/tours/london'
   );
 }
 

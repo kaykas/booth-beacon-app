@@ -24,7 +24,9 @@ export const revalidate = 3600;
 export async function generateMetadata(): Promise<Metadata> {
   return generateTourMetadata(
     'San Francisco',
-    "Discover San Francisco's eclectic photo booth scene. From Mission murals to Haight-Ashbury vibes, explore the Bay Area's most unique analog photobooths."
+    "Discover San Francisco's eclectic photo booth scene. From Mission murals to Haight-Ashbury vibes, explore the Bay Area's most unique analog photobooths.",
+    undefined,
+    'https://boothbeacon.org/tours/san-francisco'
   );
 }
 

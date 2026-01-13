@@ -123,32 +123,24 @@ ALTER TABLE booth_reviews ENABLE ROW LEVEL SECURITY;
 
 -- Anyone can read approved reviews
 CREATE POLICY "Anyone can read approved reviews" ON booth_reviews
-    FOR SELECT
-    USING (status = 'approved');
+    FOR SELECT USING (status = 'approved');
 
 -- Authenticated users can read their own reviews (any status)
 CREATE POLICY "Users can read own reviews" ON booth_reviews
-    FOR SELECT
-    TO authenticated
-    USING (auth.uid() = user_id);
+    FOR SELECT USING (auth.uid() = user_id);
 
 -- Anyone can insert reviews (for anonymous reviews)
 CREATE POLICY "Anyone can create reviews" ON booth_reviews
-    FOR INSERT
-    WITH CHECK (true);
+    FOR INSERT WITH CHECK (true);
 
 -- Users can update their own pending reviews
 CREATE POLICY "Users can update own pending reviews" ON booth_reviews
-    FOR UPDATE
-    TO authenticated
-    USING (auth.uid() = user_id AND status = 'pending')
+    FOR UPDATE USING (auth.uid() = user_id AND status = 'pending')
     WITH CHECK (auth.uid() = user_id);
 
 -- Users can delete their own pending reviews
 CREATE POLICY "Users can delete own pending reviews" ON booth_reviews
-    FOR DELETE
-    TO authenticated
-    USING (auth.uid() = user_id AND status = 'pending');
+    FOR DELETE USING (auth.uid() = user_id AND status = 'pending');
 
 -- Create view for review statistics per booth
 CREATE OR REPLACE VIEW booth_review_stats AS

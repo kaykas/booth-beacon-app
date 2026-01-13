@@ -9,6 +9,22 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { createServerClient } from '@/lib/supabase';
 import { CityGuide } from '@/types';
+import { generateAIMetaTags, generateContentFreshnessSignals } from '@/lib/ai-meta-tags';
+
+const aiTags = generateAIMetaTags({
+  summary: 'Expert-curated city guides featuring optimized walking routes to the best analog photo booths. Includes estimated walking times, local tips, and hand-picked booth recommendations for tourists and enthusiasts.',
+  keyConcepts: ['photo booth', 'analog photography', 'city guides', 'photo booth tours', 'walking routes', 'curated recommendations', 'travel guide'],
+  contentStructure: 'directory',
+  expertiseLevel: 'beginner',
+  perspective: 'commercial',
+  authority: 'industry-expert',
+});
+
+const freshnessTags = generateContentFreshnessSignals({
+  publishedDate: '2025-01-01T00:00:00Z',
+  modifiedDate: new Date().toISOString(),
+  revisedDate: new Date().toISOString().split('T')[0],
+});
 
 export const metadata: Metadata = {
   title: 'City Guides - Curated Photo Booth Tours | Booth Beacon',
@@ -27,6 +43,10 @@ export const metadata: Metadata = {
       'Explore curated walking tours of the best analog photo booths in cities worldwide.',
     type: 'website',
     url: 'https://boothbeacon.org/guides',
+  },
+  other: {
+    ...aiTags,
+    ...freshnessTags,
   },
 };
 

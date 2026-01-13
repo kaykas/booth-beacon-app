@@ -24,7 +24,9 @@ export const revalidate = 3600;
 export async function generateMetadata(): Promise<Metadata> {
   return generateTourMetadata(
     'Berlin',
-    "Explore Berlin's vibrant photo booth scene. From Kreuzberg clubs to Mitte cafes, discover the city's best analog photobooths."
+    "Explore Berlin's vibrant photo booth scene. From Kreuzberg clubs to Mitte cafes, discover the city's best analog photobooths.",
+    undefined,
+    'https://boothbeacon.org/tours/berlin'
   );
 }
 

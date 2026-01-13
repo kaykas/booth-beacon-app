@@ -24,7 +24,9 @@ export const revalidate = 3600;
 export async function generateMetadata(): Promise<Metadata> {
   return generateTourMetadata(
     'New York',
-    "Discover New York City's iconic photo booth scene. From Brooklyn dive bars to Manhattan train stations, find the city's best analog photobooths."
+    "Discover New York City's iconic photo booth scene. From Brooklyn dive bars to Manhattan train stations, find the city's best analog photobooths.",
+    undefined,
+    'https://boothbeacon.org/tours/new-york'
   );
 }
 

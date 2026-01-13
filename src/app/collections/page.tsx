@@ -1,3 +1,4 @@
+import { Metadata } from 'next';
 import Link from 'next/link';
 import { MapPin, Globe, Camera } from 'lucide-react';
 import { Card } from '@/components/ui/card';
@@ -8,12 +9,80 @@ import {
   getCollectionStats,
 } from '@/lib/collections';
 import { Header } from '@/components/layout/Header';
+import { generateFAQPageSchema, generateBreadcrumbSchema, FAQItem } from '@/lib/seo/structuredData';
+import { generateAIMetaTags, generateContentFreshnessSignals } from '@/lib/ai-meta-tags';
 
-export const metadata = {
+const collectionsFAQs: FAQItem[] = [
+  {
+    question: 'How can I browse photo booths by location?',
+    answer: 'Use our Collections page to browse photo booths organized by country and city. Click on any country to see all cities with photo booths, or select a top city to view all booths in that location.',
+  },
+  {
+    question: 'Which cities have the most photo booths?',
+    answer: 'Major metropolitan areas typically have the highest concentration of analog photo booths. Our Top Cities section shows the cities with the most booths worldwide, including popular destinations like Berlin, Paris, Tokyo, and New York.',
+  },
+  {
+    question: 'How do I find photo booths in my country?',
+    answer: 'Scroll down to the Browse by Country section and select your country. You will see all cities within that country that have photo booths, along with booth counts for each location.',
+  },
+  {
+    question: 'What is the difference between Collections and City Guides?',
+    answer: 'Collections show our complete directory of all photo booths organized by location, with no curation. City Guides are curated routes and recommendations for the best photo booth experiences in specific cities, with suggested itineraries and tips.',
+  },
+];
+
+const aiTags = generateAIMetaTags({
+  summary: 'Geographic collections of analog photo booths organized by country and city. Explore photo booth locations worldwide with booth counts and direct links to local directories.',
+  keyConcepts: ['photo booth', 'analog photography', 'photo booth collections', 'country directory', 'city booths', 'geographic organization'],
+  contentStructure: 'directory',
+  expertiseLevel: 'beginner',
+  perspective: 'commercial',
+  authority: 'industry-expert',
+});
+
+const freshnessTags = generateContentFreshnessSignals({
+  publishedDate: '2025-01-01T00:00:00Z',
+  modifiedDate: new Date().toISOString(),
+  revisedDate: new Date().toISOString().split('T')[0],
+});
+
+export const metadata: Metadata = {
   title: 'Collections - Browse Booths by Location | Booth Beacon',
   description:
     'Discover photo booths organized by country and city. Browse our global collection of analog photo booths.',
+  openGraph: {
+    title: 'Collections - Browse Booths by Location | Booth Beacon',
+    description:
+      'Discover photo booths organized by country and city. Browse our global collection of analog photo booths.',
+    type: 'website',
+    url: 'https://boothbeacon.org/collections',
+    siteName: 'Booth Beacon',
+    images: [
+      {
+        url: '/og-default.png',
+        width: 1200,
+        height: 630,
+        alt: 'Browse photo booth collections by country and city on Booth Beacon',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Collections - Browse Booths by Location | Booth Beacon',
+    description:
+      'Discover photo booths organized by country and city. Browse our global collection of analog photo booths.',
+    images: ['/og-default.png'],
+  },
+  other: {
+    ...aiTags,
+    ...freshnessTags,
+  },
 };
+
+const collectionsBreadcrumbs = [
+  { name: 'Home', url: 'https://boothbeacon.org' },
+  { name: 'Collections', url: 'https://boothbeacon.org/collections' },
+];
 
 export default async function CollectionsPage() {
   const [countries, topCities, stats] = await Promise.all([
@@ -24,6 +93,18 @@ export default async function CollectionsPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(generateBreadcrumbSchema(collectionsBreadcrumbs)),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(generateFAQPageSchema(collectionsFAQs)),
+        }}
+      />
       <Header />
 
       <div className="container mx-auto px-4 py-12">
