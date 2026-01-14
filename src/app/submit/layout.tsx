@@ -46,7 +46,7 @@ export const metadata: Metadata = {
     title: 'Submit a Photo Booth | Add New Locations',
     description: 'Submit a new analog photo booth to our community directory. Help photo enthusiasts discover authentic vintage booths worldwide.',
     type: 'website',
-    url: 'https://boothbeacon.com/submit',
+    url: 'https://boothbeacon.org/submit',
     siteName: 'Booth Beacon',
     images: [
       {
@@ -65,7 +65,7 @@ export const metadata: Metadata = {
     images: ['/og-submit.png'],
   },
   alternates: {
-    canonical: 'https://boothbeacon.com/submit',
+    canonical: 'https://boothbeacon.org/submit',
   },
   robots: {
     index: true,

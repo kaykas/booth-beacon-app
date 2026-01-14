@@ -48,7 +48,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Interactive Photo Booth Map | Find Booths Near You',
     description: 'Find authentic analog photo booths near you with our interactive map. Search by location, view booth details, photos, and get directions.',
-    url: 'https://boothbeacon.com/map',
+    url: 'https://boothbeacon.org/map',
     siteName: 'Booth Beacon',
     images: [
       {
@@ -68,7 +68,7 @@ export const metadata: Metadata = {
     images: ['/og-map.png'],
   },
   alternates: {
-    canonical: 'https://boothbeacon.com/map',
+    canonical: 'https://boothbeacon.org/map',
   },
   robots: {
     index: true,

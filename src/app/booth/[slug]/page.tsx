@@ -244,17 +244,19 @@ export async function generateStaticParams() {
     const supabase = createPublicServerClient();
     const { data: booths, error } = await supabase
       .from('booths')
-      .select('slug, name, city, latitude')
+      .select('slug, name, city, latitude, data_source_type')
+      .eq('status', 'active')  // Only active booths (matches sitemap)
       .not('slug', 'is', null)
-      .neq('status', 'closed') // Exclude closed/invalid booths
-      .neq('name', 'N/A'); // Exclude invalid extraction failures
+      .neq('name', 'N/A')  // Exclude invalid extractions
+      .neq('name', '')
+      .neq('data_source_type', 'invalid_extraction');  // Exclude invalid extraction attempts
 
     if (error) {
       console.error('Error generating static params:', error);
       return [];
     }
 
-    // Filter out UUID-based slugs and thin content
+    // Filter out UUID-based slugs and thin content (matches sitemap logic)
     const validBooths = (booths || []).filter((booth) => {
       if (uuidPattern.test(booth.slug)) return false;
       return hasValidContent(booth);

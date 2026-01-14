@@ -49,7 +49,7 @@ export const metadata: Metadata = {
     title: 'Search Photo Booths | Find Vintage Machines Worldwide',
     description: 'Search 1000+ analog photo booths worldwide. Filter by location, machine model, features, and more.',
     type: 'website',
-    url: 'https://boothbeacon.com/search',
+    url: 'https://boothbeacon.org/search',
     siteName: 'Booth Beacon',
     images: [
       {
@@ -68,7 +68,7 @@ export const metadata: Metadata = {
     images: ['/og-search.png'],
   },
   alternates: {
-    canonical: 'https://boothbeacon.com/search',
+    canonical: 'https://boothbeacon.org/search',
   },
   robots: {
     index: true,

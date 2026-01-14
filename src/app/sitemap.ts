@@ -108,11 +108,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     const { data: booths, error } = await supabase
       .from('booths')
-      .select('slug, updated_at, status, name, city, latitude, longitude')
-      .eq('status', 'active')
+      .select('slug, updated_at, status, name, city, latitude, longitude, data_source_type')
+      .eq('status', 'active')  // Only active booths (excludes closed, pending, etc.)
       .not('slug', 'is', null)
       .neq('name', 'N/A')  // Exclude invalid extractions
-      .neq('name', '');
+      .neq('name', '')
+      .neq('data_source_type', 'invalid_extraction');  // Exclude invalid extraction attempts
 
     if (!error && booths) {
       // Filter out booths with UUID slugs or insufficient content
