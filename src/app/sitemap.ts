@@ -61,6 +61,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'weekly',
       priority: 0.8,
     },
+    {
+      url: baseUrl + '/recent',
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.9,
+    },
+    {
+      url: baseUrl + '/browse/all',
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.9,
+    },
   ];
 
   const tourCities = ['berlin', 'new-york', 'london', 'san-francisco'];
@@ -127,12 +139,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         return true;
       });
 
-      boothPages = validBooths.map((booth) => ({
-        url: baseUrl + '/booth/' + booth.slug,
-        lastModified: booth.updated_at ? new Date(booth.updated_at) : new Date(),
-        changeFrequency: 'weekly' as const,
-        priority: 0.7,
-      }));
+      // Calculate priorities based on recency (boost recently updated booths)
+      const now = new Date();
+      const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      const oneMonthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+      boothPages = validBooths.map((booth) => {
+        const updatedAt = booth.updated_at ? new Date(booth.updated_at) : new Date('2025-01-01');
+        const isRecent = updatedAt > oneWeekAgo;
+        const isModerate = updatedAt > oneMonthAgo;
+
+        return {
+          url: baseUrl + '/booth/' + booth.slug,
+          lastModified: booth.updated_at ? new Date(booth.updated_at) : new Date(),
+          changeFrequency: (isRecent ? 'daily' : isModerate ? 'weekly' : 'monthly') as const,
+          priority: isRecent ? 0.9 : isModerate ? 0.8 : 0.7, // Boost recent updates
+        };
+      });
     }
   } catch (error) {
     console.error('Error fetching booths for sitemap:', error);

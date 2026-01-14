@@ -46,7 +46,7 @@ export function RecentlyAdded() {
           .eq('is_operational', true)
           .gte('created_at', thirtyDaysAgoISO)
           .order('created_at', { ascending: false })
-          .limit(8);
+          .limit(12);
 
         if (queryError) {
           throw queryError;
