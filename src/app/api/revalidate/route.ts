@@ -1,5 +1,6 @@
 import { revalidatePath } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
+import { submitPage } from '@/lib/indexnow/client';
 
 /**
  * On-Demand Revalidation API Route
@@ -62,6 +63,12 @@ export async function GET(request: NextRequest) {
       revalidatePath('/');
       console.log('[Revalidate] Also revalidated homepage');
     }
+
+    // Notify search engines via IndexNow (non-blocking)
+    submitPage(path).catch((error) => {
+      console.error('IndexNow notification failed:', error);
+      // Non-critical, don't fail the request
+    });
 
     return NextResponse.json({
       success: true,
