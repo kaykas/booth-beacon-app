@@ -1,5 +1,9 @@
 import { createPublicServerClient } from '@/lib/supabase';
 
+// Enable ISR caching - regenerate RSS feed every hour
+export const revalidate = 3600;
+export const dynamic = 'force-static';
+
 export async function GET() {
   const baseUrl = 'https://boothbeacon.org';
   const supabase = createPublicServerClient();

@@ -2,6 +2,10 @@ import { MetadataRoute } from 'next';
 import { createPublicServerClient } from '@/lib/supabase';
 import { getAllMachineModelSlugs } from '@/lib/machineData';
 
+// Enable ISR (Incremental Static Regeneration) - regenerate every hour
+export const revalidate = 3600;
+export const dynamic = 'force-static';
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://boothbeacon.org';
   const supabase = createPublicServerClient();
