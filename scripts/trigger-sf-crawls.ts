@@ -72,7 +72,7 @@ async function main() {
     if (success) succeeded++;
     else failed++;
 
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    await new Promise(resolve => setTimeout(resolve, 15000));
   }
 
   console.log(`\n${'='.repeat(60)}`);

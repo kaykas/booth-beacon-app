@@ -64,7 +64,7 @@ async function main() {
       }
 
       // Stagger requests to avoid overwhelming the edge function
-      await new Promise(resolve => setTimeout(resolve, 2500));
+      await new Promise(resolve => setTimeout(resolve, 15000));
 
     } catch (e: any) {
       console.log(`  ❌ Error: ${e.message}`);
