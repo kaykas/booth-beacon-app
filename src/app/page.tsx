@@ -7,7 +7,6 @@ import { Badge } from '@/components/ui/badge';
 import { BoothCard } from '@/components/booth/BoothCard';
 import { BoothMap } from '@/components/booth/BoothMap';
 import { SearchBar } from '@/components/SearchBar';
-import { PhotoStrips } from '@/components/PhotoStrips';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { FoundersStory } from '@/components/home/FoundersStory';
@@ -588,9 +587,6 @@ export default async function Home() {
           </div>
         </div>
       </section>
-
-      {/* Photo Strips Gallery */}
-      <PhotoStrips />
 
       {/* Community Section */}
       <section className="py-16 px-4 bg-card warm-glow" data-ai-section="community" data-ai-type="call-to-action" data-ai-importance="medium">
